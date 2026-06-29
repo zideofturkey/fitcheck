@@ -1,0 +1,671 @@
+{
+  "info": {
+    "name": "fitcheck-mealtracker-service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "createMealLog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mealLogId\": \"00000000-0000-0000-0000-000000000000\",\n  \"mealDate\": \"2025-01-01\",\n  \"mealTime\": \"example\",\n  \"slotName\": \"example\",\n  \"logSource\": \"value\",\n  \"noteText\": \"example\",\n  \"totalCalories\": 0,\n  \"totalProtein\": 0,\n  \"totalCarbohydrates\": 0,\n  \"totalFat\": 0,\n  \"totalSugar\": 0,\n  \"totalFiber\": 0,\n  \"lines\": [\n    {}\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-logs",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-logs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getMealLog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-logs/:mealLogId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-logs",
+            ":mealLogId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listMealLogs",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-logs",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-logs"
+          ],
+          "query": [
+            {
+              "key": "fromDate",
+              "value": "Date"
+            },
+            {
+              "key": "toDate",
+              "value": "Date"
+            },
+            {
+              "key": "mealDate",
+              "value": "Date"
+            },
+            {
+              "key": "logSource",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateMealLog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mealTime\": \"example\",\n  \"slotName\": \"example\",\n  \"noteText\": \"example\",\n  \"totalCalories\": 0,\n  \"totalProtein\": 0,\n  \"totalCarbohydrates\": 0,\n  \"totalFat\": 0,\n  \"totalSugar\": 0,\n  \"totalFiber\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-logs/:mealLogId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-logs",
+            ":mealLogId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deleteMealLog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-logs/:mealLogId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-logs",
+            ":mealLogId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createMealLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mealLineId\": \"00000000-0000-0000-0000-000000000000\",\n  \"mealLogId\": \"00000000-0000-0000-0000-000000000000\",\n  \"itemName\": \"example\",\n  \"consumedGrams\": 0,\n  \"itemCalories\": 0,\n  \"itemProtein\": 0,\n  \"itemCarbohydrates\": 0,\n  \"itemFat\": 0,\n  \"itemSugar\": 0,\n  \"itemFiber\": 0,\n  \"lineSource\": \"value\",\n  \"sourceFoodItemId\": \"00000000-0000-0000-0000-000000000000\",\n  \"sourcePresetMealId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-lines",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-lines"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateMealLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"itemName\": \"example\",\n  \"consumedGrams\": 0,\n  \"itemCalories\": 0,\n  \"itemProtein\": 0,\n  \"itemCarbohydrates\": 0,\n  \"itemFat\": 0,\n  \"itemSugar\": 0,\n  \"itemFiber\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-lines/:mealLineId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-lines",
+            ":mealLineId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deleteMealLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-lines/:mealLineId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-lines",
+            ":mealLineId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listMealLines",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/meal-lines",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "meal-lines"
+          ],
+          "query": [
+            {
+              "key": "mealLogId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getDailyProgress",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/nutrition-days/daily-progress",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "nutrition-days",
+            "daily-progress"
+          ],
+          "query": [
+            {
+              "key": "targetDate",
+              "value": "Date"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getNutritionDay",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/nutrition-days/:nutritionDayId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "nutrition-days",
+            ":nutritionDayId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listNutritionDays",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/nutrition-days",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "nutrition-days"
+          ],
+          "query": [
+            {
+              "key": "fromDate",
+              "value": "Date"
+            },
+            {
+              "key": "toDate",
+              "value": "Date"
+            },
+            {
+              "key": "summaryDate",
+              "value": "Date"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getWeeklyAnalytics",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/analytics/weekly",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "analytics",
+            "weekly"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getMonthlyAnalytics",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/analytics/monthly",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "analytics",
+            "monthly"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "triggerDailyReminderCheck",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/scheduled/daily-reminder-check",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "scheduled",
+            "daily-reminder-check"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "triggerDailySummary",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/scheduled/daily-summary",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "scheduled",
+            "daily-summary"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListMealLog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistmeallog",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistmeallog"
+          ],
+          "query": [
+            {
+              "key": "mealDate",
+              "value": "Date"
+            },
+            {
+              "key": "logSource",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListMealLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistmealline",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistmealline"
+          ],
+          "query": [
+            {
+              "key": "mealLogId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListNutritionDay",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistnutritionday",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistnutritionday"
+          ],
+          "query": [
+            {
+              "key": "summaryDate",
+              "value": "Date"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

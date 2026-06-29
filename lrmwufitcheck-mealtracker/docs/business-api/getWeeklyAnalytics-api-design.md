@@ -1,0 +1,337 @@
+# Business API Design Specification - `Get Weeklyanalytics`
+
+A Business API is a set of logical actions centered around a main data object. These actions can range from simple CRUD operations to complex workflows that implement intricate business logic.
+
+While the term “API” traditionally refers to an interface that allows software systems to interact, in Mindbricks a Business API represents a broader concept. It encapsulates a business workflow around a data object, going beyond basic CRUD operations to include rich, internally coordinated actions that can be fully designed and customized.
+
+This document provides an in-depth explanation of the architectural design of the `getWeeklyAnalytics` Business API. It is intended to guide backend architects and developers in maintaining the current design. Additionally, frontend developers and frontend AI agents can use this document to understand how to properly consume this API on the client side.
+
+## Main Data Object and CRUD Operation
+
+The `getWeeklyAnalytics` Business API is designed to handle a `list` operation on the `NutritionDay` data object. This operation is performed under the specified conditions and may include additional, coordinated actions as part of the workflow.
+
+## API Description
+
+Returns the last 7 days of nutritionDay records plus computed analytics (averages, goal hit rates, calorie trend) via LIB.buildWeeklyAnalytics.
+
+## API Frontend Description By The Backend Architect
+
+Triggered on the Weekly Analytics page load. Shows: a 7-day calorie trend line chart, a per-macro average bar chart, and a goal-hit-rate table (% of days each macro stayed within target). weeklyAnalytics context value is written to the response for the chart data. Loading state: skeleton chart cards.
+
+## API Options
+
+- **Raise Api Event** : `false`
+  Indicates whether the Business API should emit an API-level event after successful execution. This is typically used for audit trails, analytics, or external integrations.
+  Note that the DB-Level events for `create`, `update` and `delete` operations will always be raised for internal reasons.
+
+- **Active Check** : ``Controls how the system checks if a record is active (not soft-deleted or inactive). Uses the`ApiCheckOption` to determine whether this is checked during the query or after fetching the instance.
+
+- **Read From Entity Cache** : `false`
+  If enabled, the API will attempt to read the target object from the Redis entity cache before querying the database. This can improve performance for frequently accessed records.
+
+## API Controllers
+
+A Mindbricks Business API can be accessed through multiple interfaces, including REST, gRPC, WebSocket, Kafka, or Cron. The controllers listed below map the business workflow to a specific interface, enabling consistent interaction regardless of the communication channel.
+
+### REST Controller
+
+The `getWeeklyAnalytics` Business API includes a REST controller that can be triggered via the following route:
+
+`/v1/analytics/weekly`
+
+By sending a request to this route using the service API address, you can execute this Business API. Parameters can be provided in multiple HTTP locations, including the URL path, URL query, request body, and request headers. Detailed information about these parameters is provided in the **Parameters** section.
+
+### MCP Tool
+
+REST controllers also expose the Business API as a tool in the MCP, making it accessible to AI agents. This `getWeeklyAnalytics` Business API will be registered as a tool on the MCP server within the service binding.
+
+## API Parameters
+
+The `getWeeklyAnalytics` Business API does not require any parameters to be provided from the controllers.
+
+## AUTH Configuration
+
+The **authentication and authorization configuration** defines the core access rules for the `getWeeklyAnalytics` Business API. These checks are applied **after parameter validation** and before executing the main business logic.
+
+While these settings cover the most common scenarios, more **fine-grained or conditional access control**—such as permissions based on object context, nested memberships, or custom workflows—should be implemented using explicit actions like `PermissionCheckAction`, `MembershipCheckAction`, or `ObjectPermissionCheckAction`.
+
+### Login Requirement
+
+This API **requires login** (`loginRequired = true`). Requests from non-logged-in users will return a **401 Unauthorized** error.
+Login is necessary **but not sufficient**, as additional role, permission, or other authorization checks may still apply.
+
+---
+
+### Ownership Checks
+
+---
+
+### Role and Permission Settings
+
+- **Absolute roles** (bypass all auth checks):  
+  Users with any of the following roles will bypass all authentication and authorization checks, including ownership, membership, and standard role/permission checks:  
+  `[superAdmin]`
+
+---
+
+## Select Clause
+
+Specifies which fields will be selected from the main data object during a `get` or `list` operation. Leave blank to select all properties. This applies only to `get` and `list` type APIs.",
+
+``
+
+## Where Clause
+
+Defines the criteria used to locate the target record(s) for the main operation. This is expressed as a query object and applies to `get`, `list`, `update`, and `delete` APIs. All API types except `list` are expected to affect a single record.
+
+_If nothing is configured for (get, update, delete) the id fields will be the select criteria._
+
+**Select By**:
+A list of fields that must be matched exactly as part of the WHERE clause. This is not a filter — it is a required selection rule. In single-record APIs (`get`, `update`, `delete`), it defines how a unique record is located. In `list` APIs, it scopes the results to only entries matching the given values.
+Note that `selectBy` fields will be ignored if `fullWhereClause` is set.
+
+_The business api configuration has no `selectBy` setting._
+
+**Full Where Clause**
+An MScript query expression that overrides all default WHERE clause logic. Use this for fully customized queries.
+When `fullWhereClause` is set, `selectBy` is ignored, however additional selects will still be applied to final where clause.
+
+The business api configuration has a `fullWhereClause` setting :
+
+```js
+{ userId: this.session.userId, summaryDate: { $gte: LIB.daysAgo(7) } }
+```
+
+**Additional Clauses**
+A list of conditionally applied MScript query fragments. These clauses are appended only if their conditions evaluate to true. If no condition is set it will be applied to the where clause directly.
+
+The business api configuration has no additionalClauses setting.
+
+**Actual Where Clause**
+This where clause is built using whereClause configuration (if set) and default business logic.
+
+```js
+runMScript(
+  () => ({
+    $and: [
+      { userId: this.session.userId, summaryDate: { $gte: LIB.daysAgo(7) } },
+      { userId: this.session?.userId },
+    ],
+  }),
+  { path: "services[3].businessLogic[12].whereClause.fullWhereClause" },
+);
+```
+
+## List Options
+
+Defines list-specific options including filtering logic, default sorting, and result customization for APIs that return multiple records.
+
+**List Sort By**
+Sort order definitions for the result set. Multiple fields can be provided with direction (asc/desc).
+
+[ summaryDate asc ]
+
+**List Group By**
+Grouping definitions for the result set. This is typically used for visual or report-based grouping.
+
+_The list is not grouped._
+
+**setAsRead**:
+An optional array of field-value mappings that will be updated after the read operation. Useful for marking items as read or viewed.
+
+No `setAsread` field-value pair is configured.
+
+**Permission Filter**
+Optional filter that applies permission constraints dynamically based on session or object roles. So that the list items are filtered by the user's OBAC or ABAC permissions.
+
+_Permission filter is not active at the moment. Follow Mindbricks updates to be able to use it._
+
+## Pagination Options
+
+Contains settings to configure pagination behavior for `list` APIs. Includes options like page size, offset, cursor support, and total count inclusion.
+
+## Business Logic Workflow
+
+### [1] Step : startBusinessApi
+
+Initializes context with request and session objects. Prepares internal structures for parameter handling and milestone execution.
+
+You can use the following settings to change some behavior of this step.
+`apiOptions`, `restSettings`, `grpcSettings`, `kafkaSettings`, `sseSettings`, `cronSettings`
+
+---
+
+### [2] Step : readParameters
+
+Reads request and Redis parameters, applies defaults, and writes them to context for downstream processing.
+
+You can use the following settings to change some behavior of this step.
+`customParameters`, `redisParameters`
+
+---
+
+### [3] Step : transposeParameters
+
+Transforms and normalizes parameters, derives dependent values, and reshapes inputs for the main list query.
+
+---
+
+### [4] Step : checkParameters
+
+Executes validation logic on required and custom parameters, enforcing business rules and cross-field consistency.
+
+---
+
+### [5] Step : checkBasicAuth
+
+Performs role-based access checks and applies dynamic membership or session-based restrictions.
+
+You can use the following settings to change some behavior of this step.
+`authOptions`
+
+---
+
+### [6] Step : buildWhereClause
+
+Constructs the main query WHERE clause and applies optional filters or scoped access controls.
+
+You can use the following settings to change some behavior of this step.
+`whereClause`
+
+---
+
+### [7] Step : mainListOperation
+
+Executes the paginated database query, retrieves the list, and stores results in context for enrichment.
+
+You can use the following settings to change some behavior of this step.
+`selectClause`, `listOptions`, `paginationOptions`
+
+---
+
+### [8] Action : buildWeeklyAnalyticsData
+
+**Action Type**: `FunctionCallAction`
+
+Computes weekly averages, goal hit rates, and calorie trend
+
+```js
+class Api {
+  async buildWeeklyAnalyticsData() {
+    try {
+      return runMScript(() => LIB.buildWeeklyAnalytics(this.session.userId), {
+        path: "services[3].businessLogic[12].actions.functionCallActions[0].callScript",
+      });
+    } catch (err) {
+      console.error(
+        "Error in FunctionCallAction buildWeeklyAnalyticsData:",
+        err,
+      );
+      throw err;
+    }
+  }
+}
+```
+
+---
+
+### [9] Step : buildOutput
+
+Assembles the list response, sanitizes sensitive fields, applies transformations, and injects extra context if needed.
+
+---
+
+### [10] Step : sendResponse
+
+Sends the paginated list to the client through the controller.
+
+---
+
+### [11] Step : raiseApiEvent
+
+Triggers optional post-workflow events, such as Kafka messages, logs, or system notifications.
+
+---
+
+## Rest Usage
+
+### Rest Client Parameters
+
+Client parameters are the api parameters that are visible to client and will be populated by the client.
+Note that some api parameters are not visible to client because they are populated by internal system, session, calculation or joint sources.
+The `getWeeklyAnalytics` api has got no visible parameters.
+
+### REST Request
+
+To access the api you can use the **REST** controller with the path **GET /v1/analytics/weekly**
+
+```js
+axios({
+  method: "GET",
+  url: "/v1/analytics/weekly",
+  data: {},
+  params: {},
+});
+```
+
+### REST Response
+
+The API response is encapsulated within a JSON envelope. Successful operations return an HTTP status code of 200 for get, list, update, or delete requests, and 201 for create requests. Each successful response includes a `"status": "OK"` property. For error handling, refer to the "Error Response" section.
+
+Following JSON represents the most comprehensive form of the **`nutritionDays`** object in the respones. However, some properties may be omitted based on the object's internal logic.
+
+```json
+{
+  "status": "OK",
+  "statusCode": "200",
+  "elapsedMs": 126,
+  "ssoTime": 120,
+  "source": "db",
+  "cacheKey": "hexCode",
+  "userId": "ID",
+  "sessionId": "ID",
+  "requestId": "ID",
+  "dataName": "nutritionDays",
+  "method": "GET",
+  "action": "list",
+  "appVersion": "Version",
+  "rowCount": "\"Number\"",
+  "nutritionDays": [
+    {
+      "id": "ID",
+      "userId": "ID",
+      "summaryDate": "Date",
+      "consumedCalories": "Double",
+      "consumedProtein": "Double",
+      "consumedCarbohydrates": "Double",
+      "consumedFat": "Double",
+      "consumedSugar": "Double",
+      "consumedFiber": "Double",
+      "targetCalories": "Double",
+      "targetProtein": "Double",
+      "targetCarbohydrates": "Double",
+      "targetFat": "Double",
+      "targetSugar": "Double",
+      "targetFiber": "Double",
+      "exceededMetrics": "String",
+      "mealCount": "Integer",
+      "recordVersion": "Integer",
+      "createdAt": "Date",
+      "updatedAt": "Date",
+      "_owner": "ID",
+      "isActive": true
+    },
+    {},
+    {}
+  ],
+  "paging": {
+    "pageNumber": "Number",
+    "pageRowCount": "NUmber",
+    "totalRowCount": "Number",
+    "pageCount": "Number"
+  },
+  "filters": [],
+  "uiPermissions": [],
+  "weeklyAnalytics": "Object"
+}
+```

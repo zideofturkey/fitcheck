@@ -1,0 +1,82 @@
+
+syntax = "proto3";
+
+package mealTracker;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message mealLog {
+    string id = 1;
+    string userId = 2;
+    google.protobuf.Timestamp mealDate = 3;
+    string mealTime = 4;
+    string slotName = 5;
+    int32 logSource = 6;
+    string noteText = 7;
+    double totalCalories = 8;
+    double totalProtein = 9;
+    double totalCarbohydrates = 10;
+    double totalFat = 11;
+    double totalSugar = 12;
+    double totalFiber = 13;
+}
+message mealLine {
+    string id = 1;
+    string userId = 2;
+    string mealLogId = 3;
+    string sourceFoodItemId = 4;
+    string sourcePresetMealId = 5;
+    string itemName = 6;
+    double consumedGrams = 7;
+    double itemCalories = 8;
+    double itemProtein = 9;
+    double itemCarbohydrates = 10;
+    double itemFat = 11;
+    double itemSugar = 12;
+    double itemFiber = 13;
+    int32 lineSource = 14;
+}
+message nutritionDay {
+    string id = 1;
+    string userId = 2;
+    google.protobuf.Timestamp summaryDate = 3;
+    double consumedCalories = 4;
+    double consumedProtein = 5;
+    double consumedCarbohydrates = 6;
+    double consumedFat = 7;
+    double consumedSugar = 8;
+    double consumedFiber = 9;
+    double targetCalories = 10;
+    double targetProtein = 11;
+    double targetCarbohydrates = 12;
+    double targetFat = 13;
+    double targetSugar = 14;
+    double targetFiber = 15;
+    string exceededMetrics = 16;
+    int32 mealCount = 17;
+}
+
+
+
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service mealTrackerService {
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}
