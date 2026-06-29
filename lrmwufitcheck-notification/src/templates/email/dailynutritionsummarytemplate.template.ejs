@@ -1,0 +1,30 @@
+<p>Merhaba <strong><%= data.nutritionDay && data.userProfile && data.userProfile.fullName %></strong>,</p>
+
+<p><strong><%= data.nutritionDay && new Date(data.nutritionDay.summaryDate).toLocaleDateString('tr-TR') %></strong> tarihli günlük beslenme özetiniz aşağıda yer almaktadır. Bugün toplam <strong><%= data.nutritionDay && data.nutritionDay.mealCount %></strong> öğün kaydettiniz.</p>
+
+<table style="border-collapse:collapse;width:100%;">
+  <thead>
+    <tr style="background:#e8f5e9;">
+      <th style="padding:8px;text-align:left;">Besin</th>
+      <th style="padding:8px;text-align:right;">Tüketilen</th>
+      <th style="padding:8px;text-align:right;">Hedef</th>
+      <th style="padding:8px;text-align:center;">Durum</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="padding:8px;">Kalori (kcal)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedCalories %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetCalories %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('calories') ? '🔴 Aşıldı' : '✅' %></td></tr>
+    <tr><td style="padding:8px;">Protein (g)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedProtein %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetProtein %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('protein') ? '🔴 Aşıldı' : '✅' %></td></tr>
+    <tr><td style="padding:8px;">Karbonhidrat (g)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedCarbohydrates %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetCarbohydrates %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('carbohydrates') ? '🔴 Aşıldı' : '✅' %></td></tr>
+    <tr><td style="padding:8px;">Yağ (g)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedFat %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetFat %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('fat') ? '🔴 Aşıldı' : '✅' %></td></tr>
+    <tr><td style="padding:8px;">Şeker (g)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedSugar %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetSugar %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('sugar') ? '🔴 Aşıldı' : '✅' %></td></tr>
+    <tr><td style="padding:8px;">Lif (g)</td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.consumedFiber %></td><td style="padding:8px;text-align:right;"><%= data.nutritionDay && data.nutritionDay.targetFiber %></td><td style="padding:8px;text-align:center;"><%= data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.includes('fiber') ? '🔴 Aşıldı' : '✅' %></td></tr>
+  </tbody>
+</table>
+
+<% if (data.nutritionDay && data.nutritionDay.exceededMetrics && data.nutritionDay.exceededMetrics.length > 0) { %>
+<p style="color:#c62828;">⚠️ Bugün bazı hedeflerinizi aştınız: <strong><%= data.nutritionDay.exceededMetrics.join(', ') %></strong>. Yarın daha dengeli bir beslenme hedefleyebilirsiniz.</p>
+<% } else { %>
+<p style="color:#2e7d32;">🎉 Tebrikler! Bugün tüm hedefleriniz dahilinde kaldınız.</p>
+<% } %>
+
+<p>Sağlıklı günler dileriz,<br/>FitCheck Ekibi</p>

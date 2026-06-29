@@ -1,0 +1,19 @@
+<% let expireTimeStr = null; 
+if (expireTime < 60)
+  expireTimeStr = `${expireTime} second(s)`
+else if (expireTime < 3600)
+  expireTimeStr = `${Math.floor(expireTime/60)} minute(s)`
+else if (expireTime < 86400)
+  expireTimeStr = `${Math.floor(expireTime/3600)} hour(s)`
+else 
+  expireTimeStr = `${Math.floor(expireTime/86400)} day(s)`
+%>
+<% if (verificationType == "byLink") { %>
+Please verify your mobile number by clicking the button below.(Index <%= codeIndex %>).  This link will expire in <%-expireTimeStr %>.
+https://web.mindbricks.com/test-area/verify-mobile?code=<%= secretCode %>&userId=<%= userId %>
+If you did not create an account, you can ignore this email.
+<% } else { %>
+Please verify your mobile number by using the code (Index <%= codeIndex %>) below.  This code will expire in <%-expireTimeStr %>.
+<%= secretCode %>
+If you did not create an account, you can ignore this email.
+<% } %>

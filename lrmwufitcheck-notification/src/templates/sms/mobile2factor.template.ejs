@@ -1,0 +1,19 @@
+<% let expireTimeStr = null; 
+if (expireTime < 60)
+  expireTimeStr = `${expireTime} second(s)`
+else if (expireTime < 3600)
+  expireTimeStr = `${Math.floor(expireTime/60)} minute(s)`
+else if (expireTime < 86400)
+  expireTimeStr = `${Math.floor(expireTime/3600)} hour(s)`
+else 
+  expireTimeStr = `${Math.floor(expireTime/86400)} day(s)`
+%>
+<% if (verificationType == "byLink") { %>
+Please complete your login by clicking the link below.(Index <%= codeIndex %>).  This link will expire in <%-expireTimeStr %>.
+https://web.mindbricks.com/test-area/mobile-2factor?code=<%= secretCode %>&userId=<%= userId %>
+If you did not try to login, you can ignore this message.
+<% } else { %>
+Please complete your login by using the code (Index <%= codeIndex %>) below.  This code will expire in <%-expireTimeStr %>.
+<%= secretCode %>
+If you did not try to login, you can ignore this message.
+<% } %>

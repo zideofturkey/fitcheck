@@ -1,0 +1,11 @@
+Merhaba,
+
+<p>FitCheck platformuna katılmak için davet edildiniz. Aşağıdaki bağlantıya tıklayarak kaydınızı tamamlayabilirsiniz:</p>
+
+<p><a href="<%= data.inviteLink && data.inviteLink.id ? 'https://app.fitcheck.io/register?code=' + data.inviteLink.inviteCode : '#' %>">Kayıt Bağlantısı</a></p>
+
+<p>Davet kodunuz: <strong><%= data.inviteLink && data.inviteLink.inviteCode %></strong></p>
+<% if (data.inviteLink && data.inviteLink.usageMode === 'singleUse') { %><p>Bu bağlantı tek kullanımlıktır.</p><% } else { %><p>Bu bağlantı sınırlı sayıda kullanılabilir (en fazla <%= data.inviteLink && data.inviteLink.usageLimit %> kez).</p><% } %>
+<% if (data.inviteLink && data.inviteLink.expiresAt) { %><p>Son kullanım tarihi: <strong><%= new Date(data.inviteLink.expiresAt).toLocaleDateString('tr-TR') %></strong></p><% } %>
+
+<p>İyi günler dileriz,<br/>FitCheck Ekibi</p>
