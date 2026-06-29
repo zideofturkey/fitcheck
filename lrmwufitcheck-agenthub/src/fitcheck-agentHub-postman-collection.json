@@ -1,0 +1,528 @@
+{
+  "info": {
+    "name": "fitcheck-agenthub-service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "getAgentOverride",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentoverride/:sys_agentOverrideId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentoverride",
+            ":sys_agentOverrideId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAgentOverrides",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentoverrides",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentoverrides"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createAgentOverride",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sys_agentOverrideId\": \"00000000-0000-0000-0000-000000000000\",\n  \"agentName\": \"example\",\n  \"provider\": \"example\",\n  \"model\": \"example\",\n  \"systemPrompt\": \"Text\",\n  \"temperature\": 0,\n  \"maxTokens\": 0,\n  \"responseFormat\": \"example\",\n  \"selectedTools\": {},\n  \"guardrails\": {},\n  \"enabled\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentoverride",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentoverride"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateAgentOverride",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"provider\": \"example\",\n  \"model\": \"example\",\n  \"systemPrompt\": \"Text\",\n  \"temperature\": 0,\n  \"maxTokens\": 0,\n  \"responseFormat\": \"example\",\n  \"selectedTools\": {},\n  \"guardrails\": {},\n  \"enabled\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentoverride/:sys_agentOverrideId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentoverride",
+            ":sys_agentOverrideId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deleteAgentOverride",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentoverride/:sys_agentOverrideId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentoverride",
+            ":sys_agentOverrideId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listToolCatalog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/toolcatalog",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "toolcatalog"
+          ],
+          "query": [
+            {
+              "key": "serviceName",
+              "value": "String"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getToolCatalogEntry",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/toolcatalogentry/:sys_toolCatalogId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "toolcatalogentry",
+            ":sys_toolCatalogId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAgentExecutions",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentexecutions",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentexecutions"
+          ],
+          "query": [
+            {
+              "key": "agentName",
+              "value": "String"
+            },
+            {
+              "key": "agentType",
+              "value": "Enum"
+            },
+            {
+              "key": "source",
+              "value": "Enum"
+            },
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "status",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAgentExecution",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentexecution/:sys_agentExecutionId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentexecution",
+            ":sys_agentExecutionId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAgentChats",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentchats",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentchats"
+          ],
+          "query": [
+            {
+              "key": "agentName",
+              "value": "String"
+            },
+            {
+              "key": "userId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAgentChatMessages",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/agentchatmessages/:sys_agentConversationId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "agentchatmessages",
+            ":sys_agentConversationId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListSys_agentOverride",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistsys_agentoverride",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistsys_agentoverride"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListSys_agentExecution",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistsys_agentexecution",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistsys_agentexecution"
+          ],
+          "query": [
+            {
+              "key": "agentName",
+              "value": "String"
+            },
+            {
+              "key": "agentType",
+              "value": "Enum"
+            },
+            {
+              "key": "source",
+              "value": "Enum"
+            },
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "status",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListSys_toolCatalog",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistsys_toolcatalog",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistsys_toolcatalog"
+          ],
+          "query": [
+            {
+              "key": "serviceName",
+              "value": "String"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListSys_agentConversation",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistsys_agentconversation",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistsys_agentconversation"
+          ],
+          "query": [
+            {
+              "key": "agentName",
+              "value": "String"
+            },
+            {
+              "key": "userId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+
+syntax = "proto3";
+
+package agentHub;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message sys_agentOverride {
+    string id = 1;
+    string agentName = 2;
+    string provider = 3;
+    string model = 4;
+    string systemPrompt = 5;
+    double temperature = 6;
+    int32 maxTokens = 7;
+    string responseFormat = 8;
+    google.protobuf.Struct selectedTools = 9;
+    google.protobuf.Struct guardrails = 10;
+    bool enabled = 11;
+    string updatedBy = 12;
+}
+message sys_agentExecution {
+    string id = 1;
+    string agentName = 2;
+    int32 agentType = 3;
+    int32 source = 4;
+    string userId = 5;
+    google.protobuf.Struct input = 6;
+    google.protobuf.Struct output = 7;
+    int32 toolCalls = 8;
+    google.protobuf.Struct tokenUsage = 9;
+    int32 durationMs = 10;
+    int32 status = 11;
+    string error = 12;
+}
+message sys_toolCatalog {
+    string id = 1;
+    string toolName = 2;
+    string serviceName = 3;
+    string description = 4;
+    google.protobuf.Struct parameters = 5;
+    google.protobuf.Timestamp lastRefreshed = 6;
+}
+message sys_agentConversation {
+    string id = 1;
+    string sessionId = 2;
+    string agentName = 3;
+    string userId = 4;
+    google.protobuf.Struct messages = 5;
+    int32 messageCount = 6;
+}
+
+
+
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service agentHubService {
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}

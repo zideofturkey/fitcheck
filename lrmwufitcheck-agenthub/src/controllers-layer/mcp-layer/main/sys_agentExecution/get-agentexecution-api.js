@@ -1,0 +1,144 @@
+const { GetAgentExecutionManager } = require("apiLayer");
+const { z } = require("zod");
+
+const AgentHubServiceMcpController = require("../../AgentHubServiceMcpController");
+
+class GetAgentExecutionMcpController extends AgentHubServiceMcpController {
+  constructor(params) {
+    super("getAgentExecution", "getagentexecution", params);
+    this.dataName = "sys_agentExecution";
+    this.crudType = "get";
+  }
+
+  createApiManager() {
+    return new GetAgentExecutionManager(this.request, "mcp");
+  }
+
+  static getOutputSchema() {
+    return z
+      .object({
+        status: z.string(),
+        sys_agentExecution: z
+          .object({
+            id: z
+              .string()
+              .uuid()
+              .describe("The unique primary key of the data object as UUID"),
+            agentName: z.string().max(255).describe("Agent that was executed."),
+            agentType: z
+              .enum(["design", "dynamic"])
+              .describe("Whether this was a design-time or dynamic agent."),
+            source: z
+              .enum(["rest", "sse", "kafka", "agent"])
+              .describe("How the agent was triggered."),
+            userId: z
+              .string()
+              .uuid()
+              .optional()
+              .nullable()
+              .describe("User who triggered the execution."),
+            input: z
+              .object()
+              .optional()
+              .nullable()
+              .describe("Request input (truncated for large payloads)."),
+            output: z
+              .object()
+              .optional()
+              .nullable()
+              .describe("Response output (truncated for large payloads)."),
+            toolCalls: z
+              .number()
+              .int()
+              .optional()
+              .nullable()
+              .describe("Number of tool calls made during execution."),
+            tokenUsage: z
+              .object()
+              .optional()
+              .nullable()
+              .describe("Token usage: { prompt, completion, total }."),
+            durationMs: z
+              .number()
+              .int()
+              .optional()
+              .nullable()
+              .describe("Execution time in milliseconds."),
+            status: z
+              .enum(["success", "error", "timeout"])
+              .describe("Execution status."),
+            error: z
+              .string()
+              .optional()
+              .nullable()
+              .describe("Error message if execution failed."),
+          })
+          .describe(
+            "Agent execution log. Records each agent invocation with input, output, and performance metrics.",
+          ),
+      })
+      .describe("The response object of the crud route");
+  }
+
+  static getInputScheme() {
+    return {
+      // Always include accessToken - it authenticates the request on behalf of the logged-in user
+      accessToken: z
+        .string()
+        .optional()
+        .describe(
+          "The access token of the logged-in user. Pass this to authenticate API calls on behalf of the user. Required for protected routes, optional for public routes.",
+        ),
+      sys_agentExecutionId: z
+        .string()
+        .uuid()
+        .describe(
+          "This id paremeter is used to query the required data object.",
+        ),
+    };
+  }
+}
+
+module.exports = (headers) => {
+  const requiredRoles = [];
+  const requiredRolesMarker =
+    requiredRoles.length > 0
+      ? ` [MBX_REQUIRED_ROLES:${requiredRoles.join("|")}]`
+      : "";
+  return {
+    name: "getAgentExecution",
+    description: "" + requiredRolesMarker,
+    requiredRoles,
+    parameters: GetAgentExecutionMcpController.getInputScheme(),
+    controller: async (mcpParams) => {
+      console.log("Mcp Request Received", mcpParams);
+      mcpParams.headers = headers;
+      const controller = new GetAgentExecutionMcpController(mcpParams);
+      try {
+        const result = await controller.processRequest();
+        //return GetAgentExecutionMcpController.getOutputSchema().parse(result);
+        console.log("Mcp Response Ready", JSON.stringify(result));
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result),
+            },
+          ],
+        };
+      } catch (err) {
+        console.log("Mcp Error Occured", err.message);
+        //**errorLog
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text",
+              text: `Error: ${err.message}`,
+            },
+          ],
+        };
+      }
+    },
+  };
+};
