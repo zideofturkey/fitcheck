@@ -2,7 +2,7 @@ const { DataTypes, Op } = require("sequelize");
 
 /**
  * Schema definition for aiCandidateLine
- * Generated: 2026-06-29T11:47:54.837Z
+ * Generated: 2026-06-29T13:46:11.008Z
  */
 const schemaDef = {
   objectName: "aiCandidateLine",

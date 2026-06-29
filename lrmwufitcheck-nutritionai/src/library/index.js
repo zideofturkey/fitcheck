@@ -5,6 +5,8 @@ module.exports = {
   recalculateMealTotals: require("./functions/recalculateMealTotals.js"),
   recalculateLineNutrition: require("./functions/recalculateLineNutrition.js"),
   per100g: require("./functions/per100g.js"),
+  callGeminiParseMeal: require("./functions/callGeminiParseMeal.js"),
+  callGeminiAskNutrition: require("./functions/callGeminiAskNutrition.js"),
   m2mCreateAiSession: require("./edge/m2mCreateAiSession.js"),
   m2mBulkCreateAiSession: require("./edge/m2mBulkCreateAiSession.js"),
   m2mUpdateAiSessionById: require("./edge/m2mUpdateAiSessionById.js"),

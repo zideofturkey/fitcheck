@@ -5,4 +5,6 @@ module.exports = {
   recalculateMealTotals: require("./recalculateMealTotals.js"),
   recalculateLineNutrition: require("./recalculateLineNutrition.js"),
   per100g: require("./per100g.js"),
+  callGeminiParseMeal: require("./callGeminiParseMeal.js"),
+  callGeminiAskNutrition: require("./callGeminiAskNutrition.js"),
 };

@@ -1,7 +1,7 @@
 # Service Design Specification
 
 **fitcheck-nutritionai-service** documentation
-**Version:** `1.0.12`
+**Version:** `1.0.22`
 
 ## Scope
 
@@ -855,6 +855,50 @@ module.exports = function per100g(nutritionValueForGrams, grams) {
     return 0;
   }
   return Math.round((nutritionValueForGrams / grams) * 100 * 100) / 100;
+};
+```
+
+#### callGeminiParseMeal.js
+
+```js
+/**
+ * callGeminiParseMeal
+ * NOTE: This library function is no longer used for the Gemini API call.
+ * The googleGemini integration is now declared as an IntegrationAction named
+ * `callGeminiParseMeal` directly on the parseMeal Business API, which is the
+ * correct Mindbricks pattern for wiring AI integrations.
+ *
+ * The prompt is built using LIB.parseMealWithAI.buildFullPromptText(...)
+ * directly in the IntegrationAction's `prompt` parameter.
+ *
+ * @deprecated Use the IntegrationAction on parseMeal instead.
+ */
+module.exports = async function callGeminiParseMeal(prompt) {
+  throw new Error(
+    "callGeminiParseMeal library function is deprecated. Use the googleGemini IntegrationAction declared on the parseMeal Business API.",
+  );
+};
+```
+
+#### callGeminiAskNutrition.js
+
+```js
+/**
+ * callGeminiAskNutrition
+ * NOTE: This library function is no longer used for the Gemini API call.
+ * The googleGemini integration is now declared as an IntegrationAction named
+ * `callGeminiAskNutrition` directly on the askNutritionQuestion Business API,
+ * which is the correct Mindbricks pattern for wiring AI integrations.
+ *
+ * The prompt is built using LIB.answerNutritionQuestion.buildGuidancePromptText(...)
+ * directly in the IntegrationAction's `prompt` parameter.
+ *
+ * @deprecated Use the IntegrationAction on askNutritionQuestion instead.
+ */
+module.exports = async function callGeminiAskNutrition(prompt) {
+  throw new Error(
+    "callGeminiAskNutrition library function is deprecated. Use the googleGemini IntegrationAction declared on the askNutritionQuestion Business API.",
+  );
 };
 ```
 

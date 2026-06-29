@@ -487,9 +487,9 @@ class ParseMealManager extends AiSessionManager {
   }
 
   /***********************************************************************
-   ** Calls Google Gemini gemini-2.5-flash to parse the Turkish meal
-   ** description into structured nutrition JSON. Returns the raw text
-   ** response to be parsed by the next FunctionCallAction.
+   ** Calls Google Gemini gemini-2.5-flash via the declared integration to
+   ** parse the Turkish meal description. Result is stored as
+   ** geminiMealRawResponse.
    ***********************************************************************/
   async callGeminiParseMeal() {
     // Integration Action for googleGemini
@@ -497,7 +497,6 @@ class ParseMealManager extends AiSessionManager {
     const input = {
       config: runMScript(
         () => ({
-          apiKey: process.env.GOOGLE_GEMINI_API_KEY,
           model: "gemini-2.5-flash",
           temperature: 0.3,
           maxOutputTokens: 2000,

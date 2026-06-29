@@ -2,7 +2,7 @@
 
 ## fitcheck-nutritionai-service
 
-**Version:** `1.0.12`
+**Version:** `1.0.22`
 
 Processes natural-language Turkish meal descriptions into structured nutrition intents, answers personalized nutrition questions with live meal-log and macro-target context, and maintains operational traceability for all AI parsing and guidance interactions.
 

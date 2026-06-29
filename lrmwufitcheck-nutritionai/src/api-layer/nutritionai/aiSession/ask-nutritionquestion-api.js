@@ -389,9 +389,9 @@ class AskNutritionQuestionManager extends AiSessionManager {
   }
 
   /***********************************************************************
-   ** Calls Google Gemini gemini-2.5-flash to answer the Turkish nutrition
-   ** question using user macro targets and meal context as grounding data.
-   ** Returns the raw text response.
+   ** Calls Google Gemini gemini-2.5-flash via the declared integration to
+   ** answer the Turkish nutrition question. Result is stored as
+   ** geminiGuidanceRawResponse.
    ***********************************************************************/
   async callGeminiAskNutrition() {
     // Integration Action for googleGemini
@@ -399,7 +399,6 @@ class AskNutritionQuestionManager extends AiSessionManager {
     const input = {
       config: runMScript(
         () => ({
-          apiKey: process.env.GOOGLE_GEMINI_API_KEY,
           model: "gemini-2.5-flash",
           temperature: 0.4,
           maxOutputTokens: 1000,

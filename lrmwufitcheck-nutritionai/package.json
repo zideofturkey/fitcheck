@@ -1,6 +1,6 @@
 {
   "name": "fitcheck-nutritionai-service",
-  "version": "1.0.12",
+  "version": "1.0.22",
   "main": "index.js",
   "directories": {
     "doc": "docs"
