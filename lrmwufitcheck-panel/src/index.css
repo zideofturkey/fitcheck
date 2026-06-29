@@ -1,0 +1,110 @@
+@tailwind base; @tailwind components; @tailwind utilities; @layer base { html {
+@apply scroll-smooth; } body { @apply bg-gray-50 text-gray-900 dark:bg-gray-900
+dark:text-gray-100; } /* Custom scrollbar */ ::-webkit-scrollbar { @apply w-2; }
+::-webkit-scrollbar-track { @apply bg-gray-100 dark:bg-gray-800; }
+::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-gray-400 dark:bg-gray-500; } }
+@layer components { /* Button variants */ .btn { @apply inline-flex items-center
+justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all
+duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+disabled:opacity-50 disabled:cursor-not-allowed; } .btn-primary { @apply btn
+bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500; }
+.btn-secondary { @apply btn bg-gray-200 text-gray-900 hover:bg-gray-300
+focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+} .btn-outline { @apply btn border border-gray-300 text-gray-700
+hover:bg-gray-50 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300
+dark:hover:bg-gray-800; } .btn-danger { @apply btn bg-red-600 text-white
+hover:bg-red-700 focus:ring-red-500; } .btn-ghost { @apply btn text-gray-600
+hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800; } /* Input styles
+*/ .input { @apply w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg
+bg-white dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2
+focus:ring-primary-500 focus:border-transparent placeholder:text-gray-400
+dark:placeholder:text-gray-500 transition-colors duration-200; } .input-error {
+@apply input border-red-500 focus:ring-red-500; } /* Phone input styles */
+.phone-input-container { @apply w-full flex items-center gap-2 px-3 py-2 text-sm
+border border-gray-300 rounded-lg bg-white dark:bg-gray-800 dark:border-gray-600
+transition-colors duration-200; } .phone-input-container:focus-within { @apply
+ring-2 ring-primary-500 border-transparent; } .phone-input-container
+.PhoneInputInput { @apply bg-transparent border-none outline-none flex-1 text-sm
+text-gray-900 dark:text-gray-100 placeholder:text-gray-400
+dark:placeholder:text-gray-500; } .phone-input-container .PhoneInputCountry {
+@apply flex items-center gap-1; } .phone-input-container
+.PhoneInputCountrySelect { @apply bg-transparent border-none outline-none
+text-sm cursor-pointer; } .phone-input-container .PhoneInputCountryIcon { @apply
+w-5 h-auto; } .phone-input-error { @apply border-red-500; }
+.phone-input-error:focus-within { @apply ring-red-500; } .phone-input-disabled {
+@apply bg-gray-50 dark:bg-gray-700 cursor-not-allowed opacity-60; } /* Card
+styles */ .card { @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border
+border-gray-200 dark:border-gray-700; } .card-hover { @apply card
+hover:shadow-md transition-shadow duration-200; } /* Label styles */ .label {
+@apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5; } /*
+Error text */ .error-text { @apply text-sm text-red-600 dark:text-red-400 mt-1;
+} /* Link styles */ .link { @apply text-primary-600 hover:text-primary-700
+dark:text-primary-400 dark:hover:text-primary-300 underline-offset-2
+hover:underline; } /* Chat bubble styles */ .chat-bubble { @apply max-w-[80%]
+px-4 py-3 rounded-2xl animate-fade-in; } .chat-bubble-user { @apply chat-bubble
+bg-primary-600 text-white ml-auto rounded-br-md; } .chat-bubble-assistant {
+@apply chat-bubble bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100
+mr-auto rounded-bl-md; } /* Badge styles */ .badge { @apply inline-flex
+items-center px-2.5 py-0.5 rounded-full text-xs font-medium; } .badge-primary {
+@apply badge bg-primary-100 text-primary-800 dark:bg-primary-900
+dark:text-primary-200; } .badge-success { @apply badge bg-green-100
+text-green-800 dark:bg-green-900 dark:text-green-200; } .badge-warning { @apply
+badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200; }
+.badge-error { @apply badge bg-red-100 text-red-800 dark:bg-red-900
+dark:text-red-200; } } @layer utilities { /* Animation utilities */ .animate-in
+{ animation: animateIn 0.3s ease-out forwards; } @keyframes animateIn { from {
+opacity: 0; transform: translateY(10px); } to { opacity: 1; transform:
+translateY(0); } } /* Gradient text */ .text-gradient { @apply bg-gradient-to-r
+from-primary-600 to-primary-400 bg-clip-text text-transparent; } } /*
+Highlight.js syntax highlighting styles for API documentation */
+.api-doc-content pre.hljs { @apply bg-gray-900 text-gray-100 rounded-lg p-4
+overflow-x-auto text-sm; } .api-doc-content code { @apply font-mono text-sm; }
+.api-doc-content pre.hljs code { @apply bg-transparent p-0; } /* Highlight.js
+color theme (GitHub-like) */ .hljs { color: #e6edf3; background: #0d1117; }
+.hljs-doctag, .hljs-keyword, .hljs-meta .hljs-keyword, .hljs-template-tag,
+.hljs-template-variable, .hljs-type, .hljs-variable.language_ { color: #ff7b72;
+} .hljs-title, .hljs-title.class_, .hljs-title.class_.inherited__,
+.hljs-title.function_ { color: #d2a8ff; } .hljs-attr, .hljs-attribute,
+.hljs-literal, .hljs-meta, .hljs-number, .hljs-operator, .hljs-variable,
+.hljs-selector-attr, .hljs-selector-class, .hljs-selector-id { color: #79c0ff; }
+.hljs-regexp, .hljs-string, .hljs-meta .hljs-string { color: #a5d6ff; }
+.hljs-built_in, .hljs-symbol { color: #ffa657; } .hljs-comment, .hljs-code,
+.hljs-formula { color: #8b949e; } .hljs-name, .hljs-quote, .hljs-selector-tag,
+.hljs-selector-pseudo { color: #7ee787; } .hljs-subst { color: #c9d1d9; }
+.hljs-section { color: #1f6feb; font-weight: bold; } .hljs-bullet { color:
+#f2cc60; } .hljs-emphasis { color: #c9d1d9; font-style: italic; } .hljs-strong {
+color: #c9d1d9; font-weight: bold; } .hljs-addition { color: #aff5b4;
+background-color: #033a16; } .hljs-deletion { color: #ffdcd7; background-color:
+#67060c; } /* API documentation specific styles */ .api-doc-content { @apply
+text-gray-900 dark:text-gray-100; } .api-doc-content h1 { @apply text-2xl
+font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700; }
+.api-doc-content h2 { @apply text-xl font-semibold mt-8 mb-3 text-gray-800
+dark:text-gray-200; } .api-doc-content h3 { @apply text-lg font-medium mt-6 mb-2
+text-gray-700 dark:text-gray-300; } .api-doc-content p { @apply mb-4
+leading-relaxed; } .api-doc-content ul, .api-doc-content ol { @apply mb-4 pl-6;
+} .api-doc-content li { @apply mb-1; } .api-doc-content ul li { @apply
+list-disc; } .api-doc-content ol li { @apply list-decimal; } .api-doc-content
+table { @apply w-full mb-4 text-sm border-collapse; } .api-doc-content th {
+@apply px-3 py-2 text-left font-semibold bg-gray-100 dark:bg-gray-800 border
+border-gray-200 dark:border-gray-700; } .api-doc-content td { @apply px-3 py-2
+border border-gray-200 dark:border-gray-700; } .api-doc-content
+tr:nth-child(even) td { @apply bg-gray-50 dark:bg-gray-800/50; }
+.api-doc-content hr { @apply my-6 border-gray-200 dark:border-gray-700; }
+.api-doc-content a { @apply text-primary-600 dark:text-primary-400
+hover:underline; } .api-doc-content blockquote { @apply pl-4 border-l-4
+border-gray-300 dark:border-gray-600 italic text-gray-600 dark:text-gray-400
+my-4; } .api-doc-content code:not(pre code) { @apply bg-gray-100
+dark:bg-gray-800 px-1.5 py-0.5 rounded text-primary-600 dark:text-primary-400; }
+/* Scalar API Reference container styles */ .scalar-container { --scalar-font:
+inherit; --scalar-background-1: transparent; --scalar-background-2: #f8fafc;
+--scalar-background-3: #f1f5f9; --scalar-color-1: #1e293b; --scalar-color-2:
+#475569; --scalar-color-3: #94a3b8; --scalar-color-accent: #6366f1;
+--scalar-border-color: #e2e8f0; --scalar-radius: 0.5rem; --scalar-radius-lg:
+0.75rem; } .dark .scalar-container { --scalar-background-1: transparent;
+--scalar-background-2: #1e293b; --scalar-background-3: #0f172a;
+--scalar-color-1: #f1f5f9; --scalar-color-2: #94a3b8; --scalar-color-3: #64748b;
+--scalar-color-accent: #818cf8; --scalar-border-color: #334155; } /* Override
+Scalar's default styles for better integration */ .scalar-container .scalar-app
+{ background: transparent !important; } .scalar-container .scalar-api-reference
+{ padding: 0 !important; }
