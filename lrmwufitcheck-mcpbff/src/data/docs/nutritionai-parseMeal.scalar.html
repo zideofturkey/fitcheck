@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>parseMeal - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"parseMeal API","description":"Accepts a natural-language Turkish meal description, creates an aiSession record, invokes the AI parsing library function, and creates the resulting aiCandidateMeal and aiCandidateLine records.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"nutritionai API Server"}],"tags":[{"name":"aiSession","description":"Operations on aiSession"}],"paths":{"/v1/ai-sessions/parse-meal":{"post":{"operationId":"parseMeal","summary":"Accepts a natural-language Turkish meal description, creates an aiSession record, invokes the AI parsing library function, and creates the resulting aiCandidateMeal and aiCandidateLine records.","description":"Triggered from the AI chat input box on the meal log page. Show a loading spinner labeled \"AI analiz ediyor...\" while the request is in flight (can take 3–8 seconds). On 201, navigate to the candidate meal confirmation page (`/ai-candidate-meals/:candidateMealId`). If `confirmationRequired=true`, show the warning banner prominently before showing the food line table. On error, show a Turkish-language toast using `finalResponseText` from the response.","tags":["aiSession"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"201":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"aiSession":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"inputText":{"type":"string","description":"Raw Turkish meal description from the user"},"proposedMealDate":{"type":"string","format":"date","description":"Optional date hint from user"},"proposedMealTime":{"type":"string","description":"Optional time hint from user"},"proposedSlotName":{"type":"string","description":"Optional meal slot override"}},"required":["inputText"]}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

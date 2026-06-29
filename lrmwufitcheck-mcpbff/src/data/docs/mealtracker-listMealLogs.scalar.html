@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>listMealLogs - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"listMealLogs API","description":"Lists meal logs for the authenticated user with optional date range filtering. mealDate and logSource are auto-filtered via isFilterParameter.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"mealtracker API Server"}],"tags":[{"name":"mealLogs","description":"Operations on mealLogs"}],"paths":{"/v1/meal-logs":{"get":{"operationId":"listMealLogs","summary":"Lists meal logs for the authenticated user with optional date range filtering. mealDate and logSource are auto-filtered via isFilterParameter.","description":"Powers the meal history page. Shows paginated list grouped by date. Filter bar at top: date range picker (fromDate/toDate), source multi-select. Auto-filters for mealDate and logSource are passed as query params. On empty state: show 'No meals logged yet' with a CTA to add a meal.","tags":["mealLogs"],"security":[{"bearerAuth":[]}],"parameters":[{"name":"fromDate","in":"query","required":false,"description":"Optional range start for multi-day queries","schema":{"type":"string","format":"date"}},{"name":"toDate","in":"query","required":false,"description":"Optional range end for multi-day queries","schema":{"type":"string","format":"date"}},{"name":"mealDate","in":"query","required":false,"description":"Filter by mealDate","schema":{"type":"string","format":"date"}},{"name":"logSource","in":"query","required":false,"description":"Filter by logSource","schema":{"type":"string","description":"Enumerated string value"}},{"name":"pageNumber","in":"query","required":false,"description":"Page number for pagination","schema":{"type":"integer","default":1}},{"name":"pageRowCount","in":"query","required":false,"description":"Number of items per page","schema":{"type":"integer","default":25}},{"name":"keyword","in":"query","required":false,"description":"Search keyword","schema":{"type":"string"}}],"responses":{"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"mealLogs":{"type":"array","items":{"type":"object"}}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

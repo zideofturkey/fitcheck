@@ -1,0 +1,50 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  SERVICE_NAME: mcpbff
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/lrmwufitcheck-mcpbff-service
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHA .
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHA
+  only:
+    - main
+    - develop
+
+test:
+  stage: test
+  image: node:18-alpine
+  script:
+    - npm ci
+    - npm test
+  only:
+    - main
+    - develop
+    - merge_requests
+
+deploy-staging:
+  stage: deploy
+  script:
+    - echo "Deploying to staging..."
+  environment:
+    name: staging
+  only:
+    - develop
+
+deploy-production:
+  stage: deploy
+  script:
+    - echo "Deploying to production..."
+  environment:
+    name: production
+  only:
+    - main
+  when: manual

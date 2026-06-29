@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>activateInviteLink - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"activateInviteLink API","description":"Transitions an invite link from 'draft' to 'active' state, making it usable for registration. Only invite links in 'draft' state can be activated.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"invitationcenter API Server"}],"tags":[{"name":"inviteLink","description":"Operations on inviteLink"}],"paths":{"/v1/invite-links/{inviteLinkId}/activate":{"patch":{"operationId":"activateInviteLink","summary":"Transitions an invite link from 'draft' to 'active' state, making it usable for registration. Only invite links in 'draft' state can be activated.","description":"Triggered from the invite list or detail view via an 'Activate' action button (shown only when inviteState='draft'). No form input needed — just a confirmation dialog. On 200: update the status badge inline or refresh row. Toast 'Invite link activated'. On 400: toast 'Invite link is not in draft state'.","tags":["inviteLink"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"inviteLink":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}},"requestBody":{"required":false,"content":{"application/json":{"schema":{"type":"object","properties":{}}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

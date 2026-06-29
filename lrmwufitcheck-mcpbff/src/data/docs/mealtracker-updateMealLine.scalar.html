@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>updateMealLine - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"updateMealLine API","description":"Updates nutrition snapshot values of a meal line item, then recalculates meal-level and day-level totals.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"mealtracker API Server"}],"tags":[{"name":"mealLine","description":"Operations on mealLine"}],"paths":{"/v1/meal-lines/{mealLineId}":{"patch":{"operationId":"updateMealLine","summary":"Updates nutrition snapshot values of a meal line item, then recalculates meal-level and day-level totals.","description":"Triggered from inline edit on a meal line row. All fields optional. On success: update row values and refresh meal totals strip. On 404: show 'Item not found'.","tags":["mealLine"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"mealLine":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}},"requestBody":{"required":false,"content":{"application/json":{"schema":{"type":"object","properties":{"itemName":{"type":"string","description":"Updated item name"},"consumedGrams":{"type":"number","format":"double","description":"Updated grams"},"itemCalories":{"type":"number","format":"double","description":"Updated calories"},"itemProtein":{"type":"number","format":"double","description":"Updated protein"},"itemCarbohydrates":{"type":"number","format":"double","description":"Updated carbohydrates"},"itemFat":{"type":"number","format":"double","description":"Updated fat"},"itemSugar":{"type":"number","format":"double","description":"Updated sugar"},"itemFiber":{"type":"number","format":"double","description":"Updated fiber"}}}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

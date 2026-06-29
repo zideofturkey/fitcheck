@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>getPresetMealForLogging - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"getPresetMealForLogging API","description":"Dedicated read API for mealTracker and nutritionAi services. Fetches a preset with full line detail for initiating a meal log.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"nutritionlibrary API Server"}],"tags":[{"name":"presetMeal","description":"Operations on presetMeal"}],"paths":{"/v1/preset-meals/{presetMealId}/for-logging":{"get":{"operationId":"getPresetMealForLogging","summary":"Dedicated read API for mealTracker and nutritionAi services. Fetches a preset with full line detail for initiating a meal log.","description":"Not directly triggered by frontend. Called by mealTracker and nutritionAi services via inter-service calls with forwardCallerToken=true. Returns the same shape as getPresetMeal.","tags":["presetMeal"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"presetMeal":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

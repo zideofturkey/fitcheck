@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-06-29T09:52:22.695Z",
+  "count": 11,
+  "prompts": [
+    {
+      "name": "frontend-prompt-1-projectIntroduction",
+      "docName": "Project Introduction & Setup",
+      "docIndex": 1,
+      "service": null,
+      "fileName": "frontend-prompt-1-projectIntroduction.md"
+    },
+    {
+      "name": "frontend-prompt-2-authManagement",
+      "docName": "Authentication Management",
+      "docIndex": 2,
+      "service": "auth",
+      "fileName": "frontend-prompt-2-authManagement.md"
+    },
+    {
+      "name": "frontend-prompt-3-verification",
+      "docName": "Verification Management",
+      "docIndex": 3,
+      "service": "auth",
+      "fileName": "frontend-prompt-3-verification.md"
+    },
+    {
+      "name": "frontend-prompt-4-profile",
+      "docName": "Profile Management",
+      "docIndex": 4,
+      "service": "auth",
+      "fileName": "frontend-prompt-4-profile.md"
+    },
+    {
+      "name": "frontend-prompt-5-userManagement",
+      "docName": "User Management",
+      "docIndex": 5,
+      "service": "auth",
+      "fileName": "frontend-prompt-5-userManagement.md"
+    },
+    {
+      "name": "frontend-prompt-6-mcpbffIntegration",
+      "docName": "MCP BFF Integration",
+      "docIndex": 6,
+      "service": "mcpbff",
+      "fileName": "frontend-prompt-6-mcpbffIntegration.md"
+    },
+    {
+      "name": "frontend-prompt-7-invitationCenterService",
+      "docName": "InvitationCenter Service",
+      "docIndex": 7,
+      "service": "invitationCenter",
+      "fileName": "frontend-prompt-7-invitationCenterService.md"
+    },
+    {
+      "name": "frontend-prompt-8-nutritionLibraryService",
+      "docName": "NutritionLibrary Service",
+      "docIndex": 8,
+      "service": "nutritionLibrary",
+      "fileName": "frontend-prompt-8-nutritionLibraryService.md"
+    },
+    {
+      "name": "frontend-prompt-9-mealTrackerService",
+      "docName": "MealTracker Service",
+      "docIndex": 9,
+      "service": "mealTracker",
+      "fileName": "frontend-prompt-9-mealTrackerService.md"
+    },
+    {
+      "name": "frontend-prompt-10-nutritionAiService",
+      "docName": "NutritionAi Service",
+      "docIndex": 10,
+      "service": "nutritionAi",
+      "fileName": "frontend-prompt-10-nutritionAiService.md"
+    },
+    {
+      "name": "frontend-prompt-11-agentHubService",
+      "docName": "AgentHub Service",
+      "docIndex": 11,
+      "service": "agentHub",
+      "fileName": "frontend-prompt-11-agentHubService.md"
+    }
+  ]
+}

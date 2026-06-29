@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>createAgentOverride - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"createAgentOverride API","description":"Create operation for sys_agentOverride","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"agenthub API Server"}],"tags":[{"name":"sys_agentOverride","description":"Operations on sys_agentOverride"}],"paths":{"/v1/agentoverride":{"post":{"operationId":"createAgentOverride","summary":"Create sys_agentOverride","description":"","tags":["sys_agentOverride"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"201":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"sys_agentOverride":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"agentName":{"type":"string","description":"Design-time agent name this override applies to."},"provider":{"type":"string","description":"Override AI provider (e.g., openai, anthropic)."},"model":{"type":"string","description":"Override model name."},"systemPrompt":{"type":"string","description":"Override system prompt."},"temperature":{"type":"number","format":"double","description":"Override temperature (0-2)."},"maxTokens":{"type":"integer","description":"Override max tokens."},"responseFormat":{"type":"string","description":"Override response format (text/json)."},"selectedTools":{"type":"object","description":"Array of tool names from the catalog that this agent can use."},"guardrails":{"type":"object","description":"Override guardrails: { maxToolCalls, timeout, maxTokenBudget }."},"enabled":{"type":"boolean","description":"Optional caller override; defaults to true when omitted."}},"required":["agentName"]}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>confirmCandidateMeal - API Reference</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script id="api-reference" data-url="" type="application/json">
+    {"openapi":"3.0.3","info":{"title":"confirmCandidateMeal API","description":"Confirms a candidate meal after user review — applies optional line adjustments, recalculates totals, writes meal log and lines to mealTracker, saves foods to nutritionLibrary where requested, and marks the candidate as committed.","version":"1.0.0"},"servers":[{"url":"http://localhost:3000","description":"nutritionai API Server"}],"tags":[{"name":"aiCandidateMeal","description":"Operations on aiCandidateMeal"}],"paths":{"/v1/ai-candidate-meals/{aiCandidateMealId}/confirm":{"patch":{"operationId":"confirmCandidateMeal","summary":"Confirms a candidate meal after user review — applies optional line adjustments, recalculates totals, writes meal log and lines to mealTracker, saves foods to nutritionLibrary where requested, and marks the candidate as committed.","description":"Triggered by the 'Onayla' button on the candidate meal confirmation page. Disable the button while in flight. On success (200), show toast \"Öğün başarıyla kaydedildi!\" and navigate to the daily meal log page. If `lineAdjustments` are passed, the UI should pre-populate them from user edits in the confirmation table before submitting. On error, display the error message inline without navigating away.","tags":["aiCandidateMeal"],"security":[{"bearerAuth":[]}],"parameters":[],"responses":{"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"OK"},"aiCandidateMeal":{"type":"object"}}}}}},"400":{"description":"Bad request - validation error","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string"},"message":{"type":"string"}}}}}},"401":{"description":"Unauthorized - authentication required","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Unauthorized"}}}}}},"403":{"description":"Forbidden - insufficient permissions","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Forbidden"}}}}}},"404":{"description":"Resource not found","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","example":"Error"},"error":{"type":"string","example":"Not Found"}}}}}}},"requestBody":{"required":false,"content":{"application/json":{"schema":{"type":"object","properties":{"proposedMealDate":{"type":"string","format":"date","description":"User may override the proposed date"},"proposedMealTime":{"type":"string","description":"User may override the proposed time"},"proposedSlotName":{"type":"string","description":"User may override the meal slot"},"lineAdjustments":{"type":"object","description":"Array of per-line gram/saveAsFood overrides"}}}}}}}}},"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT","description":"JWT token from authentication service"}}}}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

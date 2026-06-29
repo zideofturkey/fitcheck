@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "createMealLine API",
+    "description": "Creates an individual meal line item and then recalculates meal-level and day-level nutrition totals.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "mealtracker API Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "mealLine",
+      "description": "Operations on mealLine"
+    }
+  ],
+  "paths": {
+    "/v1/meal-lines": {
+      "post": {
+        "operationId": "createMealLine",
+        "summary": "Creates an individual meal line item and then recalculates meal-level and day-level nutrition totals.",
+        "description": "Triggered when user adds a food item to an existing meal (inline add form on meal detail). Required: mealLogId, itemName, consumedGrams, all 6 nutrition snapshot values, lineSource. userId auto-populated from session. On 201: add row to meal line list, update meal totals display. On 403: show 'This meal does not belong to you'.",
+        "tags": [
+          "mealLine"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "mealLine": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Forbidden"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Error"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mealLogId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "FK to parent mealLog"
+                  },
+                  "itemName": {
+                    "type": "string",
+                    "description": "Food item name"
+                  },
+                  "consumedGrams": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Grams consumed"
+                  },
+                  "itemCalories": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Calories snapshot"
+                  },
+                  "itemProtein": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Protein snapshot"
+                  },
+                  "itemCarbohydrates": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Carbohydrates snapshot"
+                  },
+                  "itemFat": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Fat snapshot"
+                  },
+                  "itemSugar": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Sugar snapshot"
+                  },
+                  "itemFiber": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Fiber snapshot"
+                  },
+                  "lineSource": {
+                    "type": "string",
+                    "description": "Source of the line item"
+                  },
+                  "sourceFoodItemId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Optional reference to nutritionLibrary foodItem"
+                  },
+                  "sourcePresetMealId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Optional reference to nutritionLibrary presetMeal"
+                  }
+                },
+                "required": [
+                  "mealLogId",
+                  "itemName",
+                  "consumedGrams",
+                  "itemCalories",
+                  "itemProtein",
+                  "itemCarbohydrates",
+                  "itemFat",
+                  "itemSugar",
+                  "itemFiber",
+                  "lineSource"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token from authentication service"
+      }
+    }
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "generatedAt": "2026-06-29T09:52:22.451Z",
+  "services": {
+    "invitationcenter": {
+      "name": "invitationcenter",
+      "fullname": "invitationcenter",
+      "openApiSpec": "invitationcenter.openapi.json",
+      "scalarHtml": "invitationcenter.scalar.html",
+      "apis": [
+        {
+          "name": "createInviteLink",
+          "docHtml": "invitationcenter-createInviteLink.html",
+          "openApiSpec": "invitationcenter-createInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-createInviteLink.scalar.html"
+        },
+        {
+          "name": "activateInviteLink",
+          "docHtml": "invitationcenter-activateInviteLink.html",
+          "openApiSpec": "invitationcenter-activateInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-activateInviteLink.scalar.html"
+        },
+        {
+          "name": "revokeInviteLink",
+          "docHtml": "invitationcenter-revokeInviteLink.html",
+          "openApiSpec": "invitationcenter-revokeInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-revokeInviteLink.scalar.html"
+        },
+        {
+          "name": "deliverInviteEmail",
+          "docHtml": "invitationcenter-deliverInviteEmail.html",
+          "openApiSpec": "invitationcenter-deliverInviteEmail.openapi.json",
+          "scalarHtml": "invitationcenter-deliverInviteEmail.scalar.html"
+        },
+        {
+          "name": "validateInviteCode",
+          "docHtml": "invitationcenter-validateInviteCode.html",
+          "openApiSpec": "invitationcenter-validateInviteCode.openapi.json",
+          "scalarHtml": "invitationcenter-validateInviteCode.scalar.html"
+        },
+        {
+          "name": "consumeInviteLink",
+          "docHtml": "invitationcenter-consumeInviteLink.html",
+          "openApiSpec": "invitationcenter-consumeInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-consumeInviteLink.scalar.html"
+        },
+        {
+          "name": "getInviteLinkByCode",
+          "docHtml": "invitationcenter-getInviteLinkByCode.html",
+          "openApiSpec": "invitationcenter-getInviteLinkByCode.openapi.json",
+          "scalarHtml": "invitationcenter-getInviteLinkByCode.scalar.html"
+        },
+        {
+          "name": "getInviteLink",
+          "docHtml": "invitationcenter-getInviteLink.html",
+          "openApiSpec": "invitationcenter-getInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-getInviteLink.scalar.html"
+        },
+        {
+          "name": "listInviteLinks",
+          "docHtml": "invitationcenter-listInviteLinks.html",
+          "openApiSpec": "invitationcenter-listInviteLinks.openapi.json",
+          "scalarHtml": "invitationcenter-listInviteLinks.scalar.html"
+        },
+        {
+          "name": "listInviteAudits",
+          "docHtml": "invitationcenter-listInviteAudits.html",
+          "openApiSpec": "invitationcenter-listInviteAudits.openapi.json",
+          "scalarHtml": "invitationcenter-listInviteAudits.scalar.html"
+        },
+        {
+          "name": "_fetchListInviteLink",
+          "docHtml": "invitationcenter-_fetchListInviteLink.html",
+          "openApiSpec": "invitationcenter-_fetchListInviteLink.openapi.json",
+          "scalarHtml": "invitationcenter-_fetchListInviteLink.scalar.html"
+        },
+        {
+          "name": "_fetchListInviteAudit",
+          "docHtml": "invitationcenter-_fetchListInviteAudit.html",
+          "openApiSpec": "invitationcenter-_fetchListInviteAudit.openapi.json",
+          "scalarHtml": "invitationcenter-_fetchListInviteAudit.scalar.html"
+        }
+      ]
+    },
+    "nutritionlibrary": {
+      "name": "nutritionlibrary",
+      "fullname": "nutritionlibrary",
+      "openApiSpec": "nutritionlibrary.openapi.json",
+      "scalarHtml": "nutritionlibrary.scalar.html",
+      "apis": [
+        {
+          "name": "setMacroTarget",
+          "docHtml": "nutritionlibrary-setMacroTarget.html",
+          "openApiSpec": "nutritionlibrary-setMacroTarget.openapi.json",
+          "scalarHtml": "nutritionlibrary-setMacroTarget.scalar.html"
+        },
+        {
+          "name": "getMyMacroTarget",
+          "docHtml": "nutritionlibrary-getMyMacroTarget.html",
+          "openApiSpec": "nutritionlibrary-getMyMacroTarget.openapi.json",
+          "scalarHtml": "nutritionlibrary-getMyMacroTarget.scalar.html"
+        },
+        {
+          "name": "createFoodItem",
+          "docHtml": "nutritionlibrary-createFoodItem.html",
+          "openApiSpec": "nutritionlibrary-createFoodItem.openapi.json",
+          "scalarHtml": "nutritionlibrary-createFoodItem.scalar.html"
+        },
+        {
+          "name": "getFoodItem",
+          "docHtml": "nutritionlibrary-getFoodItem.html",
+          "openApiSpec": "nutritionlibrary-getFoodItem.openapi.json",
+          "scalarHtml": "nutritionlibrary-getFoodItem.scalar.html"
+        },
+        {
+          "name": "listFoodItems",
+          "docHtml": "nutritionlibrary-listFoodItems.html",
+          "openApiSpec": "nutritionlibrary-listFoodItems.openapi.json",
+          "scalarHtml": "nutritionlibrary-listFoodItems.scalar.html"
+        },
+        {
+          "name": "updateFoodItem",
+          "docHtml": "nutritionlibrary-updateFoodItem.html",
+          "openApiSpec": "nutritionlibrary-updateFoodItem.openapi.json",
+          "scalarHtml": "nutritionlibrary-updateFoodItem.scalar.html"
+        },
+        {
+          "name": "deleteFoodItem",
+          "docHtml": "nutritionlibrary-deleteFoodItem.html",
+          "openApiSpec": "nutritionlibrary-deleteFoodItem.openapi.json",
+          "scalarHtml": "nutritionlibrary-deleteFoodItem.scalar.html"
+        },
+        {
+          "name": "createPresetMeal",
+          "docHtml": "nutritionlibrary-createPresetMeal.html",
+          "openApiSpec": "nutritionlibrary-createPresetMeal.openapi.json",
+          "scalarHtml": "nutritionlibrary-createPresetMeal.scalar.html"
+        },
+        {
+          "name": "getPresetMeal",
+          "docHtml": "nutritionlibrary-getPresetMeal.html",
+          "openApiSpec": "nutritionlibrary-getPresetMeal.openapi.json",
+          "scalarHtml": "nutritionlibrary-getPresetMeal.scalar.html"
+        },
+        {
+          "name": "listPresetMeals",
+          "docHtml": "nutritionlibrary-listPresetMeals.html",
+          "openApiSpec": "nutritionlibrary-listPresetMeals.openapi.json",
+          "scalarHtml": "nutritionlibrary-listPresetMeals.scalar.html"
+        },
+        {
+          "name": "updatePresetMeal",
+          "docHtml": "nutritionlibrary-updatePresetMeal.html",
+          "openApiSpec": "nutritionlibrary-updatePresetMeal.openapi.json",
+          "scalarHtml": "nutritionlibrary-updatePresetMeal.scalar.html"
+        },
+        {
+          "name": "deletePresetMeal",
+          "docHtml": "nutritionlibrary-deletePresetMeal.html",
+          "openApiSpec": "nutritionlibrary-deletePresetMeal.openapi.json",
+          "scalarHtml": "nutritionlibrary-deletePresetMeal.scalar.html"
+        },
+        {
+          "name": "addPresetLine",
+          "docHtml": "nutritionlibrary-addPresetLine.html",
+          "openApiSpec": "nutritionlibrary-addPresetLine.openapi.json",
+          "scalarHtml": "nutritionlibrary-addPresetLine.scalar.html"
+        },
+        {
+          "name": "listPresetLines",
+          "docHtml": "nutritionlibrary-listPresetLines.html",
+          "openApiSpec": "nutritionlibrary-listPresetLines.openapi.json",
+          "scalarHtml": "nutritionlibrary-listPresetLines.scalar.html"
+        },
+        {
+          "name": "deletePresetLine",
+          "docHtml": "nutritionlibrary-deletePresetLine.html",
+          "openApiSpec": "nutritionlibrary-deletePresetLine.openapi.json",
+          "scalarHtml": "nutritionlibrary-deletePresetLine.scalar.html"
+        },
+        {
+          "name": "getPresetMealForLogging",
+          "docHtml": "nutritionlibrary-getPresetMealForLogging.html",
+          "openApiSpec": "nutritionlibrary-getPresetMealForLogging.openapi.json",
+          "scalarHtml": "nutritionlibrary-getPresetMealForLogging.scalar.html"
+        },
+        {
+          "name": "getFoodItemForLogging",
+          "docHtml": "nutritionlibrary-getFoodItemForLogging.html",
+          "openApiSpec": "nutritionlibrary-getFoodItemForLogging.openapi.json",
+          "scalarHtml": "nutritionlibrary-getFoodItemForLogging.scalar.html"
+        },
+        {
+          "name": "getMyMacroTargetForLogging",
+          "docHtml": "nutritionlibrary-getMyMacroTargetForLogging.html",
+          "openApiSpec": "nutritionlibrary-getMyMacroTargetForLogging.openapi.json",
+          "scalarHtml": "nutritionlibrary-getMyMacroTargetForLogging.scalar.html"
+        },
+        {
+          "name": "_fetchListMacroTarget",
+          "docHtml": "nutritionlibrary-_fetchListMacroTarget.html",
+          "openApiSpec": "nutritionlibrary-_fetchListMacroTarget.openapi.json",
+          "scalarHtml": "nutritionlibrary-_fetchListMacroTarget.scalar.html"
+        },
+        {
+          "name": "_fetchListFoodItem",
+          "docHtml": "nutritionlibrary-_fetchListFoodItem.html",
+          "openApiSpec": "nutritionlibrary-_fetchListFoodItem.openapi.json",
+          "scalarHtml": "nutritionlibrary-_fetchListFoodItem.scalar.html"
+        },
+        {
+          "name": "_fetchListPresetMeal",
+          "docHtml": "nutritionlibrary-_fetchListPresetMeal.html",
+          "openApiSpec": "nutritionlibrary-_fetchListPresetMeal.openapi.json",
+          "scalarHtml": "nutritionlibrary-_fetchListPresetMeal.scalar.html"
+        },
+        {
+          "name": "_fetchListPresetLine",
+          "docHtml": "nutritionlibrary-_fetchListPresetLine.html",
+          "openApiSpec": "nutritionlibrary-_fetchListPresetLine.openapi.json",
+          "scalarHtml": "nutritionlibrary-_fetchListPresetLine.scalar.html"
+        }
+      ]
+    },
+    "mealtracker": {
+      "name": "mealtracker",
+      "fullname": "mealtracker",
+      "openApiSpec": "mealtracker.openapi.json",
+      "scalarHtml": "mealtracker.scalar.html",
+      "apis": [
+        {
+          "name": "createMealLog",
+          "docHtml": "mealtracker-createMealLog.html",
+          "openApiSpec": "mealtracker-createMealLog.openapi.json",
+          "scalarHtml": "mealtracker-createMealLog.scalar.html"
+        },
+        {
+          "name": "getMealLog",
+          "docHtml": "mealtracker-getMealLog.html",
+          "openApiSpec": "mealtracker-getMealLog.openapi.json",
+          "scalarHtml": "mealtracker-getMealLog.scalar.html"
+        },
+        {
+          "name": "listMealLogs",
+          "docHtml": "mealtracker-listMealLogs.html",
+          "openApiSpec": "mealtracker-listMealLogs.openapi.json",
+          "scalarHtml": "mealtracker-listMealLogs.scalar.html"
+        },
+        {
+          "name": "updateMealLog",
+          "docHtml": "mealtracker-updateMealLog.html",
+          "openApiSpec": "mealtracker-updateMealLog.openapi.json",
+          "scalarHtml": "mealtracker-updateMealLog.scalar.html"
+        },
+        {
+          "name": "deleteMealLog",
+          "docHtml": "mealtracker-deleteMealLog.html",
+          "openApiSpec": "mealtracker-deleteMealLog.openapi.json",
+          "scalarHtml": "mealtracker-deleteMealLog.scalar.html"
+        },
+        {
+          "name": "createMealLine",
+          "docHtml": "mealtracker-createMealLine.html",
+          "openApiSpec": "mealtracker-createMealLine.openapi.json",
+          "scalarHtml": "mealtracker-createMealLine.scalar.html"
+        },
+        {
+          "name": "updateMealLine",
+          "docHtml": "mealtracker-updateMealLine.html",
+          "openApiSpec": "mealtracker-updateMealLine.openapi.json",
+          "scalarHtml": "mealtracker-updateMealLine.scalar.html"
+        },
+        {
+          "name": "deleteMealLine",
+          "docHtml": "mealtracker-deleteMealLine.html",
+          "openApiSpec": "mealtracker-deleteMealLine.openapi.json",
+          "scalarHtml": "mealtracker-deleteMealLine.scalar.html"
+        },
+        {
+          "name": "listMealLines",
+          "docHtml": "mealtracker-listMealLines.html",
+          "openApiSpec": "mealtracker-listMealLines.openapi.json",
+          "scalarHtml": "mealtracker-listMealLines.scalar.html"
+        },
+        {
+          "name": "getDailyProgress",
+          "docHtml": "mealtracker-getDailyProgress.html",
+          "openApiSpec": "mealtracker-getDailyProgress.openapi.json",
+          "scalarHtml": "mealtracker-getDailyProgress.scalar.html"
+        },
+        {
+          "name": "getNutritionDay",
+          "docHtml": "mealtracker-getNutritionDay.html",
+          "openApiSpec": "mealtracker-getNutritionDay.openapi.json",
+          "scalarHtml": "mealtracker-getNutritionDay.scalar.html"
+        },
+        {
+          "name": "listNutritionDays",
+          "docHtml": "mealtracker-listNutritionDays.html",
+          "openApiSpec": "mealtracker-listNutritionDays.openapi.json",
+          "scalarHtml": "mealtracker-listNutritionDays.scalar.html"
+        },
+        {
+          "name": "getWeeklyAnalytics",
+          "docHtml": "mealtracker-getWeeklyAnalytics.html",
+          "openApiSpec": "mealtracker-getWeeklyAnalytics.openapi.json",
+          "scalarHtml": "mealtracker-getWeeklyAnalytics.scalar.html"
+        },
+        {
+          "name": "getMonthlyAnalytics",
+          "docHtml": "mealtracker-getMonthlyAnalytics.html",
+          "openApiSpec": "mealtracker-getMonthlyAnalytics.openapi.json",
+          "scalarHtml": "mealtracker-getMonthlyAnalytics.scalar.html"
+        },
+        {
+          "name": "triggerDailyReminderCheck",
+          "docHtml": "mealtracker-triggerDailyReminderCheck.html",
+          "openApiSpec": "mealtracker-triggerDailyReminderCheck.openapi.json",
+          "scalarHtml": "mealtracker-triggerDailyReminderCheck.scalar.html"
+        },
+        {
+          "name": "triggerDailySummary",
+          "docHtml": "mealtracker-triggerDailySummary.html",
+          "openApiSpec": "mealtracker-triggerDailySummary.openapi.json",
+          "scalarHtml": "mealtracker-triggerDailySummary.scalar.html"
+        },
+        {
+          "name": "_fetchListMealLog",
+          "docHtml": "mealtracker-_fetchListMealLog.html",
+          "openApiSpec": "mealtracker-_fetchListMealLog.openapi.json",
+          "scalarHtml": "mealtracker-_fetchListMealLog.scalar.html"
+        },
+        {
+          "name": "_fetchListMealLine",
+          "docHtml": "mealtracker-_fetchListMealLine.html",
+          "openApiSpec": "mealtracker-_fetchListMealLine.openapi.json",
+          "scalarHtml": "mealtracker-_fetchListMealLine.scalar.html"
+        },
+        {
+          "name": "_fetchListNutritionDay",
+          "docHtml": "mealtracker-_fetchListNutritionDay.html",
+          "openApiSpec": "mealtracker-_fetchListNutritionDay.openapi.json",
+          "scalarHtml": "mealtracker-_fetchListNutritionDay.scalar.html"
+        }
+      ]
+    },
+    "nutritionai": {
+      "name": "nutritionai",
+      "fullname": "nutritionai",
+      "openApiSpec": "nutritionai.openapi.json",
+      "scalarHtml": "nutritionai.scalar.html",
+      "apis": [
+        {
+          "name": "parseMeal",
+          "docHtml": "nutritionai-parseMeal.html",
+          "openApiSpec": "nutritionai-parseMeal.openapi.json",
+          "scalarHtml": "nutritionai-parseMeal.scalar.html"
+        },
+        {
+          "name": "confirmCandidateMeal",
+          "docHtml": "nutritionai-confirmCandidateMeal.html",
+          "openApiSpec": "nutritionai-confirmCandidateMeal.openapi.json",
+          "scalarHtml": "nutritionai-confirmCandidateMeal.scalar.html"
+        },
+        {
+          "name": "askNutritionQuestion",
+          "docHtml": "nutritionai-askNutritionQuestion.html",
+          "openApiSpec": "nutritionai-askNutritionQuestion.openapi.json",
+          "scalarHtml": "nutritionai-askNutritionQuestion.scalar.html"
+        },
+        {
+          "name": "getAiSession",
+          "docHtml": "nutritionai-getAiSession.html",
+          "openApiSpec": "nutritionai-getAiSession.openapi.json",
+          "scalarHtml": "nutritionai-getAiSession.scalar.html"
+        },
+        {
+          "name": "listAiSessions",
+          "docHtml": "nutritionai-listAiSessions.html",
+          "openApiSpec": "nutritionai-listAiSessions.openapi.json",
+          "scalarHtml": "nutritionai-listAiSessions.scalar.html"
+        },
+        {
+          "name": "getAiCandidateMeal",
+          "docHtml": "nutritionai-getAiCandidateMeal.html",
+          "openApiSpec": "nutritionai-getAiCandidateMeal.openapi.json",
+          "scalarHtml": "nutritionai-getAiCandidateMeal.scalar.html"
+        },
+        {
+          "name": "listAiCandidateMeals",
+          "docHtml": "nutritionai-listAiCandidateMeals.html",
+          "openApiSpec": "nutritionai-listAiCandidateMeals.openapi.json",
+          "scalarHtml": "nutritionai-listAiCandidateMeals.scalar.html"
+        },
+        {
+          "name": "updateAiCandidateLine",
+          "docHtml": "nutritionai-updateAiCandidateLine.html",
+          "openApiSpec": "nutritionai-updateAiCandidateLine.openapi.json",
+          "scalarHtml": "nutritionai-updateAiCandidateLine.scalar.html"
+        },
+        {
+          "name": "rejectCandidateMeal",
+          "docHtml": "nutritionai-rejectCandidateMeal.html",
+          "openApiSpec": "nutritionai-rejectCandidateMeal.openapi.json",
+          "scalarHtml": "nutritionai-rejectCandidateMeal.scalar.html"
+        },
+        {
+          "name": "getAiGuidanceNote",
+          "docHtml": "nutritionai-getAiGuidanceNote.html",
+          "openApiSpec": "nutritionai-getAiGuidanceNote.openapi.json",
+          "scalarHtml": "nutritionai-getAiGuidanceNote.scalar.html"
+        },
+        {
+          "name": "listAiGuidanceNotes",
+          "docHtml": "nutritionai-listAiGuidanceNotes.html",
+          "openApiSpec": "nutritionai-listAiGuidanceNotes.openapi.json",
+          "scalarHtml": "nutritionai-listAiGuidanceNotes.scalar.html"
+        },
+        {
+          "name": "_fetchListAiSession",
+          "docHtml": "nutritionai-_fetchListAiSession.html",
+          "openApiSpec": "nutritionai-_fetchListAiSession.openapi.json",
+          "scalarHtml": "nutritionai-_fetchListAiSession.scalar.html"
+        },
+        {
+          "name": "_fetchListAiCandidateMeal",
+          "docHtml": "nutritionai-_fetchListAiCandidateMeal.html",
+          "openApiSpec": "nutritionai-_fetchListAiCandidateMeal.openapi.json",
+          "scalarHtml": "nutritionai-_fetchListAiCandidateMeal.scalar.html"
+        },
+        {
+          "name": "_fetchListAiCandidateLine",
+          "docHtml": "nutritionai-_fetchListAiCandidateLine.html",
+          "openApiSpec": "nutritionai-_fetchListAiCandidateLine.openapi.json",
+          "scalarHtml": "nutritionai-_fetchListAiCandidateLine.scalar.html"
+        },
+        {
+          "name": "_fetchListAiGuidanceNote",
+          "docHtml": "nutritionai-_fetchListAiGuidanceNote.html",
+          "openApiSpec": "nutritionai-_fetchListAiGuidanceNote.openapi.json",
+          "scalarHtml": "nutritionai-_fetchListAiGuidanceNote.scalar.html"
+        }
+      ]
+    },
+    "agenthub": {
+      "name": "agenthub",
+      "fullname": "agenthub",
+      "openApiSpec": "agenthub.openapi.json",
+      "scalarHtml": "agenthub.scalar.html",
+      "apis": [
+        {
+          "name": "getAgentOverride",
+          "docHtml": "agenthub-getAgentOverride.html",
+          "openApiSpec": "agenthub-getAgentOverride.openapi.json",
+          "scalarHtml": "agenthub-getAgentOverride.scalar.html"
+        },
+        {
+          "name": "listAgentOverrides",
+          "docHtml": "agenthub-listAgentOverrides.html",
+          "openApiSpec": "agenthub-listAgentOverrides.openapi.json",
+          "scalarHtml": "agenthub-listAgentOverrides.scalar.html"
+        },
+        {
+          "name": "createAgentOverride",
+          "docHtml": "agenthub-createAgentOverride.html",
+          "openApiSpec": "agenthub-createAgentOverride.openapi.json",
+          "scalarHtml": "agenthub-createAgentOverride.scalar.html"
+        },
+        {
+          "name": "updateAgentOverride",
+          "docHtml": "agenthub-updateAgentOverride.html",
+          "openApiSpec": "agenthub-updateAgentOverride.openapi.json",
+          "scalarHtml": "agenthub-updateAgentOverride.scalar.html"
+        },
+        {
+          "name": "deleteAgentOverride",
+          "docHtml": "agenthub-deleteAgentOverride.html",
+          "openApiSpec": "agenthub-deleteAgentOverride.openapi.json",
+          "scalarHtml": "agenthub-deleteAgentOverride.scalar.html"
+        },
+        {
+          "name": "listToolCatalog",
+          "docHtml": "agenthub-listToolCatalog.html",
+          "openApiSpec": "agenthub-listToolCatalog.openapi.json",
+          "scalarHtml": "agenthub-listToolCatalog.scalar.html"
+        },
+        {
+          "name": "getToolCatalogEntry",
+          "docHtml": "agenthub-getToolCatalogEntry.html",
+          "openApiSpec": "agenthub-getToolCatalogEntry.openapi.json",
+          "scalarHtml": "agenthub-getToolCatalogEntry.scalar.html"
+        },
+        {
+          "name": "listAgentExecutions",
+          "docHtml": "agenthub-listAgentExecutions.html",
+          "openApiSpec": "agenthub-listAgentExecutions.openapi.json",
+          "scalarHtml": "agenthub-listAgentExecutions.scalar.html"
+        },
+        {
+          "name": "getAgentExecution",
+          "docHtml": "agenthub-getAgentExecution.html",
+          "openApiSpec": "agenthub-getAgentExecution.openapi.json",
+          "scalarHtml": "agenthub-getAgentExecution.scalar.html"
+        },
+        {
+          "name": "_fetchListSys_agentOverride",
+          "docHtml": "agenthub-_fetchListSys_agentOverride.html",
+          "openApiSpec": "agenthub-_fetchListSys_agentOverride.openapi.json",
+          "scalarHtml": "agenthub-_fetchListSys_agentOverride.scalar.html"
+        },
+        {
+          "name": "_fetchListSys_agentExecution",
+          "docHtml": "agenthub-_fetchListSys_agentExecution.html",
+          "openApiSpec": "agenthub-_fetchListSys_agentExecution.openapi.json",
+          "scalarHtml": "agenthub-_fetchListSys_agentExecution.scalar.html"
+        },
+        {
+          "name": "_fetchListSys_toolCatalog",
+          "docHtml": "agenthub-_fetchListSys_toolCatalog.html",
+          "openApiSpec": "agenthub-_fetchListSys_toolCatalog.openapi.json",
+          "scalarHtml": "agenthub-_fetchListSys_toolCatalog.scalar.html"
+        }
+      ]
+    }
+  }
+}
