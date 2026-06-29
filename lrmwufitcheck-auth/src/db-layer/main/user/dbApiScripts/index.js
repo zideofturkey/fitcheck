@@ -1,0 +1,15 @@
+module.exports = {
+  dbScriptGetUser: require("./dbScriptGetUser"),
+  dbScriptUpdateUser: require("./dbScriptUpdateUser"),
+  dbScriptUpdateProfile: require("./dbScriptUpdateProfile"),
+  dbScriptCreateUser: require("./dbScriptCreateUser"),
+  dbScriptDeleteUser: require("./dbScriptDeleteUser"),
+  dbScriptArchiveProfile: require("./dbScriptArchiveProfile"),
+  dbScriptListUsers: require("./dbScriptListUsers"),
+  dbScriptSearchUsers: require("./dbScriptSearchUsers"),
+  dbScriptUpdateUserrole: require("./dbScriptUpdateUserrole"),
+  dbScriptUpdateUserpassword: require("./dbScriptUpdateUserpassword"),
+  dbScriptUpdateUserpasswordbyadmin: require("./dbScriptUpdateUserpasswordbyadmin"),
+  dbScriptGetBriefuser: require("./dbScriptGetBriefuser"),
+  dbScriptStreamTest: require("./dbScriptStreamTest"),
+};

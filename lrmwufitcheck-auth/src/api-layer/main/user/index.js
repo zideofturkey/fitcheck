@@ -1,0 +1,15 @@
+module.exports = {
+  GetUserManager: require("./get-user-api"),
+  UpdateUserManager: require("./update-user-api"),
+  UpdateProfileManager: require("./update-profile-api"),
+  CreateUserManager: require("./create-user-api"),
+  DeleteUserManager: require("./delete-user-api"),
+  ArchiveProfileManager: require("./archive-profile-api"),
+  ListUsersManager: require("./list-users-api"),
+  SearchUsersManager: require("./search-users-api"),
+  UpdateUserRoleManager: require("./update-userrole-api"),
+  UpdateUserPasswordManager: require("./update-userpassword-api"),
+  UpdateUserPasswordByAdminManager: require("./update-userpasswordbyadmin-api"),
+  GetBriefUserManager: require("./get-briefuser-api"),
+  StreamTestManager: require("./stream-test-api"),
+};

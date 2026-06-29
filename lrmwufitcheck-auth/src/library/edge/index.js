@@ -1,0 +1,16 @@
+module.exports = {
+  m2mCreateUser: require("./m2mCreateUser.js"),
+  m2mBulkCreateUser: require("./m2mBulkCreateUser.js"),
+  m2mUpdateUserById: require("./m2mUpdateUserById.js"),
+  m2mDeleteUserById: require("./m2mDeleteUserById.js"),
+  m2mUpdateUserByQuery: require("./m2mUpdateUserByQuery.js"),
+  m2mDeleteUserByQuery: require("./m2mDeleteUserByQuery.js"),
+  m2mUpdateUserByIdList: require("./m2mUpdateUserByIdList.js"),
+  m2mCreateUserAvatarsFile: require("./m2mCreateUserAvatarsFile.js"),
+  m2mBulkCreateUserAvatarsFile: require("./m2mBulkCreateUserAvatarsFile.js"),
+  m2mUpdateUserAvatarsFileById: require("./m2mUpdateUserAvatarsFileById.js"),
+  m2mDeleteUserAvatarsFileById: require("./m2mDeleteUserAvatarsFileById.js"),
+  m2mUpdateUserAvatarsFileByQuery: require("./m2mUpdateUserAvatarsFileByQuery.js"),
+  m2mDeleteUserAvatarsFileByQuery: require("./m2mDeleteUserAvatarsFileByQuery.js"),
+  m2mUpdateUserAvatarsFileByIdList: require("./m2mUpdateUserAvatarsFileByIdList.js"),
+};

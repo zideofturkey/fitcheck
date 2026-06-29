@@ -1,0 +1,16 @@
+module.exports = {
+  m2mCreateUser: require("./edge/m2mCreateUser.js"),
+  m2mBulkCreateUser: require("./edge/m2mBulkCreateUser.js"),
+  m2mUpdateUserById: require("./edge/m2mUpdateUserById.js"),
+  m2mDeleteUserById: require("./edge/m2mDeleteUserById.js"),
+  m2mUpdateUserByQuery: require("./edge/m2mUpdateUserByQuery.js"),
+  m2mDeleteUserByQuery: require("./edge/m2mDeleteUserByQuery.js"),
+  m2mUpdateUserByIdList: require("./edge/m2mUpdateUserByIdList.js"),
+  m2mCreateUserAvatarsFile: require("./edge/m2mCreateUserAvatarsFile.js"),
+  m2mBulkCreateUserAvatarsFile: require("./edge/m2mBulkCreateUserAvatarsFile.js"),
+  m2mUpdateUserAvatarsFileById: require("./edge/m2mUpdateUserAvatarsFileById.js"),
+  m2mDeleteUserAvatarsFileById: require("./edge/m2mDeleteUserAvatarsFileById.js"),
+  m2mUpdateUserAvatarsFileByQuery: require("./edge/m2mUpdateUserAvatarsFileByQuery.js"),
+  m2mDeleteUserAvatarsFileByQuery: require("./edge/m2mDeleteUserAvatarsFileByQuery.js"),
+  m2mUpdateUserAvatarsFileByIdList: require("./edge/m2mUpdateUserAvatarsFileByIdList.js"),
+};

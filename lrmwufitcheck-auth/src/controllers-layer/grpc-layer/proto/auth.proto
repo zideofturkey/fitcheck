@@ -1,0 +1,169 @@
+
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message user {
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    string avatar = 5;
+    string roleId = 6;
+    bool emailVerified = 7;
+}
+message userAvatarsFile {
+    string id = 1;
+    string fileName = 2;
+    string mimeType = 3;
+    int32 fileSize = 4;
+    string accessKey = 5;
+    string ownerId = 6;
+    string fileData = 7;
+    google.protobuf.Struct metadata = 8;
+    string scanStatus = 9;
+    string scanResult = 10;
+    google.protobuf.Timestamp scannedAt = 11;
+    string userId = 12;
+}
+
+
+message listUsersResponseItem {
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    string avatar = 5;
+    string roleId = 6;
+    bool emailVerified = 7;
+}
+message searchUsersResponseItem {
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    string avatar = 5;
+    string roleId = 6;
+    bool emailVerified = 7;
+}
+
+message getUserRequest {
+    string userId = 1;
+}
+message getUserResponse {
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    string avatar = 5;
+    string roleId = 6;
+    bool emailVerified = 7;
+}
+message updateUserRequest {
+    string userId = 1;
+    optional string fullname = 2;
+    optional string avatar = 3;
+}
+message updateProfileRequest {
+    optional string fullname = 1;
+    optional string avatar = 2;
+}
+message createUserRequest {
+    string email = 1;
+    string password = 2;
+    string fullname = 3;
+    optional string avatar = 4;
+}
+message deleteUserRequest {
+    string userId = 1;
+}
+message archiveProfileRequest {
+    
+}
+message listUsersRequest {
+    optional string email = 1;
+    optional string fullname = 2;
+    optional string roleId = 3;
+}
+message listUsersResponse {
+    repeated user items = 1;
+}
+message searchUsersRequest {
+    string keyword = 1;
+    optional string roleId = 2;
+}
+message searchUsersResponse {
+    repeated user items = 1;
+}
+message updateUserRoleRequest {
+    string userId = 1;
+    string roleId = 2;
+}
+message updateUserPasswordRequest {
+    string oldPassword = 1;
+    string newPassword = 2;
+}
+message updateUserPasswordByAdminRequest {
+    string userId = 1;
+    string password = 2;
+}
+message getBriefUserRequest {
+    string userId = 1;
+}
+message getBriefUserResponse {
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    string avatar = 5;
+    string roleId = 6;
+    bool emailVerified = 7;
+}
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service authService {
+
+    rpc getUser (getUserRequest) returns (getUserResponse);
+
+    rpc updateUser (updateUserRequest) returns (user);
+
+    rpc updateProfile (updateProfileRequest) returns (user);
+
+    rpc createUser (createUserRequest) returns (user);
+
+    rpc deleteUser (deleteUserRequest) returns (user);
+
+    rpc archiveProfile (archiveProfileRequest) returns (user);
+
+    rpc listUsers (listUsersRequest) returns (listUsersResponse);
+
+    rpc searchUsers (searchUsersRequest) returns (searchUsersResponse);
+
+    rpc updateUserRole (updateUserRoleRequest) returns (user);
+
+    rpc updateUserPassword (updateUserPasswordRequest) returns (user);
+
+    rpc updateUserPasswordByAdmin (updateUserPasswordByAdminRequest) returns (user);
+
+    rpc getBriefUser (getBriefUserRequest) returns (getBriefUserResponse);
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}
