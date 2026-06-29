@@ -1,0 +1,1470 @@
+{
+  "projectName": "fitcheck",
+  "projectFullName": "FitCheck",
+  "sidebar": [
+    {
+      "title": "Getting Started",
+      "items": [
+        {
+          "title": "Introduction",
+          "url": "intro"
+        }
+      ],
+      "expanded": true
+    },
+    {
+      "title": "Frontend Prompts",
+      "items": [
+        {
+          "title": "Project Introduction & Setup",
+          "url": "frontend-prompts/frontend-prompt-1-projectIntroduction"
+        },
+        {
+          "title": "Authentication Management",
+          "url": "frontend-prompts/frontend-prompt-2-authManagement"
+        },
+        {
+          "title": "Verification Management",
+          "url": "frontend-prompts/frontend-prompt-3-verification"
+        },
+        {
+          "title": "Profile Management",
+          "url": "frontend-prompts/frontend-prompt-4-profile"
+        },
+        {
+          "title": "User Management",
+          "url": "frontend-prompts/frontend-prompt-5-userManagement"
+        },
+        {
+          "title": "MCP BFF Integration",
+          "url": "frontend-prompts/frontend-prompt-6-mcpbffIntegration"
+        },
+        {
+          "title": "InvitationCenter Service",
+          "url": "frontend-prompts/frontend-prompt-7-invitationCenterService"
+        },
+        {
+          "title": "NutritionLibrary Service",
+          "url": "frontend-prompts/frontend-prompt-8-nutritionLibraryService"
+        },
+        {
+          "title": "MealTracker Service",
+          "url": "frontend-prompts/frontend-prompt-9-mealTrackerService"
+        },
+        {
+          "title": "NutritionAi Service",
+          "url": "frontend-prompts/frontend-prompt-10-nutritionAiService"
+        },
+        {
+          "title": "AgentHub Service",
+          "url": "frontend-prompts/frontend-prompt-11-agentHubService"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "Auth Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "auth-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "auth-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "auth-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "user Design",
+              "url": "auth-service/user-design"
+            },
+            {
+              "title": "userAvatarsFile Design",
+              "url": "auth-service/userAvatarsFile-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "getUser API",
+              "url": "auth-service/business-api/getUser-api-design"
+            },
+            {
+              "title": "updateUser API",
+              "url": "auth-service/business-api/updateUser-api-design"
+            },
+            {
+              "title": "updateProfile API",
+              "url": "auth-service/business-api/updateProfile-api-design"
+            },
+            {
+              "title": "createUser API",
+              "url": "auth-service/business-api/createUser-api-design"
+            },
+            {
+              "title": "deleteUser API",
+              "url": "auth-service/business-api/deleteUser-api-design"
+            },
+            {
+              "title": "archiveProfile API",
+              "url": "auth-service/business-api/archiveProfile-api-design"
+            },
+            {
+              "title": "listUsers API",
+              "url": "auth-service/business-api/listUsers-api-design"
+            },
+            {
+              "title": "searchUsers API",
+              "url": "auth-service/business-api/searchUsers-api-design"
+            },
+            {
+              "title": "updateUserRole API",
+              "url": "auth-service/business-api/updateUserRole-api-design"
+            },
+            {
+              "title": "updateUserPassword API",
+              "url": "auth-service/business-api/updateUserPassword-api-design"
+            },
+            {
+              "title": "updateUserPasswordByAdmin API",
+              "url": "auth-service/business-api/updateUserPasswordByAdmin-api-design"
+            },
+            {
+              "title": "getBriefUser API",
+              "url": "auth-service/business-api/getBriefUser-api-design"
+            },
+            {
+              "title": "streamTest API",
+              "url": "auth-service/business-api/streamTest-api-design"
+            },
+            {
+              "title": "getUserAvatarsFile API",
+              "url": "auth-service/business-api/getUserAvatarsFile-api-design"
+            },
+            {
+              "title": "listUserAvatarsFiles API",
+              "url": "auth-service/business-api/listUserAvatarsFiles-api-design"
+            },
+            {
+              "title": "deleteUserAvatarsFile API",
+              "url": "auth-service/business-api/deleteUserAvatarsFile-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Database Buckets",
+          "items": [
+            {
+              "title": "userAvatars Bucket",
+              "url": "auth-service/db-buckets/userAvatars-bucket-design"
+            }
+          ],
+          "expanded": false
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "InvitationCenter Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "invitationCenter-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "invitationCenter-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "invitationCenter-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "inviteLink Design",
+              "url": "invitationCenter-service/inviteLink-design"
+            },
+            {
+              "title": "inviteAudit Design",
+              "url": "invitationCenter-service/inviteAudit-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "createInviteLink API",
+              "url": "invitationCenter-service/business-api/createInviteLink-api-design"
+            },
+            {
+              "title": "activateInviteLink API",
+              "url": "invitationCenter-service/business-api/activateInviteLink-api-design"
+            },
+            {
+              "title": "revokeInviteLink API",
+              "url": "invitationCenter-service/business-api/revokeInviteLink-api-design"
+            },
+            {
+              "title": "deliverInviteEmail API",
+              "url": "invitationCenter-service/business-api/deliverInviteEmail-api-design"
+            },
+            {
+              "title": "validateInviteCode API",
+              "url": "invitationCenter-service/business-api/validateInviteCode-api-design"
+            },
+            {
+              "title": "consumeInviteLink API",
+              "url": "invitationCenter-service/business-api/consumeInviteLink-api-design"
+            },
+            {
+              "title": "getInviteLinkByCode API",
+              "url": "invitationCenter-service/business-api/getInviteLinkByCode-api-design"
+            },
+            {
+              "title": "getInviteLink API",
+              "url": "invitationCenter-service/business-api/getInviteLink-api-design"
+            },
+            {
+              "title": "listInviteLinks API",
+              "url": "invitationCenter-service/business-api/listInviteLinks-api-design"
+            },
+            {
+              "title": "listInviteAudits API",
+              "url": "invitationCenter-service/business-api/listInviteAudits-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Service Library",
+          "url": "invitationCenter-service/service-library"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "NutritionLibrary Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "nutritionLibrary-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "nutritionLibrary-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "nutritionLibrary-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "macroTarget Design",
+              "url": "nutritionLibrary-service/macroTarget-design"
+            },
+            {
+              "title": "foodItem Design",
+              "url": "nutritionLibrary-service/foodItem-design"
+            },
+            {
+              "title": "presetMeal Design",
+              "url": "nutritionLibrary-service/presetMeal-design"
+            },
+            {
+              "title": "presetLine Design",
+              "url": "nutritionLibrary-service/presetLine-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "setMacroTarget API",
+              "url": "nutritionLibrary-service/business-api/setMacroTarget-api-design"
+            },
+            {
+              "title": "getMyMacroTarget API",
+              "url": "nutritionLibrary-service/business-api/getMyMacroTarget-api-design"
+            },
+            {
+              "title": "createFoodItem API",
+              "url": "nutritionLibrary-service/business-api/createFoodItem-api-design"
+            },
+            {
+              "title": "getFoodItem API",
+              "url": "nutritionLibrary-service/business-api/getFoodItem-api-design"
+            },
+            {
+              "title": "listFoodItems API",
+              "url": "nutritionLibrary-service/business-api/listFoodItems-api-design"
+            },
+            {
+              "title": "updateFoodItem API",
+              "url": "nutritionLibrary-service/business-api/updateFoodItem-api-design"
+            },
+            {
+              "title": "deleteFoodItem API",
+              "url": "nutritionLibrary-service/business-api/deleteFoodItem-api-design"
+            },
+            {
+              "title": "createPresetMeal API",
+              "url": "nutritionLibrary-service/business-api/createPresetMeal-api-design"
+            },
+            {
+              "title": "getPresetMeal API",
+              "url": "nutritionLibrary-service/business-api/getPresetMeal-api-design"
+            },
+            {
+              "title": "listPresetMeals API",
+              "url": "nutritionLibrary-service/business-api/listPresetMeals-api-design"
+            },
+            {
+              "title": "updatePresetMeal API",
+              "url": "nutritionLibrary-service/business-api/updatePresetMeal-api-design"
+            },
+            {
+              "title": "deletePresetMeal API",
+              "url": "nutritionLibrary-service/business-api/deletePresetMeal-api-design"
+            },
+            {
+              "title": "addPresetLine API",
+              "url": "nutritionLibrary-service/business-api/addPresetLine-api-design"
+            },
+            {
+              "title": "listPresetLines API",
+              "url": "nutritionLibrary-service/business-api/listPresetLines-api-design"
+            },
+            {
+              "title": "deletePresetLine API",
+              "url": "nutritionLibrary-service/business-api/deletePresetLine-api-design"
+            },
+            {
+              "title": "getPresetMealForLogging API",
+              "url": "nutritionLibrary-service/business-api/getPresetMealForLogging-api-design"
+            },
+            {
+              "title": "getFoodItemForLogging API",
+              "url": "nutritionLibrary-service/business-api/getFoodItemForLogging-api-design"
+            },
+            {
+              "title": "getMyMacroTargetForLogging API",
+              "url": "nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Service Library",
+          "url": "nutritionLibrary-service/service-library"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "MealTracker Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "mealTracker-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "mealTracker-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "mealTracker-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "mealLog Design",
+              "url": "mealTracker-service/mealLog-design"
+            },
+            {
+              "title": "mealLine Design",
+              "url": "mealTracker-service/mealLine-design"
+            },
+            {
+              "title": "nutritionDay Design",
+              "url": "mealTracker-service/nutritionDay-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "createMealLog API",
+              "url": "mealTracker-service/business-api/createMealLog-api-design"
+            },
+            {
+              "title": "getMealLog API",
+              "url": "mealTracker-service/business-api/getMealLog-api-design"
+            },
+            {
+              "title": "listMealLogs API",
+              "url": "mealTracker-service/business-api/listMealLogs-api-design"
+            },
+            {
+              "title": "updateMealLog API",
+              "url": "mealTracker-service/business-api/updateMealLog-api-design"
+            },
+            {
+              "title": "deleteMealLog API",
+              "url": "mealTracker-service/business-api/deleteMealLog-api-design"
+            },
+            {
+              "title": "createMealLine API",
+              "url": "mealTracker-service/business-api/createMealLine-api-design"
+            },
+            {
+              "title": "updateMealLine API",
+              "url": "mealTracker-service/business-api/updateMealLine-api-design"
+            },
+            {
+              "title": "deleteMealLine API",
+              "url": "mealTracker-service/business-api/deleteMealLine-api-design"
+            },
+            {
+              "title": "listMealLines API",
+              "url": "mealTracker-service/business-api/listMealLines-api-design"
+            },
+            {
+              "title": "getDailyProgress API",
+              "url": "mealTracker-service/business-api/getDailyProgress-api-design"
+            },
+            {
+              "title": "getNutritionDay API",
+              "url": "mealTracker-service/business-api/getNutritionDay-api-design"
+            },
+            {
+              "title": "listNutritionDays API",
+              "url": "mealTracker-service/business-api/listNutritionDays-api-design"
+            },
+            {
+              "title": "getWeeklyAnalytics API",
+              "url": "mealTracker-service/business-api/getWeeklyAnalytics-api-design"
+            },
+            {
+              "title": "getMonthlyAnalytics API",
+              "url": "mealTracker-service/business-api/getMonthlyAnalytics-api-design"
+            },
+            {
+              "title": "triggerDailyReminderCheck API",
+              "url": "mealTracker-service/business-api/triggerDailyReminderCheck-api-design"
+            },
+            {
+              "title": "triggerDailySummary API",
+              "url": "mealTracker-service/business-api/triggerDailySummary-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Service Library",
+          "url": "mealTracker-service/service-library"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "NutritionAi Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "nutritionAi-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "nutritionAi-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "nutritionAi-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "aiSession Design",
+              "url": "nutritionAi-service/aiSession-design"
+            },
+            {
+              "title": "aiCandidateMeal Design",
+              "url": "nutritionAi-service/aiCandidateMeal-design"
+            },
+            {
+              "title": "aiCandidateLine Design",
+              "url": "nutritionAi-service/aiCandidateLine-design"
+            },
+            {
+              "title": "aiGuidanceNote Design",
+              "url": "nutritionAi-service/aiGuidanceNote-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "parseMeal API",
+              "url": "nutritionAi-service/business-api/parseMeal-api-design"
+            },
+            {
+              "title": "confirmCandidateMeal API",
+              "url": "nutritionAi-service/business-api/confirmCandidateMeal-api-design"
+            },
+            {
+              "title": "askNutritionQuestion API",
+              "url": "nutritionAi-service/business-api/askNutritionQuestion-api-design"
+            },
+            {
+              "title": "getAiSession API",
+              "url": "nutritionAi-service/business-api/getAiSession-api-design"
+            },
+            {
+              "title": "listAiSessions API",
+              "url": "nutritionAi-service/business-api/listAiSessions-api-design"
+            },
+            {
+              "title": "getAiCandidateMeal API",
+              "url": "nutritionAi-service/business-api/getAiCandidateMeal-api-design"
+            },
+            {
+              "title": "listAiCandidateMeals API",
+              "url": "nutritionAi-service/business-api/listAiCandidateMeals-api-design"
+            },
+            {
+              "title": "updateAiCandidateLine API",
+              "url": "nutritionAi-service/business-api/updateAiCandidateLine-api-design"
+            },
+            {
+              "title": "rejectCandidateMeal API",
+              "url": "nutritionAi-service/business-api/rejectCandidateMeal-api-design"
+            },
+            {
+              "title": "getAiGuidanceNote API",
+              "url": "nutritionAi-service/business-api/getAiGuidanceNote-api-design"
+            },
+            {
+              "title": "listAiGuidanceNotes API",
+              "url": "nutritionAi-service/business-api/listAiGuidanceNotes-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Service Library",
+          "url": "nutritionAi-service/service-library"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "AgentHub Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "agentHub-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "agentHub-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "agentHub-service/event-guide"
+        },
+        {
+          "title": "Data Objects",
+          "items": [
+            {
+              "title": "sys_agentOverride Design",
+              "url": "agentHub-service/sys_agentOverride-design"
+            },
+            {
+              "title": "sys_agentExecution Design",
+              "url": "agentHub-service/sys_agentExecution-design"
+            },
+            {
+              "title": "sys_toolCatalog Design",
+              "url": "agentHub-service/sys_toolCatalog-design"
+            },
+            {
+              "title": "sys_agentConversation Design",
+              "url": "agentHub-service/sys_agentConversation-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "Business APIs",
+          "items": [
+            {
+              "title": "getAgentOverride API",
+              "url": "agentHub-service/business-api/getAgentOverride-api-design"
+            },
+            {
+              "title": "listAgentOverrides API",
+              "url": "agentHub-service/business-api/listAgentOverrides-api-design"
+            },
+            {
+              "title": "createAgentOverride API",
+              "url": "agentHub-service/business-api/createAgentOverride-api-design"
+            },
+            {
+              "title": "updateAgentOverride API",
+              "url": "agentHub-service/business-api/updateAgentOverride-api-design"
+            },
+            {
+              "title": "deleteAgentOverride API",
+              "url": "agentHub-service/business-api/deleteAgentOverride-api-design"
+            },
+            {
+              "title": "listToolCatalog API",
+              "url": "agentHub-service/business-api/listToolCatalog-api-design"
+            },
+            {
+              "title": "getToolCatalogEntry API",
+              "url": "agentHub-service/business-api/getToolCatalogEntry-api-design"
+            },
+            {
+              "title": "listAgentExecutions API",
+              "url": "agentHub-service/business-api/listAgentExecutions-api-design"
+            },
+            {
+              "title": "getAgentExecution API",
+              "url": "agentHub-service/business-api/getAgentExecution-api-design"
+            },
+            {
+              "title": "listAgentChats API",
+              "url": "agentHub-service/business-api/listAgentChats-api-design"
+            },
+            {
+              "title": "getAgentChatMessages API",
+              "url": "agentHub-service/business-api/getAgentChatMessages-api-design"
+            }
+          ],
+          "expanded": false
+        },
+        {
+          "title": "AI Agents",
+          "items": [
+            {
+              "title": "nutritionGuidanceAgent Agent",
+              "url": "agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design"
+            },
+            {
+              "title": "mealParsingAgent Agent",
+              "url": "agentHub-service/ai-agents/mealParsingAgent-agent-design"
+            }
+          ],
+          "expanded": false
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "Bff Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "bff-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "bff-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "bff-service/event-guide"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "Notification Service",
+      "items": [
+        {
+          "title": "Service Design",
+          "url": "notification-service/service-design"
+        },
+        {
+          "title": "REST API Guide",
+          "url": "notification-service/rest-api-guide"
+        },
+        {
+          "title": "Event Guide",
+          "url": "notification-service/event-guide"
+        }
+      ],
+      "expanded": false
+    },
+    {
+      "title": "LLM Documents",
+      "items": [
+        {
+          "title": "Documentation Index",
+          "url": "llm/llms"
+        },
+        {
+          "title": "Complete Documentation",
+          "url": "llm/llms-full"
+        },
+        {
+          "title": "REST API Reference",
+          "url": "llm/llms-restapi"
+        },
+        {
+          "title": "Frontend Prompts",
+          "url": "llm/llms-prompts"
+        }
+      ],
+      "expanded": false
+    }
+  ],
+  "documents": [
+    {
+      "url": "intro",
+      "title": "FitCheck",
+      "mdPath": "intro.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-1-projectIntroduction",
+      "title": "Project Introduction & Setup",
+      "mdPath": "frontend-prompts/frontend-prompt-1-projectIntroduction.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-2-authManagement",
+      "title": "Authentication Management",
+      "mdPath": "frontend-prompts/frontend-prompt-2-authManagement.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-3-verification",
+      "title": "Verification Management",
+      "mdPath": "frontend-prompts/frontend-prompt-3-verification.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-4-profile",
+      "title": "Profile Management",
+      "mdPath": "frontend-prompts/frontend-prompt-4-profile.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-5-userManagement",
+      "title": "User Management",
+      "mdPath": "frontend-prompts/frontend-prompt-5-userManagement.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-6-mcpbffIntegration",
+      "title": "MCP BFF Integration",
+      "mdPath": "frontend-prompts/frontend-prompt-6-mcpbffIntegration.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-7-invitationCenterService",
+      "title": "InvitationCenter Service",
+      "mdPath": "frontend-prompts/frontend-prompt-7-invitationCenterService.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-8-nutritionLibraryService",
+      "title": "NutritionLibrary Service",
+      "mdPath": "frontend-prompts/frontend-prompt-8-nutritionLibraryService.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-9-mealTrackerService",
+      "title": "MealTracker Service",
+      "mdPath": "frontend-prompts/frontend-prompt-9-mealTrackerService.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-10-nutritionAiService",
+      "title": "NutritionAi Service",
+      "mdPath": "frontend-prompts/frontend-prompt-10-nutritionAiService.md"
+    },
+    {
+      "url": "frontend-prompts/frontend-prompt-11-agentHubService",
+      "title": "AgentHub Service",
+      "mdPath": "frontend-prompts/frontend-prompt-11-agentHubService.md"
+    },
+    {
+      "url": "auth-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "auth-service/service-design.md"
+    },
+    {
+      "url": "auth-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "auth-service/rest-api-guide.md"
+    },
+    {
+      "url": "auth-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "auth-service/event-guide.md"
+    },
+    {
+      "url": "auth-service/user-design",
+      "title": "Service Design Specification - Object Design for user",
+      "mdPath": "auth-service/user-design.md"
+    },
+    {
+      "url": "auth-service/userAvatarsFile-design",
+      "title": "Service Design Specification - Object Design for userAvatarsFile",
+      "mdPath": "auth-service/userAvatarsFile-design.md"
+    },
+    {
+      "url": "auth-service/business-api/getUser-api-design",
+      "title": "Business API Design Specification - `Get User`",
+      "mdPath": "auth-service/business-api/getUser-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/updateUser-api-design",
+      "title": "Business API Design Specification - `Update User`",
+      "mdPath": "auth-service/business-api/updateUser-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/updateProfile-api-design",
+      "title": "Business API Design Specification - `Update Profile`",
+      "mdPath": "auth-service/business-api/updateProfile-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/createUser-api-design",
+      "title": "Business API Design Specification - `Create User`",
+      "mdPath": "auth-service/business-api/createUser-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/deleteUser-api-design",
+      "title": "Business API Design Specification - `Delete User`",
+      "mdPath": "auth-service/business-api/deleteUser-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/archiveProfile-api-design",
+      "title": "Business API Design Specification - `Archive Profile`",
+      "mdPath": "auth-service/business-api/archiveProfile-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/listUsers-api-design",
+      "title": "Business API Design Specification - `List Users`",
+      "mdPath": "auth-service/business-api/listUsers-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/searchUsers-api-design",
+      "title": "Business API Design Specification - `Search Users`",
+      "mdPath": "auth-service/business-api/searchUsers-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/updateUserRole-api-design",
+      "title": "Business API Design Specification - `Update Userrole`",
+      "mdPath": "auth-service/business-api/updateUserRole-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/updateUserPassword-api-design",
+      "title": "Business API Design Specification - `Update Userpassword`",
+      "mdPath": "auth-service/business-api/updateUserPassword-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/updateUserPasswordByAdmin-api-design",
+      "title": "Business API Design Specification - `Update Userpasswordbyadmin`",
+      "mdPath": "auth-service/business-api/updateUserPasswordByAdmin-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/getBriefUser-api-design",
+      "title": "Business API Design Specification - `Get Briefuser`",
+      "mdPath": "auth-service/business-api/getBriefUser-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/streamTest-api-design",
+      "title": "Business API Design Specification - `Stream Test`",
+      "mdPath": "auth-service/business-api/streamTest-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/getUserAvatarsFile-api-design",
+      "title": "Business API Design Specification - `Get Useravatarsfile`",
+      "mdPath": "auth-service/business-api/getUserAvatarsFile-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/listUserAvatarsFiles-api-design",
+      "title": "Business API Design Specification - `List Useravatarsfiles`",
+      "mdPath": "auth-service/business-api/listUserAvatarsFiles-api-design.md"
+    },
+    {
+      "url": "auth-service/business-api/deleteUserAvatarsFile-api-design",
+      "title": "Business API Design Specification - `Delete Useravatarsfile`",
+      "mdPath": "auth-service/business-api/deleteUserAvatarsFile-api-design.md"
+    },
+    {
+      "url": "auth-service/db-buckets/userAvatars-bucket-design",
+      "title": "Database Bucket Design Specification - `userAvatars`",
+      "mdPath": "auth-service/db-buckets/userAvatars-bucket-design.md"
+    },
+    {
+      "url": "invitationCenter-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "invitationCenter-service/service-design.md"
+    },
+    {
+      "url": "invitationCenter-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "invitationCenter-service/rest-api-guide.md"
+    },
+    {
+      "url": "invitationCenter-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "invitationCenter-service/event-guide.md"
+    },
+    {
+      "url": "invitationCenter-service/inviteLink-design",
+      "title": "Service Design Specification - Object Design for inviteLink",
+      "mdPath": "invitationCenter-service/inviteLink-design.md"
+    },
+    {
+      "url": "invitationCenter-service/inviteAudit-design",
+      "title": "Service Design Specification - Object Design for inviteAudit",
+      "mdPath": "invitationCenter-service/inviteAudit-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/createInviteLink-api-design",
+      "title": "Business API Design Specification - `Create Invitelink`",
+      "mdPath": "invitationCenter-service/business-api/createInviteLink-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/activateInviteLink-api-design",
+      "title": "Business API Design Specification - `Activate Invitelink`",
+      "mdPath": "invitationCenter-service/business-api/activateInviteLink-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/revokeInviteLink-api-design",
+      "title": "Business API Design Specification - `Revoke Invitelink`",
+      "mdPath": "invitationCenter-service/business-api/revokeInviteLink-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/deliverInviteEmail-api-design",
+      "title": "Business API Design Specification - `Deliver Inviteemail`",
+      "mdPath": "invitationCenter-service/business-api/deliverInviteEmail-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/validateInviteCode-api-design",
+      "title": "Business API Design Specification - `Validate Invitecode`",
+      "mdPath": "invitationCenter-service/business-api/validateInviteCode-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/consumeInviteLink-api-design",
+      "title": "Business API Design Specification - `Consume Invitelink`",
+      "mdPath": "invitationCenter-service/business-api/consumeInviteLink-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/getInviteLinkByCode-api-design",
+      "title": "Business API Design Specification - `Get Invitelinkbycode`",
+      "mdPath": "invitationCenter-service/business-api/getInviteLinkByCode-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/getInviteLink-api-design",
+      "title": "Business API Design Specification - `Get Invitelink`",
+      "mdPath": "invitationCenter-service/business-api/getInviteLink-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/listInviteLinks-api-design",
+      "title": "Business API Design Specification - `List Invitelinks`",
+      "mdPath": "invitationCenter-service/business-api/listInviteLinks-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/business-api/listInviteAudits-api-design",
+      "title": "Business API Design Specification - `List Inviteaudits`",
+      "mdPath": "invitationCenter-service/business-api/listInviteAudits-api-design.md"
+    },
+    {
+      "url": "invitationCenter-service/service-library",
+      "title": "Service Library - `invitationCenter`",
+      "mdPath": "invitationCenter-service/service-library.md"
+    },
+    {
+      "url": "nutritionLibrary-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "nutritionLibrary-service/service-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "nutritionLibrary-service/rest-api-guide.md"
+    },
+    {
+      "url": "nutritionLibrary-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "nutritionLibrary-service/event-guide.md"
+    },
+    {
+      "url": "nutritionLibrary-service/macroTarget-design",
+      "title": "Service Design Specification - Object Design for macroTarget",
+      "mdPath": "nutritionLibrary-service/macroTarget-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/foodItem-design",
+      "title": "Service Design Specification - Object Design for foodItem",
+      "mdPath": "nutritionLibrary-service/foodItem-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/presetMeal-design",
+      "title": "Service Design Specification - Object Design for presetMeal",
+      "mdPath": "nutritionLibrary-service/presetMeal-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/presetLine-design",
+      "title": "Service Design Specification - Object Design for presetLine",
+      "mdPath": "nutritionLibrary-service/presetLine-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/setMacroTarget-api-design",
+      "title": "Business API Design Specification - `Set Macrotarget`",
+      "mdPath": "nutritionLibrary-service/business-api/setMacroTarget-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getMyMacroTarget-api-design",
+      "title": "Business API Design Specification - `Get Mymacrotarget`",
+      "mdPath": "nutritionLibrary-service/business-api/getMyMacroTarget-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/createFoodItem-api-design",
+      "title": "Business API Design Specification - `Create Fooditem`",
+      "mdPath": "nutritionLibrary-service/business-api/createFoodItem-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getFoodItem-api-design",
+      "title": "Business API Design Specification - `Get Fooditem`",
+      "mdPath": "nutritionLibrary-service/business-api/getFoodItem-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/listFoodItems-api-design",
+      "title": "Business API Design Specification - `List Fooditems`",
+      "mdPath": "nutritionLibrary-service/business-api/listFoodItems-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/updateFoodItem-api-design",
+      "title": "Business API Design Specification - `Update Fooditem`",
+      "mdPath": "nutritionLibrary-service/business-api/updateFoodItem-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/deleteFoodItem-api-design",
+      "title": "Business API Design Specification - `Delete Fooditem`",
+      "mdPath": "nutritionLibrary-service/business-api/deleteFoodItem-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/createPresetMeal-api-design",
+      "title": "Business API Design Specification - `Create Presetmeal`",
+      "mdPath": "nutritionLibrary-service/business-api/createPresetMeal-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getPresetMeal-api-design",
+      "title": "Business API Design Specification - `Get Presetmeal`",
+      "mdPath": "nutritionLibrary-service/business-api/getPresetMeal-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/listPresetMeals-api-design",
+      "title": "Business API Design Specification - `List Presetmeals`",
+      "mdPath": "nutritionLibrary-service/business-api/listPresetMeals-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/updatePresetMeal-api-design",
+      "title": "Business API Design Specification - `Update Presetmeal`",
+      "mdPath": "nutritionLibrary-service/business-api/updatePresetMeal-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/deletePresetMeal-api-design",
+      "title": "Business API Design Specification - `Delete Presetmeal`",
+      "mdPath": "nutritionLibrary-service/business-api/deletePresetMeal-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/addPresetLine-api-design",
+      "title": "Business API Design Specification - `Add Presetline`",
+      "mdPath": "nutritionLibrary-service/business-api/addPresetLine-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/listPresetLines-api-design",
+      "title": "Business API Design Specification - `List Presetlines`",
+      "mdPath": "nutritionLibrary-service/business-api/listPresetLines-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/deletePresetLine-api-design",
+      "title": "Business API Design Specification - `Delete Presetline`",
+      "mdPath": "nutritionLibrary-service/business-api/deletePresetLine-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getPresetMealForLogging-api-design",
+      "title": "Business API Design Specification - `Get Presetmealforlogging`",
+      "mdPath": "nutritionLibrary-service/business-api/getPresetMealForLogging-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getFoodItemForLogging-api-design",
+      "title": "Business API Design Specification - `Get Fooditemforlogging`",
+      "mdPath": "nutritionLibrary-service/business-api/getFoodItemForLogging-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design",
+      "title": "Business API Design Specification - `Get Mymacrotargetforlogging`",
+      "mdPath": "nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design.md"
+    },
+    {
+      "url": "nutritionLibrary-service/service-library",
+      "title": "Service Library - `nutritionLibrary`",
+      "mdPath": "nutritionLibrary-service/service-library.md"
+    },
+    {
+      "url": "mealTracker-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "mealTracker-service/service-design.md"
+    },
+    {
+      "url": "mealTracker-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "mealTracker-service/rest-api-guide.md"
+    },
+    {
+      "url": "mealTracker-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "mealTracker-service/event-guide.md"
+    },
+    {
+      "url": "mealTracker-service/mealLog-design",
+      "title": "Service Design Specification - Object Design for mealLog",
+      "mdPath": "mealTracker-service/mealLog-design.md"
+    },
+    {
+      "url": "mealTracker-service/mealLine-design",
+      "title": "Service Design Specification - Object Design for mealLine",
+      "mdPath": "mealTracker-service/mealLine-design.md"
+    },
+    {
+      "url": "mealTracker-service/nutritionDay-design",
+      "title": "Service Design Specification - Object Design for nutritionDay",
+      "mdPath": "mealTracker-service/nutritionDay-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/createMealLog-api-design",
+      "title": "Business API Design Specification - `Create Meallog`",
+      "mdPath": "mealTracker-service/business-api/createMealLog-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/getMealLog-api-design",
+      "title": "Business API Design Specification - `Get Meallog`",
+      "mdPath": "mealTracker-service/business-api/getMealLog-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/listMealLogs-api-design",
+      "title": "Business API Design Specification - `List Meallogs`",
+      "mdPath": "mealTracker-service/business-api/listMealLogs-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/updateMealLog-api-design",
+      "title": "Business API Design Specification - `Update Meallog`",
+      "mdPath": "mealTracker-service/business-api/updateMealLog-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/deleteMealLog-api-design",
+      "title": "Business API Design Specification - `Delete Meallog`",
+      "mdPath": "mealTracker-service/business-api/deleteMealLog-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/createMealLine-api-design",
+      "title": "Business API Design Specification - `Create Mealline`",
+      "mdPath": "mealTracker-service/business-api/createMealLine-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/updateMealLine-api-design",
+      "title": "Business API Design Specification - `Update Mealline`",
+      "mdPath": "mealTracker-service/business-api/updateMealLine-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/deleteMealLine-api-design",
+      "title": "Business API Design Specification - `Delete Mealline`",
+      "mdPath": "mealTracker-service/business-api/deleteMealLine-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/listMealLines-api-design",
+      "title": "Business API Design Specification - `List Meallines`",
+      "mdPath": "mealTracker-service/business-api/listMealLines-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/getDailyProgress-api-design",
+      "title": "Business API Design Specification - `Get Dailyprogress`",
+      "mdPath": "mealTracker-service/business-api/getDailyProgress-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/getNutritionDay-api-design",
+      "title": "Business API Design Specification - `Get Nutritionday`",
+      "mdPath": "mealTracker-service/business-api/getNutritionDay-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/listNutritionDays-api-design",
+      "title": "Business API Design Specification - `List Nutritiondays`",
+      "mdPath": "mealTracker-service/business-api/listNutritionDays-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/getWeeklyAnalytics-api-design",
+      "title": "Business API Design Specification - `Get Weeklyanalytics`",
+      "mdPath": "mealTracker-service/business-api/getWeeklyAnalytics-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/getMonthlyAnalytics-api-design",
+      "title": "Business API Design Specification - `Get Monthlyanalytics`",
+      "mdPath": "mealTracker-service/business-api/getMonthlyAnalytics-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/triggerDailyReminderCheck-api-design",
+      "title": "Business API Design Specification - `Trigger Dailyremindercheck`",
+      "mdPath": "mealTracker-service/business-api/triggerDailyReminderCheck-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/business-api/triggerDailySummary-api-design",
+      "title": "Business API Design Specification - `Trigger Dailysummary`",
+      "mdPath": "mealTracker-service/business-api/triggerDailySummary-api-design.md"
+    },
+    {
+      "url": "mealTracker-service/service-library",
+      "title": "Service Library - `mealTracker`",
+      "mdPath": "mealTracker-service/service-library.md"
+    },
+    {
+      "url": "nutritionAi-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "nutritionAi-service/service-design.md"
+    },
+    {
+      "url": "nutritionAi-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "nutritionAi-service/rest-api-guide.md"
+    },
+    {
+      "url": "nutritionAi-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "nutritionAi-service/event-guide.md"
+    },
+    {
+      "url": "nutritionAi-service/aiSession-design",
+      "title": "Service Design Specification - Object Design for aiSession",
+      "mdPath": "nutritionAi-service/aiSession-design.md"
+    },
+    {
+      "url": "nutritionAi-service/aiCandidateMeal-design",
+      "title": "Service Design Specification - Object Design for aiCandidateMeal",
+      "mdPath": "nutritionAi-service/aiCandidateMeal-design.md"
+    },
+    {
+      "url": "nutritionAi-service/aiCandidateLine-design",
+      "title": "Service Design Specification - Object Design for aiCandidateLine",
+      "mdPath": "nutritionAi-service/aiCandidateLine-design.md"
+    },
+    {
+      "url": "nutritionAi-service/aiGuidanceNote-design",
+      "title": "Service Design Specification - Object Design for aiGuidanceNote",
+      "mdPath": "nutritionAi-service/aiGuidanceNote-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/parseMeal-api-design",
+      "title": "Business API Design Specification - `Parse Meal`",
+      "mdPath": "nutritionAi-service/business-api/parseMeal-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/confirmCandidateMeal-api-design",
+      "title": "Business API Design Specification - `Confirm Candidatemeal`",
+      "mdPath": "nutritionAi-service/business-api/confirmCandidateMeal-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/askNutritionQuestion-api-design",
+      "title": "Business API Design Specification - `Ask Nutritionquestion`",
+      "mdPath": "nutritionAi-service/business-api/askNutritionQuestion-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/getAiSession-api-design",
+      "title": "Business API Design Specification - `Get Aisession`",
+      "mdPath": "nutritionAi-service/business-api/getAiSession-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/listAiSessions-api-design",
+      "title": "Business API Design Specification - `List Aisessions`",
+      "mdPath": "nutritionAi-service/business-api/listAiSessions-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/getAiCandidateMeal-api-design",
+      "title": "Business API Design Specification - `Get Aicandidatemeal`",
+      "mdPath": "nutritionAi-service/business-api/getAiCandidateMeal-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/listAiCandidateMeals-api-design",
+      "title": "Business API Design Specification - `List Aicandidatemeals`",
+      "mdPath": "nutritionAi-service/business-api/listAiCandidateMeals-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/updateAiCandidateLine-api-design",
+      "title": "Business API Design Specification - `Update Aicandidateline`",
+      "mdPath": "nutritionAi-service/business-api/updateAiCandidateLine-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/rejectCandidateMeal-api-design",
+      "title": "Business API Design Specification - `Reject Candidatemeal`",
+      "mdPath": "nutritionAi-service/business-api/rejectCandidateMeal-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/getAiGuidanceNote-api-design",
+      "title": "Business API Design Specification - `Get Aiguidancenote`",
+      "mdPath": "nutritionAi-service/business-api/getAiGuidanceNote-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/business-api/listAiGuidanceNotes-api-design",
+      "title": "Business API Design Specification - `List Aiguidancenotes`",
+      "mdPath": "nutritionAi-service/business-api/listAiGuidanceNotes-api-design.md"
+    },
+    {
+      "url": "nutritionAi-service/service-library",
+      "title": "Service Library - `nutritionAi`",
+      "mdPath": "nutritionAi-service/service-library.md"
+    },
+    {
+      "url": "agentHub-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "agentHub-service/service-design.md"
+    },
+    {
+      "url": "agentHub-service/rest-api-guide",
+      "title": "REST API GUIDE ",
+      "mdPath": "agentHub-service/rest-api-guide.md"
+    },
+    {
+      "url": "agentHub-service/event-guide",
+      "title": "EVENT GUIDE",
+      "mdPath": "agentHub-service/event-guide.md"
+    },
+    {
+      "url": "agentHub-service/sys_agentOverride-design",
+      "title": "Service Design Specification - Object Design for sys_agentOverride",
+      "mdPath": "agentHub-service/sys_agentOverride-design.md"
+    },
+    {
+      "url": "agentHub-service/sys_agentExecution-design",
+      "title": "Service Design Specification - Object Design for sys_agentExecution",
+      "mdPath": "agentHub-service/sys_agentExecution-design.md"
+    },
+    {
+      "url": "agentHub-service/sys_toolCatalog-design",
+      "title": "Service Design Specification - Object Design for sys_toolCatalog",
+      "mdPath": "agentHub-service/sys_toolCatalog-design.md"
+    },
+    {
+      "url": "agentHub-service/sys_agentConversation-design",
+      "title": "Service Design Specification - Object Design for sys_agentConversation",
+      "mdPath": "agentHub-service/sys_agentConversation-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/getAgentOverride-api-design",
+      "title": "Business API Design Specification - `Get Agentoverride`",
+      "mdPath": "agentHub-service/business-api/getAgentOverride-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/listAgentOverrides-api-design",
+      "title": "Business API Design Specification - `List Agentoverrides`",
+      "mdPath": "agentHub-service/business-api/listAgentOverrides-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/createAgentOverride-api-design",
+      "title": "Business API Design Specification - `Create Agentoverride`",
+      "mdPath": "agentHub-service/business-api/createAgentOverride-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/updateAgentOverride-api-design",
+      "title": "Business API Design Specification - `Update Agentoverride`",
+      "mdPath": "agentHub-service/business-api/updateAgentOverride-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/deleteAgentOverride-api-design",
+      "title": "Business API Design Specification - `Delete Agentoverride`",
+      "mdPath": "agentHub-service/business-api/deleteAgentOverride-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/listToolCatalog-api-design",
+      "title": "Business API Design Specification - `List Toolcatalog`",
+      "mdPath": "agentHub-service/business-api/listToolCatalog-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/getToolCatalogEntry-api-design",
+      "title": "Business API Design Specification - `Get Toolcatalogentry`",
+      "mdPath": "agentHub-service/business-api/getToolCatalogEntry-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/listAgentExecutions-api-design",
+      "title": "Business API Design Specification - `List Agentexecutions`",
+      "mdPath": "agentHub-service/business-api/listAgentExecutions-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/getAgentExecution-api-design",
+      "title": "Business API Design Specification - `Get Agentexecution`",
+      "mdPath": "agentHub-service/business-api/getAgentExecution-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/listAgentChats-api-design",
+      "title": "Business API Design Specification - `List Agentchats`",
+      "mdPath": "agentHub-service/business-api/listAgentChats-api-design.md"
+    },
+    {
+      "url": "agentHub-service/business-api/getAgentChatMessages-api-design",
+      "title": "Business API Design Specification - `Get Agentchatmessages`",
+      "mdPath": "agentHub-service/business-api/getAgentChatMessages-api-design.md"
+    },
+    {
+      "url": "agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design",
+      "title": "AI Agent Design Specification - `nutritionGuidanceAgent`",
+      "mdPath": "agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design.md"
+    },
+    {
+      "url": "agentHub-service/ai-agents/mealParsingAgent-agent-design",
+      "title": "AI Agent Design Specification - `mealParsingAgent`",
+      "mdPath": "agentHub-service/ai-agents/mealParsingAgent-agent-design.md"
+    },
+    {
+      "url": "bff-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "bff-service/service-design.md"
+    },
+    {
+      "url": "bff-service/rest-api-guide",
+      "title": "REST API GUIDE",
+      "mdPath": "bff-service/rest-api-guide.md"
+    },
+    {
+      "url": "bff-service/event-guide",
+      "title": "EVENT API GUIDE",
+      "mdPath": "bff-service/event-guide.md"
+    },
+    {
+      "url": "notification-service/service-design",
+      "title": "Service Design Specification",
+      "mdPath": "notification-service/service-design.md"
+    },
+    {
+      "url": "notification-service/rest-api-guide",
+      "title": "REST API GUIDE",
+      "mdPath": "notification-service/rest-api-guide.md"
+    },
+    {
+      "url": "notification-service/event-guide",
+      "title": "EVENT API GUIDE",
+      "mdPath": "notification-service/event-guide.md"
+    }
+  ]
+}

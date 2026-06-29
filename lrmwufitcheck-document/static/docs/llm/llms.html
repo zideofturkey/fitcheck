@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation Index | FitCheck</title>
+  
+  <!-- Highlight.js Theme - Using atom-one-dark for better readability -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --bg-color: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-color: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --sidebar-width: 280px;
+      --header-height: 60px;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+      --link-color: #3b82f6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-color: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #334155;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .header-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 320px;
+    }
+
+    .header-search input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      width: 100%;
+      margin-left: 8px;
+    }
+
+    .header-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .search-results.active {
+      display: block;
+    }
+
+    .search-result-item {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      margin-bottom: 4px;
+    }
+
+    .search-result-snippet {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .search-result-snippet mark {
+      background: var(--warning-color);
+      color: white;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .search-no-results {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-loading {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-see-all {
+      display: block;
+      padding: 12px 16px;
+      text-align: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-top: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-see-all:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* Search highlight on page */
+    .search-highlight {
+      background: var(--warning-color);
+      color: white;
+      padding: 1px 3px;
+      border-radius: 3px;
+      animation: highlight-pulse 2s ease-out;
+    }
+
+    @keyframes highlight-pulse {
+      0%, 50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    .header-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .header-btn.primary {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .header-btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+
+    .sidebar-section {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-section-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-section-title .chevron {
+      transition: transform 0.2s;
+    }
+
+    .sidebar-section.expanded .sidebar-section-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-items {
+      display: none;
+      padding: 0 8px;
+    }
+
+    .sidebar-section.expanded .sidebar-items {
+      display: block;
+    }
+
+    .sidebar-item {
+      display: block;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      margin: 2px 0;
+      transition: all 0.15s;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .sidebar-item.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .sidebar-nested {
+      padding-left: 12px;
+      margin-top: 4px;
+    }
+
+    .sidebar-nested-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 6px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-nested-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-nested-items {
+      display: none;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-items {
+      display: block;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    /* Main Content */
+    .main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 48px;
+    }
+
+    /* Typography */
+    .content h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      color: var(--text-color);
+    }
+
+    .content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .content h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: var(--text-color);
+    }
+
+    .content h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+
+    .content p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .content a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    .content a:hover {
+      text-decoration: underline;
+    }
+
+    .content ul, .content ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .content li {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .content blockquote {
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 20px;
+      margin: 16px 0;
+      background: var(--bg-secondary);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .content blockquote p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    /* Code */
+    .content code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-color);
+    }
+
+    .content pre {
+      margin: 16px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .content pre code {
+      display: block;
+      padding: 16px 20px;
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    .content pre.hljs {
+      margin: 16px 0;
+      border-radius: 8px;
+      background: var(--code-bg);
+    }
+
+    /* Copy button for code blocks */
+    .content pre {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      color: var(--code-text);
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .content pre:hover .copy-btn {
+      opacity: 1;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Tables */
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.875rem;
+    }
+
+    .content th, .content td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    .content th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .content td {
+      color: var(--text-secondary);
+    }
+
+    .content tr:hover td {
+      background: var(--bg-secondary);
+    }
+
+    /* Horizontal Rule */
+    .content hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 32px 0;
+    }
+
+    /* Images */
+    .content img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    /* Mobile */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 99;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .header-search {
+        display: none;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    
+    <a href="../intro.html" class="header-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="var(--primary-color)"/>
+        <path d="M8 10h16M8 16h12M8 22h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      fitcheck
+    </a>
+    
+    <nav class="header-nav">
+      <div class="header-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="Search documentation... (Ctrl+K)" id="search-input" autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+      
+      
+      <button class="header-btn" onclick="copyMarkdown('../../llms.txt')" title="Copy Markdown to clipboard" id="copy-md-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="copy-md-icon">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copy-md-text">Copy</span>
+      </button>
+      <a href="../../llms.txt" class="header-btn" title="Download Markdown">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>MD</span>
+      </a>
+      
+      
+      <button class="header-btn" onclick="toggleTheme()" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="theme-icon">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Getting Started</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../intro.html" class="sidebar-item">
+                Introduction
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Frontend Prompts</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-1-projectIntroduction.html" class="sidebar-item">
+                Project Introduction &amp; Setup
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-2-authManagement.html" class="sidebar-item">
+                Authentication Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-3-verification.html" class="sidebar-item">
+                Verification Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-4-profile.html" class="sidebar-item">
+                Profile Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-5-userManagement.html" class="sidebar-item">
+                User Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-6-mcpbffIntegration.html" class="sidebar-item">
+                MCP BFF Integration
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-7-invitationCenterService.html" class="sidebar-item">
+                InvitationCenter Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-8-nutritionLibraryService.html" class="sidebar-item">
+                NutritionLibrary Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-9-mealTrackerService.html" class="sidebar-item">
+                MealTracker Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-10-nutritionAiService.html" class="sidebar-item">
+                NutritionAi Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-11-agentHubService.html" class="sidebar-item">
+                AgentHub Service
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Auth Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../auth-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../auth-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../auth-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/user-design.html" class="sidebar-item">
+                      user Design
+                    </a>
+                  
+                    <a href="../auth-service/userAvatarsFile-design.html" class="sidebar-item">
+                      userAvatarsFile Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/business-api/getUser-api-design.html" class="sidebar-item">
+                      getUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUser-api-design.html" class="sidebar-item">
+                      updateUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateProfile-api-design.html" class="sidebar-item">
+                      updateProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/createUser-api-design.html" class="sidebar-item">
+                      createUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUser-api-design.html" class="sidebar-item">
+                      deleteUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/archiveProfile-api-design.html" class="sidebar-item">
+                      archiveProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUsers-api-design.html" class="sidebar-item">
+                      listUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/searchUsers-api-design.html" class="sidebar-item">
+                      searchUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserRole-api-design.html" class="sidebar-item">
+                      updateUserRole API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPassword-api-design.html" class="sidebar-item">
+                      updateUserPassword API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPasswordByAdmin-api-design.html" class="sidebar-item">
+                      updateUserPasswordByAdmin API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getBriefUser-api-design.html" class="sidebar-item">
+                      getBriefUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/streamTest-api-design.html" class="sidebar-item">
+                      streamTest API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getUserAvatarsFile-api-design.html" class="sidebar-item">
+                      getUserAvatarsFile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUserAvatarsFiles-api-design.html" class="sidebar-item">
+                      listUserAvatarsFiles API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUserAvatarsFile-api-design.html" class="sidebar-item">
+                      deleteUserAvatarsFile API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Database Buckets
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/db-buckets/userAvatars-bucket-design.html" class="sidebar-item">
+                      userAvatars Bucket
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>InvitationCenter Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../invitationCenter-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/inviteLink-design.html" class="sidebar-item">
+                      inviteLink Design
+                    </a>
+                  
+                    <a href="../invitationCenter-service/inviteAudit-design.html" class="sidebar-item">
+                      inviteAudit Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/business-api/createInviteLink-api-design.html" class="sidebar-item">
+                      createInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/activateInviteLink-api-design.html" class="sidebar-item">
+                      activateInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/revokeInviteLink-api-design.html" class="sidebar-item">
+                      revokeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/deliverInviteEmail-api-design.html" class="sidebar-item">
+                      deliverInviteEmail API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/validateInviteCode-api-design.html" class="sidebar-item">
+                      validateInviteCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/consumeInviteLink-api-design.html" class="sidebar-item">
+                      consumeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLinkByCode-api-design.html" class="sidebar-item">
+                      getInviteLinkByCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLink-api-design.html" class="sidebar-item">
+                      getInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteLinks-api-design.html" class="sidebar-item">
+                      listInviteLinks API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteAudits-api-design.html" class="sidebar-item">
+                      listInviteAudits API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../invitationCenter-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionLibrary Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionLibrary-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/macroTarget-design.html" class="sidebar-item">
+                      macroTarget Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/foodItem-design.html" class="sidebar-item">
+                      foodItem Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetMeal-design.html" class="sidebar-item">
+                      presetMeal Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetLine-design.html" class="sidebar-item">
+                      presetLine Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/business-api/setMacroTarget-api-design.html" class="sidebar-item">
+                      setMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTarget-api-design.html" class="sidebar-item">
+                      getMyMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createFoodItem-api-design.html" class="sidebar-item">
+                      createFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItem-api-design.html" class="sidebar-item">
+                      getFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listFoodItems-api-design.html" class="sidebar-item">
+                      listFoodItems API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updateFoodItem-api-design.html" class="sidebar-item">
+                      updateFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deleteFoodItem-api-design.html" class="sidebar-item">
+                      deleteFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createPresetMeal-api-design.html" class="sidebar-item">
+                      createPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMeal-api-design.html" class="sidebar-item">
+                      getPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetMeals-api-design.html" class="sidebar-item">
+                      listPresetMeals API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updatePresetMeal-api-design.html" class="sidebar-item">
+                      updatePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetMeal-api-design.html" class="sidebar-item">
+                      deletePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/addPresetLine-api-design.html" class="sidebar-item">
+                      addPresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetLines-api-design.html" class="sidebar-item">
+                      listPresetLines API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetLine-api-design.html" class="sidebar-item">
+                      deletePresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMealForLogging-api-design.html" class="sidebar-item">
+                      getPresetMealForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItemForLogging-api-design.html" class="sidebar-item">
+                      getFoodItemForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design.html" class="sidebar-item">
+                      getMyMacroTargetForLogging API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionLibrary-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>MealTracker Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../mealTracker-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/mealLog-design.html" class="sidebar-item">
+                      mealLog Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/mealLine-design.html" class="sidebar-item">
+                      mealLine Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/nutritionDay-design.html" class="sidebar-item">
+                      nutritionDay Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/business-api/createMealLog-api-design.html" class="sidebar-item">
+                      createMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMealLog-api-design.html" class="sidebar-item">
+                      getMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLogs-api-design.html" class="sidebar-item">
+                      listMealLogs API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLog-api-design.html" class="sidebar-item">
+                      updateMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLog-api-design.html" class="sidebar-item">
+                      deleteMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/createMealLine-api-design.html" class="sidebar-item">
+                      createMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLine-api-design.html" class="sidebar-item">
+                      updateMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLine-api-design.html" class="sidebar-item">
+                      deleteMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLines-api-design.html" class="sidebar-item">
+                      listMealLines API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getDailyProgress-api-design.html" class="sidebar-item">
+                      getDailyProgress API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getNutritionDay-api-design.html" class="sidebar-item">
+                      getNutritionDay API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listNutritionDays-api-design.html" class="sidebar-item">
+                      listNutritionDays API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getWeeklyAnalytics-api-design.html" class="sidebar-item">
+                      getWeeklyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMonthlyAnalytics-api-design.html" class="sidebar-item">
+                      getMonthlyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailyReminderCheck-api-design.html" class="sidebar-item">
+                      triggerDailyReminderCheck API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailySummary-api-design.html" class="sidebar-item">
+                      triggerDailySummary API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../mealTracker-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionAi Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionAi-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/aiSession-design.html" class="sidebar-item">
+                      aiSession Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateMeal-design.html" class="sidebar-item">
+                      aiCandidateMeal Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateLine-design.html" class="sidebar-item">
+                      aiCandidateLine Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiGuidanceNote-design.html" class="sidebar-item">
+                      aiGuidanceNote Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/business-api/parseMeal-api-design.html" class="sidebar-item">
+                      parseMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/confirmCandidateMeal-api-design.html" class="sidebar-item">
+                      confirmCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/askNutritionQuestion-api-design.html" class="sidebar-item">
+                      askNutritionQuestion API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiSession-api-design.html" class="sidebar-item">
+                      getAiSession API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiSessions-api-design.html" class="sidebar-item">
+                      listAiSessions API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiCandidateMeal-api-design.html" class="sidebar-item">
+                      getAiCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiCandidateMeals-api-design.html" class="sidebar-item">
+                      listAiCandidateMeals API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/updateAiCandidateLine-api-design.html" class="sidebar-item">
+                      updateAiCandidateLine API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/rejectCandidateMeal-api-design.html" class="sidebar-item">
+                      rejectCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiGuidanceNote-api-design.html" class="sidebar-item">
+                      getAiGuidanceNote API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiGuidanceNotes-api-design.html" class="sidebar-item">
+                      listAiGuidanceNotes API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionAi-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>AgentHub Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../agentHub-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/sys_agentOverride-design.html" class="sidebar-item">
+                      sys_agentOverride Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentExecution-design.html" class="sidebar-item">
+                      sys_agentExecution Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_toolCatalog-design.html" class="sidebar-item">
+                      sys_toolCatalog Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentConversation-design.html" class="sidebar-item">
+                      sys_agentConversation Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/business-api/getAgentOverride-api-design.html" class="sidebar-item">
+                      getAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentOverrides-api-design.html" class="sidebar-item">
+                      listAgentOverrides API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/createAgentOverride-api-design.html" class="sidebar-item">
+                      createAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/updateAgentOverride-api-design.html" class="sidebar-item">
+                      updateAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/deleteAgentOverride-api-design.html" class="sidebar-item">
+                      deleteAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listToolCatalog-api-design.html" class="sidebar-item">
+                      listToolCatalog API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getToolCatalogEntry-api-design.html" class="sidebar-item">
+                      getToolCatalogEntry API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentExecutions-api-design.html" class="sidebar-item">
+                      listAgentExecutions API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentExecution-api-design.html" class="sidebar-item">
+                      getAgentExecution API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentChats-api-design.html" class="sidebar-item">
+                      listAgentChats API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentChatMessages-api-design.html" class="sidebar-item">
+                      getAgentChatMessages API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  AI Agents
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design.html" class="sidebar-item">
+                      nutritionGuidanceAgent Agent
+                    </a>
+                  
+                    <a href="../agentHub-service/ai-agents/mealParsingAgent-agent-design.html" class="sidebar-item">
+                      mealParsingAgent Agent
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Bff Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../bff-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../bff-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../bff-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Notification Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../notification-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../notification-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../notification-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>LLM Documents</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../llm/llms.html" class="sidebar-item active">
+                Documentation Index
+              </a>
+            
+          
+            
+              <a href="../llm/llms-full.html" class="sidebar-item">
+                Complete Documentation
+              </a>
+            
+          
+            
+              <a href="../llm/llms-restapi.html" class="sidebar-item">
+                REST API Reference
+              </a>
+            
+          
+            
+              <a href="../llm/llms-prompts.html" class="sidebar-item">
+                Frontend Prompts
+              </a>
+            
+          
+        </div>
+      </div>
+    
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="content">
+      <h1>FitCheck</h1>
+<blockquote>
+<p>FitCheck is a private, invite-only nutrition and meal tracking web application designed for individual users who want to manage their daily nutrition intake in a secure, personal environment. Users can log meals through multiple methods—food library, preset templates, manual entry, or AI-assisted parsing—track daily progress against personalized macro targets, and gain insights through weekly and monthly analytics. The platform includes an integrated AI assistant that parses natural-language meal descriptions and provides context-aware nutrition guidance, all while maintaining strict data isolation and privacy for each user.</p>
+</blockquote>
+<p>This documentation is designed to be consumed by both humans and AI agents. It provides comprehensive information about the backend services, APIs, data models, and integration patterns.</p>
+<h2>Detailed Documentation Files</h2>
+<p>For comprehensive documentation, the following detailed files are available:</p>
+<ul>
+<li>
+<p><strong><a href="../../llms-full.txt">llms-full.txt</a></strong>: Complete documentation including all service designs, data models, and API specifications in a single document with nested table of contents.</p>
+</li>
+<li>
+<p><strong><a href="../../llms-restapi.txt">llms-restapi.txt</a></strong>: REST API focused documentation containing all service REST API guides combined. Ideal for understanding HTTP endpoints, request/response formats, and integration patterns.</p>
+</li>
+<li>
+<p><strong><a href="../../llms-prompts.txt">llms-prompts.txt</a></strong>: Frontend development prompts for AI-assisted UI building. Contains detailed specifications for implementing frontend features with data models, API endpoints, and UI requirements.</p>
+</li>
+</ul>
+<h2>Documentation Overview</h2>
+<h1>FitCheck</h1>
+<p>Version : 1.0.85</p>
+<p>FitCheck is a private, invite-only nutrition and meal tracking web application designed for individual users who want to manage their daily nutrition intake in a secure, personal environment. Users can log meals through multiple methods—food library, preset templates, manual entry, or AI-assisted parsing—track daily progress against personalized macro targets, and gain insights through weekly and monthly analytics. The platform includes an integrated AI assistant that parses natural-language meal descriptions and provides context-aware nutrition guidance, all while maintaining strict data isolation and privacy for each user.</p>
+<h2>How to Use Project Documents</h2>
+<p>The <code>Fitcheck</code> project has been designed and generated using <strong>Mindbricks</strong>, a powerful microservice-based backend generation platform. All documentation is automatically produced by the <strong>Mindbricks Genesis Engine</strong>, based on the high-level architectural patterns defined by the user or inferred by AI.</p>
+<p>This documentation set is intended for both <strong>AI agents</strong> and <strong>human developers</strong>—including frontend and backend engineers—who need precise and structured information about how to interact with the backend services of this project. Each document reflects the live architecture of the system, providing a reliable reference for API consumption, data models, authentication flows, and business logic.</p>
+<p>By following this documentation, developers can seamlessly integrate with the backend, while AI agents can use it to reason about the service structure, make accurate decisions, or even generate compatible client-side code.</p>
+<h2>Accessing Project Services</h2>
+<p>Each service generated by Mindbricks is exposed via a <strong>dedicated REST API</strong> endpoint. Every service documentation set includes the <strong>base URL</strong> of that service along with the <strong>specific API paths</strong> for each available route.</p>
+<p>Before consuming any API, developers or agents must understand the service URL structure and environment-specific endpoints.</p>
+<h3>Service Endpoint Structure</h3>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL Pattern Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/auth-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/auth-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/auth-api</code></td>
+</tr>
+</tbody>
+</table>
+<p>Replace <code>auth</code> with the actual service name as lower case (e.g., <code>order-api</code>, <code>bff-service</code>, customermanagement-api etc.).</p>
+<h3>Environment Usage Notes</h3>
+<ul>
+<li><strong>Preview APIs</strong> become accessible after a project is previewed inside the Mindbricks platform. These are ideal for development and testing.</li>
+<li><strong>Staging</strong> and <strong>Production</strong> APIs are only accessible after the project is deployed to cloud environments provisioned via Mindbricks.</li>
+<li>In some cases, the project owner may choose to deploy services on their <strong>own infrastructure</strong>. In such scenarios, the service base URLs will be <strong>custom</strong> and should be communicated manually by the project owner to developers or AI agents.</li>
+</ul>
+<blockquote>
+<p><strong>Frontend applications</strong> should be designed to <strong>easily switch between environments</strong>, allowing dynamic endpoint targeting for Preview, Staging, and Production.</p>
+</blockquote>
+<h2>Getting Started: Use the Auth Service First</h2>
+<p>Before interacting with other services in the <code>Fitcheck</code> project, <strong>AI agents and developers should begin by integrating with the Auth Service</strong>.</p>
+<p>Mindbricks automatically generates a dedicated authentication microservice based on the project’s authentication definitions provided by the architect. This service provides the essential user and access management foundation for the project.</p>
+<p>Agents should first utilize the Auth Service to:</p>
+<ul>
+<li>Register and authenticate users (login)</li>
+<li>Manage users, roles, and permissions</li>
+<li>Handle user groups (if defined)</li>
+<li>Support multi-tenancy logic (if configured)</li>
+<li>Perform Policy-Based Access Control (PBAC), if activated by the architect</li>
+</ul>
+<h3>Auth Service Documentation</h3>
+<p>Use the following resources to understand and integrate the Auth Service:</p>
+<ul>
+<li>
+<p><strong>REST API Guide</strong> – ideal for frontend and direct HTTP usage<br>
+<a href="../auth-service/rest-api-guide.html">Auth REST API Guide</a></p>
+</li>
+<li>
+<p><strong>Event Guide</strong> – helpful for event-driven or cross-service integrations<br>
+<a href="../auth-service/event-guide.html">Auth Event Guide</a></p>
+</li>
+<li>
+<p><strong>Service Design Document</strong> – overall structure, patterns, and logic<br>
+<a href="../auth-service/service-design.html">Auth Service Design</a></p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> For most frontend use cases, the <strong>REST API Guide</strong> will be the primary source. The <strong>Event Guide</strong> and <strong>Service Design</strong> documents are especially useful when integrating with other backend microservices or building systems that interact with the auth service indirectly.</p>
+</blockquote>
+<h2>Using the BFF (Backend-for-Frontend) Service</h2>
+<p>In Mindbricks, all backend services are designed with an advanced <strong>CQRS (Command Query Responsibility Segregation)</strong> architecture. Within this architecture, <strong>business services</strong> are responsible for managing their respective domains and ensuring the accuracy and freshness of domain data.</p>
+<p>The <strong>BFF service</strong> complements these business services by providing a <strong>read-only</strong> aggregation and query layer tailored specifically for frontend and client-side applications.</p>
+<h3>Key Principles of the BFF Service</h3>
+<ul>
+<li>
+<p><strong>Elasticsearch Replicas for Fast Queries:</strong><br>
+Each data object managed by a business service is automatically replicated as an <strong>Elasticsearch index</strong>, making it accessible for fast, frontend-oriented queries through the BFF.</p>
+</li>
+<li>
+<p><strong>Cross-Service Data Aggregation:</strong><br>
+The BFF offers an <strong>aggregation layer</strong> capable of combining data across multiple services, enabling complex filters, searches, and unified views of related data.</p>
+</li>
+<li>
+<p><strong>Read-Only by Design:</strong><br>
+The BFF service is <strong>strictly read-only</strong>. All create, update, or delete operations must be performed through the relevant business services, or via event-driven sagas if designed.</p>
+</li>
+</ul>
+<h3>BFF Service Documentation</h3>
+<ul>
+<li>
+<p><strong>REST API Guide</strong> – querying aggregated and indexed data<br>
+<a href="../bff-service/rest-api-guide.html">BFF REST API Guide</a></p>
+</li>
+<li>
+<p><strong>Event Guide</strong> – syncing strategies across replicas<br>
+<a href="../bff-service/event-guide.html">BFF Event Guide</a></p>
+</li>
+<li>
+<p><strong>Service Design</strong> – aggregation patterns and index structures<br>
+<a href="../bff-service/service-design.html">BFF Service Design</a></p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Tip:</strong> Use the BFF service as the <strong>main entry point for all frontend data queries</strong>. It simplifies access, reduces round-trips, and ensures that data is shaped appropriately for the UI layer.</p>
+</blockquote>
+<h2>Business Services Overview</h2>
+<p>The <code>FitCheck</code> project consists of multiple <strong>business services</strong>, each responsible for managing a specific domain within the system. These services expose their own REST APIs and documentation sets, and are accessible based on the environment (Preview, Staging, Production).</p>
+<h3>Usage Guidance</h3>
+<p>Business services are primarily designed to:</p>
+<ul>
+<li>Handle the <strong>state and operations of domain data</strong></li>
+<li>Offer <strong>Create, Update, Delete</strong> operations over owned entities</li>
+<li>Serve <strong>direct data queries</strong> (<code>get</code>, <code>list</code>) for their own objects when needed</li>
+</ul>
+<p>For advanced query needs across multiple services or aggregated views, prefer using the <a href="#using-the-bff-backend-for-frontend-service">BFF service</a>.</p>
+<h3>Available Business Services</h3>
+<h3>invitationCenter Service</h3>
+<p><strong>Description:</strong> Manages invite-only onboarding links for platform operators, including creation, activation, delivery, validation, and audit tracking of unique registration invite tokens.</p>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li><a href="../invitationCenter-service/rest-api-guide.html">REST API Guide</a></li>
+<li><a href="../invitationCenter-service/event-guide.html">Event Guide</a></li>
+<li><a href="../invitationCenter-service/service-design.html">Service Design</a></li>
+</ul>
+<p><strong>Base URL Examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/invitationcenter-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/invitationcenter-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/invitationcenter-api</code></td>
+</tr>
+</tbody>
+</table>
+<h3>nutritionLibrary Service</h3>
+<p><strong>Description:</strong> Manages each user's private macro targets, personal food library, and reusable preset meal templates with auto-calculated nutrition totals.</p>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li><a href="../nutritionLibrary-service/rest-api-guide.html">REST API Guide</a></li>
+<li><a href="../nutritionLibrary-service/event-guide.html">Event Guide</a></li>
+<li><a href="../nutritionLibrary-service/service-design.html">Service Design</a></li>
+</ul>
+<p><strong>Base URL Examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/nutritionlibrary-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/nutritionlibrary-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/nutritionlibrary-api</code></td>
+</tr>
+</tbody>
+</table>
+<h3>mealTracker Service</h3>
+<p><strong>Description:</strong> Creates and manages user meal logs from multiple sources, calculates per-item and meal-level nutrition totals, stores immutable daily consumption snapshots, and exposes daily progress, weekly, and monthly analytics APIs.</p>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li><a href="../mealTracker-service/rest-api-guide.html">REST API Guide</a></li>
+<li><a href="../mealTracker-service/event-guide.html">Event Guide</a></li>
+<li><a href="../mealTracker-service/service-design.html">Service Design</a></li>
+</ul>
+<p><strong>Base URL Examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/mealtracker-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/mealtracker-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/mealtracker-api</code></td>
+</tr>
+</tbody>
+</table>
+<h3>nutritionAi Service</h3>
+<p><strong>Description:</strong> Processes natural-language Turkish meal descriptions into structured nutrition intents, answers personalized nutrition questions with live meal-log and macro-target context, and maintains operational traceability for all AI parsing and guidance interactions.</p>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li><a href="../nutritionAi-service/rest-api-guide.html">REST API Guide</a></li>
+<li><a href="../nutritionAi-service/event-guide.html">Event Guide</a></li>
+<li><a href="../nutritionAi-service/service-design.html">Service Design</a></li>
+</ul>
+<p><strong>Base URL Examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/nutritionai-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/nutritionai-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/nutritionai-api</code></td>
+</tr>
+</tbody>
+</table>
+<h3>agentHub Service</h3>
+<p><strong>Description:</strong> FitCheck AI Agent Hub — hosts nutrition guidance and meal workflow agents for all registered users. Provides context-aware nutrition intelligence by reading live meal logs, macro targets, food library items, and AI session history.</p>
+<p><strong>Documentation:</strong></p>
+<ul>
+<li><a href="../agentHub-service/rest-api-guide.html">REST API Guide</a></li>
+<li><a href="../agentHub-service/event-guide.html">Event Guide</a></li>
+<li><a href="../agentHub-service/service-design.html">Service Design</a></li>
+</ul>
+<p><strong>Base URL Examples:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/agenthub-api</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/agenthub-api</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/agenthub-api</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Connect via MCP (Model Context Protocol)</h2>
+<p>All backend services in the <code>Fitcheck</code> project expose their Business APIs as <strong>MCP tools</strong>. These tools are aggregated by the <strong>MCP-BFF</strong> service into a single unified endpoint that external AI tools can connect to.</p>
+<h3>Unified MCP Endpoint</h3>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>StreamableHTTP (recommended)</th>
+<th>SSE (legacy fallback)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Preview</strong></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/mcpbff-api/mcp</code></td>
+<td><code>https://lrmwufitcheck.preview.mindbricks.com/mcpbff-api/mcp/sse</code></td>
+</tr>
+<tr>
+<td><strong>Staging</strong></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/mcpbff-api/mcp</code></td>
+<td><code>https://lrmwufitcheck-stage.mindbricks.co/mcpbff-api/mcp/sse</code></td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/mcpbff-api/mcp</code></td>
+<td><code>https://lrmwufitcheck.mindbricks.co/mcpbff-api/mcp/sse</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Authentication</h3>
+<p>MCP connections require authentication via the <code>Authorization</code> header:</p>
+<ul>
+<li><strong>API Key (recommended for AI agents):</strong> <code>Authorization: Bearer sk_mbx_your_api_key_here</code>
+API keys are long-lived and don’t expire like JWT tokens. Create one from the profile page.</li>
+<li><strong>JWT Token:</strong> <code>Authorization: Bearer {accessToken}</code>
+Use a valid access token obtained from the login API.</li>
+</ul>
+<blockquote>
+<p><strong>OAuth is not supported</strong> for MCP connections at this time.</p>
+</blockquote>
+<h3>Connecting from Cursor</h3>
+<p>Add the following to your project’s <code>.cursor/mcp.json</code>:</p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;mcpServers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;lrmwufitcheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://lrmwufitcheck.preview.mindbricks.com/mcpbff-api/mcp&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;headers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;Authorization&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Bearer sk_mbx_your_api_key_here&quot;</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h3>Connecting from Claude Desktop</h3>
+<p>Add to your Claude Desktop configuration (<code>claude_desktop_config.json</code>):</p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;mcpServers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;lrmwufitcheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://lrmwufitcheck.preview.mindbricks.com/mcpbff-api/mcp&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;headers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;Authorization&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Bearer sk_mbx_your_api_key_here&quot;</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h3>What’s Available</h3>
+<p>Once connected, the AI tool can discover and call all Business API tools from all services — CRUD operations, custom queries, file operations, and more. The MCP-BFF handles routing each tool call to the correct backend service and propagates your authentication context.</p>
+<hr>
+<h2>Conclusion</h2>
+<p>This documentation set provides a comprehensive guide for understanding and consuming the <code>FitCheck</code> backend, generated by the Mindbricks platform. It is structured to support both AI agents and human developers in navigating authentication, data access, service responsibilities, and system architecture.</p>
+<p>To summarize:</p>
+<ul>
+<li>Start with the <strong>Auth Service</strong> to manage users, roles, sessions, and permissions.</li>
+<li>Use the <strong>BFF Service</strong> for optimized, read-only data queries and cross-service aggregation.</li>
+<li>Refer to the <strong>Business Services</strong> when you need to manage domain-specific data or perform direct CRUD operations.</li>
+</ul>
+<p>Each service offers a complete set of documentation—REST API guides, event interface definitions, and design insights—to help you integrate efficiently and confidently.</p>
+<p>Whether you are building a frontend application, configuring an automation agent, or simply exploring the architecture, this documentation is your primary reference for working with the backend of this project.</p>
+<blockquote>
+<p>For environment-specific access, ensure you’re using the correct base URLs (Preview, Staging, Production), and coordinate with the project owner for any custom deployments.</p>
+</blockquote>
+<h2>Table of Contents</h2>
+<h3>Getting Started</h3>
+<ul>
+<li><a href="../intro.html">Introduction</a>: FitCheck</li>
+</ul>
+<h3>Frontend Prompts</h3>
+<ul>
+<li><a href="../frontend-prompts/frontend-prompt-1-projectIntroduction.html">Project Introduction &amp; Setup</a>: Project Introduction &amp; Setup</li>
+<li><a href="../frontend-prompts/frontend-prompt-2-authManagement.html">Authentication Management</a>: Authentication Management</li>
+<li><a href="../frontend-prompts/frontend-prompt-3-verification.html">Verification Management</a>: Verification Management</li>
+<li><a href="../frontend-prompts/frontend-prompt-4-profile.html">Profile Management</a>: Profile Management</li>
+<li><a href="../frontend-prompts/frontend-prompt-5-userManagement.html">User Management</a>: User Management</li>
+<li><a href="../frontend-prompts/frontend-prompt-6-mcpbffIntegration.html">MCP BFF Integration</a>: MCP BFF Integration</li>
+<li><a href="../frontend-prompts/frontend-prompt-7-invitationCenterService.html">InvitationCenter Service</a>: InvitationCenter Service</li>
+<li><a href="../frontend-prompts/frontend-prompt-8-nutritionLibraryService.html">NutritionLibrary Service</a>: NutritionLibrary Service</li>
+<li><a href="../frontend-prompts/frontend-prompt-9-mealTrackerService.html">MealTracker Service</a>: MealTracker Service</li>
+<li><a href="../frontend-prompts/frontend-prompt-10-nutritionAiService.html">NutritionAi Service</a>: NutritionAi Service</li>
+<li><a href="../frontend-prompts/frontend-prompt-11-agentHubService.html">AgentHub Service</a>: AgentHub Service</li>
+</ul>
+<h3>Auth Service</h3>
+<ul>
+<li><a href="../auth-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../auth-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../auth-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../auth-service/user-design.html">user Design</a>: Documentation</li>
+<li><a href="../auth-service/userAvatarsFile-design.html">userAvatarsFile Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../auth-service/business-api/getUser-api-design.html">getUser API</a>: Business API Design Specification - <code>Get User</code></li>
+<li><a href="../auth-service/business-api/updateUser-api-design.html">updateUser API</a>: Business API Design Specification - <code>Update User</code></li>
+<li><a href="../auth-service/business-api/updateProfile-api-design.html">updateProfile API</a>: Business API Design Specification - <code>Update Profile</code></li>
+<li><a href="../auth-service/business-api/createUser-api-design.html">createUser API</a>: Business API Design Specification - <code>Create User</code></li>
+<li><a href="../auth-service/business-api/deleteUser-api-design.html">deleteUser API</a>: Business API Design Specification - <code>Delete User</code></li>
+<li><a href="../auth-service/business-api/archiveProfile-api-design.html">archiveProfile API</a>: Business API Design Specification - <code>Archive Profile</code></li>
+<li><a href="../auth-service/business-api/listUsers-api-design.html">listUsers API</a>: Business API Design Specification - <code>List Users</code></li>
+<li><a href="../auth-service/business-api/searchUsers-api-design.html">searchUsers API</a>: Business API Design Specification - <code>Search Users</code></li>
+<li><a href="../auth-service/business-api/updateUserRole-api-design.html">updateUserRole API</a>: Business API Design Specification - <code>Update Userrole</code></li>
+<li><a href="../auth-service/business-api/updateUserPassword-api-design.html">updateUserPassword API</a>: Business API Design Specification - <code>Update Userpassword</code></li>
+<li><a href="../auth-service/business-api/updateUserPasswordByAdmin-api-design.html">updateUserPasswordByAdmin API</a>: Business API Design Specification - <code>Update Userpasswordbyadmin</code></li>
+<li><a href="../auth-service/business-api/getBriefUser-api-design.html">getBriefUser API</a>: Business API Design Specification - <code>Get Briefuser</code></li>
+<li><a href="../auth-service/business-api/streamTest-api-design.html">streamTest API</a>: Business API Design Specification - <code>Stream Test</code></li>
+<li><a href="../auth-service/business-api/getUserAvatarsFile-api-design.html">getUserAvatarsFile API</a>: Business API Design Specification - <code>Get Useravatarsfile</code></li>
+<li><a href="../auth-service/business-api/listUserAvatarsFiles-api-design.html">listUserAvatarsFiles API</a>: Business API Design Specification - <code>List Useravatarsfiles</code></li>
+<li><a href="../auth-service/business-api/deleteUserAvatarsFile-api-design.html">deleteUserAvatarsFile API</a>: Business API Design Specification - <code>Delete Useravatarsfile</code></li>
+</ul>
+<h4>Database Buckets</h4>
+<ul>
+<li><a href="../auth-service/db-buckets/userAvatars-bucket-design.html">userAvatars Bucket</a>: Database Bucket Design Specification - <code>userAvatars</code></li>
+</ul>
+<h3>InvitationCenter Service</h3>
+<ul>
+<li><a href="../invitationCenter-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../invitationCenter-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../invitationCenter-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../invitationCenter-service/inviteLink-design.html">inviteLink Design</a>: Documentation</li>
+<li><a href="../invitationCenter-service/inviteAudit-design.html">inviteAudit Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../invitationCenter-service/business-api/createInviteLink-api-design.html">createInviteLink API</a>: Business API Design Specification - <code>Create Invitelink</code></li>
+<li><a href="../invitationCenter-service/business-api/activateInviteLink-api-design.html">activateInviteLink API</a>: Business API Design Specification - <code>Activate Invitelink</code></li>
+<li><a href="../invitationCenter-service/business-api/revokeInviteLink-api-design.html">revokeInviteLink API</a>: Business API Design Specification - <code>Revoke Invitelink</code></li>
+<li><a href="../invitationCenter-service/business-api/deliverInviteEmail-api-design.html">deliverInviteEmail API</a>: Business API Design Specification - <code>Deliver Inviteemail</code></li>
+<li><a href="../invitationCenter-service/business-api/validateInviteCode-api-design.html">validateInviteCode API</a>: Business API Design Specification - <code>Validate Invitecode</code></li>
+<li><a href="../invitationCenter-service/business-api/consumeInviteLink-api-design.html">consumeInviteLink API</a>: Business API Design Specification - <code>Consume Invitelink</code></li>
+<li><a href="../invitationCenter-service/business-api/getInviteLinkByCode-api-design.html">getInviteLinkByCode API</a>: Business API Design Specification - <code>Get Invitelinkbycode</code></li>
+<li><a href="../invitationCenter-service/business-api/getInviteLink-api-design.html">getInviteLink API</a>: Business API Design Specification - <code>Get Invitelink</code></li>
+<li><a href="../invitationCenter-service/business-api/listInviteLinks-api-design.html">listInviteLinks API</a>: Business API Design Specification - <code>List Invitelinks</code></li>
+<li><a href="../invitationCenter-service/business-api/listInviteAudits-api-design.html">listInviteAudits API</a>: Business API Design Specification - <code>List Inviteaudits</code></li>
+<li><a href="../invitationCenter-service/service-library.html">Service Library</a>: Service Library - <code>invitationCenter</code></li>
+</ul>
+<h3>NutritionLibrary Service</h3>
+<ul>
+<li><a href="../nutritionLibrary-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../nutritionLibrary-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../nutritionLibrary-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../nutritionLibrary-service/macroTarget-design.html">macroTarget Design</a>: Documentation</li>
+<li><a href="../nutritionLibrary-service/foodItem-design.html">foodItem Design</a>: Documentation</li>
+<li><a href="../nutritionLibrary-service/presetMeal-design.html">presetMeal Design</a>: Documentation</li>
+<li><a href="../nutritionLibrary-service/presetLine-design.html">presetLine Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../nutritionLibrary-service/business-api/setMacroTarget-api-design.html">setMacroTarget API</a>: Business API Design Specification - <code>Set Macrotarget</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getMyMacroTarget-api-design.html">getMyMacroTarget API</a>: Business API Design Specification - <code>Get Mymacrotarget</code></li>
+<li><a href="../nutritionLibrary-service/business-api/createFoodItem-api-design.html">createFoodItem API</a>: Business API Design Specification - <code>Create Fooditem</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getFoodItem-api-design.html">getFoodItem API</a>: Business API Design Specification - <code>Get Fooditem</code></li>
+<li><a href="../nutritionLibrary-service/business-api/listFoodItems-api-design.html">listFoodItems API</a>: Business API Design Specification - <code>List Fooditems</code></li>
+<li><a href="../nutritionLibrary-service/business-api/updateFoodItem-api-design.html">updateFoodItem API</a>: Business API Design Specification - <code>Update Fooditem</code></li>
+<li><a href="../nutritionLibrary-service/business-api/deleteFoodItem-api-design.html">deleteFoodItem API</a>: Business API Design Specification - <code>Delete Fooditem</code></li>
+<li><a href="../nutritionLibrary-service/business-api/createPresetMeal-api-design.html">createPresetMeal API</a>: Business API Design Specification - <code>Create Presetmeal</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getPresetMeal-api-design.html">getPresetMeal API</a>: Business API Design Specification - <code>Get Presetmeal</code></li>
+<li><a href="../nutritionLibrary-service/business-api/listPresetMeals-api-design.html">listPresetMeals API</a>: Business API Design Specification - <code>List Presetmeals</code></li>
+<li><a href="../nutritionLibrary-service/business-api/updatePresetMeal-api-design.html">updatePresetMeal API</a>: Business API Design Specification - <code>Update Presetmeal</code></li>
+<li><a href="../nutritionLibrary-service/business-api/deletePresetMeal-api-design.html">deletePresetMeal API</a>: Business API Design Specification - <code>Delete Presetmeal</code></li>
+<li><a href="../nutritionLibrary-service/business-api/addPresetLine-api-design.html">addPresetLine API</a>: Business API Design Specification - <code>Add Presetline</code></li>
+<li><a href="../nutritionLibrary-service/business-api/listPresetLines-api-design.html">listPresetLines API</a>: Business API Design Specification - <code>List Presetlines</code></li>
+<li><a href="../nutritionLibrary-service/business-api/deletePresetLine-api-design.html">deletePresetLine API</a>: Business API Design Specification - <code>Delete Presetline</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getPresetMealForLogging-api-design.html">getPresetMealForLogging API</a>: Business API Design Specification - <code>Get Presetmealforlogging</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getFoodItemForLogging-api-design.html">getFoodItemForLogging API</a>: Business API Design Specification - <code>Get Fooditemforlogging</code></li>
+<li><a href="../nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design.html">getMyMacroTargetForLogging API</a>: Business API Design Specification - <code>Get Mymacrotargetforlogging</code></li>
+<li><a href="../nutritionLibrary-service/service-library.html">Service Library</a>: Service Library - <code>nutritionLibrary</code></li>
+</ul>
+<h3>MealTracker Service</h3>
+<ul>
+<li><a href="../mealTracker-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../mealTracker-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../mealTracker-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../mealTracker-service/mealLog-design.html">mealLog Design</a>: Documentation</li>
+<li><a href="../mealTracker-service/mealLine-design.html">mealLine Design</a>: Documentation</li>
+<li><a href="../mealTracker-service/nutritionDay-design.html">nutritionDay Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../mealTracker-service/business-api/createMealLog-api-design.html">createMealLog API</a>: Business API Design Specification - <code>Create Meallog</code></li>
+<li><a href="../mealTracker-service/business-api/getMealLog-api-design.html">getMealLog API</a>: Business API Design Specification - <code>Get Meallog</code></li>
+<li><a href="../mealTracker-service/business-api/listMealLogs-api-design.html">listMealLogs API</a>: Business API Design Specification - <code>List Meallogs</code></li>
+<li><a href="../mealTracker-service/business-api/updateMealLog-api-design.html">updateMealLog API</a>: Business API Design Specification - <code>Update Meallog</code></li>
+<li><a href="../mealTracker-service/business-api/deleteMealLog-api-design.html">deleteMealLog API</a>: Business API Design Specification - <code>Delete Meallog</code></li>
+<li><a href="../mealTracker-service/business-api/createMealLine-api-design.html">createMealLine API</a>: Business API Design Specification - <code>Create Mealline</code></li>
+<li><a href="../mealTracker-service/business-api/updateMealLine-api-design.html">updateMealLine API</a>: Business API Design Specification - <code>Update Mealline</code></li>
+<li><a href="../mealTracker-service/business-api/deleteMealLine-api-design.html">deleteMealLine API</a>: Business API Design Specification - <code>Delete Mealline</code></li>
+<li><a href="../mealTracker-service/business-api/listMealLines-api-design.html">listMealLines API</a>: Business API Design Specification - <code>List Meallines</code></li>
+<li><a href="../mealTracker-service/business-api/getDailyProgress-api-design.html">getDailyProgress API</a>: Business API Design Specification - <code>Get Dailyprogress</code></li>
+<li><a href="../mealTracker-service/business-api/getNutritionDay-api-design.html">getNutritionDay API</a>: Business API Design Specification - <code>Get Nutritionday</code></li>
+<li><a href="../mealTracker-service/business-api/listNutritionDays-api-design.html">listNutritionDays API</a>: Business API Design Specification - <code>List Nutritiondays</code></li>
+<li><a href="../mealTracker-service/business-api/getWeeklyAnalytics-api-design.html">getWeeklyAnalytics API</a>: Business API Design Specification - <code>Get Weeklyanalytics</code></li>
+<li><a href="../mealTracker-service/business-api/getMonthlyAnalytics-api-design.html">getMonthlyAnalytics API</a>: Business API Design Specification - <code>Get Monthlyanalytics</code></li>
+<li><a href="../mealTracker-service/business-api/triggerDailyReminderCheck-api-design.html">triggerDailyReminderCheck API</a>: Business API Design Specification - <code>Trigger Dailyremindercheck</code></li>
+<li><a href="../mealTracker-service/business-api/triggerDailySummary-api-design.html">triggerDailySummary API</a>: Business API Design Specification - <code>Trigger Dailysummary</code></li>
+<li><a href="../mealTracker-service/service-library.html">Service Library</a>: Service Library - <code>mealTracker</code></li>
+</ul>
+<h3>NutritionAi Service</h3>
+<ul>
+<li><a href="../nutritionAi-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../nutritionAi-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../nutritionAi-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../nutritionAi-service/aiSession-design.html">aiSession Design</a>: Documentation</li>
+<li><a href="../nutritionAi-service/aiCandidateMeal-design.html">aiCandidateMeal Design</a>: Documentation</li>
+<li><a href="../nutritionAi-service/aiCandidateLine-design.html">aiCandidateLine Design</a>: Documentation</li>
+<li><a href="../nutritionAi-service/aiGuidanceNote-design.html">aiGuidanceNote Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../nutritionAi-service/business-api/parseMeal-api-design.html">parseMeal API</a>: Business API Design Specification - <code>Parse Meal</code></li>
+<li><a href="../nutritionAi-service/business-api/confirmCandidateMeal-api-design.html">confirmCandidateMeal API</a>: Business API Design Specification - <code>Confirm Candidatemeal</code></li>
+<li><a href="../nutritionAi-service/business-api/askNutritionQuestion-api-design.html">askNutritionQuestion API</a>: Business API Design Specification - <code>Ask Nutritionquestion</code></li>
+<li><a href="../nutritionAi-service/business-api/getAiSession-api-design.html">getAiSession API</a>: Business API Design Specification - <code>Get Aisession</code></li>
+<li><a href="../nutritionAi-service/business-api/listAiSessions-api-design.html">listAiSessions API</a>: Business API Design Specification - <code>List Aisessions</code></li>
+<li><a href="../nutritionAi-service/business-api/getAiCandidateMeal-api-design.html">getAiCandidateMeal API</a>: Business API Design Specification - <code>Get Aicandidatemeal</code></li>
+<li><a href="../nutritionAi-service/business-api/listAiCandidateMeals-api-design.html">listAiCandidateMeals API</a>: Business API Design Specification - <code>List Aicandidatemeals</code></li>
+<li><a href="../nutritionAi-service/business-api/updateAiCandidateLine-api-design.html">updateAiCandidateLine API</a>: Business API Design Specification - <code>Update Aicandidateline</code></li>
+<li><a href="../nutritionAi-service/business-api/rejectCandidateMeal-api-design.html">rejectCandidateMeal API</a>: Business API Design Specification - <code>Reject Candidatemeal</code></li>
+<li><a href="../nutritionAi-service/business-api/getAiGuidanceNote-api-design.html">getAiGuidanceNote API</a>: Business API Design Specification - <code>Get Aiguidancenote</code></li>
+<li><a href="../nutritionAi-service/business-api/listAiGuidanceNotes-api-design.html">listAiGuidanceNotes API</a>: Business API Design Specification - <code>List Aiguidancenotes</code></li>
+<li><a href="../nutritionAi-service/service-library.html">Service Library</a>: Service Library - <code>nutritionAi</code></li>
+</ul>
+<h3>AgentHub Service</h3>
+<ul>
+<li><a href="../agentHub-service/service-design.html">Service Design</a>: Service Design Specification</li>
+<li><a href="../agentHub-service/rest-api-guide.html">REST API Guide</a>: REST API GUIDE</li>
+<li><a href="../agentHub-service/event-guide.html">Event Guide</a>: .</li>
+</ul>
+<h4>Data Objects</h4>
+<ul>
+<li><a href="../agentHub-service/sys_agentOverride-design.html">sys_agentOverride Design</a>: Documentation</li>
+<li><a href="../agentHub-service/sys_agentExecution-design.html">sys_agentExecution Design</a>: Documentation</li>
+<li><a href="../agentHub-service/sys_toolCatalog-design.html">sys_toolCatalog Design</a>: Documentation</li>
+<li><a href="../agentHub-service/sys_agentConversation-design.html">sys_agentConversation Design</a>: Documentation</li>
+</ul>
+<h4>Business APIs</h4>
+<ul>
+<li><a href="../agentHub-service/business-api/getAgentOverride-api-design.html">getAgentOverride API</a>: Business API Design Specification - <code>Get Agentoverride</code></li>
+<li><a href="../agentHub-service/business-api/listAgentOverrides-api-design.html">listAgentOverrides API</a>: Business API Design Specification - <code>List Agentoverrides</code></li>
+<li><a href="../agentHub-service/business-api/createAgentOverride-api-design.html">createAgentOverride API</a>: Business API Design Specification - <code>Create Agentoverride</code></li>
+<li><a href="../agentHub-service/business-api/updateAgentOverride-api-design.html">updateAgentOverride API</a>: Business API Design Specification - <code>Update Agentoverride</code></li>
+<li><a href="../agentHub-service/business-api/deleteAgentOverride-api-design.html">deleteAgentOverride API</a>: Business API Design Specification - <code>Delete Agentoverride</code></li>
+<li><a href="../agentHub-service/business-api/listToolCatalog-api-design.html">listToolCatalog API</a>: Business API Design Specification - <code>List Toolcatalog</code></li>
+<li><a href="../agentHub-service/business-api/getToolCatalogEntry-api-design.html">getToolCatalogEntry API</a>: Business API Design Specification - <code>Get Toolcatalogentry</code></li>
+<li><a href="../agentHub-service/business-api/listAgentExecutions-api-design.html">listAgentExecutions API</a>: Business API Design Specification - <code>List Agentexecutions</code></li>
+<li><a href="../agentHub-service/business-api/getAgentExecution-api-design.html">getAgentExecution API</a>: Business API Design Specification - <code>Get Agentexecution</code></li>
+<li><a href="../agentHub-service/business-api/listAgentChats-api-design.html">listAgentChats API</a>: Business API Design Specification - <code>List Agentchats</code></li>
+<li><a href="../agentHub-service/business-api/getAgentChatMessages-api-design.html">getAgentChatMessages API</a>: Business API Design Specification - <code>Get Agentchatmessages</code></li>
+</ul>
+<h4>AI Agents</h4>
+<ul>
+<li><a href="../agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design.html">nutritionGuidanceAgent Agent</a>: AI Agent Design Specification - <code>nutritionGuidanceAgent</code></li>
+<li><a href="../agentHub-service/ai-agents/mealParsingAgent-agent-design.html">mealParsingAgent Agent</a>: AI Agent Design Specification - <code>mealParsingAgent</code></li>
+</ul>
+<h3>Bff Service</h3>
+<ul>
+<li><a href="../bff-service/service-design.html">Service Design</a>: —</li>
+<li><a href="../bff-service/rest-api-guide.html">REST API Guide</a>: Documentation</li>
+<li><a href="../bff-service/event-guide.html">Event Guide</a>: Documentation</li>
+</ul>
+<h3>Notification Service</h3>
+<ul>
+<li><a href="../notification-service/service-design.html">Service Design</a>: Provider-specific errors include stack traces</li>
+<li><a href="../notification-service/rest-api-guide.html">REST API Guide</a>: Documentation</li>
+<li><a href="../notification-service/event-guide.html">Event Guide</a>: Documentation</li>
+</ul>
+<h3>LLM Documents</h3>
+<ul>
+<li><a href="../llm/llms.html">Documentation Index</a>: Documentation</li>
+<li><a href="../llm/llms-full.html">Complete Documentation</a>: Documentation</li>
+<li><a href="../llm/llms-restapi.html">REST API Reference</a>: Documentation</li>
+<li><a href="../llm/llms-prompts.html">Frontend Prompts</a>: Documentation</li>
+</ul>
+<h2>API Endpoints Summary</h2>
+<h3>fitcheck-auth-service Service</h3>
+<ul>
+<li><code>POST /auth-api/getUser</code> - getUser</li>
+<li><code>POST /auth-api/updateUser</code> - updateUser</li>
+<li><code>POST /auth-api/updateProfile</code> - updateProfile</li>
+<li><code>POST /auth-api/createUser</code> - createUser</li>
+<li><code>POST /auth-api/deleteUser</code> - deleteUser</li>
+<li><code>POST /auth-api/archiveProfile</code> - archiveProfile</li>
+<li><code>POST /auth-api/listUsers</code> - listUsers</li>
+<li><code>POST /auth-api/searchUsers</code> - searchUsers</li>
+<li><code>POST /auth-api/updateUserRole</code> - updateUserRole</li>
+<li><code>POST /auth-api/updateUserPassword</code> - updateUserPassword</li>
+<li><code>POST /auth-api/updateUserPasswordByAdmin</code> - updateUserPasswordByAdmin</li>
+<li><code>POST /auth-api/getBriefUser</code> - getBriefUser</li>
+<li><code>POST /auth-api/streamTest</code> - streamTest</li>
+<li><code>POST /auth-api/getUserAvatarsFile</code> - getUserAvatarsFile</li>
+<li><code>POST /auth-api/listUserAvatarsFiles</code> - listUserAvatarsFiles</li>
+<li><code>POST /auth-api/deleteUserAvatarsFile</code> - deleteUserAvatarsFile</li>
+<li><code>POST /auth-api/_fetchListUserAvatarsFile</code> - _fetchListUserAvatarsFile</li>
+</ul>
+<h3>fitcheck-invitationcenter-service Service</h3>
+<ul>
+<li><code>POST /invitationCenter-api/createInviteLink</code> - createInviteLink</li>
+<li><code>POST /invitationCenter-api/activateInviteLink</code> - activateInviteLink</li>
+<li><code>POST /invitationCenter-api/revokeInviteLink</code> - revokeInviteLink</li>
+<li><code>POST /invitationCenter-api/deliverInviteEmail</code> - deliverInviteEmail</li>
+<li><code>POST /invitationCenter-api/validateInviteCode</code> - validateInviteCode</li>
+<li><code>POST /invitationCenter-api/consumeInviteLink</code> - consumeInviteLink</li>
+<li><code>POST /invitationCenter-api/getInviteLinkByCode</code> - getInviteLinkByCode</li>
+<li><code>POST /invitationCenter-api/getInviteLink</code> - getInviteLink</li>
+<li><code>POST /invitationCenter-api/listInviteLinks</code> - listInviteLinks</li>
+<li><code>POST /invitationCenter-api/listInviteAudits</code> - listInviteAudits</li>
+<li><code>POST /invitationCenter-api/_fetchListInviteLink</code> - _fetchListInviteLink</li>
+<li><code>POST /invitationCenter-api/_fetchListInviteAudit</code> - _fetchListInviteAudit</li>
+</ul>
+<h3>fitcheck-nutritionlibrary-service Service</h3>
+<ul>
+<li><code>POST /nutritionLibrary-api/setMacroTarget</code> - setMacroTarget</li>
+<li><code>POST /nutritionLibrary-api/getMyMacroTarget</code> - getMyMacroTarget</li>
+<li><code>POST /nutritionLibrary-api/createFoodItem</code> - createFoodItem</li>
+<li><code>POST /nutritionLibrary-api/getFoodItem</code> - getFoodItem</li>
+<li><code>POST /nutritionLibrary-api/listFoodItems</code> - listFoodItems</li>
+<li><code>POST /nutritionLibrary-api/updateFoodItem</code> - updateFoodItem</li>
+<li><code>POST /nutritionLibrary-api/deleteFoodItem</code> - deleteFoodItem</li>
+<li><code>POST /nutritionLibrary-api/createPresetMeal</code> - createPresetMeal</li>
+<li><code>POST /nutritionLibrary-api/getPresetMeal</code> - getPresetMeal</li>
+<li><code>POST /nutritionLibrary-api/listPresetMeals</code> - listPresetMeals</li>
+<li><code>POST /nutritionLibrary-api/updatePresetMeal</code> - updatePresetMeal</li>
+<li><code>POST /nutritionLibrary-api/deletePresetMeal</code> - deletePresetMeal</li>
+<li><code>POST /nutritionLibrary-api/addPresetLine</code> - addPresetLine</li>
+<li><code>POST /nutritionLibrary-api/listPresetLines</code> - listPresetLines</li>
+<li><code>POST /nutritionLibrary-api/deletePresetLine</code> - deletePresetLine</li>
+<li><code>POST /nutritionLibrary-api/getPresetMealForLogging</code> - getPresetMealForLogging</li>
+<li><code>POST /nutritionLibrary-api/getFoodItemForLogging</code> - getFoodItemForLogging</li>
+<li><code>POST /nutritionLibrary-api/getMyMacroTargetForLogging</code> - getMyMacroTargetForLogging</li>
+<li><code>POST /nutritionLibrary-api/_fetchListMacroTarget</code> - _fetchListMacroTarget</li>
+<li><code>POST /nutritionLibrary-api/_fetchListFoodItem</code> - _fetchListFoodItem</li>
+<li><code>POST /nutritionLibrary-api/_fetchListPresetMeal</code> - _fetchListPresetMeal</li>
+<li><code>POST /nutritionLibrary-api/_fetchListPresetLine</code> - _fetchListPresetLine</li>
+</ul>
+<h3>fitcheck-mealtracker-service Service</h3>
+<ul>
+<li><code>POST /mealTracker-api/createMealLog</code> - createMealLog</li>
+<li><code>POST /mealTracker-api/getMealLog</code> - getMealLog</li>
+<li><code>POST /mealTracker-api/listMealLogs</code> - listMealLogs</li>
+<li><code>POST /mealTracker-api/updateMealLog</code> - updateMealLog</li>
+<li><code>POST /mealTracker-api/deleteMealLog</code> - deleteMealLog</li>
+<li><code>POST /mealTracker-api/createMealLine</code> - createMealLine</li>
+<li><code>POST /mealTracker-api/updateMealLine</code> - updateMealLine</li>
+<li><code>POST /mealTracker-api/deleteMealLine</code> - deleteMealLine</li>
+<li><code>POST /mealTracker-api/listMealLines</code> - listMealLines</li>
+<li><code>POST /mealTracker-api/getDailyProgress</code> - getDailyProgress</li>
+<li><code>POST /mealTracker-api/getNutritionDay</code> - getNutritionDay</li>
+<li><code>POST /mealTracker-api/listNutritionDays</code> - listNutritionDays</li>
+<li><code>POST /mealTracker-api/getWeeklyAnalytics</code> - getWeeklyAnalytics</li>
+<li><code>POST /mealTracker-api/getMonthlyAnalytics</code> - getMonthlyAnalytics</li>
+<li><code>POST /mealTracker-api/triggerDailyReminderCheck</code> - triggerDailyReminderCheck</li>
+<li><code>POST /mealTracker-api/triggerDailySummary</code> - triggerDailySummary</li>
+<li><code>POST /mealTracker-api/_fetchListMealLog</code> - _fetchListMealLog</li>
+<li><code>POST /mealTracker-api/_fetchListMealLine</code> - _fetchListMealLine</li>
+<li><code>POST /mealTracker-api/_fetchListNutritionDay</code> - _fetchListNutritionDay</li>
+</ul>
+<h3>fitcheck-nutritionai-service Service</h3>
+<ul>
+<li><code>POST /nutritionAi-api/parseMeal</code> - parseMeal</li>
+<li><code>POST /nutritionAi-api/confirmCandidateMeal</code> - confirmCandidateMeal</li>
+<li><code>POST /nutritionAi-api/askNutritionQuestion</code> - askNutritionQuestion</li>
+<li><code>POST /nutritionAi-api/getAiSession</code> - getAiSession</li>
+<li><code>POST /nutritionAi-api/listAiSessions</code> - listAiSessions</li>
+<li><code>POST /nutritionAi-api/getAiCandidateMeal</code> - getAiCandidateMeal</li>
+<li><code>POST /nutritionAi-api/listAiCandidateMeals</code> - listAiCandidateMeals</li>
+<li><code>POST /nutritionAi-api/updateAiCandidateLine</code> - updateAiCandidateLine</li>
+<li><code>POST /nutritionAi-api/rejectCandidateMeal</code> - rejectCandidateMeal</li>
+<li><code>POST /nutritionAi-api/getAiGuidanceNote</code> - getAiGuidanceNote</li>
+<li><code>POST /nutritionAi-api/listAiGuidanceNotes</code> - listAiGuidanceNotes</li>
+<li><code>POST /nutritionAi-api/_fetchListAiSession</code> - _fetchListAiSession</li>
+<li><code>POST /nutritionAi-api/_fetchListAiCandidateMeal</code> - _fetchListAiCandidateMeal</li>
+<li><code>POST /nutritionAi-api/_fetchListAiCandidateLine</code> - _fetchListAiCandidateLine</li>
+<li><code>POST /nutritionAi-api/_fetchListAiGuidanceNote</code> - _fetchListAiGuidanceNote</li>
+</ul>
+<h3>fitcheck-agenthub-service Service</h3>
+<ul>
+<li><code>POST /agentHub-api/getAgentOverride</code> - getAgentOverride</li>
+<li><code>POST /agentHub-api/listAgentOverrides</code> - listAgentOverrides</li>
+<li><code>POST /agentHub-api/createAgentOverride</code> - createAgentOverride</li>
+<li><code>POST /agentHub-api/updateAgentOverride</code> - updateAgentOverride</li>
+<li><code>POST /agentHub-api/deleteAgentOverride</code> - deleteAgentOverride</li>
+<li><code>POST /agentHub-api/listToolCatalog</code> - listToolCatalog</li>
+<li><code>POST /agentHub-api/getToolCatalogEntry</code> - getToolCatalogEntry</li>
+<li><code>POST /agentHub-api/listAgentExecutions</code> - listAgentExecutions</li>
+<li><code>POST /agentHub-api/getAgentExecution</code> - getAgentExecution</li>
+<li><code>POST /agentHub-api/listAgentChats</code> - listAgentChats</li>
+<li><code>POST /agentHub-api/getAgentChatMessages</code> - getAgentChatMessages</li>
+<li><code>POST /agentHub-api/_fetchListSys_agentOverride</code> - _fetchListSys_agentOverride</li>
+<li><code>POST /agentHub-api/_fetchListSys_agentExecution</code> - _fetchListSys_agentExecution</li>
+<li><code>POST /agentHub-api/_fetchListSys_toolCatalog</code> - _fetchListSys_toolCatalog</li>
+<li><code>POST /agentHub-api/_fetchListSys_agentConversation</code> - _fetchListSys_agentConversation</li>
+</ul>
+<h2>Getting Started</h2>
+<ol>
+<li><strong>Authentication</strong>: Start with the Auth Service to register and authenticate users</li>
+<li><strong>Data Queries</strong>: Use the BFF Service for optimized read-only data queries</li>
+<li><strong>Business Operations</strong>: Use individual business services for create/update/delete operations</li>
+</ol>
+<h2>Additional Resources</h2>
+<ul>
+<li>Full documentation: …/intro.html</li>
+<li>Search: …/search.html</li>
+</ul>
+<hr>
+<p>Generated by Mindbricks Genesis Engine</p>
+
+    </div>
+  </main>
+
+  <script>
+    // Base path for relative links between pages
+    const basePath = '../';
+    // API base path for search and other API calls
+    const apiBasePath = '../../api/';
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+      updateHljsTheme(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+      } else {
+        icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+      }
+    }
+
+    function updateHljsTheme(theme) {
+      // Always use dark theme for code - vivid colors look better
+      const link = document.getElementById('hljs-theme');
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+    }
+
+    // Copy markdown to clipboard
+    async function copyMarkdown(mdPath) {
+      const btn = document.getElementById('copy-md-btn');
+      const text = document.getElementById('copy-md-text');
+      const icon = document.getElementById('copy-md-icon');
+      
+      try {
+        // Fetch the markdown content
+        const response = await fetch(mdPath);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const markdown = await response.text();
+        await navigator.clipboard.writeText(markdown);
+        
+        // Show success state
+        text.textContent = 'Copied!';
+        icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+        btn.style.borderColor = 'var(--success-color)';
+        btn.style.color = 'var(--success-color)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      } catch (err) {
+        console.error('Copy failed:', err);
+        text.textContent = 'Failed';
+        btn.style.borderColor = 'var(--error-color)';
+        btn.style.color = 'var(--error-color)';
+        
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      }
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    updateHljsTheme(savedTheme);
+
+    // Sidebar toggles
+    function toggleSection(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleNested(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Close sidebar on mobile when clicking a link
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Add copy buttons to code blocks
+    document.querySelectorAll('pre code').forEach(block => {
+      const pre = block.parentElement;
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = async () => {
+        await navigator.clipboard.writeText(block.textContent);
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      };
+      pre.appendChild(btn);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let searchTimeout = null;
+
+    // Debounced search
+    searchInput.addEventListener('input', function(e) {
+      const query = this.value.trim();
+      
+      // Clear previous timeout
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      // Hide results if query is too short
+      if (query.length < 2) {
+        searchResults.classList.remove('active');
+        return;
+      }
+
+      // Show loading
+      searchResults.innerHTML = '<div class="search-loading">Searching...</div>';
+      searchResults.classList.add('active');
+
+      // Debounce the search
+      searchTimeout = setTimeout(() => performSearch(query), 200);
+    });
+
+    let lastSearchQuery = '';
+
+    async function performSearch(query) {
+      lastSearchQuery = query;
+      try {
+        const response = await fetch(`${apiBasePath}search?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          const resultItems = data.results.map(result => `
+            <a href="${basePath}${result.url}?highlight=${encodeURIComponent(query)}" class="search-result-item">
+              <div class="search-result-title">${escapeHtml(result.title)}</div>
+              <div class="search-result-snippet">${highlightText(escapeHtml(result.snippet), query)}</div>
+            </a>
+          `).join('');
+          
+          const seeAllLink = data.total > 5 
+            ? `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all ${data.total} results →</a>`
+            : `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all results →</a>`;
+          
+          searchResults.innerHTML = resultItems + seeAllLink;
+        } else {
+          searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+        }
+        
+        searchResults.classList.add('active');
+      } catch (err) {
+        console.error('Search error:', err);
+        searchResults.innerHTML = '<div class="search-no-results">Search failed</div>';
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.header-search')) {
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K or Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      
+      // Escape to close search results
+      if (e.key === 'Escape') {
+        searchResults.classList.remove('active');
+        searchInput.blur();
+      }
+    });
+
+    // Navigate search results with arrow keys
+    searchInput.addEventListener('keydown', function(e) {
+      const items = searchResults.querySelectorAll('.search-result-item');
+      const activeItem = searchResults.querySelector('.search-result-item:focus');
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length > 0) {
+          if (activeItem) {
+            const nextItem = activeItem.nextElementSibling;
+            if (nextItem) nextItem.focus();
+          } else {
+            items[0].focus();
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (activeItem) {
+          const prevItem = activeItem.previousElementSibling;
+          if (prevItem) {
+            prevItem.focus();
+          } else {
+            searchInput.focus();
+          }
+        }
+      } else if (e.key === 'Enter') {
+        // Go to search results page
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+          e.preventDefault();
+          window.location.href = `${basePath}search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+
+    // Highlight search terms on page load if ?highlight= parameter is present
+    (function highlightOnLoad() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const highlightQuery = urlParams.get('highlight');
+      
+      if (!highlightQuery || highlightQuery.length < 2) return;
+      
+      const content = document.querySelector('.content');
+      if (!content) return;
+      
+      // Create a TreeWalker to iterate through text nodes
+      const walker = document.createTreeWalker(
+        content,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: function(node) {
+            // Skip script, style, and code elements
+            const parent = node.parentElement;
+            if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE' || parent.tagName === 'CODE' || parent.tagName === 'PRE')) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        textNodes.push(node);
+      }
+      
+      const regex = new RegExp(`(${highlightQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      let firstMatch = null;
+      
+      textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        if (regex.test(text)) {
+          const span = document.createElement('span');
+          span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+          textNode.parentNode.replaceChild(span, textNode);
+          
+          if (!firstMatch) {
+            firstMatch = span.querySelector('.search-highlight');
+          }
+        }
+        regex.lastIndex = 0; // Reset regex state
+      });
+      
+      // Scroll to first match
+      if (firstMatch) {
+        setTimeout(() => {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+      
+      // Clean URL without highlight param (optional - keeps URL clean)
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', cleanUrl);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Design Specification | FitCheck</title>
+  
+  <!-- Highlight.js Theme - Using atom-one-dark for better readability -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --bg-color: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-color: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --sidebar-width: 280px;
+      --header-height: 60px;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+      --link-color: #3b82f6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-color: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #334155;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .header-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 320px;
+    }
+
+    .header-search input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      width: 100%;
+      margin-left: 8px;
+    }
+
+    .header-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .search-results.active {
+      display: block;
+    }
+
+    .search-result-item {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      margin-bottom: 4px;
+    }
+
+    .search-result-snippet {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .search-result-snippet mark {
+      background: var(--warning-color);
+      color: white;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .search-no-results {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-loading {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-see-all {
+      display: block;
+      padding: 12px 16px;
+      text-align: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-top: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-see-all:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* Search highlight on page */
+    .search-highlight {
+      background: var(--warning-color);
+      color: white;
+      padding: 1px 3px;
+      border-radius: 3px;
+      animation: highlight-pulse 2s ease-out;
+    }
+
+    @keyframes highlight-pulse {
+      0%, 50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    .header-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .header-btn.primary {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .header-btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+
+    .sidebar-section {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-section-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-section-title .chevron {
+      transition: transform 0.2s;
+    }
+
+    .sidebar-section.expanded .sidebar-section-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-items {
+      display: none;
+      padding: 0 8px;
+    }
+
+    .sidebar-section.expanded .sidebar-items {
+      display: block;
+    }
+
+    .sidebar-item {
+      display: block;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      margin: 2px 0;
+      transition: all 0.15s;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .sidebar-item.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .sidebar-nested {
+      padding-left: 12px;
+      margin-top: 4px;
+    }
+
+    .sidebar-nested-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 6px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-nested-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-nested-items {
+      display: none;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-items {
+      display: block;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    /* Main Content */
+    .main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 48px;
+    }
+
+    /* Typography */
+    .content h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      color: var(--text-color);
+    }
+
+    .content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .content h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: var(--text-color);
+    }
+
+    .content h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+
+    .content p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .content a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    .content a:hover {
+      text-decoration: underline;
+    }
+
+    .content ul, .content ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .content li {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .content blockquote {
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 20px;
+      margin: 16px 0;
+      background: var(--bg-secondary);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .content blockquote p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    /* Code */
+    .content code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-color);
+    }
+
+    .content pre {
+      margin: 16px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .content pre code {
+      display: block;
+      padding: 16px 20px;
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    .content pre.hljs {
+      margin: 16px 0;
+      border-radius: 8px;
+      background: var(--code-bg);
+    }
+
+    /* Copy button for code blocks */
+    .content pre {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      color: var(--code-text);
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .content pre:hover .copy-btn {
+      opacity: 1;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Tables */
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.875rem;
+    }
+
+    .content th, .content td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    .content th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .content td {
+      color: var(--text-secondary);
+    }
+
+    .content tr:hover td {
+      background: var(--bg-secondary);
+    }
+
+    /* Horizontal Rule */
+    .content hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 32px 0;
+    }
+
+    /* Images */
+    .content img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    /* Mobile */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 99;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .header-search {
+        display: none;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    
+    <a href="../intro.html" class="header-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="var(--primary-color)"/>
+        <path d="M8 10h16M8 16h12M8 22h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      fitcheck
+    </a>
+    
+    <nav class="header-nav">
+      <div class="header-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="Search documentation... (Ctrl+K)" id="search-input" autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+      
+      
+      <button class="header-btn" onclick="copyMarkdown('../../md/nutritionAi-service/service-design.md')" title="Copy Markdown to clipboard" id="copy-md-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="copy-md-icon">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copy-md-text">Copy</span>
+      </button>
+      <a href="../../md/nutritionAi-service/service-design.md" class="header-btn" title="Download Markdown">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>MD</span>
+      </a>
+      
+      
+      <button class="header-btn" onclick="toggleTheme()" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="theme-icon">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Getting Started</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../intro.html" class="sidebar-item">
+                Introduction
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Frontend Prompts</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-1-projectIntroduction.html" class="sidebar-item">
+                Project Introduction &amp; Setup
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-2-authManagement.html" class="sidebar-item">
+                Authentication Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-3-verification.html" class="sidebar-item">
+                Verification Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-4-profile.html" class="sidebar-item">
+                Profile Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-5-userManagement.html" class="sidebar-item">
+                User Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-6-mcpbffIntegration.html" class="sidebar-item">
+                MCP BFF Integration
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-7-invitationCenterService.html" class="sidebar-item">
+                InvitationCenter Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-8-nutritionLibraryService.html" class="sidebar-item">
+                NutritionLibrary Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-9-mealTrackerService.html" class="sidebar-item">
+                MealTracker Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-10-nutritionAiService.html" class="sidebar-item">
+                NutritionAi Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-11-agentHubService.html" class="sidebar-item">
+                AgentHub Service
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Auth Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../auth-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../auth-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../auth-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/user-design.html" class="sidebar-item">
+                      user Design
+                    </a>
+                  
+                    <a href="../auth-service/userAvatarsFile-design.html" class="sidebar-item">
+                      userAvatarsFile Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/business-api/getUser-api-design.html" class="sidebar-item">
+                      getUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUser-api-design.html" class="sidebar-item">
+                      updateUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateProfile-api-design.html" class="sidebar-item">
+                      updateProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/createUser-api-design.html" class="sidebar-item">
+                      createUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUser-api-design.html" class="sidebar-item">
+                      deleteUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/archiveProfile-api-design.html" class="sidebar-item">
+                      archiveProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUsers-api-design.html" class="sidebar-item">
+                      listUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/searchUsers-api-design.html" class="sidebar-item">
+                      searchUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserRole-api-design.html" class="sidebar-item">
+                      updateUserRole API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPassword-api-design.html" class="sidebar-item">
+                      updateUserPassword API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPasswordByAdmin-api-design.html" class="sidebar-item">
+                      updateUserPasswordByAdmin API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getBriefUser-api-design.html" class="sidebar-item">
+                      getBriefUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/streamTest-api-design.html" class="sidebar-item">
+                      streamTest API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getUserAvatarsFile-api-design.html" class="sidebar-item">
+                      getUserAvatarsFile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUserAvatarsFiles-api-design.html" class="sidebar-item">
+                      listUserAvatarsFiles API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUserAvatarsFile-api-design.html" class="sidebar-item">
+                      deleteUserAvatarsFile API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Database Buckets
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/db-buckets/userAvatars-bucket-design.html" class="sidebar-item">
+                      userAvatars Bucket
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>InvitationCenter Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../invitationCenter-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/inviteLink-design.html" class="sidebar-item">
+                      inviteLink Design
+                    </a>
+                  
+                    <a href="../invitationCenter-service/inviteAudit-design.html" class="sidebar-item">
+                      inviteAudit Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/business-api/createInviteLink-api-design.html" class="sidebar-item">
+                      createInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/activateInviteLink-api-design.html" class="sidebar-item">
+                      activateInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/revokeInviteLink-api-design.html" class="sidebar-item">
+                      revokeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/deliverInviteEmail-api-design.html" class="sidebar-item">
+                      deliverInviteEmail API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/validateInviteCode-api-design.html" class="sidebar-item">
+                      validateInviteCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/consumeInviteLink-api-design.html" class="sidebar-item">
+                      consumeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLinkByCode-api-design.html" class="sidebar-item">
+                      getInviteLinkByCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLink-api-design.html" class="sidebar-item">
+                      getInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteLinks-api-design.html" class="sidebar-item">
+                      listInviteLinks API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteAudits-api-design.html" class="sidebar-item">
+                      listInviteAudits API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../invitationCenter-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionLibrary Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionLibrary-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/macroTarget-design.html" class="sidebar-item">
+                      macroTarget Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/foodItem-design.html" class="sidebar-item">
+                      foodItem Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetMeal-design.html" class="sidebar-item">
+                      presetMeal Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetLine-design.html" class="sidebar-item">
+                      presetLine Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/business-api/setMacroTarget-api-design.html" class="sidebar-item">
+                      setMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTarget-api-design.html" class="sidebar-item">
+                      getMyMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createFoodItem-api-design.html" class="sidebar-item">
+                      createFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItem-api-design.html" class="sidebar-item">
+                      getFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listFoodItems-api-design.html" class="sidebar-item">
+                      listFoodItems API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updateFoodItem-api-design.html" class="sidebar-item">
+                      updateFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deleteFoodItem-api-design.html" class="sidebar-item">
+                      deleteFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createPresetMeal-api-design.html" class="sidebar-item">
+                      createPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMeal-api-design.html" class="sidebar-item">
+                      getPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetMeals-api-design.html" class="sidebar-item">
+                      listPresetMeals API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updatePresetMeal-api-design.html" class="sidebar-item">
+                      updatePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetMeal-api-design.html" class="sidebar-item">
+                      deletePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/addPresetLine-api-design.html" class="sidebar-item">
+                      addPresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetLines-api-design.html" class="sidebar-item">
+                      listPresetLines API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetLine-api-design.html" class="sidebar-item">
+                      deletePresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMealForLogging-api-design.html" class="sidebar-item">
+                      getPresetMealForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItemForLogging-api-design.html" class="sidebar-item">
+                      getFoodItemForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design.html" class="sidebar-item">
+                      getMyMacroTargetForLogging API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionLibrary-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>MealTracker Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../mealTracker-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/mealLog-design.html" class="sidebar-item">
+                      mealLog Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/mealLine-design.html" class="sidebar-item">
+                      mealLine Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/nutritionDay-design.html" class="sidebar-item">
+                      nutritionDay Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/business-api/createMealLog-api-design.html" class="sidebar-item">
+                      createMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMealLog-api-design.html" class="sidebar-item">
+                      getMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLogs-api-design.html" class="sidebar-item">
+                      listMealLogs API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLog-api-design.html" class="sidebar-item">
+                      updateMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLog-api-design.html" class="sidebar-item">
+                      deleteMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/createMealLine-api-design.html" class="sidebar-item">
+                      createMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLine-api-design.html" class="sidebar-item">
+                      updateMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLine-api-design.html" class="sidebar-item">
+                      deleteMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLines-api-design.html" class="sidebar-item">
+                      listMealLines API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getDailyProgress-api-design.html" class="sidebar-item">
+                      getDailyProgress API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getNutritionDay-api-design.html" class="sidebar-item">
+                      getNutritionDay API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listNutritionDays-api-design.html" class="sidebar-item">
+                      listNutritionDays API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getWeeklyAnalytics-api-design.html" class="sidebar-item">
+                      getWeeklyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMonthlyAnalytics-api-design.html" class="sidebar-item">
+                      getMonthlyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailyReminderCheck-api-design.html" class="sidebar-item">
+                      triggerDailyReminderCheck API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailySummary-api-design.html" class="sidebar-item">
+                      triggerDailySummary API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../mealTracker-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionAi Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionAi-service/service-design.html" class="sidebar-item active">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/aiSession-design.html" class="sidebar-item">
+                      aiSession Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateMeal-design.html" class="sidebar-item">
+                      aiCandidateMeal Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateLine-design.html" class="sidebar-item">
+                      aiCandidateLine Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiGuidanceNote-design.html" class="sidebar-item">
+                      aiGuidanceNote Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/business-api/parseMeal-api-design.html" class="sidebar-item">
+                      parseMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/confirmCandidateMeal-api-design.html" class="sidebar-item">
+                      confirmCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/askNutritionQuestion-api-design.html" class="sidebar-item">
+                      askNutritionQuestion API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiSession-api-design.html" class="sidebar-item">
+                      getAiSession API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiSessions-api-design.html" class="sidebar-item">
+                      listAiSessions API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiCandidateMeal-api-design.html" class="sidebar-item">
+                      getAiCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiCandidateMeals-api-design.html" class="sidebar-item">
+                      listAiCandidateMeals API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/updateAiCandidateLine-api-design.html" class="sidebar-item">
+                      updateAiCandidateLine API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/rejectCandidateMeal-api-design.html" class="sidebar-item">
+                      rejectCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiGuidanceNote-api-design.html" class="sidebar-item">
+                      getAiGuidanceNote API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiGuidanceNotes-api-design.html" class="sidebar-item">
+                      listAiGuidanceNotes API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionAi-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>AgentHub Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../agentHub-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/sys_agentOverride-design.html" class="sidebar-item">
+                      sys_agentOverride Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentExecution-design.html" class="sidebar-item">
+                      sys_agentExecution Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_toolCatalog-design.html" class="sidebar-item">
+                      sys_toolCatalog Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentConversation-design.html" class="sidebar-item">
+                      sys_agentConversation Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/business-api/getAgentOverride-api-design.html" class="sidebar-item">
+                      getAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentOverrides-api-design.html" class="sidebar-item">
+                      listAgentOverrides API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/createAgentOverride-api-design.html" class="sidebar-item">
+                      createAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/updateAgentOverride-api-design.html" class="sidebar-item">
+                      updateAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/deleteAgentOverride-api-design.html" class="sidebar-item">
+                      deleteAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listToolCatalog-api-design.html" class="sidebar-item">
+                      listToolCatalog API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getToolCatalogEntry-api-design.html" class="sidebar-item">
+                      getToolCatalogEntry API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentExecutions-api-design.html" class="sidebar-item">
+                      listAgentExecutions API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentExecution-api-design.html" class="sidebar-item">
+                      getAgentExecution API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentChats-api-design.html" class="sidebar-item">
+                      listAgentChats API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentChatMessages-api-design.html" class="sidebar-item">
+                      getAgentChatMessages API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  AI Agents
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design.html" class="sidebar-item">
+                      nutritionGuidanceAgent Agent
+                    </a>
+                  
+                    <a href="../agentHub-service/ai-agents/mealParsingAgent-agent-design.html" class="sidebar-item">
+                      mealParsingAgent Agent
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Bff Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../bff-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../bff-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../bff-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Notification Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../notification-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../notification-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../notification-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>LLM Documents</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../llm/llms.html" class="sidebar-item">
+                Documentation Index
+              </a>
+            
+          
+            
+              <a href="../llm/llms-full.html" class="sidebar-item">
+                Complete Documentation
+              </a>
+            
+          
+            
+              <a href="../llm/llms-restapi.html" class="sidebar-item">
+                REST API Reference
+              </a>
+            
+          
+            
+              <a href="../llm/llms-prompts.html" class="sidebar-item">
+                Frontend Prompts
+              </a>
+            
+          
+        </div>
+      </div>
+    
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="content">
+      <h1 id="service-design-specification">Service Design Specification</h1>
+<p><strong>fitcheck-nutritionai-service</strong> documentation
+<strong>Version:</strong> <code>1.0.2</code></p>
+<h2 id="scope">Scope</h2>
+<p>This document provides a structured architectural overview of the <code>nutritionAi</code> microservice, detailing its configuration, data model, authorization logic, business rules, and API design. It has been automatically generated based on the service definition within Mindbricks, ensuring that the information reflects the source of truth used during code generation and deployment.</p>
+<p>The document is intended to serve multiple audiences:</p>
+<ul>
+<li><strong>Service architects</strong> can use it to validate design decisions and ensure alignment with broader architectural goals.</li>
+<li><strong>Developers and maintainers</strong> will find it useful for understanding the structure and behavior of the service, facilitating easier debugging, feature extension, and integration with other systems.</li>
+<li><strong>Stakeholders and reviewers</strong> can use it to gain a clear understanding of the service’s capabilities and domain logic.</li>
+</ul>
+<blockquote>
+<p><strong>Note for Frontend Developers</strong>: While this document is valuable for understanding business logic and data interactions, please refer to the <a href="#">Service API Documentation</a> for endpoint-level specifications and integration details.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note for Backend Developers</strong>: Since the code for this service is automatically generated by Mindbricks, you typically won’t need to implement or modify it manually. However, this document is especially valuable when you’re building other services—whether within Mindbricks or externally—that need to interact with or depend on this service. It provides a clear reference to the service’s data contracts, business rules, and API structure, helping ensure compatibility and correct integration.</p>
+</blockquote>
+<h2 id="nutritionai-service-settings"><code>NutritionAi</code> Service Settings</h2>
+<p>Processes natural-language Turkish meal descriptions into structured nutrition intents, answers personalized nutrition questions with live meal-log and macro-target context, and maintains operational traceability for all AI parsing and guidance interactions.</p>
+<h3 id="service-overview">Service Overview</h3>
+<p>This service is configured to listen for HTTP requests on port <code>3000</code>,
+serving both the main API interface and default administrative endpoints.</p>
+<p>The following routes are available by default:</p>
+<ul>
+<li><strong>API Test Interface (API Face):</strong> <code>/</code></li>
+<li><strong>Swagger Documentation:</strong> <code>/swagger</code></li>
+<li><strong>Postman Collection Download:</strong> <code>/getPostmanCollection</code></li>
+<li><strong>Health Checks:</strong> <code>/health</code> and <code>/admin/health</code></li>
+<li><strong>Current Session Info:</strong> <code>/currentuser</code></li>
+<li><strong>Favicon:</strong> <code>/favicon.ico</code></li>
+</ul>
+<p>The service uses a <strong>PostgreSQL</strong> database for data storage, with the database name set to <code>fitcheck-nutritionai-service</code>.</p>
+<p>This service is accessible via the following environment-specific URLs:</p>
+<ul>
+<li><strong>Preview:</strong> <code>https://lrmwufitcheck.preview.mindbricks.com/nutritionai-api</code></li>
+<li><strong>Staging:</strong> <code>https://lrmwufitcheck-stage.mindbricks.co/nutritionai-api</code></li>
+<li><strong>Production:</strong> <code>https://lrmwufitcheck.mindbricks.co/nutritionai-api</code></li>
+</ul>
+<h3 id="authentication-security">Authentication &amp; Security</h3>
+<ul>
+<li><strong>Login Required</strong>: Yes</li>
+</ul>
+<p>This service requires user authentication for access. It supports both JWT and RSA-based authentication mechanisms, ensuring secure user sessions and data integrity.
+If a crud route also is configured to require login,
+it will check a valid JWT token in the request query/header/bearer/cookie. If the token is valid, it will extract the user information from the token and make the fetched session data available in the request context.</p>
+<h3 id="service-data-objects">Service Data Objects</h3>
+<p>The service uses a <strong>PostgreSQL</strong> database for data storage, with the database name set to <code>fitcheck-nutritionai-service</code>.</p>
+<p>Data deletion is managed using a <strong>soft delete</strong> strategy. Instead of removing records from the database, they are flagged as inactive by setting the <code>isActive</code> field to <code>false</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Object Name</th>
+<th>Description</th>
+<th>Public Access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aiSession</code></td>
+<td>Records every AI interaction initiated by a user — either a meal-parsing request or a nutrition guidance question — capturing the raw input, detected language, processing state, and final localized response.</td>
+<td>accessPrivate</td>
+</tr>
+<tr>
+<td><code>aiCandidateMeal</code></td>
+<td>Stores the structured meal proposal produced by AI parsing of a user's natural-language input — holds proposed slot, date, nutrition totals, warning flags, and a confirmation status before the meal is committed to mealTracker.</td>
+<td>accessPrivate</td>
+</tr>
+<tr>
+<td><code>aiCandidateLine</code></td>
+<td>Represents a single food item detected within an AI candidate meal — stores AI-estimated gram amounts and nutrition values as a snapshot, along with confidence, reference source, and user's choice to save the food to their library.</td>
+<td>accessPrivate</td>
+</tr>
+<tr>
+<td><code>aiGuidanceNote</code></td>
+<td>Persists the structured outcome of a nutrition guidance Q&amp;A interaction — stores question classification, time range context, the summarized answer, rationale, referenced metrics, and any caution text, linked to the parent aiSession.</td>
+<td>accessPrivate</td>
+</tr>
+</tbody>
+</table>
+<h2 id="aisession-data-object">aiSession Data Object</h2>
+<h3 id="object-overview">Object Overview</h3>
+<p><strong>Description:</strong> Records every AI interaction initiated by a user — either a meal-parsing request or a nutrition guidance question — capturing the raw input, detected language, processing state, and final localized response.</p>
+<p>This object represents a core data structure within the service and acts as the blueprint for database interaction, API generation, and business logic enforcement.
+It is defined using the <code>ObjectSettings</code> pattern, which governs its behavior, access control, caching strategy, and integration points with other systems such as Stripe and Redis.</p>
+<h3 id="core-configuration">Core Configuration</h3>
+<ul>
+<li><strong>Soft Delete:</strong> Disabled — Determines whether records are marked inactive (<code>isActive = false</code>) instead of being physically deleted.</li>
+<li><strong>Public Access:</strong> accessPrivate — If enabled, anonymous users may access this object’s data depending on API-level rules.</li>
+</ul>
+<h3 id="properties-schema">Properties Schema</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sessionType</code></td>
+<td>Enum</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>inputText</code></td>
+<td>Text</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>detectedLanguage</code></td>
+<td>String</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>sessionState</code></td>
+<td>Enum</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>confidenceScore</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>finalResponseText</code></td>
+<td>Text</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Required properties are mandatory for creating objects and must be provided in the request body if no default value is set.</li>
+<li>Properties marked <code>Type[] (array)</code> MUST be sent as a JSON array (e.g. <code>[&quot;a&quot;,&quot;b&quot;]</code>), even when only one value is present (<code>[&quot;a&quot;]</code>). Sending a bare scalar fails validation.</li>
+</ul>
+<h3 id="default-values">Default Values</h3>
+<p>Default values are automatically assigned to properties when a new object is created, if no value is provided in the request body.
+Since default values are applied on db level, they should be literal values, not expressions.If you want to use expressions, you can use transposed parameters in any business API to set default values dynamically.</p>
+<ul>
+<li><strong>userId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>sessionType</strong>: “mealParsing”</li>
+<li><strong>inputText</strong>: ‘text’</li>
+<li><strong>sessionState</strong>: pending</li>
+</ul>
+<h3 id="constant-properties">Constant Properties</h3>
+<p><code>userId</code> <code>sessionType</code> <code>inputText</code></p>
+<p>Constant properties are defined to be immutable after creation, meaning they cannot be updated or changed once set. They are typically used for properties that should remain constant throughout the object’s lifecycle.
+A property is set to be constant if the <code>Allow Update</code> option is set to <code>false</code>.</p>
+<h3 id="enum-properties">Enum Properties</h3>
+<p>Enum properties are defined with a set of allowed values, ensuring that only valid options can be assigned to them.
+The enum options value will be stored as strings in the database,
+but when a data object is created an addtional property with the same name plus an idx suffix will be created, which will hold the index of the selected enum option.
+You can use the index property to sort by the enum value or when your enum options represent a sequence of values.</p>
+<ul>
+<li>
+<p><strong>sessionType</strong>: [mealParsing, nutritionGuidance]</p>
+</li>
+<li>
+<p><strong>sessionState</strong>: [pending, needsConfirmation, completed, failed]</p>
+</li>
+</ul>
+<h3 id="elastic-search-indexing">Elastic Search Indexing</h3>
+<p><code>userId</code> <code>sessionType</code> <code>sessionState</code></p>
+<p>Properties that are indexed in Elastic Search will be searchable via the Elastic Search API.
+While all properties are stored in the elastic search index of the data object, only those marked for Elastic Search indexing will be available for search queries.</p>
+<h3 id="database-indexing">Database Indexing</h3>
+<p><code>userId</code> <code>sessionType</code> <code>sessionState</code></p>
+<p>Properties that are indexed in the database will be optimized for query performance, allowing for faster data retrieval.
+Make a property indexed in the database if you want to use it frequently in query filters or sorting.</p>
+<h3 id="session-sourced-properties">Session-sourced Properties</h3>
+<p><code>userId</code></p>
+<p>These properties are session-bound — their values are read from the authenticated session at create/update time and cannot be supplied in the request body.</p>
+<ul>
+<li><strong>userId</strong>: ID property will be mapped to the session parameter <code>userId</code>.</li>
+</ul>
+<p>This property is the data object’s ownership field, used by ownership-based access control.</p>
+<h3 id="filter-properties">Filter Properties</h3>
+<p><code>userId</code> <code>sessionType</code> <code>sessionState</code></p>
+<p>Filter properties are used to define parameters that can be used in query filters, allowing for dynamic data retrieval based on user input or predefined criteria.
+These properties are automatically mapped as API parameters in list APIs.</p>
+<ul>
+<li><strong>userId</strong>: ID filters under URL key <code>userId</code></li>
+<li><strong>sessionType</strong>: Enum filters under URL key <code>sessionType</code></li>
+<li><strong>sessionState</strong>: Enum filters under URL key <code>sessionState</code></li>
+</ul>
+<h2 id="aicandidatemeal-data-object">aiCandidateMeal Data Object</h2>
+<h3 id="object-overview">Object Overview</h3>
+<p><strong>Description:</strong> Stores the structured meal proposal produced by AI parsing of a user's natural-language input — holds proposed slot, date, nutrition totals, warning flags, and a confirmation status before the meal is committed to mealTracker.</p>
+<p>This object represents a core data structure within the service and acts as the blueprint for database interaction, API generation, and business logic enforcement.
+It is defined using the <code>ObjectSettings</code> pattern, which governs its behavior, access control, caching strategy, and integration points with other systems such as Stripe and Redis.</p>
+<h3 id="core-configuration">Core Configuration</h3>
+<ul>
+<li><strong>Soft Delete:</strong> Disabled — Determines whether records are marked inactive (<code>isActive = false</code>) instead of being physically deleted.</li>
+<li><strong>Public Access:</strong> accessPrivate — If enabled, anonymous users may access this object’s data depending on API-level rules.</li>
+</ul>
+<h3 id="properties-schema">Properties Schema</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>aiSessionId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>proposedMealDate</code></td>
+<td>Date</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>proposedMealTime</code></td>
+<td>String</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>proposedSlotName</code></td>
+<td>String</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>candidateSource</code></td>
+<td>Enum</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>warningText</code></td>
+<td>Text</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>confirmationRequired</code></td>
+<td>Boolean</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>isConfirmed</code></td>
+<td>Boolean</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>isCommitted</code></td>
+<td>Boolean</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalCalories</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalProtein</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalCarbohydrates</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalFat</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalSugar</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>totalFiber</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>committedMealLogId</code></td>
+<td>ID</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Required properties are mandatory for creating objects and must be provided in the request body if no default value is set.</li>
+<li>Properties marked <code>Type[] (array)</code> MUST be sent as a JSON array (e.g. <code>[&quot;a&quot;,&quot;b&quot;]</code>), even when only one value is present (<code>[&quot;a&quot;]</code>). Sending a bare scalar fails validation.</li>
+</ul>
+<h3 id="default-values">Default Values</h3>
+<p>Default values are automatically assigned to properties when a new object is created, if no value is provided in the request body.
+Since default values are applied on db level, they should be literal values, not expressions.If you want to use expressions, you can use transposed parameters in any business API to set default values dynamically.</p>
+<ul>
+<li><strong>userId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>aiSessionId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>candidateSource</strong>: aiAssistant</li>
+<li><strong>confirmationRequired</strong>: false</li>
+<li><strong>isConfirmed</strong>: false</li>
+<li><strong>isCommitted</strong>: false</li>
+</ul>
+<h3 id="constant-properties">Constant Properties</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>candidateSource</code></p>
+<p>Constant properties are defined to be immutable after creation, meaning they cannot be updated or changed once set. They are typically used for properties that should remain constant throughout the object’s lifecycle.
+A property is set to be constant if the <code>Allow Update</code> option is set to <code>false</code>.</p>
+<h3 id="enum-properties">Enum Properties</h3>
+<p>Enum properties are defined with a set of allowed values, ensuring that only valid options can be assigned to them.
+The enum options value will be stored as strings in the database,
+but when a data object is created an addtional property with the same name plus an idx suffix will be created, which will hold the index of the selected enum option.
+You can use the index property to sort by the enum value or when your enum options represent a sequence of values.</p>
+<ul>
+<li><strong>candidateSource</strong>: [aiAssistant]</li>
+</ul>
+<h3 id="elastic-search-indexing">Elastic Search Indexing</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>isConfirmed</code> <code>isCommitted</code></p>
+<p>Properties that are indexed in Elastic Search will be searchable via the Elastic Search API.
+While all properties are stored in the elastic search index of the data object, only those marked for Elastic Search indexing will be available for search queries.</p>
+<h3 id="database-indexing">Database Indexing</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>isConfirmed</code> <code>isCommitted</code></p>
+<p>Properties that are indexed in the database will be optimized for query performance, allowing for faster data retrieval.
+Make a property indexed in the database if you want to use it frequently in query filters or sorting.</p>
+<h3 id="relation-properties">Relation Properties</h3>
+<p><code>aiSessionId</code></p>
+<p>Mindbricks supports relations between data objects, allowing you to define how objects are linked together.
+You can define relations in the data object properties, which will be used to create foreign key constraints in the database.
+For complex joins operations, Mindbricks supportsa BFF pattern, where you can view dynamic and static views based on Elastic Search Indexes.
+Use db level relations for simple one-to-one or one-to-many relationships, and use BFF views for complex joins that require multiple data objects to be joined together.</p>
+<ul>
+<li><strong>aiSessionId</strong>: ID
+Relation to <code>aiSession</code>.id</li>
+</ul>
+<p>The target object is a sibling object, meaning that the relation is a many-to-one or one-to-one relationship from this object to the target.</p>
+<p>On Delete: Delete
+Required: Yes</p>
+<h3 id="session-sourced-properties">Session-sourced Properties</h3>
+<p><code>userId</code></p>
+<p>These properties are session-bound — their values are read from the authenticated session at create/update time and cannot be supplied in the request body.</p>
+<ul>
+<li><strong>userId</strong>: ID property will be mapped to the session parameter <code>userId</code>.</li>
+</ul>
+<p>This property is the data object’s ownership field, used by ownership-based access control.</p>
+<h3 id="filter-properties">Filter Properties</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>isConfirmed</code> <code>isCommitted</code></p>
+<p>Filter properties are used to define parameters that can be used in query filters, allowing for dynamic data retrieval based on user input or predefined criteria.
+These properties are automatically mapped as API parameters in list APIs.</p>
+<ul>
+<li><strong>userId</strong>: ID filters under URL key <code>userId</code></li>
+<li><strong>aiSessionId</strong>: ID filters under URL key <code>aiSessionId</code></li>
+<li><strong>isConfirmed</strong>: Boolean filters under URL key <code>isConfirmed</code></li>
+<li><strong>isCommitted</strong>: Boolean filters under URL key <code>isCommitted</code></li>
+</ul>
+<h2 id="aicandidateline-data-object">aiCandidateLine Data Object</h2>
+<h3 id="object-overview">Object Overview</h3>
+<p><strong>Description:</strong> Represents a single food item detected within an AI candidate meal — stores AI-estimated gram amounts and nutrition values as a snapshot, along with confidence, reference source, and user's choice to save the food to their library.</p>
+<p>This object represents a core data structure within the service and acts as the blueprint for database interaction, API generation, and business logic enforcement.
+It is defined using the <code>ObjectSettings</code> pattern, which governs its behavior, access control, caching strategy, and integration points with other systems such as Stripe and Redis.</p>
+<h3 id="core-configuration">Core Configuration</h3>
+<ul>
+<li><strong>Soft Delete:</strong> Disabled — Determines whether records are marked inactive (<code>isActive = false</code>) instead of being physically deleted.</li>
+<li><strong>Public Access:</strong> accessPrivate — If enabled, anonymous users may access this object’s data depending on API-level rules.</li>
+</ul>
+<h3 id="properties-schema">Properties Schema</h3>
+<p><strong>Display Label Property:</strong> <code>detectedFoodName</code> — This property is the default display label for records of this data object. Relation dropdowns and record references in the frontend will show the value of this property as the human-readable label.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>aiCandidateMealId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>detectedFoodName</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedGrams</code></td>
+<td>Double</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedCalories</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedProtein</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedCarbohydrates</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedFat</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedSugar</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>estimatedFiber</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>quantityConfidence</code></td>
+<td>Double</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>nutritionReference</code></td>
+<td>String</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>saveAsFood</code></td>
+<td>Boolean</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Required properties are mandatory for creating objects and must be provided in the request body if no default value is set.</li>
+<li>Properties marked <code>Type[] (array)</code> MUST be sent as a JSON array (e.g. <code>[&quot;a&quot;,&quot;b&quot;]</code>), even when only one value is present (<code>[&quot;a&quot;]</code>). Sending a bare scalar fails validation.</li>
+</ul>
+<h3 id="default-values">Default Values</h3>
+<p>Default values are automatically assigned to properties when a new object is created, if no value is provided in the request body.
+Since default values are applied on db level, they should be literal values, not expressions.If you want to use expressions, you can use transposed parameters in any business API to set default values dynamically.</p>
+<ul>
+<li><strong>userId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>aiCandidateMealId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>detectedFoodName</strong>: ‘default’</li>
+<li><strong>estimatedGrams</strong>: 0.0</li>
+<li><strong>saveAsFood</strong>: false</li>
+</ul>
+<h3 id="constant-properties">Constant Properties</h3>
+<p><code>userId</code> <code>aiCandidateMealId</code></p>
+<p>Constant properties are defined to be immutable after creation, meaning they cannot be updated or changed once set. They are typically used for properties that should remain constant throughout the object’s lifecycle.
+A property is set to be constant if the <code>Allow Update</code> option is set to <code>false</code>.</p>
+<h3 id="elastic-search-indexing">Elastic Search Indexing</h3>
+<p><code>userId</code> <code>aiCandidateMealId</code></p>
+<p>Properties that are indexed in Elastic Search will be searchable via the Elastic Search API.
+While all properties are stored in the elastic search index of the data object, only those marked for Elastic Search indexing will be available for search queries.</p>
+<h3 id="database-indexing">Database Indexing</h3>
+<p><code>userId</code> <code>aiCandidateMealId</code></p>
+<p>Properties that are indexed in the database will be optimized for query performance, allowing for faster data retrieval.
+Make a property indexed in the database if you want to use it frequently in query filters or sorting.</p>
+<h3 id="relation-properties">Relation Properties</h3>
+<p><code>aiCandidateMealId</code></p>
+<p>Mindbricks supports relations between data objects, allowing you to define how objects are linked together.
+You can define relations in the data object properties, which will be used to create foreign key constraints in the database.
+For complex joins operations, Mindbricks supportsa BFF pattern, where you can view dynamic and static views based on Elastic Search Indexes.
+Use db level relations for simple one-to-one or one-to-many relationships, and use BFF views for complex joins that require multiple data objects to be joined together.</p>
+<ul>
+<li><strong>aiCandidateMealId</strong>: ID
+Relation to <code>aiCandidateMeal</code>.id</li>
+</ul>
+<p>The target object is a sibling object, meaning that the relation is a many-to-one or one-to-one relationship from this object to the target.</p>
+<p>On Delete: Delete
+Required: Yes</p>
+<h3 id="session-sourced-properties">Session-sourced Properties</h3>
+<p><code>userId</code></p>
+<p>These properties are session-bound — their values are read from the authenticated session at create/update time and cannot be supplied in the request body.</p>
+<ul>
+<li><strong>userId</strong>: ID property will be mapped to the session parameter <code>userId</code>.</li>
+</ul>
+<p>This property is the data object’s ownership field, used by ownership-based access control.</p>
+<h3 id="filter-properties">Filter Properties</h3>
+<p><code>userId</code> <code>aiCandidateMealId</code></p>
+<p>Filter properties are used to define parameters that can be used in query filters, allowing for dynamic data retrieval based on user input or predefined criteria.
+These properties are automatically mapped as API parameters in list APIs.</p>
+<ul>
+<li><strong>userId</strong>: ID filters under URL key <code>userId</code></li>
+<li><strong>aiCandidateMealId</strong>: ID filters under URL key <code>aiCandidateMealId</code></li>
+</ul>
+<h2 id="aiguidancenote-data-object">aiGuidanceNote Data Object</h2>
+<h3 id="object-overview">Object Overview</h3>
+<p><strong>Description:</strong> Persists the structured outcome of a nutrition guidance Q&amp;A interaction — stores question classification, time range context, the summarized answer, rationale, referenced metrics, and any caution text, linked to the parent aiSession.</p>
+<p>This object represents a core data structure within the service and acts as the blueprint for database interaction, API generation, and business logic enforcement.
+It is defined using the <code>ObjectSettings</code> pattern, which governs its behavior, access control, caching strategy, and integration points with other systems such as Stripe and Redis.</p>
+<h3 id="core-configuration">Core Configuration</h3>
+<ul>
+<li><strong>Soft Delete:</strong> Disabled — Determines whether records are marked inactive (<code>isActive = false</code>) instead of being physically deleted.</li>
+<li><strong>Public Access:</strong> accessPrivate — If enabled, anonymous users may access this object’s data depending on API-level rules.</li>
+</ul>
+<h3 id="properties-schema">Properties Schema</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>aiSessionId</code></td>
+<td>ID</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>questionType</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>contextRange</code></td>
+<td>String</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>answerSummary</code></td>
+<td>Text</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>rationaleText</code></td>
+<td>Text</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>referencedMetricKeys</code></td>
+<td>String</td>
+<td>No</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>cautionText</code></td>
+<td>Text</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Required properties are mandatory for creating objects and must be provided in the request body if no default value is set.</li>
+<li>Properties marked <code>Type[] (array)</code> MUST be sent as a JSON array (e.g. <code>[&quot;a&quot;,&quot;b&quot;]</code>), even when only one value is present (<code>[&quot;a&quot;]</code>). Sending a bare scalar fails validation.</li>
+</ul>
+<h3 id="default-values">Default Values</h3>
+<p>Default values are automatically assigned to properties when a new object is created, if no value is provided in the request body.
+Since default values are applied on db level, they should be literal values, not expressions.If you want to use expressions, you can use transposed parameters in any business API to set default values dynamically.</p>
+<ul>
+<li><strong>userId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>aiSessionId</strong>: ‘00000000-0000-0000-0000-000000000000’</li>
+<li><strong>questionType</strong>: ‘default’</li>
+<li><strong>contextRange</strong>: ‘default’</li>
+<li><strong>answerSummary</strong>: ‘text’</li>
+</ul>
+<h3 id="constant-properties">Constant Properties</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>questionType</code> <code>contextRange</code></p>
+<p>Constant properties are defined to be immutable after creation, meaning they cannot be updated or changed once set. They are typically used for properties that should remain constant throughout the object’s lifecycle.
+A property is set to be constant if the <code>Allow Update</code> option is set to <code>false</code>.</p>
+<h3 id="elastic-search-indexing">Elastic Search Indexing</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>questionType</code> <code>contextRange</code></p>
+<p>Properties that are indexed in Elastic Search will be searchable via the Elastic Search API.
+While all properties are stored in the elastic search index of the data object, only those marked for Elastic Search indexing will be available for search queries.</p>
+<h3 id="database-indexing">Database Indexing</h3>
+<p><code>userId</code> <code>aiSessionId</code> <code>questionType</code> <code>contextRange</code></p>
+<p>Properties that are indexed in the database will be optimized for query performance, allowing for faster data retrieval.
+Make a property indexed in the database if you want to use it frequently in query filters or sorting.</p>
+<h3 id="relation-properties">Relation Properties</h3>
+<p><code>aiSessionId</code></p>
+<p>Mindbricks supports relations between data objects, allowing you to define how objects are linked together.
+You can define relations in the data object properties, which will be used to create foreign key constraints in the database.
+For complex joins operations, Mindbricks supportsa BFF pattern, where you can view dynamic and static views based on Elastic Search Indexes.
+Use db level relations for simple one-to-one or one-to-many relationships, and use BFF views for complex joins that require multiple data objects to be joined together.</p>
+<ul>
+<li><strong>aiSessionId</strong>: ID
+Relation to <code>aiSession</code>.id</li>
+</ul>
+<p>The target object is a sibling object, meaning that the relation is a many-to-one or one-to-one relationship from this object to the target.</p>
+<p>On Delete: Delete
+Required: Yes</p>
+<h3 id="session-sourced-properties">Session-sourced Properties</h3>
+<p><code>userId</code></p>
+<p>These properties are session-bound — their values are read from the authenticated session at create/update time and cannot be supplied in the request body.</p>
+<ul>
+<li><strong>userId</strong>: ID property will be mapped to the session parameter <code>userId</code>.</li>
+</ul>
+<p>This property is the data object’s ownership field, used by ownership-based access control.</p>
+<h3 id="filter-properties">Filter Properties</h3>
+<p><code>userId</code> <code>questionType</code> <code>contextRange</code></p>
+<p>Filter properties are used to define parameters that can be used in query filters, allowing for dynamic data retrieval based on user input or predefined criteria.
+These properties are automatically mapped as API parameters in list APIs.</p>
+<ul>
+<li><strong>userId</strong>: ID filters under URL key <code>userId</code></li>
+<li><strong>questionType</strong>: String filters under URL key <code>questionType</code></li>
+<li><strong>contextRange</strong>: String filters under URL key <code>contextRange</code></li>
+</ul>
+<h2 id="business-logic">Business Logic</h2>
+<p>nutritionAi has got 11 Business APIs to manage its internal and crud logic.
+For the details of each business API refer to its chapter.</p>
+<ul>
+<li>
+<p><a href="/businessLogic/parsemeal">Parse Meal</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/confirmcandidatemeal">Confirm Candidatemeal</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/asknutritionquestion">Ask Nutritionquestion</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/getaisession">Get Aisession</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/listaisessions">List Aisessions</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/getaicandidatemeal">Get Aicandidatemeal</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/listaicandidatemeals">List Aicandidatemeals</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/updateaicandidateline">Update Aicandidateline</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/rejectcandidatemeal">Reject Candidatemeal</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/getaiguidancenote">Get Aiguidancenote</a></p>
+</li>
+<li>
+<p><a href="/businessLogic/listaiguidancenotes">List Aiguidancenotes</a></p>
+</li>
+</ul>
+<h2 id="service-library">Service Library</h2>
+<h3 id="functions">Functions</h3>
+<h4 id="parsemealwithaijs">parseMealWithAI.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * parseMealWithAI
+ * Invokes OpenAI to parse a Turkish natural-language meal description into
+ * structured nutrition data. Returns a safe error structure if the AI call fails.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">inputText</span> - Raw Turkish meal description
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string|null</span>} <span class="hljs-variable">proposedDate</span> - Optional date hint (ISO date string)
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string|null</span>} <span class="hljs-variable">proposedTime</span> - Optional time hint (HH:MM)
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string|null</span>} <span class="hljs-variable">proposedSlotName</span> - Optional meal slot override
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Object</span>} Structured parse result
+ */</span>
+<span class="hljs-keyword">const</span> { <span class="hljs-title class_">OpenAI</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;openai&#x27;</span>);
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">parseMealWithAI</span>(<span class="hljs-params">inputText, proposedDate, proposedTime, proposedSlotName</span>) {
+  <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> <span class="hljs-title class_">OpenAI</span>({ <span class="hljs-attr">apiKey</span>: process.<span class="hljs-property">env</span>.<span class="hljs-property">OPENAI_API_KEY</span> });
+
+  <span class="hljs-keyword">const</span> systemPrompt = <span class="hljs-string">`Sen bir Türk beslenme uzmanı AI asistanısın. Kullanıcının Türkçe yemek açıklamasını analiz ederek yapılandırılmış bir JSON nesnesi döndürmelisin.
+
+Görevin:
+1. Yemekteki her bir besin öğesini tespit et
+2. Gram miktarlarını tahmin et (belirtilmemişse standart Türk porsiyon referanslarını kullan)
+3. Her besin için USDA/Türkiye TBDF verilerinden kalori ve makro besin değerlerini tahmin et
+4. Uygun Türkçe öğün ismini ata (Kahvaltı, Öğle Yemeği, Akşam Yemeği, Atıştırmalık)
+5. Şüpheli miktarları tespit et (örn. 1000g pilav)
+6. Genel güven skoru hesapla (0.0-1.0)
+
+JSON formatı (kesinlikle bu yapıya uy):
+{
+  &quot;detectedLanguage&quot;: &quot;tr&quot;,
+  &quot;confidenceScore&quot;: 0.85,
+  &quot;sessionState&quot;: &quot;completed&quot;,
+  &quot;warningText&quot;: null,
+  &quot;confirmationRequired&quot;: false,
+  &quot;proposedMealDate&quot;: null,
+  &quot;proposedMealTime&quot;: null,
+  &quot;proposedSlotName&quot;: &quot;Öğle Yemeği&quot;,
+  &quot;totalCalories&quot;: 650.0,
+  &quot;totalProtein&quot;: 35.0,
+  &quot;totalCarbohydrates&quot;: 80.0,
+  &quot;totalFat&quot;: 18.0,
+  &quot;totalSugar&quot;: 5.0,
+  &quot;totalFiber&quot;: 4.0,
+  &quot;finalResponseText&quot;: &quot;Öğlenin analiz edildi: 2 köfte (120g) ve pilav (150g). Toplam yaklaşık 650 kalori.&quot;,
+  &quot;lines&quot;: [
+    {
+      &quot;detectedFoodName&quot;: &quot;Köfte&quot;,
+      &quot;estimatedGrams&quot;: 120.0,
+      &quot;estimatedCalories&quot;: 320.0,
+      &quot;estimatedProtein&quot;: 24.0,
+      &quot;estimatedCarbohydrates&quot;: 12.0,
+      &quot;estimatedFat&quot;: 18.0,
+      &quot;estimatedSugar&quot;: 1.0,
+      &quot;estimatedFiber&quot;: 0.5,
+      &quot;quantityConfidence&quot;: 0.8,
+      &quot;nutritionReference&quot;: &quot;USDA&quot;
+    }
+  ]
+}`</span>;
+
+  <span class="hljs-keyword">const</span> userMessage = <span class="hljs-string">`Yemek açıklaması: <span class="hljs-subst">${inputText}</span><span class="hljs-subst">${proposedDate ? <span class="hljs-string">`\nTarih ipucu: <span class="hljs-subst">${proposedDate}</span>`</span> : <span class="hljs-string">&#x27;&#x27;</span>}</span><span class="hljs-subst">${proposedTime ? <span class="hljs-string">`\nSaat ipucu: <span class="hljs-subst">${proposedTime}</span>`</span> : <span class="hljs-string">&#x27;&#x27;</span>}</span><span class="hljs-subst">${proposedSlotName ? <span class="hljs-string">`\nÖğün ipucu: <span class="hljs-subst">${proposedSlotName}</span>`</span> : <span class="hljs-string">&#x27;&#x27;</span>}</span>`</span>;
+
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">const</span> completion = <span class="hljs-keyword">await</span> client.<span class="hljs-property">chat</span>.<span class="hljs-property">completions</span>.<span class="hljs-title function_">create</span>({
+      <span class="hljs-attr">model</span>: <span class="hljs-string">&#x27;gpt-4o&#x27;</span>,
+      <span class="hljs-attr">messages</span>: [
+        { <span class="hljs-attr">role</span>: <span class="hljs-string">&#x27;system&#x27;</span>, <span class="hljs-attr">content</span>: systemPrompt },
+        { <span class="hljs-attr">role</span>: <span class="hljs-string">&#x27;user&#x27;</span>, <span class="hljs-attr">content</span>: userMessage }
+      ],
+      <span class="hljs-attr">response_format</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;json_object&#x27;</span> },
+      <span class="hljs-attr">temperature</span>: <span class="hljs-number">0.3</span>,
+      <span class="hljs-attr">max_tokens</span>: <span class="hljs-number">2000</span>
+    });
+
+    <span class="hljs-keyword">const</span> result = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(completion.<span class="hljs-property">choices</span>[<span class="hljs-number">0</span>].<span class="hljs-property">message</span>.<span class="hljs-property">content</span>);
+
+    <span class="hljs-comment">// Override with user-supplied hints if provided</span>
+    <span class="hljs-keyword">if</span> (proposedDate) result.<span class="hljs-property">proposedMealDate</span> = proposedDate;
+    <span class="hljs-keyword">if</span> (proposedTime) result.<span class="hljs-property">proposedMealTime</span> = proposedTime;
+    <span class="hljs-keyword">if</span> (proposedSlotName) result.<span class="hljs-property">proposedSlotName</span> = proposedSlotName;
+
+    <span class="hljs-comment">// Ensure required fields have defaults</span>
+    result.<span class="hljs-property">sessionState</span> = result.<span class="hljs-property">confirmationRequired</span> ? <span class="hljs-string">&#x27;needsConfirmation&#x27;</span> : <span class="hljs-string">&#x27;completed&#x27;</span>;
+    result.<span class="hljs-property">lines</span> = result.<span class="hljs-property">lines</span> || [];
+
+    <span class="hljs-keyword">return</span> result;
+  } <span class="hljs-keyword">catch</span> (err) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&#x27;parseMealWithAI error:&#x27;</span>, err.<span class="hljs-property">message</span>);
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">detectedLanguage</span>: <span class="hljs-string">&#x27;tr&#x27;</span>,
+      <span class="hljs-attr">confidenceScore</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">sessionState</span>: <span class="hljs-string">&#x27;failed&#x27;</span>,
+      <span class="hljs-attr">warningText</span>: <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">confirmationRequired</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">proposedMealDate</span>: proposedDate || <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">proposedMealTime</span>: proposedTime || <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">proposedSlotName</span>: proposedSlotName || <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">totalCalories</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">totalProtein</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">totalCarbohydrates</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">totalFat</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">totalSugar</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">totalFiber</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">finalResponseText</span>: <span class="hljs-string">&#x27;Üzgünüm, yemek analizinde bir hata oluştu. Lütfen tekrar deneyin.&#x27;</span>,
+      <span class="hljs-attr">lines</span>: []
+    };
+  }
+};
+</code></pre>
+<h4 id="answernutritionquestionjs">answerNutritionQuestion.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * answerNutritionQuestion
+ * Invokes OpenAI to answer a Turkish nutrition question using user&#x27;s macro
+ * targets and meal context as grounding data.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">inputText</span> - Natural-language question in Turkish
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Object|null</span>} <span class="hljs-variable">macroTargets</span> - User&#x27;s current macro targets
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Object|null</span>} <span class="hljs-variable">nutritionContext</span> - User&#x27;s meal summary for the context range
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">contextRange</span> - &#x27;today&#x27; | &#x27;week&#x27; | &#x27;month&#x27;
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Object</span>} Structured guidance result
+ */</span>
+<span class="hljs-keyword">const</span> { <span class="hljs-title class_">OpenAI</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;openai&#x27;</span>);
+
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">answerNutritionQuestion</span>(<span class="hljs-params">inputText, macroTargets, nutritionContext, contextRange</span>) {
+  <span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> <span class="hljs-title class_">OpenAI</span>({ <span class="hljs-attr">apiKey</span>: process.<span class="hljs-property">env</span>.<span class="hljs-property">OPENAI_API_KEY</span> });
+
+  <span class="hljs-keyword">const</span> contextRangeLabel = contextRange === <span class="hljs-string">&#x27;week&#x27;</span> ? <span class="hljs-string">&#x27;bu hafta&#x27;</span> : contextRange === <span class="hljs-string">&#x27;month&#x27;</span> ? <span class="hljs-string">&#x27;bu ay&#x27;</span> : <span class="hljs-string">&#x27;bugün&#x27;</span>;
+
+  <span class="hljs-keyword">const</span> macroSummary = macroTargets
+    ? <span class="hljs-string">`Günlük hedefler: Kalori: <span class="hljs-subst">${macroTargets.targetCalories || <span class="hljs-string">&#x27;belirsiz&#x27;</span>}</span> kcal, Protein: <span class="hljs-subst">${macroTargets.targetProtein || <span class="hljs-string">&#x27;belirsiz&#x27;</span>}</span>g, Karbonhidrat: <span class="hljs-subst">${macroTargets.targetCarbohydrates || <span class="hljs-string">&#x27;belirsiz&#x27;</span>}</span>g, Yağ: <span class="hljs-subst">${macroTargets.targetFat || <span class="hljs-string">&#x27;belirsiz&#x27;</span>}</span>g`</span>
+    : <span class="hljs-string">&#x27;Kullanıcı henüz makro hedef belirlememiş.&#x27;</span>;
+
+  <span class="hljs-keyword">const</span> nutritionSummary = nutritionContext
+    ? <span class="hljs-string">`<span class="hljs-subst">${contextRangeLabel.charAt(<span class="hljs-number">0</span>).toUpperCase() + contextRangeLabel.slice(<span class="hljs-number">1</span>)}</span> tüketim: Kalori: <span class="hljs-subst">${nutritionContext.totalCalories || <span class="hljs-number">0</span>}</span> kcal, Protein: <span class="hljs-subst">${nutritionContext.totalProtein || <span class="hljs-number">0</span>}</span>g, Karbonhidrat: <span class="hljs-subst">${nutritionContext.totalCarbohydrates || <span class="hljs-number">0</span>}</span>g, Yağ: <span class="hljs-subst">${nutritionContext.totalFat || <span class="hljs-number">0</span>}</span>g`</span>
+    : <span class="hljs-string">`<span class="hljs-subst">${contextRangeLabel.charAt(<span class="hljs-number">0</span>).toUpperCase() + contextRangeLabel.slice(<span class="hljs-number">1</span>)}</span> için kayıtlı öğün verisi yok.`</span>;
+
+  <span class="hljs-keyword">const</span> systemPrompt = <span class="hljs-string">`Sen bir kişiselleştirilmiş beslenme danışmanı AI asistanısın. Kullanıcının sorusunu Türkçe olarak yanıtlamalısın.
+
+Kullanıcı verileri:
+<span class="hljs-subst">${macroSummary}</span>
+<span class="hljs-subst">${nutritionSummary}</span>
+
+Soru türleri:
+- targetCheck: Hedef aşıldı mı? (kalori, protein, yağ, karbonhidrat)
+- intakeSummary: Ne kadar tükettim?
+- healthiestOption: En sağlıklı seçenek hangisi?
+
+JSON formatı (kesinlikle bu yapıya uy):
+{
+  &quot;questionType&quot;: &quot;targetCheck&quot;,
+  &quot;contextRange&quot;: &quot;today&quot;,
+  &quot;answerSummary&quot;: &quot;Bugün yağ limitinizi aşmadınız. 45g yağ tükettiniz, hedefiniz 65g.&quot;,
+  &quot;rationaleText&quot;: &quot;Günlük yağ hedefinizin %69&#x27;ını tükettiniz.&quot;,
+  &quot;referencedMetricKeys&quot;: &quot;fat,targetFat&quot;,
+  &quot;cautionText&quot;: null,
+  &quot;finalResponseText&quot;: &quot;Bugün yağ limitinizi aşmadınız! 45g/65g hedeflediğinizin %69&#x27;ı. Devam edin!&quot;,
+  &quot;confidenceScore&quot;: 0.95
+}`</span>;
+
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">const</span> completion = <span class="hljs-keyword">await</span> client.<span class="hljs-property">chat</span>.<span class="hljs-property">completions</span>.<span class="hljs-title function_">create</span>({
+      <span class="hljs-attr">model</span>: <span class="hljs-string">&#x27;gpt-4o&#x27;</span>,
+      <span class="hljs-attr">messages</span>: [
+        { <span class="hljs-attr">role</span>: <span class="hljs-string">&#x27;system&#x27;</span>, <span class="hljs-attr">content</span>: systemPrompt },
+        { <span class="hljs-attr">role</span>: <span class="hljs-string">&#x27;user&#x27;</span>, <span class="hljs-attr">content</span>: inputText }
+      ],
+      <span class="hljs-attr">response_format</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;json_object&#x27;</span> },
+      <span class="hljs-attr">temperature</span>: <span class="hljs-number">0.4</span>,
+      <span class="hljs-attr">max_tokens</span>: <span class="hljs-number">1000</span>
+    });
+
+    <span class="hljs-keyword">const</span> result = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(completion.<span class="hljs-property">choices</span>[<span class="hljs-number">0</span>].<span class="hljs-property">message</span>.<span class="hljs-property">content</span>);
+    result.<span class="hljs-property">contextRange</span> = contextRange || <span class="hljs-string">&#x27;today&#x27;</span>;
+    <span class="hljs-keyword">return</span> result;
+  } <span class="hljs-keyword">catch</span> (err) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">&#x27;answerNutritionQuestion error:&#x27;</span>, err.<span class="hljs-property">message</span>);
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">questionType</span>: <span class="hljs-string">&#x27;unknown&#x27;</span>,
+      <span class="hljs-attr">contextRange</span>: contextRange || <span class="hljs-string">&#x27;today&#x27;</span>,
+      <span class="hljs-attr">answerSummary</span>: <span class="hljs-string">&#x27;Sorunuzu yanıtlayamadım.&#x27;</span>,
+      <span class="hljs-attr">rationaleText</span>: <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">referencedMetricKeys</span>: <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">cautionText</span>: <span class="hljs-literal">null</span>,
+      <span class="hljs-attr">finalResponseText</span>: <span class="hljs-string">&#x27;Üzgünüm, beslenme sorunuzu yanıtlayamadım. Lütfen tekrar deneyin.&#x27;</span>,
+      <span class="hljs-attr">confidenceScore</span>: <span class="hljs-number">0</span>
+    };
+  }
+};
+</code></pre>
+<h4 id="applylineadjustmentsjs">applyLineAdjustments.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * applyLineAdjustments
+ * Pure function. Merges per-line adjustments (estimatedGrams, saveAsFood)
+ * from the request onto the candidateLines array.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Array</span>} <span class="hljs-variable">candidateLines</span> - Current aiCandidateLine records
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Array|null</span>} <span class="hljs-variable">lineAdjustments</span> - Array of { aiCandidateLineId, estimatedGrams, saveAsFood }
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Array</span>} Merged line array
+ */</span>
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">function</span> <span class="hljs-title function_">applyLineAdjustments</span>(<span class="hljs-params">candidateLines, lineAdjustments</span>) {
+  <span class="hljs-keyword">if</span> (!candidateLines || !<span class="hljs-title class_">Array</span>.<span class="hljs-title function_">isArray</span>(candidateLines)) <span class="hljs-keyword">return</span> [];
+  <span class="hljs-keyword">if</span> (!lineAdjustments || !<span class="hljs-title class_">Array</span>.<span class="hljs-title function_">isArray</span>(lineAdjustments) || lineAdjustments.<span class="hljs-property">length</span> === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> candidateLines;
+  }
+
+  <span class="hljs-keyword">const</span> adjustmentMap = {};
+  lineAdjustments.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">adj</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (adj.<span class="hljs-property">aiCandidateLineId</span>) {
+      adjustmentMap[adj.<span class="hljs-property">aiCandidateLineId</span>] = adj;
+    }
+  });
+
+  <span class="hljs-keyword">return</span> candidateLines.<span class="hljs-title function_">map</span>(<span class="hljs-function"><span class="hljs-params">line</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> adj = adjustmentMap[line.<span class="hljs-property">id</span>];
+    <span class="hljs-keyword">if</span> (!adj) <span class="hljs-keyword">return</span> { ...line };
+
+    <span class="hljs-keyword">const</span> updated = { ...line };
+    <span class="hljs-keyword">if</span> (adj.<span class="hljs-property">estimatedGrams</span> !== <span class="hljs-literal">undefined</span> &amp;&amp; adj.<span class="hljs-property">estimatedGrams</span> !== <span class="hljs-literal">null</span>) {
+      updated.<span class="hljs-property">estimatedGrams</span> = adj.<span class="hljs-property">estimatedGrams</span>;
+    }
+    <span class="hljs-keyword">if</span> (adj.<span class="hljs-property">saveAsFood</span> !== <span class="hljs-literal">undefined</span> &amp;&amp; adj.<span class="hljs-property">saveAsFood</span> !== <span class="hljs-literal">null</span>) {
+      updated.<span class="hljs-property">saveAsFood</span> = adj.<span class="hljs-property">saveAsFood</span>;
+    }
+    <span class="hljs-keyword">return</span> updated;
+  });
+};
+</code></pre>
+<h4 id="recalculatemealtotalsjs">recalculateMealTotals.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * recalculateMealTotals
+ * Pure function. Sums the six nutrition values across all lines.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Array</span>} <span class="hljs-variable">lines</span> - Array of aiCandidateLine objects
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Object</span>} {<span class="hljs-type"> totalCalories, totalProtein, totalCarbohydrates, totalFat, totalSugar, totalFiber </span>}
+ */</span>
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">function</span> <span class="hljs-title function_">recalculateMealTotals</span>(<span class="hljs-params">lines</span>) {
+  <span class="hljs-keyword">if</span> (!lines || !<span class="hljs-title class_">Array</span>.<span class="hljs-title function_">isArray</span>(lines) || lines.<span class="hljs-property">length</span> === <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> { <span class="hljs-attr">totalCalories</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalProtein</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalCarbohydrates</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalFat</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalSugar</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalFiber</span>: <span class="hljs-number">0</span> };
+  }
+
+  <span class="hljs-keyword">return</span> lines.<span class="hljs-title function_">reduce</span>(<span class="hljs-function">(<span class="hljs-params">acc, line</span>) =&gt;</span> {
+    acc.<span class="hljs-property">totalCalories</span> += line.<span class="hljs-property">estimatedCalories</span> || <span class="hljs-number">0</span>;
+    acc.<span class="hljs-property">totalProtein</span> += line.<span class="hljs-property">estimatedProtein</span> || <span class="hljs-number">0</span>;
+    acc.<span class="hljs-property">totalCarbohydrates</span> += line.<span class="hljs-property">estimatedCarbohydrates</span> || <span class="hljs-number">0</span>;
+    acc.<span class="hljs-property">totalFat</span> += line.<span class="hljs-property">estimatedFat</span> || <span class="hljs-number">0</span>;
+    acc.<span class="hljs-property">totalSugar</span> += line.<span class="hljs-property">estimatedSugar</span> || <span class="hljs-number">0</span>;
+    acc.<span class="hljs-property">totalFiber</span> += line.<span class="hljs-property">estimatedFiber</span> || <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">return</span> acc;
+  }, { <span class="hljs-attr">totalCalories</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalProtein</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalCarbohydrates</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalFat</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalSugar</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">totalFiber</span>: <span class="hljs-number">0</span> });
+};
+</code></pre>
+<h4 id="recalculatelinenutritionjs">recalculateLineNutrition.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * recalculateLineNutrition
+ * Pure function. Scales each of the six nutrition values proportionally
+ * from the original gram amount to the new gram amount.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Object</span>} <span class="hljs-variable">line</span> - The aiCandidateLine object with current values
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">newGrams</span> - The new gram amount
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Object</span>} Updated nutrition fields
+ */</span>
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">function</span> <span class="hljs-title function_">recalculateLineNutrition</span>(<span class="hljs-params">line, newGrams</span>) {
+  <span class="hljs-keyword">if</span> (!line || !newGrams || newGrams &lt;= <span class="hljs-number">0</span> || !line.<span class="hljs-property">estimatedGrams</span> || line.<span class="hljs-property">estimatedGrams</span> &lt;= <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">estimatedCalories</span>: line ? line.<span class="hljs-property">estimatedCalories</span> : <span class="hljs-number">0</span>,
+      <span class="hljs-attr">estimatedProtein</span>: line ? line.<span class="hljs-property">estimatedProtein</span> : <span class="hljs-number">0</span>,
+      <span class="hljs-attr">estimatedCarbohydrates</span>: line ? line.<span class="hljs-property">estimatedCarbohydrates</span> : <span class="hljs-number">0</span>,
+      <span class="hljs-attr">estimatedFat</span>: line ? line.<span class="hljs-property">estimatedFat</span> : <span class="hljs-number">0</span>,
+      <span class="hljs-attr">estimatedSugar</span>: line ? line.<span class="hljs-property">estimatedSugar</span> : <span class="hljs-number">0</span>,
+      <span class="hljs-attr">estimatedFiber</span>: line ? line.<span class="hljs-property">estimatedFiber</span> : <span class="hljs-number">0</span>
+    };
+  }
+
+  <span class="hljs-keyword">const</span> ratio = newGrams / line.<span class="hljs-property">estimatedGrams</span>;
+  <span class="hljs-keyword">const</span> <span class="hljs-title function_">round2</span> = v =&gt; <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>((v || <span class="hljs-number">0</span>) * ratio * <span class="hljs-number">100</span>) / <span class="hljs-number">100</span>;
+
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">estimatedCalories</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedCalories</span>),
+    <span class="hljs-attr">estimatedProtein</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedProtein</span>),
+    <span class="hljs-attr">estimatedCarbohydrates</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedCarbohydrates</span>),
+    <span class="hljs-attr">estimatedFat</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedFat</span>),
+    <span class="hljs-attr">estimatedSugar</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedSugar</span>),
+    <span class="hljs-attr">estimatedFiber</span>: <span class="hljs-title function_">round2</span>(line.<span class="hljs-property">estimatedFiber</span>)
+  };
+};
+</code></pre>
+<h4 id="per100gjs">per100g.js</h4>
+<pre class="hljs"><code class="language-js"><span class="hljs-comment">/**
+ * per100g
+ * Pure function. Converts a nutrition value for a specific gram amount
+ * back to a per-100g figure.
+ *
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">nutritionValueForGrams</span> - Nutrition value for the consumed portion
+ * <span class="hljs-doctag">@param</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">grams</span> - The gram amount the value was estimated for
+ * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">number</span>} <span class="hljs-variable">Per</span>-100g nutrition value, rounded to 2 decimal places
+ */</span>
+<span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = <span class="hljs-keyword">function</span> <span class="hljs-title function_">per100g</span>(<span class="hljs-params">nutritionValueForGrams, grams</span>) {
+  <span class="hljs-keyword">if</span> (!grams || grams &lt;= <span class="hljs-number">0</span> || nutritionValueForGrams === <span class="hljs-literal">null</span> || nutritionValueForGrams === <span class="hljs-literal">undefined</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">round</span>((nutritionValueForGrams / grams) * <span class="hljs-number">100</span> * <span class="hljs-number">100</span>) / <span class="hljs-number">100</span>;
+};
+</code></pre>
+<hr>
+<p><em>This document was generated from the service architecture definition and should be kept in sync with implementation changes.</em></p>
+
+    </div>
+  </main>
+
+  <script>
+    // Base path for relative links between pages
+    const basePath = '../';
+    // API base path for search and other API calls
+    const apiBasePath = '../../api/';
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+      updateHljsTheme(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+      } else {
+        icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+      }
+    }
+
+    function updateHljsTheme(theme) {
+      // Always use dark theme for code - vivid colors look better
+      const link = document.getElementById('hljs-theme');
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+    }
+
+    // Copy markdown to clipboard
+    async function copyMarkdown(mdPath) {
+      const btn = document.getElementById('copy-md-btn');
+      const text = document.getElementById('copy-md-text');
+      const icon = document.getElementById('copy-md-icon');
+      
+      try {
+        // Fetch the markdown content
+        const response = await fetch(mdPath);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const markdown = await response.text();
+        await navigator.clipboard.writeText(markdown);
+        
+        // Show success state
+        text.textContent = 'Copied!';
+        icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+        btn.style.borderColor = 'var(--success-color)';
+        btn.style.color = 'var(--success-color)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      } catch (err) {
+        console.error('Copy failed:', err);
+        text.textContent = 'Failed';
+        btn.style.borderColor = 'var(--error-color)';
+        btn.style.color = 'var(--error-color)';
+        
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      }
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    updateHljsTheme(savedTheme);
+
+    // Sidebar toggles
+    function toggleSection(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleNested(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Close sidebar on mobile when clicking a link
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Add copy buttons to code blocks
+    document.querySelectorAll('pre code').forEach(block => {
+      const pre = block.parentElement;
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = async () => {
+        await navigator.clipboard.writeText(block.textContent);
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      };
+      pre.appendChild(btn);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let searchTimeout = null;
+
+    // Debounced search
+    searchInput.addEventListener('input', function(e) {
+      const query = this.value.trim();
+      
+      // Clear previous timeout
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      // Hide results if query is too short
+      if (query.length < 2) {
+        searchResults.classList.remove('active');
+        return;
+      }
+
+      // Show loading
+      searchResults.innerHTML = '<div class="search-loading">Searching...</div>';
+      searchResults.classList.add('active');
+
+      // Debounce the search
+      searchTimeout = setTimeout(() => performSearch(query), 200);
+    });
+
+    let lastSearchQuery = '';
+
+    async function performSearch(query) {
+      lastSearchQuery = query;
+      try {
+        const response = await fetch(`${apiBasePath}search?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          const resultItems = data.results.map(result => `
+            <a href="${basePath}${result.url}?highlight=${encodeURIComponent(query)}" class="search-result-item">
+              <div class="search-result-title">${escapeHtml(result.title)}</div>
+              <div class="search-result-snippet">${highlightText(escapeHtml(result.snippet), query)}</div>
+            </a>
+          `).join('');
+          
+          const seeAllLink = data.total > 5 
+            ? `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all ${data.total} results →</a>`
+            : `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all results →</a>`;
+          
+          searchResults.innerHTML = resultItems + seeAllLink;
+        } else {
+          searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+        }
+        
+        searchResults.classList.add('active');
+      } catch (err) {
+        console.error('Search error:', err);
+        searchResults.innerHTML = '<div class="search-no-results">Search failed</div>';
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.header-search')) {
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K or Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      
+      // Escape to close search results
+      if (e.key === 'Escape') {
+        searchResults.classList.remove('active');
+        searchInput.blur();
+      }
+    });
+
+    // Navigate search results with arrow keys
+    searchInput.addEventListener('keydown', function(e) {
+      const items = searchResults.querySelectorAll('.search-result-item');
+      const activeItem = searchResults.querySelector('.search-result-item:focus');
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length > 0) {
+          if (activeItem) {
+            const nextItem = activeItem.nextElementSibling;
+            if (nextItem) nextItem.focus();
+          } else {
+            items[0].focus();
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (activeItem) {
+          const prevItem = activeItem.previousElementSibling;
+          if (prevItem) {
+            prevItem.focus();
+          } else {
+            searchInput.focus();
+          }
+        }
+      } else if (e.key === 'Enter') {
+        // Go to search results page
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+          e.preventDefault();
+          window.location.href = `${basePath}search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+
+    // Highlight search terms on page load if ?highlight= parameter is present
+    (function highlightOnLoad() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const highlightQuery = urlParams.get('highlight');
+      
+      if (!highlightQuery || highlightQuery.length < 2) return;
+      
+      const content = document.querySelector('.content');
+      if (!content) return;
+      
+      // Create a TreeWalker to iterate through text nodes
+      const walker = document.createTreeWalker(
+        content,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: function(node) {
+            // Skip script, style, and code elements
+            const parent = node.parentElement;
+            if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE' || parent.tagName === 'CODE' || parent.tagName === 'PRE')) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        textNodes.push(node);
+      }
+      
+      const regex = new RegExp(`(${highlightQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      let firstMatch = null;
+      
+      textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        if (regex.test(text)) {
+          const span = document.createElement('span');
+          span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+          textNode.parentNode.replaceChild(span, textNode);
+          
+          if (!firstMatch) {
+            firstMatch = span.querySelector('.search-highlight');
+          }
+        }
+        regex.lastIndex = 0; // Reset regex state
+      });
+      
+      // Scroll to first match
+      if (firstMatch) {
+        setTimeout(() => {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+      
+      // Clean URL without highlight param (optional - keeps URL clean)
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', cleanUrl);
+    })();
+  </script>
+</body>
+</html>

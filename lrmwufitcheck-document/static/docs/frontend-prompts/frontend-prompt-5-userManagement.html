@@ -1,0 +1,2856 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management | FitCheck</title>
+  
+  <!-- Highlight.js Theme - Using atom-one-dark for better readability -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --bg-color: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-color: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --sidebar-width: 280px;
+      --header-height: 60px;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+      --link-color: #3b82f6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-color: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #334155;
+      --code-bg: #282c34;
+      --code-text: #abb2bf;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .header-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 320px;
+    }
+
+    .header-search input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      width: 100%;
+      margin-left: 8px;
+    }
+
+    .header-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .search-results.active {
+      display: block;
+    }
+
+    .search-result-item {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.875rem;
+      margin-bottom: 4px;
+    }
+
+    .search-result-snippet {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .search-result-snippet mark {
+      background: var(--warning-color);
+      color: white;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .search-no-results {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-loading {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .search-see-all {
+      display: block;
+      padding: 12px 16px;
+      text-align: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-top: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .search-see-all:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* Search highlight on page */
+    .search-highlight {
+      background: var(--warning-color);
+      color: white;
+      padding: 1px 3px;
+      border-radius: 3px;
+      animation: highlight-pulse 2s ease-out;
+    }
+
+    @keyframes highlight-pulse {
+      0%, 50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    .header-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .header-btn.primary {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .header-btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+
+    .sidebar-section {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-section-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-section-title .chevron {
+      transition: transform 0.2s;
+    }
+
+    .sidebar-section.expanded .sidebar-section-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    .sidebar-items {
+      display: none;
+      padding: 0 8px;
+    }
+
+    .sidebar-section.expanded .sidebar-items {
+      display: block;
+    }
+
+    .sidebar-item {
+      display: block;
+      padding: 8px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      margin: 2px 0;
+      transition: all 0.15s;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-color);
+    }
+
+    .sidebar-item.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .sidebar-nested {
+      padding-left: 12px;
+      margin-top: 4px;
+    }
+
+    .sidebar-nested-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 6px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-nested-title:hover {
+      color: var(--text-secondary);
+    }
+
+    .sidebar-nested-items {
+      display: none;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-items {
+      display: block;
+    }
+
+    .sidebar-nested.expanded .sidebar-nested-title .chevron {
+      transform: rotate(90deg);
+    }
+
+    /* Main Content */
+    .main {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 48px;
+    }
+
+    /* Typography */
+    .content h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      color: var(--text-color);
+    }
+
+    .content h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .content h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: var(--text-color);
+    }
+
+    .content h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+
+    .content p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .content a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    .content a:hover {
+      text-decoration: underline;
+    }
+
+    .content ul, .content ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    .content li {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .content blockquote {
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 20px;
+      margin: 16px 0;
+      background: var(--bg-secondary);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .content blockquote p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    /* Code */
+    .content code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.875em;
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-color);
+    }
+
+    .content pre {
+      margin: 16px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .content pre code {
+      display: block;
+      padding: 16px 20px;
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+
+    .content pre.hljs {
+      margin: 16px 0;
+      border-radius: 8px;
+      background: var(--code-bg);
+    }
+
+    /* Copy button for code blocks */
+    .content pre {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      color: var(--code-text);
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .content pre:hover .copy-btn {
+      opacity: 1;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Tables */
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.875rem;
+    }
+
+    .content th, .content td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border-color);
+    }
+
+    .content th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .content td {
+      color: var(--text-secondary);
+    }
+
+    .content tr:hover td {
+      background: var(--bg-secondary);
+    }
+
+    /* Horizontal Rule */
+    .content hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 32px 0;
+    }
+
+    /* Images */
+    .content img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    /* Mobile */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: var(--text-color);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 99;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .header-search {
+        display: none;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    
+    <a href="../intro.html" class="header-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="var(--primary-color)"/>
+        <path d="M8 10h16M8 16h12M8 22h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      fitcheck
+    </a>
+    
+    <nav class="header-nav">
+      <div class="header-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="Search documentation... (Ctrl+K)" id="search-input" autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+      
+      
+      <button class="header-btn" onclick="copyMarkdown('../../md/frontend-prompts/frontend-prompt-5-userManagement.md')" title="Copy Markdown to clipboard" id="copy-md-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="copy-md-icon">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span id="copy-md-text">Copy</span>
+      </button>
+      <a href="../../md/frontend-prompts/frontend-prompt-5-userManagement.md" class="header-btn" title="Download Markdown">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>MD</span>
+      </a>
+      
+      
+      <button class="header-btn" onclick="toggleTheme()" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="theme-icon">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Getting Started</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../intro.html" class="sidebar-item">
+                Introduction
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section expanded">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Frontend Prompts</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-1-projectIntroduction.html" class="sidebar-item">
+                Project Introduction &amp; Setup
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-2-authManagement.html" class="sidebar-item">
+                Authentication Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-3-verification.html" class="sidebar-item">
+                Verification Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-4-profile.html" class="sidebar-item">
+                Profile Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-5-userManagement.html" class="sidebar-item active">
+                User Management
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-6-mcpbffIntegration.html" class="sidebar-item">
+                MCP BFF Integration
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-7-invitationCenterService.html" class="sidebar-item">
+                InvitationCenter Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-8-nutritionLibraryService.html" class="sidebar-item">
+                NutritionLibrary Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-9-mealTrackerService.html" class="sidebar-item">
+                MealTracker Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-10-nutritionAiService.html" class="sidebar-item">
+                NutritionAi Service
+              </a>
+            
+          
+            
+              <a href="../frontend-prompts/frontend-prompt-11-agentHubService.html" class="sidebar-item">
+                AgentHub Service
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Auth Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../auth-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../auth-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../auth-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/user-design.html" class="sidebar-item">
+                      user Design
+                    </a>
+                  
+                    <a href="../auth-service/userAvatarsFile-design.html" class="sidebar-item">
+                      userAvatarsFile Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/business-api/getUser-api-design.html" class="sidebar-item">
+                      getUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUser-api-design.html" class="sidebar-item">
+                      updateUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateProfile-api-design.html" class="sidebar-item">
+                      updateProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/createUser-api-design.html" class="sidebar-item">
+                      createUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUser-api-design.html" class="sidebar-item">
+                      deleteUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/archiveProfile-api-design.html" class="sidebar-item">
+                      archiveProfile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUsers-api-design.html" class="sidebar-item">
+                      listUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/searchUsers-api-design.html" class="sidebar-item">
+                      searchUsers API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserRole-api-design.html" class="sidebar-item">
+                      updateUserRole API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPassword-api-design.html" class="sidebar-item">
+                      updateUserPassword API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/updateUserPasswordByAdmin-api-design.html" class="sidebar-item">
+                      updateUserPasswordByAdmin API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getBriefUser-api-design.html" class="sidebar-item">
+                      getBriefUser API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/streamTest-api-design.html" class="sidebar-item">
+                      streamTest API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/getUserAvatarsFile-api-design.html" class="sidebar-item">
+                      getUserAvatarsFile API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/listUserAvatarsFiles-api-design.html" class="sidebar-item">
+                      listUserAvatarsFiles API
+                    </a>
+                  
+                    <a href="../auth-service/business-api/deleteUserAvatarsFile-api-design.html" class="sidebar-item">
+                      deleteUserAvatarsFile API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Database Buckets
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../auth-service/db-buckets/userAvatars-bucket-design.html" class="sidebar-item">
+                      userAvatars Bucket
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>InvitationCenter Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../invitationCenter-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../invitationCenter-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/inviteLink-design.html" class="sidebar-item">
+                      inviteLink Design
+                    </a>
+                  
+                    <a href="../invitationCenter-service/inviteAudit-design.html" class="sidebar-item">
+                      inviteAudit Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../invitationCenter-service/business-api/createInviteLink-api-design.html" class="sidebar-item">
+                      createInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/activateInviteLink-api-design.html" class="sidebar-item">
+                      activateInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/revokeInviteLink-api-design.html" class="sidebar-item">
+                      revokeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/deliverInviteEmail-api-design.html" class="sidebar-item">
+                      deliverInviteEmail API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/validateInviteCode-api-design.html" class="sidebar-item">
+                      validateInviteCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/consumeInviteLink-api-design.html" class="sidebar-item">
+                      consumeInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLinkByCode-api-design.html" class="sidebar-item">
+                      getInviteLinkByCode API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/getInviteLink-api-design.html" class="sidebar-item">
+                      getInviteLink API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteLinks-api-design.html" class="sidebar-item">
+                      listInviteLinks API
+                    </a>
+                  
+                    <a href="../invitationCenter-service/business-api/listInviteAudits-api-design.html" class="sidebar-item">
+                      listInviteAudits API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../invitationCenter-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionLibrary Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionLibrary-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionLibrary-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/macroTarget-design.html" class="sidebar-item">
+                      macroTarget Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/foodItem-design.html" class="sidebar-item">
+                      foodItem Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetMeal-design.html" class="sidebar-item">
+                      presetMeal Design
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/presetLine-design.html" class="sidebar-item">
+                      presetLine Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionLibrary-service/business-api/setMacroTarget-api-design.html" class="sidebar-item">
+                      setMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTarget-api-design.html" class="sidebar-item">
+                      getMyMacroTarget API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createFoodItem-api-design.html" class="sidebar-item">
+                      createFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItem-api-design.html" class="sidebar-item">
+                      getFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listFoodItems-api-design.html" class="sidebar-item">
+                      listFoodItems API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updateFoodItem-api-design.html" class="sidebar-item">
+                      updateFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deleteFoodItem-api-design.html" class="sidebar-item">
+                      deleteFoodItem API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/createPresetMeal-api-design.html" class="sidebar-item">
+                      createPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMeal-api-design.html" class="sidebar-item">
+                      getPresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetMeals-api-design.html" class="sidebar-item">
+                      listPresetMeals API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/updatePresetMeal-api-design.html" class="sidebar-item">
+                      updatePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetMeal-api-design.html" class="sidebar-item">
+                      deletePresetMeal API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/addPresetLine-api-design.html" class="sidebar-item">
+                      addPresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/listPresetLines-api-design.html" class="sidebar-item">
+                      listPresetLines API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/deletePresetLine-api-design.html" class="sidebar-item">
+                      deletePresetLine API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getPresetMealForLogging-api-design.html" class="sidebar-item">
+                      getPresetMealForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getFoodItemForLogging-api-design.html" class="sidebar-item">
+                      getFoodItemForLogging API
+                    </a>
+                  
+                    <a href="../nutritionLibrary-service/business-api/getMyMacroTargetForLogging-api-design.html" class="sidebar-item">
+                      getMyMacroTargetForLogging API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionLibrary-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>MealTracker Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../mealTracker-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../mealTracker-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/mealLog-design.html" class="sidebar-item">
+                      mealLog Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/mealLine-design.html" class="sidebar-item">
+                      mealLine Design
+                    </a>
+                  
+                    <a href="../mealTracker-service/nutritionDay-design.html" class="sidebar-item">
+                      nutritionDay Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../mealTracker-service/business-api/createMealLog-api-design.html" class="sidebar-item">
+                      createMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMealLog-api-design.html" class="sidebar-item">
+                      getMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLogs-api-design.html" class="sidebar-item">
+                      listMealLogs API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLog-api-design.html" class="sidebar-item">
+                      updateMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLog-api-design.html" class="sidebar-item">
+                      deleteMealLog API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/createMealLine-api-design.html" class="sidebar-item">
+                      createMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/updateMealLine-api-design.html" class="sidebar-item">
+                      updateMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/deleteMealLine-api-design.html" class="sidebar-item">
+                      deleteMealLine API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listMealLines-api-design.html" class="sidebar-item">
+                      listMealLines API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getDailyProgress-api-design.html" class="sidebar-item">
+                      getDailyProgress API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getNutritionDay-api-design.html" class="sidebar-item">
+                      getNutritionDay API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/listNutritionDays-api-design.html" class="sidebar-item">
+                      listNutritionDays API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getWeeklyAnalytics-api-design.html" class="sidebar-item">
+                      getWeeklyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/getMonthlyAnalytics-api-design.html" class="sidebar-item">
+                      getMonthlyAnalytics API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailyReminderCheck-api-design.html" class="sidebar-item">
+                      triggerDailyReminderCheck API
+                    </a>
+                  
+                    <a href="../mealTracker-service/business-api/triggerDailySummary-api-design.html" class="sidebar-item">
+                      triggerDailySummary API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../mealTracker-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>NutritionAi Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../nutritionAi-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../nutritionAi-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/aiSession-design.html" class="sidebar-item">
+                      aiSession Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateMeal-design.html" class="sidebar-item">
+                      aiCandidateMeal Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiCandidateLine-design.html" class="sidebar-item">
+                      aiCandidateLine Design
+                    </a>
+                  
+                    <a href="../nutritionAi-service/aiGuidanceNote-design.html" class="sidebar-item">
+                      aiGuidanceNote Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../nutritionAi-service/business-api/parseMeal-api-design.html" class="sidebar-item">
+                      parseMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/confirmCandidateMeal-api-design.html" class="sidebar-item">
+                      confirmCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/askNutritionQuestion-api-design.html" class="sidebar-item">
+                      askNutritionQuestion API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiSession-api-design.html" class="sidebar-item">
+                      getAiSession API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiSessions-api-design.html" class="sidebar-item">
+                      listAiSessions API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiCandidateMeal-api-design.html" class="sidebar-item">
+                      getAiCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiCandidateMeals-api-design.html" class="sidebar-item">
+                      listAiCandidateMeals API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/updateAiCandidateLine-api-design.html" class="sidebar-item">
+                      updateAiCandidateLine API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/rejectCandidateMeal-api-design.html" class="sidebar-item">
+                      rejectCandidateMeal API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/getAiGuidanceNote-api-design.html" class="sidebar-item">
+                      getAiGuidanceNote API
+                    </a>
+                  
+                    <a href="../nutritionAi-service/business-api/listAiGuidanceNotes-api-design.html" class="sidebar-item">
+                      listAiGuidanceNotes API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <a href="../nutritionAi-service/service-library.html" class="sidebar-item">
+                Service Library
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>AgentHub Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../agentHub-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../agentHub-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Data Objects
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/sys_agentOverride-design.html" class="sidebar-item">
+                      sys_agentOverride Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentExecution-design.html" class="sidebar-item">
+                      sys_agentExecution Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_toolCatalog-design.html" class="sidebar-item">
+                      sys_toolCatalog Design
+                    </a>
+                  
+                    <a href="../agentHub-service/sys_agentConversation-design.html" class="sidebar-item">
+                      sys_agentConversation Design
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  Business APIs
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/business-api/getAgentOverride-api-design.html" class="sidebar-item">
+                      getAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentOverrides-api-design.html" class="sidebar-item">
+                      listAgentOverrides API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/createAgentOverride-api-design.html" class="sidebar-item">
+                      createAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/updateAgentOverride-api-design.html" class="sidebar-item">
+                      updateAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/deleteAgentOverride-api-design.html" class="sidebar-item">
+                      deleteAgentOverride API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listToolCatalog-api-design.html" class="sidebar-item">
+                      listToolCatalog API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getToolCatalogEntry-api-design.html" class="sidebar-item">
+                      getToolCatalogEntry API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentExecutions-api-design.html" class="sidebar-item">
+                      listAgentExecutions API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentExecution-api-design.html" class="sidebar-item">
+                      getAgentExecution API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/listAgentChats-api-design.html" class="sidebar-item">
+                      listAgentChats API
+                    </a>
+                  
+                    <a href="../agentHub-service/business-api/getAgentChatMessages-api-design.html" class="sidebar-item">
+                      getAgentChatMessages API
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+            
+              <!-- Nested items -->
+              <div class="sidebar-nested">
+                <div class="sidebar-nested-title" onclick="toggleNested(this)">
+                  <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                  AI Agents
+                </div>
+                <div class="sidebar-nested-items">
+                  
+                    <a href="../agentHub-service/ai-agents/nutritionGuidanceAgent-agent-design.html" class="sidebar-item">
+                      nutritionGuidanceAgent Agent
+                    </a>
+                  
+                    <a href="../agentHub-service/ai-agents/mealParsingAgent-agent-design.html" class="sidebar-item">
+                      mealParsingAgent Agent
+                    </a>
+                  
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Bff Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../bff-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../bff-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../bff-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>Notification Service</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../notification-service/service-design.html" class="sidebar-item">
+                Service Design
+              </a>
+            
+          
+            
+              <a href="../notification-service/rest-api-guide.html" class="sidebar-item">
+                REST API Guide
+              </a>
+            
+          
+            
+              <a href="../notification-service/event-guide.html" class="sidebar-item">
+                Event Guide
+              </a>
+            
+          
+        </div>
+      </div>
+    
+      <div class="sidebar-section">
+        <div class="sidebar-section-title" onclick="toggleSection(this)">
+          <span>LLM Documents</span>
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="sidebar-items">
+          
+            
+              <a href="../llm/llms.html" class="sidebar-item">
+                Documentation Index
+              </a>
+            
+          
+            
+              <a href="../llm/llms-full.html" class="sidebar-item">
+                Complete Documentation
+              </a>
+            
+          
+            
+              <a href="../llm/llms-restapi.html" class="sidebar-item">
+                REST API Reference
+              </a>
+            
+          
+            
+              <a href="../llm/llms-prompts.html" class="sidebar-item">
+                Frontend Prompts
+              </a>
+            
+          
+        </div>
+      </div>
+    
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="content">
+      <h1 id="fitcheck"><strong>FITCHECK</strong></h1>
+<p><strong>FRONTEND GUIDE FOR AI CODING AGENTS - PART 5 - User Management</strong></p>
+<p>This document is the 2nd part of a REST API guide for the fitcheck project.
+It is designed for AI agents that will generate frontend code to consume the project’s backend.</p>
+<p>This document provides extensive instruction for administrative user management.</p>
+<blockquote>
+<p><strong>Scope reminder — keep admin features focused.</strong></p>
+<p>A standard dynamic SaaS app typically ships <strong>a basic admin section</strong> with: user list, view single user, create user, edit user, change role, reset password by admin, delete user. <strong>Build those.</strong></p>
+<p><strong>Skip these unless the project’s scope explicitly asks for them:</strong></p>
+<ul>
+<li><strong>Audit log / activity history pages</strong> (<code>useUserHistory</code> hook is available, but don’t auto-build a dedicated screen)</li>
+<li><strong>Active-session management UI</strong> (<code>useUserSessions</code> / <code>useDeleteUserSession</code> are available, skip the dedicated screen)</li>
+<li>Anything labeled “(OPTIONAL)” further down</li>
+</ul>
+<p>The hooks for these stay documented for reference — the rule is “available, not auto-built”. If the scope says “admin can see user activity”, you can wire them. Otherwise leave them out and keep the admin section lean.</p>
+</blockquote>
+<h2 id="service-access">Service Access</h2>
+<p>User management is handled through auth service again.</p>
+<p>Auth service may be deployed to the preview server, staging server, or production server. Therefore,it has 3 access URLs.
+The frontend application must support all deployment environments during development, and the user should be able to select the target API server on the login page (already handled in first part.).</p>
+<p>For the auth service, the base URLs are:</p>
+<ul>
+<li><strong>Preview:</strong> <code>https://lrmwufitcheck.preview.mindbricks.com/auth-api</code></li>
+<li><strong>Staging:</strong> <code>https://lrmwufitcheck-stage.mindbricks.co/auth-api</code></li>
+<li><strong>Production:</strong> <code>https://lrmwufitcheck.mindbricks.co/auth-api</code></li>
+</ul>
+<p>Please note that any feature in this document is open to admins only. When the user logins, the response includes a roleId field.</p>
+<p>This roleId should one of these following admin roles. <code>superAdmin</code>, <code>admin</code>,</p>
+<h2 id="scope">Scope</h2>
+<p>Auth service provides following feature for user management in fitcheck application.</p>
+<p>These features are already handled in the previous part.</p>
+<ol>
+<li>User Registration</li>
+<li>User Authentication</li>
+<li>Password Reset</li>
+<li>Email (and/or) Mobile Verification</li>
+<li>Profile Management</li>
+</ol>
+<p>These features will be handled in this part.</p>
+<ul>
+<li>User Management</li>
+<li>User Groups Management</li>
+<li>Permission Manageemnt</li>
+</ul>
+<h2 id="api-structure">API Structure</h2>
+<h3 id="object-structure-of-a-successful-response">Object Structure of a Successful Response</h3>
+<p>When the service processes requests successfully, it wraps the requested resource(s) within a JSON envelope. This envelope includes the data and essential metadata such as configuration details and pagination information, providing context to the client.</p>
+<p><strong>HTTP Status Codes:</strong></p>
+<ul>
+<li><strong>200 OK</strong>: Returned for successful GET, LIST, UPDATE, or DELETE operations, indicating that the request was processed successfully.</li>
+<li><strong>201 Created</strong>: Returned for CREATE operations, indicating that the resource was created successfully.</li>
+</ul>
+<p><strong>Success Response Format:</strong></p>
+<p>For successful operations, the response includes a <code>&quot;status&quot;: &quot;OK&quot;</code> property, signaling that the request executed successfully. The structure of a successful response is outlined below:</p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">200</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;products&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;GET&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;list&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">3</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;products&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">[</span><span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span><span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span><span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;paging&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;pageNumber&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;pageRowCount&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">25</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;totalRowCount&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">3</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;pageCount&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">1</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;filters&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;uiPermissions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<ul>
+<li><strong><code>products</code></strong>: In this example, this key contains the actual response content, which may be a single object or an array of objects depending on the operation.</li>
+</ul>
+<h3 id="additional-data">Additional Data</h3>
+<p>Each API may include additional data besides the main data object, depending on the business logic of the API. These will be provided in each API’s response signature.</p>
+<h3 id="error-response">Error Response</h3>
+<p>If a request encounters an issue—whether due to a logical fault or a technical problem—the service responds with a standardized JSON error structure. The HTTP status code indicates the nature of the error, using commonly recognized codes for clarity:</p>
+<ul>
+<li><strong>400 Bad Request</strong>: The request was improperly formatted or contained invalid parameters.</li>
+<li><strong>401 Unauthorized</strong>: The request lacked a valid authentication token; login is required.</li>
+<li><strong>403 Forbidden</strong>: The current token does not grant access to the requested resource.</li>
+<li><strong>404 Not Found</strong>: The requested resource was not found on the server.</li>
+<li><strong>500 Internal Server Error</strong>: The server encountered an unexpected condition.</li>
+</ul>
+<p>Each error response is structured to provide meaningful insight into the problem, assisting in efficient diagnosis and resolution.</p>
+<pre class="hljs"><code class="language-js">{
+  <span class="hljs-string">&quot;result&quot;</span>: <span class="hljs-string">&quot;ERR&quot;</span>,
+  <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-number">400</span>,
+  <span class="hljs-string">&quot;message&quot;</span>: <span class="hljs-string">&quot;errMsg_organizationIdisNotAValidID&quot;</span>,
+  <span class="hljs-string">&quot;errCode&quot;</span>: <span class="hljs-number">400</span>,
+  <span class="hljs-string">&quot;date&quot;</span>: <span class="hljs-string">&quot;2024-03-19T12:13:54.124Z&quot;</span>,
+  <span class="hljs-string">&quot;detail&quot;</span>: <span class="hljs-string">&quot;String&quot;</span>
+}
+</code></pre>
+<h2 id="user-management">User Management</h2>
+<p>User management will be one of the main parts of the administrative manageemnts, so there will be a minimal but fancy <code>users</code> page in the admin dashboard.</p>
+<h3 id="user-roles">User Roles</h3>
+<ul>
+<li><code>superadmin</code> : The first creator of the backend, the owner of the application, root user, has got an absolute authroization on all actions. It can not be assgined any other user. It can’t be unassigned. Super admin user can not be deleted in any way.</li>
+<li><code>admin</code> : The role that can be assigned to any user by the super admin. This role includes most permissions that super admin have, but admins can’t assign admin roles, can’t unassign an admin role, can’t delete other users who have admin role. In addition to these limitations, some critical actions in the business services may also be open to only super admin.</li>
+<li><code>user</code> : The standard role that is assgined to every user when first created or registered. This role doesnt have any privilages and can access to their own data or public data.</li>
+</ul>
+<p>The roles object is a hardcoded object in the generated code, and it contains the following roles:</p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;superAdmin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&#x27;superAdmin&#x27;&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;admin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&#x27;admin&#x27;&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&#x27;user&#x27;&quot;</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>Each user may have only one role, and it is given in <code>/login</code> , <code>/currentuser</code> or <code>/users/:userId</code>  response as follows</p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-comment">// ...</span>
+  <span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;superAdmin&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-comment">// ...</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h2 id="listing-users">Listing Users</h2>
+<p>You can list users using the <code>listUsers</code> api.</p>
+<h3 id="list-users-api"><code>List Users</code> API</h3>
+<p>The list of users is filtered by the tenantId.</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>listUsers</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/users</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p><strong>Filter Parameters</strong></p>
+<p>The <code>listUsers</code> api supports 3 optional filter parameters for filtering list results:</p>
+<p><strong>email</strong> (<code>String</code>):  A string value to represent the user’s email.</p>
+<ul>
+<li>Single (partial match, case-insensitive): <code>?email=&lt;value&gt;</code></li>
+<li>Multiple: <code>?email=&lt;value1&gt;&amp;email=&lt;value2&gt;</code></li>
+<li>Null: <code>?email=null</code></li>
+</ul>
+<p><strong>fullname</strong> (<code>String</code>): A string value to represent the fullname of the user</p>
+<ul>
+<li>Single (partial match, case-insensitive): <code>?fullname=&lt;value&gt;</code></li>
+<li>Multiple: <code>?fullname=&lt;value1&gt;&amp;fullname=&lt;value2&gt;</code></li>
+<li>Null: <code>?fullname=null</code></li>
+</ul>
+<p><strong>roleId</strong> (<code>String</code>): A string value to represent the roleId of the user.</p>
+<ul>
+<li>Single (partial match, case-insensitive): <code>?roleId=&lt;value&gt;</code></li>
+<li>Multiple: <code>?roleId=&lt;value1&gt;&amp;roleId=&lt;value2&gt;</code></li>
+<li>Null: <code>?roleId=null</code></li>
+</ul>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>GET  /v1/users</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;GET&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;/v1/users&#x27;</span>,
+    <span class="hljs-attr">data</span>: {
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        <span class="hljs-comment">// Filter parameters (see Filter Parameters section above)</span>
+        <span class="hljs-comment">// email: &#x27;&lt;value&gt;&#x27; // Filter by email</span>
+        <span class="hljs-comment">// fullname: &#x27;&lt;value&gt;&#x27; // Filter by fullname</span>
+        <span class="hljs-comment">// roleId: &#x27;&lt;value&gt;&#x27; // Filter by roleId</span>
+            }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;users&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;GET&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;list&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;\&quot;Number\&quot;&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;users&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+		<span class="hljs-punctuation">{</span>
+			<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+		<span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span>
+	<span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;paging&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;pageNumber&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;pageRowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;NUmber&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;totalRowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;pageCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span>
+	<span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;filters&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;uiPermissions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h2 id="searching-users">Searching Users</h2>
+<p>You may search users with their full names, emails. The search is done in elasticsearch index of the user table so a fast response is provided by the backend. You can send search request on each character update in the search box but start searching after 3 chars.
+The keyword parameter that is used in the business logic of the api, is read from the keyword query parameter.</p>
+<p>eg: <code>GET /v1/searchusers?keyword=Joe</code></p>
+<p>When the user deletes the search keyword, use the <code>listUsers</code> api to get the full list again.</p>
+<h3 id="search-users-api"><code>Search Users</code> API</h3>
+<p>The list of users is filtered by the tenantId.</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>searchUsers</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/searchusers</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>searchUsers</code> api has got 1 regular request parameter</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>keyword</td>
+<td>String</td>
+<td>true</td>
+<td>request.query?.[“keyword”]</td>
+</tr>
+<tr>
+<td><strong>keyword</strong> :</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Filter Parameters</strong></p>
+<p>The <code>searchUsers</code> api supports 1 optional filter parameter for filtering list results:</p>
+<p><strong>roleId</strong> (<code>String</code>): A string value to represent the roleId of the user.</p>
+<ul>
+<li>Single (partial match, case-insensitive): <code>?roleId=&lt;value&gt;</code></li>
+<li>Multiple: <code>?roleId=&lt;value1&gt;&amp;roleId=&lt;value2&gt;</code></li>
+<li>Null: <code>?roleId=null</code></li>
+</ul>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>GET  /v1/searchusers</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;GET&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;/v1/searchusers&#x27;</span>,
+    <span class="hljs-attr">data</span>: {
+    
+    },
+    <span class="hljs-attr">params</span>: {
+             <span class="hljs-attr">keyword</span>:<span class="hljs-string">&#x27;&quot;String&quot;&#x27;</span>,  
+    
+        <span class="hljs-comment">// Filter parameters (see Filter Parameters section above)</span>
+        <span class="hljs-comment">// roleId: &#x27;&lt;value&gt;&#x27; // Filter by roleId</span>
+            }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;users&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;GET&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;list&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;\&quot;Number\&quot;&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;users&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+		<span class="hljs-punctuation">{</span>
+			<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+			<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+		<span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span>
+	<span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;paging&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;pageNumber&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;pageRowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;NUmber&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;totalRowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;pageCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Number&quot;</span>
+	<span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;filters&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;uiPermissions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h4 id="pagination">Pagination</h4>
+<p>When you list the users please use pagination. To be able to use pagination you should provide a <code>pageNumber</code> paramater in the query. The default row count for one page is 25, add an option for user to change it to 50 or 100.</p>
+<p><code>GET /users?pageNumber=1&amp;pageRowCount=50</code></p>
+<h2 id="creating-users">Creating Users</h2>
+<p>The user management console in the admin dashboard should provide UX components for user creating by admins. When creating users, it should also be possible to upload user avatar. Note that when creating, updating users, admins can not set emailVerified as true, since it is a logical mechanism and should be verified only through verification processes.</p>
+<h3 id="create-user-api"><code>Create User</code> API</h3>
+<p>This api is used by admin roles to create a new user manually from admin panels</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>createUser</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/users</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>createUser</code> api has got 4 regular request parameters</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>true</td>
+<td>request.body?.[“email”]</td>
+</tr>
+<tr>
+<td>password</td>
+<td>String</td>
+<td>true</td>
+<td>request.body?.[“password”]</td>
+</tr>
+<tr>
+<td>fullname</td>
+<td>String</td>
+<td>true</td>
+<td>request.body?.[“fullname”]</td>
+</tr>
+<tr>
+<td>avatar</td>
+<td>String</td>
+<td>false</td>
+<td>request.body?.[“avatar”]</td>
+</tr>
+<tr>
+<td><strong>email</strong> : User’s email address.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>password</strong> : User’s password (will be hashed at write time).</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>fullname</strong> : User’s full name.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>avatar</strong> : The avatar url of the user. If not sent, a default random one will be generated.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>POST  /v1/users</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">&#x27;/v1/users&#x27;</span>,
+    <span class="hljs-attr">data</span>: {
+            <span class="hljs-attr">email</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+            <span class="hljs-attr">password</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+            <span class="hljs-attr">fullname</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+            <span class="hljs-attr">avatar</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;201&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;POST&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;create&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+	<span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h3 id="avatar-upload">Avatar Upload</h3>
+<p>Avatars are stored in the auth service’s <strong>database bucket</strong> — no external bucket service needed.</p>
+<p>Upload the avatar image to the auth service’s userAvatars bucket endpoint:</p>
+<p><code>POST {authBaseUrl}/bucket/userAvatars/upload</code></p>
+<p>Use the regular access token (Bearer header) for authentication — the same token used for all other API calls. The upload body is <code>multipart/form-data</code> with a <code>file</code> field.</p>
+<p>After upload, the response returns file metadata including <code>id</code> and <code>accessKey</code>. Construct a public download URL and save it in the user’s <code>avatar</code> field:</p>
+<pre class="hljs"><code class="language-js"><span class="hljs-keyword">const</span> avatarUrl = <span class="hljs-string">`<span class="hljs-subst">${authBaseUrl}</span>/bucket/userAvatars/download/key/<span class="hljs-subst">${result.file.accessKey}</span>`</span>;
+<span class="hljs-keyword">await</span> <span class="hljs-title function_">updateUser</span>(userId, { <span class="hljs-attr">avatar</span>: avatarUrl });
+</code></pre>
+<p>Since the userAvatars bucket has public read access, avatar URLs work directly in <code>&lt;img&gt;</code> tags without auth.</p>
+<p>Before the avatar upload, use the <code>react-easy-crop</code> lib for zoom, pan and crop. This component is also used in the profile page — reuse the existing code.</p>
+<h2 id="updating-users">Updating Users</h2>
+<p>User update is possible by <code>updateUser</code>api. However since this update api is also called by teh user themselves it is lmited with name and avatar change (or any other user related property).
+For roleId and password updates seperate apis are used. So arrange the user update UI as to update the user info, as to set roleId and as to update password.</p>
+<h3 id="update-user-api"><code>Update User</code> API</h3>
+<p>This route is used by admins to update user profiles.</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>updateUser</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/users/:userId</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>updateUser</code> api has got 3 regular request parameters</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userId</td>
+<td>ID</td>
+<td>true</td>
+<td>request.params?.[“userId”]</td>
+</tr>
+<tr>
+<td>fullname</td>
+<td>String</td>
+<td>false</td>
+<td>request.body?.[“fullname”]</td>
+</tr>
+<tr>
+<td>avatar</td>
+<td>String</td>
+<td>false</td>
+<td>request.body?.[“avatar”]</td>
+</tr>
+<tr>
+<td><strong>userId</strong> : This id paremeter is used to select the required data object that will be updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>fullname</strong> : User’s full name.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>avatar</strong> : Avatar URL.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>PATCH  /v1/users/:userId</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;PATCH&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">`/v1/users/<span class="hljs-subst">${userId}</span>`</span>,
+    <span class="hljs-attr">data</span>: {
+            <span class="hljs-attr">fullname</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+            <span class="hljs-attr">avatar</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;PATCH&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;update&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+	<span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>For role updates there are some rules.</p>
+<ol>
+<li>Superadmin role can not be unassigned even by superadmin.</li>
+<li>Admin roles can be assgined or unassgined only by superadmin.</li>
+<li>All other roles can be assigned and unassgined by admins and superadmin.</li>
+</ol>
+<p>For password updates there are some rules.</p>
+<ol>
+<li>Superadmin and admin passwords can be updated only by superadmin.</li>
+<li>Admins can update only non-admin passwords.</li>
+</ol>
+<h3 id="update-userrole-api"><code>Update Userrole</code> API</h3>
+<p>This route is used by admin roles to update the user role.The default role is user when a user is registered. A user’s role can be updated by superAdmin or admin</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>updateUserRole</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/userrole/:userId</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>updateUserRole</code> api has got 2 regular request parameters</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userId</td>
+<td>ID</td>
+<td>true</td>
+<td>request.params?.[“userId”]</td>
+</tr>
+<tr>
+<td>roleId</td>
+<td>String</td>
+<td>true</td>
+<td>request.body?.[“roleId”]</td>
+</tr>
+<tr>
+<td><strong>userId</strong> : This id paremeter is used to select the required data object that will be updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>roleId</strong> : The new roleId of the user to be updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>PATCH  /v1/userrole/:userId</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;PATCH&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">`/v1/userrole/<span class="hljs-subst">${userId}</span>`</span>,
+    <span class="hljs-attr">data</span>: {
+            <span class="hljs-attr">roleId</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;PATCH&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;update&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+	<span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h3 id="update-userpasswordbyadmin-api"><code>Update Userpasswordbyadmin</code> API</h3>
+<p>This route is used to change any user password by admins only. Superadmin can chnage all passwords, admins can change only nonadmin passwords</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>updateUserPasswordByAdmin</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/userpasswordbyadmin/:userId</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>updateUserPasswordByAdmin</code> api has got 2 regular request parameters</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userId</td>
+<td>ID</td>
+<td>true</td>
+<td>request.params?.[“userId”]</td>
+</tr>
+<tr>
+<td>password</td>
+<td>String</td>
+<td>true</td>
+<td>request.body?.[“password”]</td>
+</tr>
+<tr>
+<td><strong>userId</strong> : This id paremeter is used to select the required data object that will be updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>password</strong> : The new password of the user to be updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>PATCH  /v1/userpasswordbyadmin/:userId</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;PATCH&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">`/v1/userpasswordbyadmin/<span class="hljs-subst">${userId}</span>`</span>,
+    <span class="hljs-attr">data</span>: {
+            <span class="hljs-attr">password</span>:<span class="hljs-string">&quot;String&quot;</span>,  
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;PATCH&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;update&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+	<span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h3 id="deleting-users">Deleting Users</h3>
+<p>Deleting users is possible in certain conditions.</p>
+<ol>
+<li>SuperAdmin can not be deleted.</li>
+<li>Admins can be deleted by only superadmin.</li>
+<li>Users can be deleted by admins or superadmin.</li>
+</ol>
+<h3 id="delete-user-api"><code>Delete User</code> API</h3>
+<p>This api is used by admins to delete user profiles.</p>
+<p><strong>Rest Route</strong></p>
+<p>The <code>deleteUser</code> API REST controller can be triggered via the following route:</p>
+<p><code>/v1/users/:userId</code></p>
+<p><strong>Rest Request Parameters</strong></p>
+<p>The <code>deleteUser</code> api has got 1 regular request parameter</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Population</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userId</td>
+<td>ID</td>
+<td>true</td>
+<td>request.params?.[“userId”]</td>
+</tr>
+<tr>
+<td><strong>userId</strong> : This id paremeter is used to select the required data object that will be deleted</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>REST Request</strong>
+To access the api you can use the <strong>REST</strong> controller with the path <strong>DELETE  /v1/users/:userId</strong></p>
+<pre class="hljs"><code class="language-js">  <span class="hljs-title function_">axios</span>({
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;DELETE&#x27;</span>,
+    <span class="hljs-attr">url</span>: <span class="hljs-string">`/v1/users/<span class="hljs-subst">${userId}</span>`</span>,
+    <span class="hljs-attr">data</span>: {
+    
+    },
+    <span class="hljs-attr">params</span>: {
+    
+        }
+  });
+</code></pre>
+<p><strong>REST Response</strong></p>
+<pre class="hljs"><code class="language-json"><span class="hljs-punctuation">{</span>
+	<span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;OK&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;statusCode&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;200&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;elapsedMs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">126</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;ssoTime&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">120</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;db&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;cacheKey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hexCode&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;userId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;sessionId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;requestId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;dataName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;DELETE&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;action&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;delete&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;appVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Version&quot;</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;rowCount&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+	<span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+		<span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;fullname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;roleId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;String&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;emailVerified&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Boolean&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;isActive&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;recordVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Integer&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;updatedAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Date&quot;</span><span class="hljs-punctuation">,</span>
+		<span class="hljs-attr">&quot;_owner&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ID&quot;</span>
+	<span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<hr>
+<p>When you list user group members, a <code>user</code> object will also be inserted in each userGroupMember object, with fullname, avatar, email.</p>
+<h2 id="avatar-storage-database-buckets">Avatar Storage (Database Buckets)</h2>
+<p>(This information is also covered in the Profile prompt.)</p>
+<p>Avatars are stored in the auth service’s <strong>database buckets</strong> — uploaded to and downloaded from the auth service directly using the regular access token.</p>
+<p><strong>User Avatar Bucket:</strong></p>
+<ul>
+<li>Upload: <code>POST {authBaseUrl}/bucket/userAvatars/upload</code> (multipart/form-data, <code>file</code> field)</li>
+<li>Download: <code>GET {authBaseUrl}/bucket/userAvatars/download/key/{accessKey}</code> (public, no auth needed)</li>
+<li>Allowed: image/png, image/jpeg, image/webp, image/gif (max 5 MB)</li>
+</ul>
+<p>When uploading an avatar (for user creation or update), send the image to the bucket, get back the <code>accessKey</code>, construct the download URL, and store it in the user’s <code>avatar</code> field via the update API.</p>
+<p><strong>After this prompt, the user may give you new instructions to update the output of this prompt or provide subsequent prompts about the project.</strong></p>
+
+    </div>
+  </main>
+
+  <script>
+    // Base path for relative links between pages
+    const basePath = '../';
+    // API base path for search and other API calls
+    const apiBasePath = '../../api/';
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+      updateHljsTheme(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+      } else {
+        icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+      }
+    }
+
+    function updateHljsTheme(theme) {
+      // Always use dark theme for code - vivid colors look better
+      const link = document.getElementById('hljs-theme');
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+    }
+
+    // Copy markdown to clipboard
+    async function copyMarkdown(mdPath) {
+      const btn = document.getElementById('copy-md-btn');
+      const text = document.getElementById('copy-md-text');
+      const icon = document.getElementById('copy-md-icon');
+      
+      try {
+        // Fetch the markdown content
+        const response = await fetch(mdPath);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const markdown = await response.text();
+        await navigator.clipboard.writeText(markdown);
+        
+        // Show success state
+        text.textContent = 'Copied!';
+        icon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+        btn.style.borderColor = 'var(--success-color)';
+        btn.style.color = 'var(--success-color)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      } catch (err) {
+        console.error('Copy failed:', err);
+        text.textContent = 'Failed';
+        btn.style.borderColor = 'var(--error-color)';
+        btn.style.color = 'var(--error-color)';
+        
+        setTimeout(() => {
+          text.textContent = 'Copy';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      }
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    updateHljsTheme(savedTheme);
+
+    // Sidebar toggles
+    function toggleSection(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleNested(el) {
+      el.parentElement.classList.toggle('expanded');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Close sidebar on mobile when clicking a link
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Add copy buttons to code blocks
+    document.querySelectorAll('pre code').forEach(block => {
+      const pre = block.parentElement;
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.textContent = 'Copy';
+      btn.onclick = async () => {
+        await navigator.clipboard.writeText(block.textContent);
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      };
+      pre.appendChild(btn);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    let searchTimeout = null;
+
+    // Debounced search
+    searchInput.addEventListener('input', function(e) {
+      const query = this.value.trim();
+      
+      // Clear previous timeout
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      // Hide results if query is too short
+      if (query.length < 2) {
+        searchResults.classList.remove('active');
+        return;
+      }
+
+      // Show loading
+      searchResults.innerHTML = '<div class="search-loading">Searching...</div>';
+      searchResults.classList.add('active');
+
+      // Debounce the search
+      searchTimeout = setTimeout(() => performSearch(query), 200);
+    });
+
+    let lastSearchQuery = '';
+
+    async function performSearch(query) {
+      lastSearchQuery = query;
+      try {
+        const response = await fetch(`${apiBasePath}search?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          const resultItems = data.results.map(result => `
+            <a href="${basePath}${result.url}?highlight=${encodeURIComponent(query)}" class="search-result-item">
+              <div class="search-result-title">${escapeHtml(result.title)}</div>
+              <div class="search-result-snippet">${highlightText(escapeHtml(result.snippet), query)}</div>
+            </a>
+          `).join('');
+          
+          const seeAllLink = data.total > 5 
+            ? `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all ${data.total} results →</a>`
+            : `<a href="${basePath}search.html?q=${encodeURIComponent(query)}" class="search-see-all">See all results →</a>`;
+          
+          searchResults.innerHTML = resultItems + seeAllLink;
+        } else {
+          searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+        }
+        
+        searchResults.classList.add('active');
+      } catch (err) {
+        console.error('Search error:', err);
+        searchResults.innerHTML = '<div class="search-no-results">Search failed</div>';
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.header-search')) {
+        searchResults.classList.remove('active');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+K or Cmd+K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      
+      // Escape to close search results
+      if (e.key === 'Escape') {
+        searchResults.classList.remove('active');
+        searchInput.blur();
+      }
+    });
+
+    // Navigate search results with arrow keys
+    searchInput.addEventListener('keydown', function(e) {
+      const items = searchResults.querySelectorAll('.search-result-item');
+      const activeItem = searchResults.querySelector('.search-result-item:focus');
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length > 0) {
+          if (activeItem) {
+            const nextItem = activeItem.nextElementSibling;
+            if (nextItem) nextItem.focus();
+          } else {
+            items[0].focus();
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (activeItem) {
+          const prevItem = activeItem.previousElementSibling;
+          if (prevItem) {
+            prevItem.focus();
+          } else {
+            searchInput.focus();
+          }
+        }
+      } else if (e.key === 'Enter') {
+        // Go to search results page
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+          e.preventDefault();
+          window.location.href = `${basePath}search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+
+    // Highlight search terms on page load if ?highlight= parameter is present
+    (function highlightOnLoad() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const highlightQuery = urlParams.get('highlight');
+      
+      if (!highlightQuery || highlightQuery.length < 2) return;
+      
+      const content = document.querySelector('.content');
+      if (!content) return;
+      
+      // Create a TreeWalker to iterate through text nodes
+      const walker = document.createTreeWalker(
+        content,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode: function(node) {
+            // Skip script, style, and code elements
+            const parent = node.parentElement;
+            if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE' || parent.tagName === 'CODE' || parent.tagName === 'PRE')) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        textNodes.push(node);
+      }
+      
+      const regex = new RegExp(`(${highlightQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      let firstMatch = null;
+      
+      textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        if (regex.test(text)) {
+          const span = document.createElement('span');
+          span.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+          textNode.parentNode.replaceChild(span, textNode);
+          
+          if (!firstMatch) {
+            firstMatch = span.querySelector('.search-highlight');
+          }
+        }
+        regex.lastIndex = 0; // Reset regex state
+      });
+      
+      // Scroll to first match
+      if (firstMatch) {
+        setTimeout(() => {
+          firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+      
+      // Clean URL without highlight param (optional - keeps URL clean)
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', cleanUrl);
+    })();
+  </script>
+</body>
+</html>

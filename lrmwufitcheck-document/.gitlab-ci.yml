@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+build-and-deploy:
+  stage: deploy
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - docker build -f Dockerfile -t fitcheck-document:latest .
+    - docker compose up -d fitcheck-document
+  only:
+    - main
