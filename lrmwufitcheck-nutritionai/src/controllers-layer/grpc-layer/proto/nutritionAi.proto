@@ -1,0 +1,89 @@
+
+syntax = "proto3";
+
+package nutritionAi;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message aiSession {
+    string id = 1;
+    string userId = 2;
+    int32 sessionType = 3;
+    string inputText = 4;
+    string detectedLanguage = 5;
+    int32 sessionState = 6;
+    double confidenceScore = 7;
+    string finalResponseText = 8;
+}
+message aiCandidateMeal {
+    string id = 1;
+    string userId = 2;
+    string aiSessionId = 3;
+    google.protobuf.Timestamp proposedMealDate = 4;
+    string proposedMealTime = 5;
+    string proposedSlotName = 6;
+    int32 candidateSource = 7;
+    string warningText = 8;
+    bool confirmationRequired = 9;
+    bool isConfirmed = 10;
+    bool isCommitted = 11;
+    double totalCalories = 12;
+    double totalProtein = 13;
+    double totalCarbohydrates = 14;
+    double totalFat = 15;
+    double totalSugar = 16;
+    double totalFiber = 17;
+    string committedMealLogId = 18;
+}
+message aiCandidateLine {
+    string id = 1;
+    string userId = 2;
+    string aiCandidateMealId = 3;
+    string detectedFoodName = 4;
+    double estimatedGrams = 5;
+    double estimatedCalories = 6;
+    double estimatedProtein = 7;
+    double estimatedCarbohydrates = 8;
+    double estimatedFat = 9;
+    double estimatedSugar = 10;
+    double estimatedFiber = 11;
+    double quantityConfidence = 12;
+    string nutritionReference = 13;
+    bool saveAsFood = 14;
+}
+message aiGuidanceNote {
+    string id = 1;
+    string userId = 2;
+    string aiSessionId = 3;
+    string questionType = 4;
+    string contextRange = 5;
+    string answerSummary = 6;
+    string rationaleText = 7;
+    string referencedMetricKeys = 8;
+    string cautionText = 9;
+}
+
+
+
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service nutritionAiService {
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}

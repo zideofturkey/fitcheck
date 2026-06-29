@@ -1,0 +1,3846 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "fitcheck-nutritionai-service API",
+    "description": "Processes natural-language Turkish meal descriptions into structured nutrition intents, answers personalized nutrition questions with live meal-log and macro-target context, and maintains operational traceability for all AI parsing and guidance interactions.",
+    "version": "1.0.0"
+  },
+  "servers": [],
+  "paths": {
+    "/v1/ai-sessions/parse-meal": {
+      "post": {
+        "tags": [
+          "aiSession"
+        ],
+        "summary": "The parseMeal API has 4 parameters.",
+        "description": "This operation requires session parameters: userId (ID, required).\nTo access the route, the session should have roles: **[superAdmin]**.",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/parseMeal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/parseMeal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/parseMeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response JSON represents the most comprehensive form of the **aiSession** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/parseMeal-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/parseMeal-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/parseMeal-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-candidate-meals/:aiCandidateMealId/confirm": {
+      "patch": {
+        "tags": [
+          "aiCandidateMeal"
+        ],
+        "summary": "The confirmCandidateMeal API has 5 parameters.",
+        "description": "This operation requires session parameters: userId (ID).\nTo access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiCandidateMealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/confirmCandidateMeal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/confirmCandidateMeal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/confirmCandidateMeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateMeal** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/confirmCandidateMeal-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/confirmCandidateMeal-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/confirmCandidateMeal-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-sessions/ask": {
+      "post": {
+        "tags": [
+          "aiSession"
+        ],
+        "summary": "The askNutritionQuestion API has 2 parameters.",
+        "description": "This operation requires session parameters: userId (ID, required).\nTo access the route, the session should have roles: **[superAdmin]**.",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/askNutritionQuestion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/askNutritionQuestion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/askNutritionQuestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response JSON represents the most comprehensive form of the **aiSession** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/askNutritionQuestion-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/askNutritionQuestion-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/askNutritionQuestion-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-sessions/:aiSessionId": {
+      "get": {
+        "tags": [
+          "aiSession"
+        ],
+        "summary": "The getAiSession API has 1 parameter.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiSessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiSession"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiSession"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiSession"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiSession** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiSession-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiSession-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiSession-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-sessions": {
+      "get": {
+        "tags": [
+          "aiSessions"
+        ],
+        "summary": "The listAiSessions API has 3 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiSessions"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiSessions"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiSessions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiSessions** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiSessions-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiSessions-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiSessions-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-candidate-meals/:aiCandidateMealId": {
+      "get": {
+        "tags": [
+          "aiCandidateMeal"
+        ],
+        "summary": "The getAiCandidateMeal API has 1 parameter.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiCandidateMealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiCandidateMeal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiCandidateMeal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiCandidateMeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateMeal** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiCandidateMeal-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiCandidateMeal-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiCandidateMeal-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-candidate-meals": {
+      "get": {
+        "tags": [
+          "aiCandidateMeals"
+        ],
+        "summary": "The listAiCandidateMeals API has 4 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aiSessionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isConfirmed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isCommitted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiCandidateMeals"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiCandidateMeals"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiCandidateMeals"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateMeals** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiCandidateMeals-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiCandidateMeals-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiCandidateMeals-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-candidate-lines/:aiCandidateLineId": {
+      "patch": {
+        "tags": [
+          "aiCandidateLine"
+        ],
+        "summary": "The updateAiCandidateLine API has 4 parameters.",
+        "description": "This operation requires session parameters: userId (ID).\nTo access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiCandidateLineId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateAiCandidateLine"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateAiCandidateLine"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateAiCandidateLine"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateLine** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/updateAiCandidateLine-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/updateAiCandidateLine-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/updateAiCandidateLine-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-candidate-meals/:aiCandidateMealId/reject": {
+      "patch": {
+        "tags": [
+          "aiCandidateMeal"
+        ],
+        "summary": "The rejectCandidateMeal API has 1 parameter.",
+        "description": "This operation requires session parameters: userId (ID).\nTo access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiCandidateMealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/rejectCandidateMeal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/rejectCandidateMeal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/rejectCandidateMeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateMeal** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rejectCandidateMeal-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rejectCandidateMeal-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rejectCandidateMeal-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-guidance-notes/:aiGuidanceNoteId": {
+      "get": {
+        "tags": [
+          "aiGuidanceNote"
+        ],
+        "summary": "The getAiGuidanceNote API has 1 parameter.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "aiGuidanceNoteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiGuidanceNote"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiGuidanceNote"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/getAiGuidanceNote"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiGuidanceNote** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiGuidanceNote-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiGuidanceNote-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAiGuidanceNote-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ai-guidance-notes": {
+      "get": {
+        "tags": [
+          "aiGuidanceNotes"
+        ],
+        "summary": "The listAiGuidanceNotes API has 3 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contextRange",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiGuidanceNotes"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiGuidanceNotes"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/listAiGuidanceNotes"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiGuidanceNotes** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiGuidanceNotes-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiGuidanceNotes-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listAiGuidanceNotes-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/_fetchlistaisession": {
+      "get": {
+        "tags": [
+          "aiSessions"
+        ],
+        "summary": "The _fetchListAiSession API has 3 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sessionState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiSession"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiSession"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiSession"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiSessions** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiSession-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiSession-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiSession-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/_fetchlistaicandidatemeal": {
+      "get": {
+        "tags": [
+          "aiCandidateMeals"
+        ],
+        "summary": "The _fetchListAiCandidateMeal API has 4 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aiSessionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isConfirmed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isCommitted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateMeal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateMeal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateMeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateMeals** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateMeal-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateMeal-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateMeal-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/_fetchlistaicandidateline": {
+      "get": {
+        "tags": [
+          "aiCandidateLines"
+        ],
+        "summary": "The _fetchListAiCandidateLine API has 2 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aiCandidateMealId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateLine"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateLine"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiCandidateLine"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiCandidateLines** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateLine-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateLine-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiCandidateLine-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/_fetchlistaiguidancenote": {
+      "get": {
+        "tags": [
+          "aiGuidanceNotes"
+        ],
+        "summary": "The _fetchListAiGuidanceNote API has 3 parameters.",
+        "description": "To access the route, the session should have roles: **[superAdmin]**.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contextRange",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiGuidanceNote"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiGuidanceNote"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/_fetchListAiGuidanceNote"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response JSON represents the most comprehensive form of the **aiGuidanceNotes** object in the response. However, some properties may be omitted based on the object&#39;s internal logic.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiGuidanceNote-Response"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiGuidanceNote-Response"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/_fetchListAiGuidanceNote-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request was improperly formatted or contained invalid parameters, preventing the server from processing it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request lacked valid authentication credentials or the credentials provided do not grant access to the requested resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The server encountered an unexpected condition that prevented it from fulfilling the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "errCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "parseMeal": {
+        "type": "object",
+        "properties": {
+          "inputText": {
+            "type": "string",
+            "nullable": false
+          },
+          "proposedMealDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "proposedMealTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "proposedSlotName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "confirmCandidateMeal": {
+        "type": "object",
+        "properties": {
+          "proposedMealDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "proposedMealTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "proposedSlotName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineAdjustments": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "askNutritionQuestion": {
+        "type": "object",
+        "properties": {
+          "inputText": {
+            "type": "string",
+            "nullable": false
+          },
+          "contextRange": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "getAiSession": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "listAiSessions": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "getAiCandidateMeal": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "listAiCandidateMeals": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "updateAiCandidateLine": {
+        "type": "object",
+        "properties": {
+          "estimatedGrams": {
+            "type": "number",
+            "nullable": true
+          },
+          "saveAsFood": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "detectedFoodName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "rejectCandidateMeal": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "getAiGuidanceNote": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "listAiGuidanceNotes": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "_fetchListAiSession": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "_fetchListAiCandidateMeal": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "_fetchListAiCandidateLine": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "_fetchListAiGuidanceNote": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "parseMeal-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiSession": {
+            "$ref": "#/components/schemas/aiSession-object"
+          }
+        }
+      },
+      "confirmCandidateMeal-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiCandidateMeal": {
+            "$ref": "#/components/schemas/aiCandidateMeal-object"
+          }
+        }
+      },
+      "askNutritionQuestion-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiSession": {
+            "$ref": "#/components/schemas/aiSession-object"
+          }
+        }
+      },
+      "getAiSession-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiSession": {
+            "$ref": "#/components/schemas/aiSession-object"
+          }
+        }
+      },
+      "listAiSessions-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiSessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiSessions-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "getAiCandidateMeal-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiCandidateMeal": {
+            "$ref": "#/components/schemas/aiCandidateMeal-object"
+          }
+        }
+      },
+      "listAiCandidateMeals-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiCandidateMeals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiCandidateMeals-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "updateAiCandidateLine-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiCandidateLine": {
+            "$ref": "#/components/schemas/aiCandidateLine-object"
+          }
+        }
+      },
+      "rejectCandidateMeal-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiCandidateMeal": {
+            "$ref": "#/components/schemas/aiCandidateMeal-object"
+          }
+        }
+      },
+      "getAiGuidanceNote-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "number"
+          },
+          "aiGuidanceNote": {
+            "$ref": "#/components/schemas/aiGuidanceNote-object"
+          }
+        }
+      },
+      "listAiGuidanceNotes-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiGuidanceNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiGuidanceNotes-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "_fetchListAiSession-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiSessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiSessions-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "_fetchListAiCandidateMeal-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiCandidateMeals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiCandidateMeals-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "_fetchListAiCandidateLine-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiCandidateLines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiCandidateLines-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "_fetchListAiGuidanceNote-Response": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "string"
+          },
+          "elapsedMs": {
+            "type": "number"
+          },
+          "ssoTime": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "cacheKey": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "dataName": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "appVersion": {
+            "type": "string"
+          },
+          "rowCount": {
+            "type": "string"
+          },
+          "aiGuidanceNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/aiGuidanceNotes-object"
+            }
+          },
+          "paging": {
+            "$ref": "#/components/schemas/paging-object"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uiPermissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "aiSession-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionType": {
+            "type": "string"
+          },
+          "sessionType_idx": {
+            "type": "number"
+          },
+          "inputText": {
+            "type": "string"
+          },
+          "detectedLanguage": {
+            "type": "string"
+          },
+          "sessionState": {
+            "type": "string"
+          },
+          "sessionState_idx": {
+            "type": "number"
+          },
+          "confidenceScore": {
+            "type": "number"
+          },
+          "finalResponseText": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "aiCandidateMeal-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiSessionId": {
+            "type": "string"
+          },
+          "proposedMealDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "proposedMealTime": {
+            "type": "string"
+          },
+          "proposedSlotName": {
+            "type": "string"
+          },
+          "candidateSource": {
+            "type": "string"
+          },
+          "candidateSource_idx": {
+            "type": "number"
+          },
+          "warningText": {
+            "type": "string"
+          },
+          "confirmationRequired": {
+            "type": "boolean"
+          },
+          "isConfirmed": {
+            "type": "boolean"
+          },
+          "isCommitted": {
+            "type": "boolean"
+          },
+          "totalCalories": {
+            "type": "number"
+          },
+          "totalProtein": {
+            "type": "number"
+          },
+          "totalCarbohydrates": {
+            "type": "number"
+          },
+          "totalFat": {
+            "type": "number"
+          },
+          "totalSugar": {
+            "type": "number"
+          },
+          "totalFiber": {
+            "type": "number"
+          },
+          "committedMealLogId": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "aiSessions-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "sessionType": {
+            "type": "string"
+          },
+          "sessionType_idx": {
+            "type": "number"
+          },
+          "inputText": {
+            "type": "string"
+          },
+          "detectedLanguage": {
+            "type": "string"
+          },
+          "sessionState": {
+            "type": "string"
+          },
+          "sessionState_idx": {
+            "type": "number"
+          },
+          "confidenceScore": {
+            "type": "number"
+          },
+          "finalResponseText": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "paging-object": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "number"
+          },
+          "pageRowCount": {
+            "type": "number"
+          },
+          "totalRowCount": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        }
+      },
+      "aiCandidateMeals-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiSessionId": {
+            "type": "string"
+          },
+          "proposedMealDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "proposedMealTime": {
+            "type": "string"
+          },
+          "proposedSlotName": {
+            "type": "string"
+          },
+          "candidateSource": {
+            "type": "string"
+          },
+          "candidateSource_idx": {
+            "type": "number"
+          },
+          "warningText": {
+            "type": "string"
+          },
+          "confirmationRequired": {
+            "type": "boolean"
+          },
+          "isConfirmed": {
+            "type": "boolean"
+          },
+          "isCommitted": {
+            "type": "boolean"
+          },
+          "totalCalories": {
+            "type": "number"
+          },
+          "totalProtein": {
+            "type": "number"
+          },
+          "totalCarbohydrates": {
+            "type": "number"
+          },
+          "totalFat": {
+            "type": "number"
+          },
+          "totalSugar": {
+            "type": "number"
+          },
+          "totalFiber": {
+            "type": "number"
+          },
+          "committedMealLogId": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "aiCandidateLine-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiCandidateMealId": {
+            "type": "string"
+          },
+          "detectedFoodName": {
+            "type": "string"
+          },
+          "estimatedGrams": {
+            "type": "number"
+          },
+          "estimatedCalories": {
+            "type": "number"
+          },
+          "estimatedProtein": {
+            "type": "number"
+          },
+          "estimatedCarbohydrates": {
+            "type": "number"
+          },
+          "estimatedFat": {
+            "type": "number"
+          },
+          "estimatedSugar": {
+            "type": "number"
+          },
+          "estimatedFiber": {
+            "type": "number"
+          },
+          "quantityConfidence": {
+            "type": "number"
+          },
+          "nutritionReference": {
+            "type": "string"
+          },
+          "saveAsFood": {
+            "type": "boolean"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "aiGuidanceNote-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiSessionId": {
+            "type": "string"
+          },
+          "questionType": {
+            "type": "string"
+          },
+          "contextRange": {
+            "type": "string"
+          },
+          "answerSummary": {
+            "type": "string"
+          },
+          "rationaleText": {
+            "type": "string"
+          },
+          "referencedMetricKeys": {
+            "type": "string"
+          },
+          "cautionText": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "aiGuidanceNotes-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiSessionId": {
+            "type": "string"
+          },
+          "questionType": {
+            "type": "string"
+          },
+          "contextRange": {
+            "type": "string"
+          },
+          "answerSummary": {
+            "type": "string"
+          },
+          "rationaleText": {
+            "type": "string"
+          },
+          "referencedMetricKeys": {
+            "type": "string"
+          },
+          "cautionText": {
+            "type": "string"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "candidateMeal-object": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "aiSessionId": {
+            "type": "string"
+          },
+          "proposedMealDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "proposedMealTime": {
+            "type": "string"
+          },
+          "proposedSlotName": {
+            "type": "string"
+          },
+          "candidateSource": {
+            "type": "string"
+          },
+          "candidateSource_idx": {
+            "type": "number"
+          },
+          "warningText": {
+            "type": "string"
+          },
+          "confirmationRequired": {
+            "type": "boolean"
+          },
+          "isConfirmed": {
+            "type": "boolean"
+          },
+          "isCommitted": {
+            "type": "boolean"
+          },
+          "totalCalories": {
+            "type": "number"
+          },
+          "totalProtein": {
+            "type": "number"
+          },
+          "totalCarbohydrates": {
+            "type": "number"
+          },
+          "totalFat": {
+            "type": "number"
+          },
+          "totalSugar": {
+            "type": "number"
+          },
+          "totalFiber": {
+            "type": "number"
+          },
+          "committedMealLogId": {
+            "type": "string"
+          }
+        }
+      },
+      "aiCandidateLines-object": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "aiCandidateMealId": {
+            "type": "string"
+          },
+          "detectedFoodName": {
+            "type": "string"
+          },
+          "estimatedGrams": {
+            "type": "number"
+          },
+          "estimatedCalories": {
+            "type": "number"
+          },
+          "estimatedProtein": {
+            "type": "number"
+          },
+          "estimatedCarbohydrates": {
+            "type": "number"
+          },
+          "estimatedFat": {
+            "type": "number"
+          },
+          "estimatedSugar": {
+            "type": "number"
+          },
+          "estimatedFiber": {
+            "type": "number"
+          },
+          "quantityConfidence": {
+            "type": "number"
+          },
+          "nutritionReference": {
+            "type": "string"
+          },
+          "saveAsFood": {
+            "type": "boolean"
+          },
+          "recordVersion": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_owner": {
+            "type": "string"
+          },
+          "candidateMeal": {
+            "$ref": "#/components/schemas/candidateMeal-object"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT Authorization header using the Bearer scheme. \\r\\n\\r\\n \r\n  Enter 'Bearer' [space] and then your token in the text input below.\r\n                      \\r\\n\\r\\nExample: 'Bearer 12345abcdef'",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

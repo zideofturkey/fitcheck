@@ -1,0 +1,585 @@
+{
+  "info": {
+    "name": "fitcheck-nutritionai-service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "parseMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"aiSessionId\": \"00000000-0000-0000-0000-000000000000\",\n  \"inputText\": \"Text\",\n  \"proposedMealDate\": \"2025-01-01\",\n  \"proposedMealTime\": \"example\",\n  \"proposedSlotName\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-sessions/parse-meal",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-sessions",
+            "parse-meal"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "confirmCandidateMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"proposedMealDate\": \"2025-01-01\",\n  \"proposedMealTime\": \"example\",\n  \"proposedSlotName\": \"example\",\n  \"lineAdjustments\": [\n    {}\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-candidate-meals/:aiCandidateMealId/confirm",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-candidate-meals",
+            ":aiCandidateMealId",
+            "confirm"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "askNutritionQuestion",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"aiSessionId\": \"00000000-0000-0000-0000-000000000000\",\n  \"inputText\": \"Text\",\n  \"contextRange\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-sessions/ask",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-sessions",
+            "ask"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAiSession",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-sessions/:aiSessionId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-sessions",
+            ":aiSessionId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAiSessions",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-sessions",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-sessions"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "sessionType",
+              "value": "Enum"
+            },
+            {
+              "key": "sessionState",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAiCandidateMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-candidate-meals/:aiCandidateMealId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-candidate-meals",
+            ":aiCandidateMealId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAiCandidateMeals",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-candidate-meals",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-candidate-meals"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "aiSessionId",
+              "value": "ID"
+            },
+            {
+              "key": "isConfirmed",
+              "value": "Boolean"
+            },
+            {
+              "key": "isCommitted",
+              "value": "Boolean"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateAiCandidateLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estimatedGrams\": 0,\n  \"saveAsFood\": true,\n  \"detectedFoodName\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-candidate-lines/:aiCandidateLineId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-candidate-lines",
+            ":aiCandidateLineId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "rejectCandidateMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-candidate-meals/:aiCandidateMealId/reject",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-candidate-meals",
+            ":aiCandidateMealId",
+            "reject"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAiGuidanceNote",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-guidance-notes/:aiGuidanceNoteId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-guidance-notes",
+            ":aiGuidanceNoteId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listAiGuidanceNotes",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/ai-guidance-notes",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "ai-guidance-notes"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "questionType",
+              "value": "String"
+            },
+            {
+              "key": "contextRange",
+              "value": "String"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListAiSession",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistaisession",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistaisession"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "sessionType",
+              "value": "Enum"
+            },
+            {
+              "key": "sessionState",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListAiCandidateMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistaicandidatemeal",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistaicandidatemeal"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "aiSessionId",
+              "value": "ID"
+            },
+            {
+              "key": "isConfirmed",
+              "value": "Boolean"
+            },
+            {
+              "key": "isCommitted",
+              "value": "Boolean"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListAiCandidateLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistaicandidateline",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistaicandidateline"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "aiCandidateMealId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListAiGuidanceNote",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistaiguidancenote",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistaiguidancenote"
+          ],
+          "query": [
+            {
+              "key": "userId",
+              "value": "ID"
+            },
+            {
+              "key": "questionType",
+              "value": "String"
+            },
+            {
+              "key": "contextRange",
+              "value": "String"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
