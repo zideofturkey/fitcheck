@@ -1,0 +1,12 @@
+require("./inviteLinkDeliveredNotificationView.aggregate-unitTests.test.js");
+require("./inviteLinkListView.aggregate-unitTests.test.js");
+require("./presetMealWithLines.aggregate-unitTests.test.js");
+require("./foodItemList.aggregate-unitTests.test.js");
+require("./aiCandidateMealWithLines.aggregate-unitTests.test.js");
+require("./mealLogWithLines.aggregate-unitTests.test.js");
+require("./aiSessionHistory.aggregate-unitTests.test.js");
+require("./dailyProgressView.aggregate-unitTests.test.js");
+require("./weeklyAnalyticsView.aggregate-unitTests.test.js");
+require("./monthlyAnalyticsView.aggregate-unitTests.test.js");
+require("./dailyNutritionSummaryNotificationView.aggregate-unitTests.test.js");
+require("./dailyMealReminderNotificationView.aggregate-unitTests.test.js");
