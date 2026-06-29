@@ -9,6 +9,8 @@ import {
   Info,
   Archive,
   Loader,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import {
   useCurrentUser,
@@ -35,7 +37,8 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { data: session, isLoading: sessionLoading } = useCurrentUser();
+  const { data: session, isLoading: sessionLoading, isError, error, refetch } =
+    useCurrentUser();
   const updateProfile = useUpdateProfile();
   const updatePassword = useUpdateUserPassword();
   const archiveProfile = useArchiveProfile();
@@ -141,6 +144,38 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !session) {
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="bg-card rounded-xl border border-destructive/30 shadow-sm p-8 flex flex-col items-center text-center">
+          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+            <AlertTriangle className="w-6 h-6 text-destructive" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-1">
+            Profil bilgileri yüklenemedi
+          </h2>
+          <p className="text-sm text-muted-foreground mb-5 max-w-sm">
+            Profil bilgileriniz yüklenirken bir hata oluştu. Lütfen bağlantınızı
+            kontrol edip tekrar deneyin.
+            {error?.message ? (
+              <span className="block mt-1 text-xs text-muted-foreground/80">
+                {error.message}
+              </span>
+            ) : null}
+          </p>
+          <Button
+            variant="default"
+            onClick={() => refetch()}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Tekrar dene
+          </Button>
         </div>
       </div>
     );

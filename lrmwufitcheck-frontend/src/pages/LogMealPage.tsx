@@ -18,8 +18,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCreateMealLog } from "@/hooks/api/use-mealtracker";
+import FoodPickerModal, {
+  type PickedFoodLine,
+} from "@/components/FoodPickerModal";
 
 type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+
+type LineSource = "foodLibrary" | "presetTemplate" | "manualEntry";
 
 interface FoodItemEntry {
   id: string;
@@ -31,7 +36,9 @@ interface FoodItemEntry {
   fat: number;
   sugar: number;
   fiber: number;
-  source: "library" | "manual";
+  source: LineSource;
+  sourceFoodItemId?: string;
+  sourcePresetMealId?: string;
 }
 
 type WizardStep = 1 | 2 | 3;
@@ -46,6 +53,23 @@ function nowTime() {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+function deriveLogSource(
+  items: FoodItemEntry[],
+): "foodLibrary" | "presetTemplate" | "manualEntry" {
+  const sources = new Set(items.map((i) => i.source));
+  if (sources.size === 0) return "manualEntry";
+  if (sources.size === 1) {
+    const only = items[0].source;
+    if (only === "foodLibrary") return "foodLibrary";
+    if (only === "presetTemplate") return "presetTemplate";
+    return "manualEntry";
+  }
+  // Mixed sources — prefer the most "structured" one present.
+  if (sources.has("presetTemplate")) return "presetTemplate";
+  if (sources.has("foodLibrary")) return "foodLibrary";
+  return "manualEntry";
+}
+
 function LogMealPage() {
   const navigate = useNavigate();
   const createMutation = useCreateMealLog();
@@ -56,6 +80,7 @@ function LogMealPage() {
   const [customSlotName, setCustomSlotName] = useState("");
   const [notes, setNotes] = useState("");
   const [foodItems, setFoodItems] = useState<FoodItemEntry[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const slotOptions: {
     value: MealSlot;
@@ -96,9 +121,27 @@ function LogMealPage() {
         fat: 0,
         sugar: 0,
         fiber: 0,
-        source: "manual",
+        source: "manualEntry",
       },
     ]);
+  };
+
+  const addPickedLines = (lines: PickedFoodLine[]) => {
+    const newEntries: FoodItemEntry[] = lines.map((l) => ({
+      id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
+      name: l.itemName,
+      grams: l.consumedGrams,
+      calories: l.itemCalories,
+      protein: l.itemProtein,
+      carbs: l.itemCarbohydrates,
+      fat: l.itemFat,
+      sugar: l.itemSugar,
+      fiber: l.itemFiber,
+      source: l.lineSource,
+      sourceFoodItemId: l.sourceFoodItemId,
+      sourcePresetMealId: l.sourcePresetMealId,
+    }));
+    setFoodItems((prev) => [...prev, ...newEntries]);
   };
 
   const totals = foodItems.reduce(
@@ -121,9 +164,7 @@ function LogMealPage() {
         mealDate: date,
         mealTime: time,
         slotName,
-        logSource: foodItems.every((f) => f.source === "library")
-          ? "foodLibrary"
-          : "manualEntry",
+        logSource: deriveLogSource(foodItems),
         noteText: notes || undefined,
         totalCalories: totals.calories,
         totalProtein: totals.protein,
@@ -140,7 +181,9 @@ function LogMealPage() {
           itemFat: f.fat,
           itemSugar: f.sugar,
           itemFiber: f.fiber,
-          lineSource: f.source === "library" ? "foodLibrary" : "manualEntry",
+          lineSource: f.source,
+          sourceFoodItemId: f.sourceFoodItemId,
+          sourcePresetMealId: f.sourcePresetMealId,
         })),
       },
       {
@@ -337,12 +380,12 @@ function LogMealPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div
-                        className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${item.source === "library" ? "bg-accent/30" : "bg-chart-3/20"}`}
+                        className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${item.source === "manualEntry" ? "bg-chart-3/20" : "bg-accent/30"}`}
                       >
-                        {item.source === "library" ? (
-                          <Sandwich className="w-5 h-5 text-accent-foreground" />
-                        ) : (
+                        {item.source === "manualEntry" ? (
                           <Salad className="w-5 h-5 text-chart-3" />
+                        ) : (
+                          <Sandwich className="w-5 h-5 text-accent-foreground" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -356,9 +399,11 @@ function LogMealPage() {
                           className="w-full bg-transparent border-none text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none"
                         />
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {item.source === "library"
-                            ? "From food library"
-                            : "Manual entry"}
+                          {item.source === "manualEntry"
+                            ? "Manual entry"
+                            : item.source === "presetTemplate"
+                              ? "From preset meal"
+                              : "From food library"}
                         </p>
                       </div>
                     </div>
@@ -453,11 +498,11 @@ function LogMealPage() {
               ))}
               <button
                 type="button"
-                onClick={addFoodItem}
+                onClick={() => setPickerOpen(true)}
                 className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-4 text-sm font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Plus className="w-5 h-5" />
-                Add Another Food Item
+                Add Food Item
               </button>
             </div>
             <div className="space-y-2">
@@ -526,6 +571,12 @@ function LogMealPage() {
 
   return (
     <>
+      <FoodPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={addPickedLines}
+        onManualEntry={addFoodItem}
+      />
       <div className="md:hidden flex flex-col min-h-screen">
         <main className="flex-1 overflow-y-auto native-scroll pb-24 safe-bottom">
           <div className="pb-8 relative">

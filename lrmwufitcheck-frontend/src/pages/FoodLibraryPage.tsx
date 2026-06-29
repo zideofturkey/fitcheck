@@ -14,8 +14,12 @@ import {
   Sparkles,
   Trash2,
   X,
+  Send,
+  AlertCircle,
 } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useParseMeal } from "@/hooks/api/use-nutritionai";
+import { nutritionaiHelpers } from "@/services/api/nutritionai-helpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,6 +46,7 @@ const CATEGORIES = [
   "Vegetable",
   "Fruit",
   "Grain",
+  "Tahıllar ve Karbonhidratlar",
   "Snack",
   "Beverage",
   "Other",
@@ -98,7 +103,6 @@ function itemToForm(item: NutritionlibraryFoodItem): FormState {
 }
 
 export default function FoodLibraryPage() {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
@@ -109,6 +113,10 @@ export default function FoodLibraryPage() {
     useState<NutritionlibraryFoodItem | null>(null);
   const [createForm, setCreateForm] = useState<FormState>(EMPTY_FORM);
   const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiInput, setAiInput] = useState("");
+  const [createIsAi, setCreateIsAi] = useState(false);
+  const parseMeal = useParseMeal();
 
   const { data, isLoading } = useListFoodItems({
     searchTerm: search || undefined,
@@ -150,12 +158,19 @@ export default function FoodLibraryPage() {
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createForm.name || !createForm.calories) return;
-    createMutation.mutate(buildPayload(createForm), {
-      onSuccess: () => {
-        setCreateOpen(false);
-        setCreateForm(EMPTY_FORM);
+    createMutation.mutate(
+      {
+        ...buildPayload(createForm),
+        creationSource: createIsAi ? "aiAssistant" : "manualEntry",
       },
-    });
+      {
+        onSuccess: () => {
+          setCreateOpen(false);
+          setCreateForm(EMPTY_FORM);
+          setCreateIsAi(false);
+        },
+      },
+    );
   };
 
   const handleUpdate = (e: React.FormEvent) => {
@@ -175,6 +190,68 @@ export default function FoodLibraryPage() {
   const handleDelete = (id: string) => {
     if (!confirm("Delete this food item? This cannot be undone.")) return;
     deleteMutation.mutate(id);
+  };
+
+  const handleAiParse = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = aiInput.trim();
+    if (!text) return;
+    parseMeal.mutate(
+      { inputText: text },
+      {
+        onSuccess: async (sessionRes) => {
+          const sessionId = sessionRes.aiSession?.id;
+          if (!sessionId) {
+            toast.error("AI oturumu oluşturulamadı.");
+            return;
+          }
+          try {
+            const linesRes =
+              await nutritionaiHelpers.listAiCandidateLines({
+                aiSessionId: sessionId,
+              });
+            const firstLine = linesRes?.aiCandidateLines?.[0];
+            if (!firstLine) {
+              toast.error(
+                sessionRes.aiSession?.finalResponseText ??
+                  "AI besin önerisi üretemedi.",
+              );
+              return;
+            }
+            // Pre-fill the create form with the AI-estimated values.
+            setCreateForm({
+              name: firstLine.detectedFoodName ?? "",
+              brand: "",
+              category: "",
+              calories: String(firstLine.estimatedCalories ?? ""),
+              protein: String(firstLine.estimatedProtein ?? ""),
+              carbs: String(firstLine.estimatedCarbohydrates ?? ""),
+              fat: String(firstLine.estimatedFat ?? ""),
+              sugar: String(firstLine.estimatedSugar ?? ""),
+              fiber: String(firstLine.estimatedFiber ?? ""),
+            });
+            setAiOpen(false);
+            setAiInput("");
+            setCreateIsAi(true);
+            setCreateOpen(true);
+            toast.success("AI değerleri forma aktarıldı. Lütfen kontrol edip kaydedin.");
+          } catch {
+            toast.error(
+              sessionRes.aiSession?.finalResponseText ??
+                "AI besin önerisi alınamadı.",
+            );
+          }
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ??
+            (err as Error)?.message ??
+            "AI analizi sırasında bir hata oluştu.";
+          toast.error(msg);
+        },
+      },
+    );
   };
 
   const drawerOverlay = "fixed inset-0 z-50 bg-foreground/30";
@@ -292,12 +369,25 @@ export default function FoodLibraryPage() {
             Manage your personal food items and nutrition per 100g.
           </p>
         </div>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          className="gap-2 min-h-[44px] min-w-[44px]"
-        >
-          <Plus className="size-4" aria-hidden="true" /> Add Food
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setAiOpen(true)}
+            className="gap-2 min-h-[44px]"
+          >
+            <Sparkles className="size-4" aria-hidden="true" /> AI ile Ekle
+          </Button>
+          <Button
+            onClick={() => {
+              setCreateForm(EMPTY_FORM);
+              setCreateIsAi(false);
+              setCreateOpen(true);
+            }}
+            className="gap-2 min-h-[44px] min-w-[44px]"
+          >
+            <Plus className="size-4" aria-hidden="true" /> Add Food
+          </Button>
+        </div>
       </header>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -407,8 +497,14 @@ export default function FoodLibraryPage() {
           <div className={drawerPanel}>
             <form onSubmit={handleCreate} className="flex flex-col h-full">
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-6 py-4 md:rounded-t-2xl">
-                <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
                   Add Food
+                  {createIsAi && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold px-2 py-0.5">
+                      <Sparkles className="size-3" />
+                      AI ile
+                    </span>
+                  )}
                 </h2>
                 <button
                   type="button"
@@ -668,6 +764,100 @@ export default function FoodLibraryPage() {
                     disabled={updateMutation.isPending}
                   >
                     {updateMutation.isPending ? "Saving…" : "Update Food"}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </>
+      )}
+
+      {/* AI Parse Modal */}
+      {aiOpen && (
+        <>
+          <div
+            className={drawerOverlay}
+            onClick={() => setAiOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+                <Sparkles className="size-5 text-primary" />
+                AI ile Ekle
+              </h2>
+              <button
+                type="button"
+                onClick={() => setAiOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
+                aria-label="Close"
+              >
+                <X className="size-5 text-muted-foreground" aria-hidden="true" />
+              </button>
+            </div>
+            <form onSubmit={handleAiParse} className="flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+                <p className="text-sm text-muted-foreground">
+                  Besini doğal dilde tarif edin (örn.
+                  &ldquo;Ev yapımı köfte, 100g başına&rdquo;). AI besin
+                  değerlerini tahmin edip forma aktarır.
+                </p>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">
+                    Besin açıklaması
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    placeholder="Örn: 'Ev yapımı köfte, 100g başına'"
+                    disabled={parseMeal.isPending}
+                    className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow resize-none disabled:opacity-60"
+                  />
+                </div>
+                {parseMeal.isPending && (
+                  <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
+                    <Loader className="size-4 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      AI analiz ediyor...
+                    </p>
+                  </div>
+                )}
+                {parseMeal.isError && (
+                  <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <AlertCircle className="size-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-sm text-destructive">
+                      Analiz başarısız oldu. Lütfen tekrar deneyin.
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4">
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setAiOpen(false)}
+                  >
+                    İptal
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 gap-2"
+                    disabled={parseMeal.isPending || !aiInput.trim()}
+                  >
+                    {parseMeal.isPending ? (
+                      <>
+                        <Loader className="size-4 animate-spin" />
+                        Analiz…
+                      </>
+                    ) : (
+                      <>
+                        <Send className="size-4" />
+                        Analiz Et
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

@@ -50,6 +50,7 @@ const WeeklyAnalyticsPage = lazy(() => import("@/pages/WeeklyAnalyticsPage"));
 const MonthlyAnalyticsPage = lazy(() => import("@/pages/MonthlyAnalyticsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const AiSessionHistoryPage = lazy(() => import("@/pages/AiSessionHistoryPage"));
+const AiChatPage = lazy(() => import("@/pages/AiChatPage"));
 const AiSessionDetailPage = lazy(() => import("@/pages/AiSessionDetailPage"));
 const AiCandidateMealConfirmationPage = lazy(
   () => import("@/pages/AiCandidateMealConfirmationPage"),
@@ -164,6 +165,7 @@ export default function App() {
                 element={<MonthlyAnalyticsPage />}
               />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/ai-chat" element={<AiChatPage />} />
               <Route path="/ai-sessions" element={<AiSessionHistoryPage />} />
               <Route
                 path="/ai-sessions/:id"

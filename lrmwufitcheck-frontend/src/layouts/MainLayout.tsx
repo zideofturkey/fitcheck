@@ -44,7 +44,7 @@ const SIDEBAR_INSIGHTS = [
   { to: "/profile", icon: Target, label: "Targets" },
   { to: "/analytics/weekly", icon: Circle, label: "Weekly Analytics" },
   { to: "/analytics/monthly", icon: Circle, label: "Monthly Analytics" },
-  { to: "/ai-sessions", icon: MessageCircle, label: "AI Chat" },
+  { to: "/ai-chat", icon: MessageCircle, label: "AI Chat" },
 ];
 
 const SIDEBAR_ADMIN = [
@@ -216,7 +216,7 @@ export default function MainLayout() {
                     Analytics
                   </Link>
                   <Link
-                    to="/ai-sessions"
+                    to="/ai-chat"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
                     AI Chat
@@ -377,7 +377,7 @@ export default function MainLayout() {
                   </li>
                   <li>
                     <Link
-                      to="/ai-sessions"
+                      to="/ai-chat"
                       className="hover:text-foreground transition-colors"
                     >
                       AI Chat
