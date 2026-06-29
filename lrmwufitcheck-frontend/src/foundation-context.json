@@ -1,0 +1,5128 @@
+{
+  "generatedAt": "2026-06-29T12:24:55.845Z",
+  "projectName": "fitcheck",
+  "responsePattern": {
+    "list": "{ dataName: string, [pluralObjectName]: Item[], rowCount: number }  → extract: data?.[pluralObjectName] ?? []",
+    "single": "{ dataName: string, [objectName]: Item }  → extract: data?.[objectName]",
+    "note": "NEVER use data.map() or data.id — data is the whole response object"
+  },
+  "auth": {
+    "hookFile": "src/hooks/api/use-auth.ts",
+    "contextFile": "src/context/AuthContext.tsx",
+    "contextHook": "useAuth() → { user: User | null, isAuthenticated: boolean, isLoading: boolean, login, logout }",
+    "hooks": {
+      "useLogin": {
+        "type": "mutation",
+        "payload": "{ username: string, password: string }",
+        "returns": "SessionResponse",
+        "requiredRole": "public"
+      },
+      "useLogout": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "{ success: boolean }",
+        "requiredRole": "login required"
+      },
+      "useCurrentUser": {
+        "type": "query",
+        "params": "none",
+        "returns": "SessionResponse",
+        "requiredRole": "any (no auth needed)"
+      },
+      "useUser": {
+        "type": "query",
+        "params": "userId: string",
+        "returns": "User (extracted from UserResponse)",
+        "requiredRole": "owner or admin (admin also bypass)"
+      },
+      "useUsers": {
+        "type": "query",
+        "params": "params?: { email?: string, fullname?: string, roleId?: string, pageNumber?: number, pageRowCount?: number, getJoins?: boolean }",
+        "returns": "User[] (extracted from UsersResponse)",
+        "requiredRole": "roles: superAdmin, admin"
+      },
+      "useSearchUsers": {
+        "type": "query",
+        "params": "keyword: string, params?: { roleId?: string }",
+        "returns": "User[] (extracted from UsersResponse)",
+        "note": "enabled when keyword.length >= 2",
+        "requiredRole": "roles: superAdmin, admin"
+      },
+      "useUpdateUser": {
+        "type": "mutation",
+        "payload": "{ userId: string, data: { fullname?: string, avatar?: string } }",
+        "returns": "UserResponse & MindbricksUpdateEnvelope",
+        "requiredRole": "roles: superAdmin, saasAdmin, admin, tenantOwner, tenantAdmin",
+        "note": "PATCH /v1/users/:id — for self-updates use useUpdateProfile"
+      },
+      "useUpdateProfile": {
+        "type": "mutation",
+        "payload": "{ fullname?: string, avatar?: string }",
+        "returns": "UserResponse & MindbricksUpdateEnvelope",
+        "requiredRole": "owner or admin",
+        "note": "PATCH /v1/profile (session-based, no userId argument)"
+      },
+      "useUpdateUserPassword": {
+        "type": "mutation",
+        "payload": "{ oldPassword: string, newPassword: string }",
+        "returns": "UserResponse & MindbricksUpdateEnvelope",
+        "requiredRole": "owner or admin",
+        "note": "PATCH /v1/userpassword (session-based, no userId argument); requires oldPassword. Use useUpdateUserPasswordByAdmin for admin reset"
+      },
+      "useArchiveProfile": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "UserResponse",
+        "note": "DELETE /v1/archiveprofile (session-based, no userId argument); soft-deletes session user, clears auth cache",
+        "requiredRole": "owner or admin"
+      },
+      "useCreateUser": {
+        "type": "mutation",
+        "payload": "{ email: string, password: string, fullname: string, avatar?: string }",
+        "returns": "UserResponse",
+        "requiredRole": "roles: superAdmin, admin, saasAdmin, tenantAdmin, tenantOwner",
+        "note": "for public signup use useRegister or useRegister<Tenant>Owner"
+      },
+      "useDeleteUser": {
+        "type": "mutation",
+        "payload": "userId: string",
+        "returns": "UserResponse",
+        "requiredRole": "roles: superAdmin, admin",
+        "note": "hard delete"
+      },
+      "useUpdateUserRole": {
+        "type": "mutation",
+        "payload": "{ userId: string, data: { roleId: string } }",
+        "returns": "UserResponse & MindbricksUpdateEnvelope",
+        "requiredRole": "roles: superAdmin, admin"
+      },
+      "useUpdateUserPasswordByAdmin": {
+        "type": "mutation",
+        "payload": "{ userId: string, data: { password: string } }",
+        "returns": "UserResponse & MindbricksUpdateEnvelope",
+        "requiredRole": "owner, or roles: superAdmin, admin",
+        "note": "no old password required"
+      },
+      "useBriefUser": {
+        "type": "query",
+        "params": "userId: string",
+        "returns": "UserResponse",
+        "requiredRole": "public",
+        "note": "limited fields (id, fullname, avatar)"
+      },
+      "useRegister": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "RegisterResponse"
+      },
+      "useStartEmailVerification": {
+        "type": "mutation",
+        "payload": "email: string (raw string, not object)",
+        "returns": "VerificationStartResponse"
+      },
+      "useCompleteEmailVerification": {
+        "type": "mutation",
+        "payload": "{ email: string, secretCode: string }",
+        "returns": "VerificationCompleteResponse"
+      },
+      "useStartPasswordResetByEmail": {
+        "type": "mutation",
+        "payload": "email: string (raw string, not object)",
+        "returns": "VerificationStartResponse"
+      },
+      "useCompletePasswordResetByEmail": {
+        "type": "mutation",
+        "payload": "{ email: string, secretCode: string, password: string }",
+        "returns": "VerificationCompleteResponse"
+      },
+      "useStartMobileVerification": {
+        "type": "mutation",
+        "payload": "email: string (raw string, not object)",
+        "returns": "VerificationStartResponse"
+      },
+      "useCompleteMobileVerification": {
+        "type": "mutation",
+        "payload": "{ email: string, secretCode: string }",
+        "returns": "VerificationCompleteResponse"
+      },
+      "useStartPasswordResetByMobile": {
+        "type": "mutation",
+        "payload": "email: string (raw string, not object)",
+        "returns": "VerificationStartResponse"
+      },
+      "useCompletePasswordResetByMobile": {
+        "type": "mutation",
+        "payload": "{ email: string, secretCode: string, password: string }",
+        "returns": "VerificationCompleteResponse"
+      },
+      "useStartEmail2Factor": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "VerificationStartResponse",
+        "note": "auth required; called when login response indicates 2FA needed"
+      },
+      "useCompleteEmail2Factor": {
+        "type": "mutation",
+        "payload": "secretCode: string",
+        "returns": "VerificationCompleteResponse",
+        "note": "invalidates session cache on success"
+      },
+      "useStartMobile2Factor": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "VerificationStartResponse",
+        "note": "auth required; called when login response indicates 2FA needed"
+      },
+      "useCompleteMobile2Factor": {
+        "type": "mutation",
+        "payload": "secretCode: string",
+        "returns": "VerificationCompleteResponse",
+        "note": "invalidates session cache on success"
+      },
+      "useRelogin": {
+        "type": "mutation",
+        "payload": "none",
+        "returns": "SessionResponse",
+        "note": "reissues access token AND rotates sessionId; sets session cache. Use after profile/role changes. On failure (401) the backend replies `{ status: \"ERR\", message: \"Can not relogin\" }`."
+      },
+      "useUserSessions": {
+        "type": "query",
+        "params": "userId?: string (defaults to current user)",
+        "returns": "UserSessionRecord[] — bare array, no envelope; `currentOne: true` flags the active session"
+      },
+      "useUserHistory": {
+        "type": "query",
+        "params": "userId?: string (defaults to current user)",
+        "returns": "UserHistoryEntry[] — bare array, no envelope"
+      },
+      "useDeleteUserSession": {
+        "type": "mutation",
+        "payload": "{ sessionId: string, userId?: string }",
+        "returns": "MindbricksResponse",
+        "note": "revokes single session; invalidates userSessions cache"
+      },
+      "useDeleteAllSessions": {
+        "type": "mutation",
+        "payload": "userId?: string (defaults to current user)",
+        "returns": "MindbricksResponse",
+        "note": "revokes all sessions; current user must re-login"
+      },
+      "useUploadUserAvatar": {
+        "type": "mutation",
+        "payload": "file: File",
+        "returns": "BucketUploadResponse",
+        "note": "upload via multipart/form-data"
+      },
+      "useUserAvatarFile": {
+        "type": "query",
+        "params": "fileId: string or null",
+        "returns": "file metadata (no binary)",
+        "note": "enabled when fileId is truthy"
+      },
+      "useUserAvatarFiles": {
+        "type": "query",
+        "params": "none",
+        "returns": "list of avatar files"
+      },
+      "useDeleteUserAvatar": {
+        "type": "mutation",
+        "payload": "fileId: string",
+        "returns": "MindbricksResponse",
+        "note": "invalidates avatar file list cache"
+      }
+    },
+    "avatarHelpers": {
+      "getUserAvatarUrl": "authService.getUserAvatarUrl(accessKey) → public download URL string"
+    },
+    "avatarBucket": {
+      "upload": "POST /bucket/userAvatars/upload (multipart/form-data)",
+      "downloadByKey": "GET /bucket/userAvatars/download/key/{accessKey} (public, no auth)",
+      "downloadById": "GET /bucket/userAvatars/download/{fileId}",
+      "allowedTypes": "image/png, image/jpeg, image/webp, image/gif",
+      "maxSize": "5 MB",
+      "readAccess": "public"
+    },
+    "types": {
+      "User": {
+        "id": "string",
+        "email": "string",
+        "fullname": "string",
+        "avatar": "string?",
+        "roleId": "string",
+        "emailVerified": "boolean",
+        "isActive": "boolean",
+        "createdAt": "string?",
+        "updatedAt": "string?"
+      },
+      "SessionResponse": "Flat envelope returned by login / relogin / social-exchange. Fields at the top level: status, accessToken, sessionId, userId, roleId, email?, fullname?, avatar?, mobile?, emailVerified?, mobileVerified?, registeredAt?, loginAt?, agent?, checkTokenMark?, tenantCodename? (multi-tenant), plus any custom user properties. NOT nested under `user`. The accessToken is the only token the frontend needs — DbBucket / RemoteBucket uploads authenticate with it directly.",
+      "CurrentUserResponse": "Same flat fields as SessionResponse plus session metadata: source (\"redis\"|\"db\"|\"cache\"), expiresAt, lastActiveAt, lastActiveIp. When no user is logged in, getCurrentUser() resolves to `null` (instead of throwing) — the backend HTTP 401 is caught.",
+      "LogoutResponse": "{ status: \"OK\" } — no other fields.",
+      "UserResponse": "{ user: User, ...envelope } — nested. Used by user CRUD endpoints (GET/PATCH/DELETE /v1/users/:id).",
+      "UserListResponse": {
+        "users": "User[]",
+        "rowCount": "number"
+      },
+      "BucketUploadResponse": {
+        "status": "OK",
+        "action": "upload",
+        "bucket": "string",
+        "file": "{ id, fileName, mimeType, fileSize, accessKey, ownerId? }"
+      }
+    }
+  },
+  "services": {
+    "invitationcenter": {
+      "hookFile": "src/hooks/api/use-invitationcenter.ts",
+      "serviceFile": "src/services/api/invitationcenter-api.ts",
+      "hooks": {
+        "useCreateInviteLink": {
+          "type": "mutation",
+          "hook": "useCreateInviteLink(data: CreateInviteLinkInput)",
+          "method": "POST",
+          "path": "/v1/invite-links",
+          "crudType": "create",
+          "params": "data: CreateInviteLinkInput",
+          "paramsInfo": [
+            {
+              "name": "invitedEmail",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional intended recipient email address",
+              "dataExample": "user@example.com"
+            },
+            {
+              "name": "usageMode",
+              "tsType": "'singleUse' | 'limitedUse'",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Whether the invite can be used once (singleUse) or a limited number of times (limitedUse)"
+            },
+            {
+              "name": "usageLimit",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Maximum number of allowed uses; required when usageMode=limitedUse",
+              "dataExample": "5"
+            },
+            {
+              "name": "expiresAt",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional expiry date; null means no expiry",
+              "dataExample": "2026-12-31"
+            }
+          ],
+          "inputType": "CreateInviteLinkInput",
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useActivateInviteLink": {
+          "type": "mutation",
+          "hook": "useActivateInviteLink(inviteLinkId: string)",
+          "method": "PATCH",
+          "path": "/v1/invite-links/:inviteLinkId/activate",
+          "crudType": "update",
+          "params": "inviteLinkId: string",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            }
+          ],
+          "pathParams": ["inviteLinkId"],
+          "returns": "InvitationcenterInviteLinkResponse & MindbricksUpdateEnvelope",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useRevokeInviteLink": {
+          "type": "mutation",
+          "hook": "useRevokeInviteLink(inviteLinkId: string, data: RevokeInviteLinkInput)",
+          "method": "PATCH",
+          "path": "/v1/invite-links/:inviteLinkId/revoke",
+          "crudType": "update",
+          "params": "inviteLinkId: string, data: RevokeInviteLinkInput",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "eventNote",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional reason for revocation",
+              "dataExample": "Revoked due to security concern"
+            }
+          ],
+          "pathParams": ["inviteLinkId"],
+          "inputType": "RevokeInviteLinkInput",
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeliverInviteEmail": {
+          "type": "mutation",
+          "hook": "useDeliverInviteEmail(inviteLinkId: string)",
+          "method": "POST",
+          "path": "/v1/invite-links/:inviteLinkId/deliver",
+          "crudType": "update",
+          "params": "inviteLinkId: string",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            }
+          ],
+          "pathParams": ["inviteLinkId"],
+          "returns": "InvitationcenterInviteLinkResponse & MindbricksUpdateEnvelope",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useValidateInviteCode": {
+          "type": "mutation",
+          "hook": "useValidateInviteCode(data: ValidateInviteCodeInput)",
+          "method": "POST",
+          "path": "/v1/invite-links/validate",
+          "crudType": "update",
+          "params": "data: ValidateInviteCodeInput",
+          "paramsInfo": [
+            {
+              "name": "inviteCode",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "The unique invite token to validate",
+              "dataExample": "abc123xyz789"
+            }
+          ],
+          "inputType": "ValidateInviteCodeInput",
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "public",
+          "authDetails": {
+            "loginRequired": false,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useConsumeInviteLink": {
+          "type": "mutation",
+          "hook": "useConsumeInviteLink(inviteLinkId: string, data: ConsumeInviteLinkInput)",
+          "method": "PATCH",
+          "path": "/v1/invite-links/:inviteLinkId/consume",
+          "crudType": "update",
+          "params": "inviteLinkId: string, data: ConsumeInviteLinkInput",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "registeredUserId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "The auth user id created from this invite",
+              "dataExample": "auth-user-uuid"
+            },
+            {
+              "name": "relatedEmail",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Registered email for audit record",
+              "dataExample": "user@example.com"
+            }
+          ],
+          "pathParams": ["inviteLinkId"],
+          "inputType": "ConsumeInviteLinkInput",
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": true,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetInviteLinkByCode": {
+          "type": "query",
+          "hook": "useGetInviteLinkByCode(inviteCode: string)",
+          "method": "GET",
+          "path": "/v1/invite-links/by-code/:inviteCode",
+          "crudType": "get",
+          "params": "inviteCode: string",
+          "paramsInfo": [
+            {
+              "name": "inviteCode",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This parameter will be used to select the data object that is queried"
+            }
+          ],
+          "pathParams": ["inviteCode"],
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "public",
+          "authDetails": {
+            "loginRequired": false,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetInviteLink": {
+          "type": "query",
+          "hook": "useGetInviteLink(inviteLinkId: string)",
+          "method": "GET",
+          "path": "/v1/invite-links/:inviteLinkId",
+          "crudType": "get",
+          "params": "inviteLinkId: string",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["inviteLinkId"],
+          "returns": "InvitationcenterInviteLinkResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useListInviteLinks": {
+          "type": "query",
+          "hook": "useListInviteLinks(params?: { usageMode?: 'singleUse' | 'limitedUse'; inviteState?: 'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/invite-links",
+          "crudType": "list",
+          "params": "params?: { usageMode?: 'singleUse' | 'limitedUse'; inviteState?: 'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "usageMode",
+              "tsType": "'singleUse' | 'limitedUse'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "inviteState",
+              "tsType": "'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "InvitationcenterInviteLinkListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useListInviteAudits": {
+          "type": "query",
+          "hook": "useListInviteAudits(params?: { inviteLinkId?: string; eventType?: 'created' | 'activated' | 'delivered' | 'validated' | 'consumed' | 'revoked' | 'expired'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/invite-audits",
+          "crudType": "list",
+          "params": "params?: { inviteLinkId?: string; eventType?: 'created' | 'activated' | 'delivered' | 'validated' | 'consumed' | 'revoked' | 'expired'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "inviteLinkId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "eventType",
+              "tsType": "'created' | 'activated' | 'delivered' | 'validated' | 'consumed' | 'revoked' | 'expired'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "InvitationcenterInviteAuditListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        }
+      },
+      "types": {
+        "InvitationcenterInviteLink": {
+          "ownerUserId": "string",
+          "inviteCode": "string",
+          "invitedEmail": "string | undefined",
+          "usageMode": "'singleUse' | 'limitedUse'",
+          "usageLimit": "number | undefined",
+          "usageCount": "number",
+          "inviteState": "'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'",
+          "expiresAt": "string | undefined",
+          "lastUsedAt": "string | undefined",
+          "registeredUserId": "string | undefined",
+          "deliveryRequestedAt": "string | undefined",
+          "lastDeliveredAt": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "InvitationcenterInviteLinkResponse": {
+          "inviteLink": "InvitationcenterInviteLink",
+          "dataName": "string"
+        },
+        "InvitationcenterInviteLinkListResponse": {
+          "inviteLinks": "InvitationcenterInviteLink[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "InvitationcenterInviteAudit": {
+          "inviteLinkId": "string",
+          "eventType": "'created' | 'activated' | 'delivered' | 'validated' | 'consumed' | 'revoked' | 'expired'",
+          "eventAt": "string",
+          "actorUserId": "string | undefined",
+          "eventNote": "string | undefined",
+          "relatedEmail": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "inviteLinkId": {
+              "entity": "InviteLink",
+              "service": "invitationcenter",
+              "hooks": {
+                "create": "useCreateInviteLink",
+                "update": "useConsumeInviteLink",
+                "get": "useGetInviteLink",
+                "list": "useListInviteLinks"
+              }
+            }
+          }
+        },
+        "InvitationcenterInviteAuditResponse": {
+          "inviteAudit": "InvitationcenterInviteAudit",
+          "dataName": "string"
+        },
+        "InvitationcenterInviteAuditListResponse": {
+          "inviteAudits": "InvitationcenterInviteAudit[]",
+          "rowCount": "number",
+          "dataName": "string"
+        }
+      },
+      "apiInputs": {
+        "CreateInviteLinkInput": [
+          {
+            "name": "invitedEmail",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional intended recipient email address",
+            "dataExample": "user@example.com"
+          },
+          {
+            "name": "usageMode",
+            "tsType": "'singleUse' | 'limitedUse'",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Whether the invite can be used once (singleUse) or a limited number of times (limitedUse)"
+          },
+          {
+            "name": "usageLimit",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Maximum number of allowed uses; required when usageMode=limitedUse",
+            "dataExample": "5"
+          },
+          {
+            "name": "expiresAt",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional expiry date; null means no expiry",
+            "dataExample": "2026-12-31"
+          }
+        ],
+        "RevokeInviteLinkInput": [
+          {
+            "name": "eventNote",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional reason for revocation",
+            "dataExample": "Revoked due to security concern"
+          }
+        ],
+        "ValidateInviteCodeInput": [
+          {
+            "name": "inviteCode",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "The unique invite token to validate",
+            "dataExample": "abc123xyz789"
+          }
+        ],
+        "ConsumeInviteLinkInput": [
+          {
+            "name": "registeredUserId",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "The auth user id created from this invite",
+            "dataExample": "auth-user-uuid"
+          },
+          {
+            "name": "relatedEmail",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Registered email for audit record",
+            "dataExample": "user@example.com"
+          }
+        ]
+      }
+    },
+    "nutritionlibrary": {
+      "hookFile": "src/hooks/api/use-nutritionlibrary.ts",
+      "serviceFile": "src/services/api/nutritionlibrary-api.ts",
+      "hooks": {
+        "useSetMacroTarget": {
+          "type": "mutation",
+          "hook": "useSetMacroTarget(data: SetMacroTargetInput)",
+          "method": "POST",
+          "path": "/v1/macro-targets",
+          "crudType": "create",
+          "params": "data: SetMacroTargetInput",
+          "paramsInfo": [
+            {
+              "name": "calorieTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "proteinTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "carbohydrateTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fatTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "sugarTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fiberTarget",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            }
+          ],
+          "inputType": "SetMacroTargetInput",
+          "returns": "NutritionlibraryMacroTargetResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetMyMacroTarget": {
+          "type": "query",
+          "hook": "useGetMyMacroTarget()",
+          "method": "GET",
+          "path": "/v1/macro-targets/me",
+          "crudType": "get",
+          "returns": "NutritionlibraryMacroTargetResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useCreateFoodItem": {
+          "type": "mutation",
+          "hook": "useCreateFoodItem(data: CreateFoodItemInput)",
+          "method": "POST",
+          "path": "/v1/food-items",
+          "crudType": "create",
+          "params": "data: CreateFoodItemInput",
+          "paramsInfo": [
+            {
+              "name": "foodName",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "caloriePer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "proteinPer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "carbohydratePer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fatPer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "sugarPer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fiberPer100g",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "brandName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "foodCategory",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "creationSource",
+              "tsType": "'manualEntry' | 'aiAssistant'",
+              "required": false,
+              "httpLocation": "body"
+            }
+          ],
+          "inputType": "CreateFoodItemInput",
+          "returns": "NutritionlibraryFoodItemResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetFoodItem": {
+          "type": "query",
+          "hook": "useGetFoodItem(foodItemId: string)",
+          "method": "GET",
+          "path": "/v1/food-items/:foodItemId",
+          "crudType": "get",
+          "params": "foodItemId: string",
+          "paramsInfo": [
+            {
+              "name": "foodItemId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["foodItemId"],
+          "returns": "NutritionlibraryFoodItemResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListFoodItems": {
+          "type": "query",
+          "hook": "useListFoodItems(params?: { searchTerm?: string; foodCategory?: string; creationSource?: 'manualEntry' | 'aiAssistant'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/food-items",
+          "crudType": "list",
+          "params": "params?: { searchTerm?: string; foodCategory?: string; creationSource?: 'manualEntry' | 'aiAssistant'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "searchTerm",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Optional partial match on foodName"
+            },
+            {
+              "name": "foodCategory",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "creationSource",
+              "tsType": "'manualEntry' | 'aiAssistant'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "NutritionlibraryFoodItemListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdateFoodItem": {
+          "type": "mutation",
+          "hook": "useUpdateFoodItem(foodItemId: string, data: UpdateFoodItemInput)",
+          "method": "PATCH",
+          "path": "/v1/food-items/:foodItemId",
+          "crudType": "update",
+          "params": "foodItemId: string, data: UpdateFoodItemInput",
+          "paramsInfo": [
+            {
+              "name": "foodItemId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "foodName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "caloriePer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "proteinPer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "carbohydratePer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fatPer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "sugarPer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "fiberPer100g",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "brandName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "foodCategory",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            }
+          ],
+          "pathParams": ["foodItemId"],
+          "inputType": "UpdateFoodItemInput",
+          "returns": "NutritionlibraryFoodItemResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeleteFoodItem": {
+          "type": "mutation",
+          "hook": "useDeleteFoodItem(foodItemId: string)",
+          "method": "DELETE",
+          "path": "/v1/food-items/:foodItemId",
+          "crudType": "delete",
+          "params": "foodItemId: string",
+          "paramsInfo": [
+            {
+              "name": "foodItemId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["foodItemId"],
+          "returns": "NutritionlibraryFoodItemResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useCreatePresetMeal": {
+          "type": "mutation",
+          "hook": "useCreatePresetMeal(data: CreatePresetMealInput)",
+          "method": "POST",
+          "path": "/v1/preset-meals",
+          "crudType": "create",
+          "params": "data: CreatePresetMealInput",
+          "paramsInfo": [
+            {
+              "name": "templateName",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "descriptionText",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            }
+          ],
+          "inputType": "CreatePresetMealInput",
+          "returns": "NutritionlibraryPresetMealResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetPresetMeal": {
+          "type": "query",
+          "hook": "useGetPresetMeal(presetMealId: string)",
+          "method": "GET",
+          "path": "/v1/preset-meals/:presetMealId",
+          "crudType": "get",
+          "params": "presetMealId: string",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "returns": "NutritionlibraryPresetMealResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListPresetMeals": {
+          "type": "query",
+          "hook": "useListPresetMeals(params?: { pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/preset-meals",
+          "crudType": "list",
+          "params": "params?: { pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "NutritionlibraryPresetMealListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdatePresetMeal": {
+          "type": "mutation",
+          "hook": "useUpdatePresetMeal(presetMealId: string, data: UpdatePresetMealInput)",
+          "method": "PATCH",
+          "path": "/v1/preset-meals/:presetMealId",
+          "crudType": "update",
+          "params": "presetMealId: string, data: UpdatePresetMealInput",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "templateName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            },
+            {
+              "name": "descriptionText",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body"
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "inputType": "UpdatePresetMealInput",
+          "returns": "NutritionlibraryPresetMealResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeletePresetMeal": {
+          "type": "mutation",
+          "hook": "useDeletePresetMeal(presetMealId: string)",
+          "method": "DELETE",
+          "path": "/v1/preset-meals/:presetMealId",
+          "crudType": "delete",
+          "params": "presetMealId: string",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "returns": "NutritionlibraryPresetMealResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useAddPresetLine": {
+          "type": "mutation",
+          "hook": "useAddPresetLine(presetMealId: string, data: AddPresetLineInput)",
+          "method": "POST",
+          "path": "/v1/preset-meals/:presetMealId/lines",
+          "crudType": "create",
+          "params": "presetMealId: string, data: AddPresetLineInput",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This URL path parameter scopes the create operation to a parent record (typically the parent object's id)."
+            },
+            {
+              "name": "foodItemId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body"
+            },
+            {
+              "name": "gramAmount",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body"
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "inputType": "AddPresetLineInput",
+          "returns": "NutritionlibraryPresetLineResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListPresetLines": {
+          "type": "query",
+          "hook": "useListPresetLines(presetMealId: string, params?: { getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/preset-meals/:presetMealId/lines",
+          "crudType": "list",
+          "params": "presetMealId: string, params?: { getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This parameter will be used to select the data objects that want to be listed"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "returns": "NutritionlibraryPresetLineListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeletePresetLine": {
+          "type": "mutation",
+          "hook": "useDeletePresetLine(presetMealId: string, presetLineId: string)",
+          "method": "DELETE",
+          "path": "/v1/preset-meals/:presetMealId/lines/:presetLineId",
+          "crudType": "delete",
+          "params": "presetMealId: string, presetLineId: string",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This parameter will be used to select the data object that want to be deleted"
+            },
+            {
+              "name": "presetLineId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["presetMealId", "presetLineId"],
+          "returns": "NutritionlibraryPresetLineResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetPresetMealForLogging": {
+          "type": "query",
+          "hook": "useGetPresetMealForLogging(presetMealId: string)",
+          "method": "GET",
+          "path": "/v1/preset-meals/:presetMealId/for-logging",
+          "crudType": "get",
+          "params": "presetMealId: string",
+          "paramsInfo": [
+            {
+              "name": "presetMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["presetMealId"],
+          "returns": "NutritionlibraryPresetMealResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin", "user"],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetFoodItemForLogging": {
+          "type": "query",
+          "hook": "useGetFoodItemForLogging(foodItemId: string)",
+          "method": "GET",
+          "path": "/v1/food-items/:foodItemId/for-logging",
+          "crudType": "get",
+          "params": "foodItemId: string",
+          "paramsInfo": [
+            {
+              "name": "foodItemId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["foodItemId"],
+          "returns": "NutritionlibraryFoodItemResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin", "user"],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetMyMacroTargetForLogging": {
+          "type": "query",
+          "hook": "useGetMyMacroTargetForLogging()",
+          "method": "GET",
+          "path": "/v1/macro-targets/me/for-logging",
+          "crudType": "get",
+          "returns": "NutritionlibraryMacroTargetResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin", "user"],
+            "hasScopeBypass": false
+          }
+        }
+      },
+      "types": {
+        "NutritionlibraryMacroTarget": {
+          "userId": "string",
+          "calorieTarget": "number",
+          "proteinTarget": "number",
+          "carbohydrateTarget": "number",
+          "fatTarget": "number",
+          "sugarTarget": "number",
+          "fiberTarget": "number",
+          "effectiveFrom": "string",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "userId": {
+              "entity": "User",
+              "service": "auth",
+              "hooks": {
+                "list": "useUsers",
+                "get": "useUser",
+                "create": "useCreateUser",
+                "update": "useUpdateUser",
+                "delete": "useDeleteUser"
+              }
+            }
+          }
+        },
+        "NutritionlibraryMacroTargetResponse": {
+          "macroTarget": "NutritionlibraryMacroTarget",
+          "dataName": "string"
+        },
+        "NutritionlibraryMacroTargetListResponse": {
+          "macroTargets": "NutritionlibraryMacroTarget[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionlibraryFoodItem": {
+          "userId": "string",
+          "foodName": "string",
+          "caloriePer100g": "number",
+          "proteinPer100g": "number",
+          "carbohydratePer100g": "number",
+          "fatPer100g": "number",
+          "sugarPer100g": "number",
+          "fiberPer100g": "number",
+          "brandName": "string | undefined",
+          "foodCategory": "string | undefined",
+          "creationSource": "'manualEntry' | 'aiAssistant'",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "userId": {
+              "entity": "User",
+              "service": "auth",
+              "hooks": {
+                "list": "useUsers",
+                "get": "useUser",
+                "create": "useCreateUser",
+                "update": "useUpdateUser",
+                "delete": "useDeleteUser"
+              }
+            }
+          }
+        },
+        "NutritionlibraryFoodItemResponse": {
+          "foodItem": "NutritionlibraryFoodItem",
+          "dataName": "string"
+        },
+        "NutritionlibraryFoodItemListResponse": {
+          "foodItems": "NutritionlibraryFoodItem[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionlibraryPresetMeal": {
+          "userId": "string",
+          "templateName": "string",
+          "descriptionText": "string | undefined",
+          "totalCalories": "number",
+          "totalProtein": "number",
+          "totalCarbohydrates": "number",
+          "totalFat": "number",
+          "totalSugar": "number",
+          "totalFiber": "number",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "userId": {
+              "entity": "User",
+              "service": "auth",
+              "hooks": {
+                "list": "useUsers",
+                "get": "useUser",
+                "create": "useCreateUser",
+                "update": "useUpdateUser",
+                "delete": "useDeleteUser"
+              }
+            }
+          }
+        },
+        "NutritionlibraryPresetMealResponse": {
+          "presetMeal": "NutritionlibraryPresetMeal",
+          "dataName": "string"
+        },
+        "NutritionlibraryPresetMealListResponse": {
+          "presetMeals": "NutritionlibraryPresetMeal[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionlibraryPresetLine": {
+          "presetMealId": "string",
+          "foodItemId": "string",
+          "lineFoodName": "string",
+          "gramAmount": "number",
+          "lineCalories": "number",
+          "lineProtein": "number",
+          "lineCarbohydrates": "number",
+          "lineFat": "number",
+          "lineSugar": "number",
+          "lineFiber": "number",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "presetMealId": {
+              "entity": "PresetMeal",
+              "service": "nutritionlibrary",
+              "hooks": {
+                "create": "useCreatePresetMeal",
+                "get": "useGetPresetMealForLogging",
+                "list": "useListPresetMeals",
+                "update": "useUpdatePresetMeal",
+                "delete": "useDeletePresetMeal"
+              }
+            },
+            "foodItemId": {
+              "entity": "FoodItem",
+              "service": "nutritionlibrary",
+              "hooks": {
+                "create": "useCreateFoodItem",
+                "get": "useGetFoodItemForLogging",
+                "list": "useListFoodItems",
+                "update": "useUpdateFoodItem",
+                "delete": "useDeleteFoodItem"
+              }
+            }
+          }
+        },
+        "NutritionlibraryPresetLineResponse": {
+          "presetLine": "NutritionlibraryPresetLine",
+          "dataName": "string"
+        },
+        "NutritionlibraryPresetLineListResponse": {
+          "presetLines": "NutritionlibraryPresetLine[]",
+          "rowCount": "number",
+          "dataName": "string"
+        }
+      },
+      "apiInputs": {
+        "SetMacroTargetInput": [
+          {
+            "name": "calorieTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "proteinTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "carbohydrateTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fatTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "sugarTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fiberTarget",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          }
+        ],
+        "CreateFoodItemInput": [
+          {
+            "name": "foodName",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "caloriePer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "proteinPer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "carbohydratePer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fatPer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "sugarPer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fiberPer100g",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "brandName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "foodCategory",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "creationSource",
+            "tsType": "'manualEntry' | 'aiAssistant'",
+            "required": false,
+            "httpLocation": "body"
+          }
+        ],
+        "UpdateFoodItemInput": [
+          {
+            "name": "foodName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "caloriePer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "proteinPer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "carbohydratePer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fatPer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "sugarPer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "fiberPer100g",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "brandName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "foodCategory",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          }
+        ],
+        "CreatePresetMealInput": [
+          {
+            "name": "templateName",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "descriptionText",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          }
+        ],
+        "UpdatePresetMealInput": [
+          {
+            "name": "templateName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          },
+          {
+            "name": "descriptionText",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body"
+          }
+        ],
+        "AddPresetLineInput": [
+          {
+            "name": "foodItemId",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body"
+          },
+          {
+            "name": "gramAmount",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body"
+          }
+        ]
+      }
+    },
+    "mealtracker": {
+      "hookFile": "src/hooks/api/use-mealtracker.ts",
+      "serviceFile": "src/services/api/mealtracker-api.ts",
+      "hooks": {
+        "useCreateMealLog": {
+          "type": "mutation",
+          "hook": "useCreateMealLog(data: CreateMealLogInput)",
+          "method": "POST",
+          "path": "/v1/meal-logs",
+          "crudType": "create",
+          "params": "data: CreateMealLogInput",
+          "paramsInfo": [
+            {
+              "name": "mealDate",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Date the meal was consumed",
+              "dataExample": "2026-06-29"
+            },
+            {
+              "name": "mealTime",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Local time string e.g. 13:30",
+              "dataExample": "13:30"
+            },
+            {
+              "name": "slotName",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Fixed or custom meal slot name",
+              "dataExample": "Öğle"
+            },
+            {
+              "name": "logSource",
+              "tsType": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Source of the meal log entry"
+            },
+            {
+              "name": "noteText",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional user notes"
+            },
+            {
+              "name": "totalCalories",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level calorie total",
+              "dataExample": "650.0"
+            },
+            {
+              "name": "totalProtein",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level protein total",
+              "dataExample": "42.0"
+            },
+            {
+              "name": "totalCarbohydrates",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level carbohydrate total",
+              "dataExample": "80.0"
+            },
+            {
+              "name": "totalFat",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level fat total",
+              "dataExample": "15.0"
+            },
+            {
+              "name": "totalSugar",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level sugar total",
+              "dataExample": "8.0"
+            },
+            {
+              "name": "totalFiber",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Meal-level fiber total",
+              "dataExample": "5.0"
+            },
+            {
+              "name": "lines",
+              "tsType": "Record<string, unknown>[]",
+              "required": true,
+              "httpLocation": "body",
+              "isArray": true,
+              "description": "Array of meal line objects to create",
+              "dataExample": "[{\"itemName\":\"Yulaf\",\"consumedGrams\":80,\"itemCalories\":300,\"itemProtein\":12,\"itemCarbohydrates\":52,\"itemFat\":5,\"itemSugar\":2,\"itemFiber\":4,\"lineSource\":\"foodLibrary\",\"sourceFoodItemId\":null,\"sourcePresetMealId\":null}]"
+            }
+          ],
+          "inputType": "CreateMealLogInput",
+          "returns": "MealtrackerMealLogResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetMealLog": {
+          "type": "query",
+          "hook": "useGetMealLog(mealLogId: string)",
+          "method": "GET",
+          "path": "/v1/meal-logs/:mealLogId",
+          "crudType": "get",
+          "params": "mealLogId: string",
+          "paramsInfo": [
+            {
+              "name": "mealLogId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["mealLogId"],
+          "returns": "MealtrackerMealLogResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListMealLogs": {
+          "type": "query",
+          "hook": "useListMealLogs(params?: { fromDate?: string; toDate?: string; mealDate?: string; logSource?: 'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/meal-logs",
+          "crudType": "list",
+          "params": "params?: { fromDate?: string; toDate?: string; mealDate?: string; logSource?: 'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "fromDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Optional range start for multi-day queries",
+              "dataExample": "2026-06-23"
+            },
+            {
+              "name": "toDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Optional range end for multi-day queries",
+              "dataExample": "2026-06-29"
+            },
+            {
+              "name": "mealDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "logSource",
+              "tsType": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "MealtrackerMealLogListResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdateMealLog": {
+          "type": "mutation",
+          "hook": "useUpdateMealLog(mealLogId: string, data: UpdateMealLogInput)",
+          "method": "PATCH",
+          "path": "/v1/meal-logs/:mealLogId",
+          "crudType": "update",
+          "params": "mealLogId: string, data: UpdateMealLogInput",
+          "paramsInfo": [
+            {
+              "name": "mealLogId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "mealTime",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated meal time"
+            },
+            {
+              "name": "slotName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated slot name"
+            },
+            {
+              "name": "noteText",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated notes"
+            },
+            {
+              "name": "totalCalories",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated calorie total"
+            },
+            {
+              "name": "totalProtein",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated protein total"
+            },
+            {
+              "name": "totalCarbohydrates",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated carbohydrate total"
+            },
+            {
+              "name": "totalFat",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated fat total"
+            },
+            {
+              "name": "totalSugar",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated sugar total"
+            },
+            {
+              "name": "totalFiber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Recalculated fiber total"
+            }
+          ],
+          "pathParams": ["mealLogId"],
+          "inputType": "UpdateMealLogInput",
+          "returns": "MealtrackerMealLogResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeleteMealLog": {
+          "type": "mutation",
+          "hook": "useDeleteMealLog(mealLogId: string)",
+          "method": "DELETE",
+          "path": "/v1/meal-logs/:mealLogId",
+          "crudType": "delete",
+          "params": "mealLogId: string",
+          "paramsInfo": [
+            {
+              "name": "mealLogId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["mealLogId"],
+          "returns": "MealtrackerMealLogResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useCreateMealLine": {
+          "type": "mutation",
+          "hook": "useCreateMealLine(data: CreateMealLineInput)",
+          "method": "POST",
+          "path": "/v1/meal-lines",
+          "crudType": "create",
+          "params": "data: CreateMealLineInput",
+          "paramsInfo": [
+            {
+              "name": "mealLogId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "FK to parent mealLog"
+            },
+            {
+              "name": "itemName",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Food item name",
+              "dataExample": "Yumurta"
+            },
+            {
+              "name": "consumedGrams",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Grams consumed",
+              "dataExample": "120.0"
+            },
+            {
+              "name": "itemCalories",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Calories snapshot",
+              "dataExample": "180.0"
+            },
+            {
+              "name": "itemProtein",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Protein snapshot",
+              "dataExample": "15.0"
+            },
+            {
+              "name": "itemCarbohydrates",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Carbohydrates snapshot",
+              "dataExample": "1.0"
+            },
+            {
+              "name": "itemFat",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Fat snapshot",
+              "dataExample": "13.0"
+            },
+            {
+              "name": "itemSugar",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Sugar snapshot",
+              "dataExample": "0.5"
+            },
+            {
+              "name": "itemFiber",
+              "tsType": "number",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Fiber snapshot",
+              "dataExample": "0.0"
+            },
+            {
+              "name": "lineSource",
+              "tsType": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant' | 'temporaryAi'",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Source of the line item"
+            },
+            {
+              "name": "sourceFoodItemId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional reference to nutritionLibrary foodItem"
+            },
+            {
+              "name": "sourcePresetMealId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional reference to nutritionLibrary presetMeal"
+            }
+          ],
+          "inputType": "CreateMealLineInput",
+          "returns": "MealtrackerMealLineResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdateMealLine": {
+          "type": "mutation",
+          "hook": "useUpdateMealLine(mealLineId: string, data: UpdateMealLineInput)",
+          "method": "PATCH",
+          "path": "/v1/meal-lines/:mealLineId",
+          "crudType": "update",
+          "params": "mealLineId: string, data: UpdateMealLineInput",
+          "paramsInfo": [
+            {
+              "name": "mealLineId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "itemName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated item name"
+            },
+            {
+              "name": "consumedGrams",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated grams"
+            },
+            {
+              "name": "itemCalories",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated calories"
+            },
+            {
+              "name": "itemProtein",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated protein"
+            },
+            {
+              "name": "itemCarbohydrates",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated carbohydrates"
+            },
+            {
+              "name": "itemFat",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated fat"
+            },
+            {
+              "name": "itemSugar",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated sugar"
+            },
+            {
+              "name": "itemFiber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated fiber"
+            }
+          ],
+          "pathParams": ["mealLineId"],
+          "inputType": "UpdateMealLineInput",
+          "returns": "MealtrackerMealLineResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeleteMealLine": {
+          "type": "mutation",
+          "hook": "useDeleteMealLine(mealLineId: string)",
+          "method": "DELETE",
+          "path": "/v1/meal-lines/:mealLineId",
+          "crudType": "delete",
+          "params": "mealLineId: string",
+          "paramsInfo": [
+            {
+              "name": "mealLineId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["mealLineId"],
+          "returns": "MealtrackerMealLineResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListMealLines": {
+          "type": "query",
+          "hook": "useListMealLines(params?: { mealLogId?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/meal-lines",
+          "crudType": "list",
+          "params": "params?: { mealLogId?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "mealLogId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "MealtrackerMealLineListResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetDailyProgress": {
+          "type": "query",
+          "hook": "useGetDailyProgress(params?: { targetDate?: string })",
+          "method": "GET",
+          "path": "/v1/nutrition-days/daily-progress",
+          "crudType": "get",
+          "params": "params?: { targetDate?: string }",
+          "paramsInfo": [
+            {
+              "name": "targetDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "The day to retrieve progress for; defaults to today",
+              "dataExample": "2026-06-29"
+            }
+          ],
+          "returns": "MealtrackerNutritionDayResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetNutritionDay": {
+          "type": "query",
+          "hook": "useGetNutritionDay(nutritionDayId: string)",
+          "method": "GET",
+          "path": "/v1/nutrition-days/:nutritionDayId",
+          "crudType": "get",
+          "params": "nutritionDayId: string",
+          "paramsInfo": [
+            {
+              "name": "nutritionDayId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["nutritionDayId"],
+          "returns": "MealtrackerNutritionDayResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListNutritionDays": {
+          "type": "query",
+          "hook": "useListNutritionDays(params?: { fromDate?: string; toDate?: string; summaryDate?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/nutrition-days",
+          "crudType": "list",
+          "params": "params?: { fromDate?: string; toDate?: string; summaryDate?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "fromDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Range start",
+              "dataExample": "2026-06-01"
+            },
+            {
+              "name": "toDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Range end",
+              "dataExample": "2026-06-29"
+            },
+            {
+              "name": "summaryDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "MealtrackerNutritionDayListResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetWeeklyAnalytics": {
+          "type": "query",
+          "hook": "useGetWeeklyAnalytics(params?: { getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/analytics/weekly",
+          "crudType": "list",
+          "params": "params?: { getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "MealtrackerNutritionDayListResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetMonthlyAnalytics": {
+          "type": "query",
+          "hook": "useGetMonthlyAnalytics(params?: { getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/analytics/monthly",
+          "crudType": "list",
+          "params": "params?: { getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "MealtrackerNutritionDayListResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useTriggerDailyReminderCheck": {
+          "type": "mutation",
+          "hook": "useTriggerDailyReminderCheck()",
+          "method": "POST",
+          "path": "/v1/scheduled/daily-reminder-check",
+          "crudType": "update",
+          "returns": "MealtrackerNutritionDayResponse & MindbricksUpdateEnvelope",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        },
+        "useTriggerDailySummary": {
+          "type": "mutation",
+          "hook": "useTriggerDailySummary()",
+          "method": "POST",
+          "path": "/v1/scheduled/daily-summary",
+          "crudType": "update",
+          "returns": "MealtrackerNutritionDayResponse & MindbricksUpdateEnvelope",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": ["admin"],
+            "hasScopeBypass": false
+          }
+        }
+      },
+      "types": {
+        "MealtrackerMealLog": {
+          "userId": "string",
+          "mealDate": "string",
+          "mealTime": "string",
+          "slotName": "string",
+          "logSource": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'",
+          "noteText": "string | undefined",
+          "totalCalories": "number",
+          "totalProtein": "number",
+          "totalCarbohydrates": "number",
+          "totalFat": "number",
+          "totalSugar": "number",
+          "totalFiber": "number",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "MealtrackerMealLogResponse": {
+          "mealLog": "MealtrackerMealLog",
+          "dataName": "string"
+        },
+        "MealtrackerMealLogListResponse": {
+          "mealLogs": "MealtrackerMealLog[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "MealtrackerMealLine": {
+          "userId": "string",
+          "mealLogId": "string",
+          "sourceFoodItemId": "string | undefined",
+          "sourcePresetMealId": "string | undefined",
+          "itemName": "string",
+          "consumedGrams": "number",
+          "itemCalories": "number",
+          "itemProtein": "number",
+          "itemCarbohydrates": "number",
+          "itemFat": "number",
+          "itemSugar": "number",
+          "itemFiber": "number",
+          "lineSource": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant' | 'temporaryAi'",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "mealLogId": {
+              "entity": "MealLog",
+              "service": "mealtracker",
+              "hooks": {
+                "create": "useCreateMealLog",
+                "get": "useGetMealLog",
+                "list": "useListMealLogs",
+                "update": "useUpdateMealLog",
+                "delete": "useDeleteMealLog"
+              }
+            }
+          }
+        },
+        "MealtrackerMealLineResponse": {
+          "mealLine": "MealtrackerMealLine",
+          "dataName": "string"
+        },
+        "MealtrackerMealLineListResponse": {
+          "mealLines": "MealtrackerMealLine[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "MealtrackerNutritionDay": {
+          "userId": "string",
+          "summaryDate": "string",
+          "consumedCalories": "number",
+          "consumedProtein": "number",
+          "consumedCarbohydrates": "number",
+          "consumedFat": "number",
+          "consumedSugar": "number",
+          "consumedFiber": "number",
+          "targetCalories": "number",
+          "targetProtein": "number",
+          "targetCarbohydrates": "number",
+          "targetFat": "number",
+          "targetSugar": "number",
+          "targetFiber": "number",
+          "exceededMetrics": "string | undefined",
+          "mealCount": "number",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "MealtrackerNutritionDayResponse": {
+          "nutritionDay": "MealtrackerNutritionDay",
+          "dataName": "string"
+        },
+        "MealtrackerNutritionDayListResponse": {
+          "nutritionDays": "MealtrackerNutritionDay[]",
+          "rowCount": "number",
+          "dataName": "string"
+        }
+      },
+      "apiInputs": {
+        "CreateMealLogInput": [
+          {
+            "name": "mealDate",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Date the meal was consumed",
+            "dataExample": "2026-06-29"
+          },
+          {
+            "name": "mealTime",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Local time string e.g. 13:30",
+            "dataExample": "13:30"
+          },
+          {
+            "name": "slotName",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Fixed or custom meal slot name",
+            "dataExample": "Öğle"
+          },
+          {
+            "name": "logSource",
+            "tsType": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Source of the meal log entry"
+          },
+          {
+            "name": "noteText",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional user notes"
+          },
+          {
+            "name": "totalCalories",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level calorie total",
+            "dataExample": "650.0"
+          },
+          {
+            "name": "totalProtein",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level protein total",
+            "dataExample": "42.0"
+          },
+          {
+            "name": "totalCarbohydrates",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level carbohydrate total",
+            "dataExample": "80.0"
+          },
+          {
+            "name": "totalFat",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level fat total",
+            "dataExample": "15.0"
+          },
+          {
+            "name": "totalSugar",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level sugar total",
+            "dataExample": "8.0"
+          },
+          {
+            "name": "totalFiber",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Meal-level fiber total",
+            "dataExample": "5.0"
+          },
+          {
+            "name": "lines",
+            "tsType": "Record<string, unknown>[]",
+            "required": true,
+            "httpLocation": "body",
+            "isArray": true,
+            "description": "Array of meal line objects to create",
+            "dataExample": "[{\"itemName\":\"Yulaf\",\"consumedGrams\":80,\"itemCalories\":300,\"itemProtein\":12,\"itemCarbohydrates\":52,\"itemFat\":5,\"itemSugar\":2,\"itemFiber\":4,\"lineSource\":\"foodLibrary\",\"sourceFoodItemId\":null,\"sourcePresetMealId\":null}]"
+          }
+        ],
+        "UpdateMealLogInput": [
+          {
+            "name": "mealTime",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated meal time"
+          },
+          {
+            "name": "slotName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated slot name"
+          },
+          {
+            "name": "noteText",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated notes"
+          },
+          {
+            "name": "totalCalories",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated calorie total"
+          },
+          {
+            "name": "totalProtein",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated protein total"
+          },
+          {
+            "name": "totalCarbohydrates",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated carbohydrate total"
+          },
+          {
+            "name": "totalFat",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated fat total"
+          },
+          {
+            "name": "totalSugar",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated sugar total"
+          },
+          {
+            "name": "totalFiber",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Recalculated fiber total"
+          }
+        ],
+        "CreateMealLineInput": [
+          {
+            "name": "mealLogId",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "FK to parent mealLog"
+          },
+          {
+            "name": "itemName",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Food item name",
+            "dataExample": "Yumurta"
+          },
+          {
+            "name": "consumedGrams",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Grams consumed",
+            "dataExample": "120.0"
+          },
+          {
+            "name": "itemCalories",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Calories snapshot",
+            "dataExample": "180.0"
+          },
+          {
+            "name": "itemProtein",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Protein snapshot",
+            "dataExample": "15.0"
+          },
+          {
+            "name": "itemCarbohydrates",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Carbohydrates snapshot",
+            "dataExample": "1.0"
+          },
+          {
+            "name": "itemFat",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Fat snapshot",
+            "dataExample": "13.0"
+          },
+          {
+            "name": "itemSugar",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Sugar snapshot",
+            "dataExample": "0.5"
+          },
+          {
+            "name": "itemFiber",
+            "tsType": "number",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Fiber snapshot",
+            "dataExample": "0.0"
+          },
+          {
+            "name": "lineSource",
+            "tsType": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant' | 'temporaryAi'",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Source of the line item"
+          },
+          {
+            "name": "sourceFoodItemId",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional reference to nutritionLibrary foodItem"
+          },
+          {
+            "name": "sourcePresetMealId",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional reference to nutritionLibrary presetMeal"
+          }
+        ],
+        "UpdateMealLineInput": [
+          {
+            "name": "itemName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated item name"
+          },
+          {
+            "name": "consumedGrams",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated grams"
+          },
+          {
+            "name": "itemCalories",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated calories"
+          },
+          {
+            "name": "itemProtein",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated protein"
+          },
+          {
+            "name": "itemCarbohydrates",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated carbohydrates"
+          },
+          {
+            "name": "itemFat",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated fat"
+          },
+          {
+            "name": "itemSugar",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated sugar"
+          },
+          {
+            "name": "itemFiber",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated fiber"
+          }
+        ]
+      }
+    },
+    "nutritionai": {
+      "hookFile": "src/hooks/api/use-nutritionai.ts",
+      "serviceFile": "src/services/api/nutritionai-api.ts",
+      "hooks": {
+        "useParseMeal": {
+          "type": "mutation",
+          "hook": "useParseMeal(data: ParseMealInput)",
+          "method": "POST",
+          "path": "/v1/ai-sessions/parse-meal",
+          "crudType": "create",
+          "params": "data: ParseMealInput",
+          "paramsInfo": [
+            {
+              "name": "inputText",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Raw Turkish meal description from the user",
+              "dataExample": "Öğle yemeğinde 2 köfte ve yanında pilav yedim"
+            },
+            {
+              "name": "proposedMealDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional date hint from user",
+              "dataExample": "2026-06-29"
+            },
+            {
+              "name": "proposedMealTime",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional time hint from user",
+              "dataExample": "13:00"
+            },
+            {
+              "name": "proposedSlotName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional meal slot override",
+              "dataExample": "Öğle Yemeği"
+            }
+          ],
+          "inputType": "ParseMealInput",
+          "returns": "NutritionaiAiSessionResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useConfirmCandidateMeal": {
+          "type": "mutation",
+          "hook": "useConfirmCandidateMeal(aiCandidateMealId: string, data: ConfirmCandidateMealInput)",
+          "method": "PATCH",
+          "path": "/v1/ai-candidate-meals/:aiCandidateMealId/confirm",
+          "crudType": "update",
+          "params": "aiCandidateMealId: string, data: ConfirmCandidateMealInput",
+          "paramsInfo": [
+            {
+              "name": "aiCandidateMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "proposedMealDate",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "User may override the proposed date"
+            },
+            {
+              "name": "proposedMealTime",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "User may override the proposed time"
+            },
+            {
+              "name": "proposedSlotName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "User may override the meal slot"
+            },
+            {
+              "name": "lineAdjustments",
+              "tsType": "Record<string, unknown>[]",
+              "required": false,
+              "httpLocation": "body",
+              "isArray": true,
+              "description": "Array of per-line gram/saveAsFood overrides",
+              "dataExample": "[{\"aiCandidateLineId\":\"<id>\",\"estimatedGrams\":150,\"saveAsFood\":true}]"
+            }
+          ],
+          "pathParams": ["aiCandidateMealId"],
+          "inputType": "ConfirmCandidateMealInput",
+          "returns": "NutritionaiAiCandidateMealResponse",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useAskNutritionQuestion": {
+          "type": "mutation",
+          "hook": "useAskNutritionQuestion(data: AskNutritionQuestionInput)",
+          "method": "POST",
+          "path": "/v1/ai-sessions/ask",
+          "crudType": "create",
+          "params": "data: AskNutritionQuestionInput",
+          "paramsInfo": [
+            {
+              "name": "inputText",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Natural-language nutrition question in Turkish",
+              "dataExample": "Bugün yağ limitimi aştım mı?"
+            },
+            {
+              "name": "contextRange",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Time scope for context: today, week, month",
+              "dataExample": "today"
+            }
+          ],
+          "inputType": "AskNutritionQuestionInput",
+          "returns": "NutritionaiAiSessionResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetAiSession": {
+          "type": "query",
+          "hook": "useGetAiSession(aiSessionId: string)",
+          "method": "GET",
+          "path": "/v1/ai-sessions/:aiSessionId",
+          "crudType": "get",
+          "params": "aiSessionId: string",
+          "paramsInfo": [
+            {
+              "name": "aiSessionId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["aiSessionId"],
+          "returns": "NutritionaiAiSessionResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAiSessions": {
+          "type": "query",
+          "hook": "useListAiSessions(params?: { userId?: string; sessionType?: 'mealParsing' | 'nutritionGuidance'; sessionState?: 'pending' | 'needsConfirmation' | 'completed' | 'failed'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/ai-sessions",
+          "crudType": "list",
+          "params": "params?: { userId?: string; sessionType?: 'mealParsing' | 'nutritionGuidance'; sessionState?: 'pending' | 'needsConfirmation' | 'completed' | 'failed'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "userId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "sessionType",
+              "tsType": "'mealParsing' | 'nutritionGuidance'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "sessionState",
+              "tsType": "'pending' | 'needsConfirmation' | 'completed' | 'failed'",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "NutritionaiAiSessionListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetAiCandidateMeal": {
+          "type": "query",
+          "hook": "useGetAiCandidateMeal(aiCandidateMealId: string)",
+          "method": "GET",
+          "path": "/v1/ai-candidate-meals/:aiCandidateMealId",
+          "crudType": "get",
+          "params": "aiCandidateMealId: string",
+          "paramsInfo": [
+            {
+              "name": "aiCandidateMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["aiCandidateMealId"],
+          "returns": "NutritionaiAiCandidateMealResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAiCandidateMeals": {
+          "type": "query",
+          "hook": "useListAiCandidateMeals(params?: { userId?: string; aiSessionId?: string; isConfirmed?: boolean; isCommitted?: boolean; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/ai-candidate-meals",
+          "crudType": "list",
+          "params": "params?: { userId?: string; aiSessionId?: string; isConfirmed?: boolean; isCommitted?: boolean; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "userId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "aiSessionId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "isConfirmed",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "isCommitted",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "NutritionaiAiCandidateMealListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdateAiCandidateLine": {
+          "type": "mutation",
+          "hook": "useUpdateAiCandidateLine(aiCandidateLineId: string, data: UpdateAiCandidateLineInput)",
+          "method": "PATCH",
+          "path": "/v1/ai-candidate-lines/:aiCandidateLineId",
+          "crudType": "update",
+          "params": "aiCandidateLineId: string, data: UpdateAiCandidateLineInput",
+          "paramsInfo": [
+            {
+              "name": "aiCandidateLineId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "estimatedGrams",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Updated gram amount"
+            },
+            {
+              "name": "saveAsFood",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Toggle save-to-library intent"
+            },
+            {
+              "name": "detectedFoodName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "User may rename the detected food"
+            }
+          ],
+          "pathParams": ["aiCandidateLineId"],
+          "inputType": "UpdateAiCandidateLineInput",
+          "returns": "NutritionaiAiCandidateLineResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useRejectCandidateMeal": {
+          "type": "mutation",
+          "hook": "useRejectCandidateMeal(aiCandidateMealId: string)",
+          "method": "PATCH",
+          "path": "/v1/ai-candidate-meals/:aiCandidateMealId/reject",
+          "crudType": "update",
+          "params": "aiCandidateMealId: string",
+          "paramsInfo": [
+            {
+              "name": "aiCandidateMealId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            }
+          ],
+          "pathParams": ["aiCandidateMealId"],
+          "returns": "NutritionaiAiCandidateMealResponse & MindbricksUpdateEnvelope",
+          "auth": "owner or admin",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": true,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetAiGuidanceNote": {
+          "type": "query",
+          "hook": "useGetAiGuidanceNote(aiGuidanceNoteId: string)",
+          "method": "GET",
+          "path": "/v1/ai-guidance-notes/:aiGuidanceNoteId",
+          "crudType": "get",
+          "params": "aiGuidanceNoteId: string",
+          "paramsInfo": [
+            {
+              "name": "aiGuidanceNoteId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["aiGuidanceNoteId"],
+          "returns": "NutritionaiAiGuidanceNoteResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAiGuidanceNotes": {
+          "type": "query",
+          "hook": "useListAiGuidanceNotes(params?: { userId?: string; questionType?: string; contextRange?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/ai-guidance-notes",
+          "crudType": "list",
+          "params": "params?: { userId?: string; questionType?: string; contextRange?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "userId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "questionType",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "contextRange",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "NutritionaiAiGuidanceNoteListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        }
+      },
+      "types": {
+        "NutritionaiAiSession": {
+          "userId": "string",
+          "sessionType": "'mealParsing' | 'nutritionGuidance'",
+          "inputText": "string",
+          "detectedLanguage": "string | undefined",
+          "sessionState": "'pending' | 'needsConfirmation' | 'completed' | 'failed'",
+          "confidenceScore": "number | undefined",
+          "finalResponseText": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "NutritionaiAiSessionResponse": {
+          "aiSession": "NutritionaiAiSession",
+          "dataName": "string"
+        },
+        "NutritionaiAiSessionListResponse": {
+          "aiSessions": "NutritionaiAiSession[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionaiAiCandidateMeal": {
+          "userId": "string",
+          "aiSessionId": "string",
+          "proposedMealDate": "string | undefined",
+          "proposedMealTime": "string | undefined",
+          "proposedSlotName": "string | undefined",
+          "candidateSource": "'aiAssistant'",
+          "warningText": "string | undefined",
+          "confirmationRequired": "boolean",
+          "isConfirmed": "boolean",
+          "isCommitted": "boolean",
+          "totalCalories": "number | undefined",
+          "totalProtein": "number | undefined",
+          "totalCarbohydrates": "number | undefined",
+          "totalFat": "number | undefined",
+          "totalSugar": "number | undefined",
+          "totalFiber": "number | undefined",
+          "committedMealLogId": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "aiSessionId": {
+              "entity": "AiSession",
+              "service": "nutritionai",
+              "hooks": {
+                "create": "useAskNutritionQuestion",
+                "get": "useGetAiSession",
+                "list": "useListAiSessions"
+              }
+            }
+          }
+        },
+        "NutritionaiAiCandidateMealResponse": {
+          "aiCandidateMeal": "NutritionaiAiCandidateMeal",
+          "dataName": "string"
+        },
+        "NutritionaiAiCandidateMealListResponse": {
+          "aiCandidateMeals": "NutritionaiAiCandidateMeal[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionaiAiCandidateLine": {
+          "userId": "string",
+          "aiCandidateMealId": "string",
+          "detectedFoodName": "string",
+          "estimatedGrams": "number",
+          "estimatedCalories": "number | undefined",
+          "estimatedProtein": "number | undefined",
+          "estimatedCarbohydrates": "number | undefined",
+          "estimatedFat": "number | undefined",
+          "estimatedSugar": "number | undefined",
+          "estimatedFiber": "number | undefined",
+          "quantityConfidence": "number | undefined",
+          "nutritionReference": "string | undefined",
+          "saveAsFood": "boolean",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "aiCandidateMealId": {
+              "entity": "AiCandidateMeal",
+              "service": "nutritionai",
+              "hooks": {
+                "update": "useRejectCandidateMeal",
+                "get": "useGetAiCandidateMeal",
+                "list": "useListAiCandidateMeals"
+              }
+            }
+          }
+        },
+        "NutritionaiAiCandidateLineResponse": {
+          "aiCandidateLine": "NutritionaiAiCandidateLine",
+          "dataName": "string"
+        },
+        "NutritionaiAiCandidateLineListResponse": {
+          "aiCandidateLines": "NutritionaiAiCandidateLine[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "NutritionaiAiGuidanceNote": {
+          "userId": "string",
+          "aiSessionId": "string",
+          "questionType": "string",
+          "contextRange": "string",
+          "answerSummary": "string",
+          "rationaleText": "string | undefined",
+          "referencedMetricKeys": "string | undefined",
+          "cautionText": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined",
+          "_relations": {
+            "aiSessionId": {
+              "entity": "AiSession",
+              "service": "nutritionai",
+              "hooks": {
+                "create": "useAskNutritionQuestion",
+                "get": "useGetAiSession",
+                "list": "useListAiSessions"
+              }
+            }
+          }
+        },
+        "NutritionaiAiGuidanceNoteResponse": {
+          "aiGuidanceNote": "NutritionaiAiGuidanceNote",
+          "dataName": "string"
+        },
+        "NutritionaiAiGuidanceNoteListResponse": {
+          "aiGuidanceNotes": "NutritionaiAiGuidanceNote[]",
+          "rowCount": "number",
+          "dataName": "string"
+        }
+      },
+      "apiInputs": {
+        "ParseMealInput": [
+          {
+            "name": "inputText",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Raw Turkish meal description from the user",
+            "dataExample": "Öğle yemeğinde 2 köfte ve yanında pilav yedim"
+          },
+          {
+            "name": "proposedMealDate",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional date hint from user",
+            "dataExample": "2026-06-29"
+          },
+          {
+            "name": "proposedMealTime",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional time hint from user",
+            "dataExample": "13:00"
+          },
+          {
+            "name": "proposedSlotName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional meal slot override",
+            "dataExample": "Öğle Yemeği"
+          }
+        ],
+        "ConfirmCandidateMealInput": [
+          {
+            "name": "proposedMealDate",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "User may override the proposed date"
+          },
+          {
+            "name": "proposedMealTime",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "User may override the proposed time"
+          },
+          {
+            "name": "proposedSlotName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "User may override the meal slot"
+          },
+          {
+            "name": "lineAdjustments",
+            "tsType": "Record<string, unknown>[]",
+            "required": false,
+            "httpLocation": "body",
+            "isArray": true,
+            "description": "Array of per-line gram/saveAsFood overrides",
+            "dataExample": "[{\"aiCandidateLineId\":\"<id>\",\"estimatedGrams\":150,\"saveAsFood\":true}]"
+          }
+        ],
+        "AskNutritionQuestionInput": [
+          {
+            "name": "inputText",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Natural-language nutrition question in Turkish",
+            "dataExample": "Bugün yağ limitimi aştım mı?"
+          },
+          {
+            "name": "contextRange",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Time scope for context: today, week, month",
+            "dataExample": "today"
+          }
+        ],
+        "UpdateAiCandidateLineInput": [
+          {
+            "name": "estimatedGrams",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Updated gram amount"
+          },
+          {
+            "name": "saveAsFood",
+            "tsType": "boolean",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Toggle save-to-library intent"
+          },
+          {
+            "name": "detectedFoodName",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "User may rename the detected food"
+          }
+        ]
+      }
+    },
+    "agenthub": {
+      "hookFile": "src/hooks/api/use-agenthub.ts",
+      "serviceFile": "src/services/api/agenthub-api.ts",
+      "hooks": {
+        "useGetAgentOverride": {
+          "type": "query",
+          "hook": "useGetAgentOverride(sys_agentOverrideId: string)",
+          "method": "GET",
+          "path": "/v1/agentoverride/:sys_agentOverrideId",
+          "crudType": "get",
+          "params": "sys_agentOverrideId: string",
+          "paramsInfo": [
+            {
+              "name": "sys_agentOverrideId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["sys_agentOverrideId"],
+          "returns": "AgenthubSys_agentOverrideResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAgentOverrides": {
+          "type": "query",
+          "hook": "useListAgentOverrides(params?: { pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/agentoverrides",
+          "crudType": "list",
+          "params": "params?: { pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "AgenthubSys_agentOverrideListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useCreateAgentOverride": {
+          "type": "mutation",
+          "hook": "useCreateAgentOverride(data: CreateAgentOverrideInput)",
+          "method": "POST",
+          "path": "/v1/agentoverride",
+          "crudType": "create",
+          "params": "data: CreateAgentOverrideInput",
+          "paramsInfo": [
+            {
+              "name": "agentName",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "body",
+              "description": "Design-time agent name this override applies to."
+            },
+            {
+              "name": "provider",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override AI provider (e.g., openai, anthropic)."
+            },
+            {
+              "name": "model",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override model name."
+            },
+            {
+              "name": "systemPrompt",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override system prompt."
+            },
+            {
+              "name": "temperature",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override temperature (0-2)."
+            },
+            {
+              "name": "maxTokens",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override max tokens."
+            },
+            {
+              "name": "responseFormat",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override response format (text/json)."
+            },
+            {
+              "name": "selectedTools",
+              "tsType": "Record<string, unknown>",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Array of tool names from the catalog that this agent can use."
+            },
+            {
+              "name": "guardrails",
+              "tsType": "Record<string, unknown>",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override guardrails: { maxToolCalls, timeout, maxTokenBudget }."
+            },
+            {
+              "name": "enabled",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Optional caller override; defaults to true when omitted."
+            }
+          ],
+          "inputType": "CreateAgentOverrideInput",
+          "returns": "AgenthubSys_agentOverrideResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useUpdateAgentOverride": {
+          "type": "mutation",
+          "hook": "useUpdateAgentOverride(sys_agentOverrideId: string, data: UpdateAgentOverrideInput)",
+          "method": "PATCH",
+          "path": "/v1/agentoverride/:sys_agentOverrideId",
+          "crudType": "update",
+          "params": "sys_agentOverrideId: string, data: UpdateAgentOverrideInput",
+          "paramsInfo": [
+            {
+              "name": "sys_agentOverrideId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be updated"
+            },
+            {
+              "name": "provider",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override AI provider (e.g., openai, anthropic)."
+            },
+            {
+              "name": "model",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override model name."
+            },
+            {
+              "name": "systemPrompt",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override system prompt."
+            },
+            {
+              "name": "temperature",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override temperature (0-2)."
+            },
+            {
+              "name": "maxTokens",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override max tokens."
+            },
+            {
+              "name": "responseFormat",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override response format (text/json)."
+            },
+            {
+              "name": "selectedTools",
+              "tsType": "Record<string, unknown>",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Array of tool names from the catalog that this agent can use."
+            },
+            {
+              "name": "guardrails",
+              "tsType": "Record<string, unknown>",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Override guardrails: { maxToolCalls, timeout, maxTokenBudget }."
+            },
+            {
+              "name": "enabled",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "body",
+              "description": "Update the enabled flag."
+            }
+          ],
+          "pathParams": ["sys_agentOverrideId"],
+          "inputType": "UpdateAgentOverrideInput",
+          "returns": "AgenthubSys_agentOverrideResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useDeleteAgentOverride": {
+          "type": "mutation",
+          "hook": "useDeleteAgentOverride(sys_agentOverrideId: string)",
+          "method": "DELETE",
+          "path": "/v1/agentoverride/:sys_agentOverrideId",
+          "crudType": "delete",
+          "params": "sys_agentOverrideId: string",
+          "paramsInfo": [
+            {
+              "name": "sys_agentOverrideId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to select the required data object that will be deleted"
+            }
+          ],
+          "pathParams": ["sys_agentOverrideId"],
+          "returns": "AgenthubSys_agentOverrideResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListToolCatalog": {
+          "type": "query",
+          "hook": "useListToolCatalog(params?: { serviceName?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/toolcatalog",
+          "crudType": "list",
+          "params": "params?: { serviceName?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "serviceName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Source service name."
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "AgenthubSys_toolCatalogListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetToolCatalogEntry": {
+          "type": "query",
+          "hook": "useGetToolCatalogEntry(sys_toolCatalogId: string)",
+          "method": "GET",
+          "path": "/v1/toolcatalogentry/:sys_toolCatalogId",
+          "crudType": "get",
+          "params": "sys_toolCatalogId: string",
+          "paramsInfo": [
+            {
+              "name": "sys_toolCatalogId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["sys_toolCatalogId"],
+          "returns": "AgenthubSys_toolCatalogResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAgentExecutions": {
+          "type": "query",
+          "hook": "useListAgentExecutions(params?: { agentName?: string; agentType?: 'design' | 'dynamic'; source?: 'rest' | 'sse' | 'kafka' | 'agent'; userId?: string; status?: 'success' | 'error' | 'timeout'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/agentexecutions",
+          "crudType": "list",
+          "params": "params?: { agentName?: string; agentType?: 'design' | 'dynamic'; source?: 'rest' | 'sse' | 'kafka' | 'agent'; userId?: string; status?: 'success' | 'error' | 'timeout'; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "agentName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Agent that was executed."
+            },
+            {
+              "name": "agentType",
+              "tsType": "'design' | 'dynamic'",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Whether this was a design-time or dynamic agent."
+            },
+            {
+              "name": "source",
+              "tsType": "'rest' | 'sse' | 'kafka' | 'agent'",
+              "required": false,
+              "httpLocation": "query",
+              "description": "How the agent was triggered."
+            },
+            {
+              "name": "userId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "User who triggered the execution."
+            },
+            {
+              "name": "status",
+              "tsType": "'success' | 'error' | 'timeout'",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Execution status."
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "AgenthubSys_agentExecutionListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetAgentExecution": {
+          "type": "query",
+          "hook": "useGetAgentExecution(sys_agentExecutionId: string)",
+          "method": "GET",
+          "path": "/v1/agentexecution/:sys_agentExecutionId",
+          "crudType": "get",
+          "params": "sys_agentExecutionId: string",
+          "paramsInfo": [
+            {
+              "name": "sys_agentExecutionId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["sys_agentExecutionId"],
+          "returns": "AgenthubSys_agentExecutionResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useListAgentChats": {
+          "type": "query",
+          "hook": "useListAgentChats(params?: { agentName?: string; userId?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean })",
+          "method": "GET",
+          "path": "/v1/agentchats",
+          "crudType": "list",
+          "params": "params?: { agentName?: string; userId?: string; pageNumber?: number; pageRowCount?: number; getJoins?: boolean }",
+          "paramsInfo": [
+            {
+              "name": "agentName",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "Name of the agent this conversation belongs to."
+            },
+            {
+              "name": "userId",
+              "tsType": "string",
+              "required": false,
+              "httpLocation": "query",
+              "description": "User who owns this conversation."
+            },
+            {
+              "name": "pageNumber",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "pageRowCount",
+              "tsType": "number",
+              "required": false,
+              "httpLocation": "query"
+            },
+            {
+              "name": "getJoins",
+              "tsType": "boolean",
+              "required": false,
+              "httpLocation": "query"
+            }
+          ],
+          "returns": "AgenthubSys_agentConversationListResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        },
+        "useGetAgentChatMessages": {
+          "type": "query",
+          "hook": "useGetAgentChatMessages(sys_agentConversationId: string)",
+          "method": "GET",
+          "path": "/v1/agentchatmessages/:sys_agentConversationId",
+          "crudType": "get",
+          "params": "sys_agentConversationId: string",
+          "paramsInfo": [
+            {
+              "name": "sys_agentConversationId",
+              "tsType": "string",
+              "required": true,
+              "httpLocation": "urlpath",
+              "description": "This id paremeter is used to query the required data object."
+            }
+          ],
+          "pathParams": ["sys_agentConversationId"],
+          "returns": "AgenthubSys_agentConversationResponse",
+          "auth": "login required",
+          "authDetails": {
+            "loginRequired": true,
+            "m2mAllowed": false,
+            "ownershipCheck": false,
+            "checkRoles": [],
+            "bypassRoles": [],
+            "hasScopeBypass": false
+          }
+        }
+      },
+      "types": {
+        "AgenthubSys_agentOverride": {
+          "agentName": "string",
+          "provider": "string | undefined",
+          "model": "string | undefined",
+          "systemPrompt": "string | undefined",
+          "temperature": "number | undefined",
+          "maxTokens": "number | undefined",
+          "responseFormat": "string | undefined",
+          "selectedTools": "Record<string, unknown> | undefined",
+          "guardrails": "Record<string, unknown> | undefined",
+          "enabled": "boolean",
+          "updatedBy": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "AgenthubSys_agentOverrideResponse": {
+          "sys_agentOverride": "AgenthubSys_agentOverride",
+          "dataName": "string"
+        },
+        "AgenthubSys_agentOverrideListResponse": {
+          "sys_agentOverrides": "AgenthubSys_agentOverride[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "AgenthubSys_agentExecution": {
+          "agentName": "string",
+          "agentType": "'design' | 'dynamic'",
+          "source": "'rest' | 'sse' | 'kafka' | 'agent'",
+          "userId": "string | undefined",
+          "input": "Record<string, unknown> | undefined",
+          "output": "Record<string, unknown> | undefined",
+          "toolCalls": "number | undefined",
+          "tokenUsage": "Record<string, unknown> | undefined",
+          "durationMs": "number | undefined",
+          "status": "'success' | 'error' | 'timeout'",
+          "error": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "AgenthubSys_agentExecutionResponse": {
+          "sys_agentExecution": "AgenthubSys_agentExecution",
+          "dataName": "string"
+        },
+        "AgenthubSys_agentExecutionListResponse": {
+          "sys_agentExecutions": "AgenthubSys_agentExecution[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "AgenthubSys_toolCatalog": {
+          "toolName": "string",
+          "serviceName": "string",
+          "description": "string | undefined",
+          "parameters": "Record<string, unknown> | undefined",
+          "lastRefreshed": "string | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "AgenthubSys_toolCatalogResponse": {
+          "sys_toolCatalog": "AgenthubSys_toolCatalog",
+          "dataName": "string"
+        },
+        "AgenthubSys_toolCatalogListResponse": {
+          "sys_toolCatalogs": "AgenthubSys_toolCatalog[]",
+          "rowCount": "number",
+          "dataName": "string"
+        },
+        "AgenthubSys_agentConversation": {
+          "sessionId": "string",
+          "agentName": "string",
+          "userId": "string | undefined",
+          "messages": "Record<string, unknown>",
+          "messageCount": "number | undefined",
+          "id": "string",
+          "createdAt": "string | undefined",
+          "updatedAt": "string | undefined"
+        },
+        "AgenthubSys_agentConversationResponse": {
+          "sys_agentConversation": "AgenthubSys_agentConversation",
+          "dataName": "string"
+        },
+        "AgenthubSys_agentConversationListResponse": {
+          "sys_agentConversations": "AgenthubSys_agentConversation[]",
+          "rowCount": "number",
+          "dataName": "string"
+        }
+      },
+      "apiInputs": {
+        "CreateAgentOverrideInput": [
+          {
+            "name": "agentName",
+            "tsType": "string",
+            "required": true,
+            "httpLocation": "body",
+            "description": "Design-time agent name this override applies to."
+          },
+          {
+            "name": "provider",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override AI provider (e.g., openai, anthropic)."
+          },
+          {
+            "name": "model",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override model name."
+          },
+          {
+            "name": "systemPrompt",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override system prompt."
+          },
+          {
+            "name": "temperature",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override temperature (0-2)."
+          },
+          {
+            "name": "maxTokens",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override max tokens."
+          },
+          {
+            "name": "responseFormat",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override response format (text/json)."
+          },
+          {
+            "name": "selectedTools",
+            "tsType": "Record<string, unknown>",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Array of tool names from the catalog that this agent can use."
+          },
+          {
+            "name": "guardrails",
+            "tsType": "Record<string, unknown>",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override guardrails: { maxToolCalls, timeout, maxTokenBudget }."
+          },
+          {
+            "name": "enabled",
+            "tsType": "boolean",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Optional caller override; defaults to true when omitted."
+          }
+        ],
+        "UpdateAgentOverrideInput": [
+          {
+            "name": "provider",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override AI provider (e.g., openai, anthropic)."
+          },
+          {
+            "name": "model",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override model name."
+          },
+          {
+            "name": "systemPrompt",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override system prompt."
+          },
+          {
+            "name": "temperature",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override temperature (0-2)."
+          },
+          {
+            "name": "maxTokens",
+            "tsType": "number",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override max tokens."
+          },
+          {
+            "name": "responseFormat",
+            "tsType": "string",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override response format (text/json)."
+          },
+          {
+            "name": "selectedTools",
+            "tsType": "Record<string, unknown>",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Array of tool names from the catalog that this agent can use."
+          },
+          {
+            "name": "guardrails",
+            "tsType": "Record<string, unknown>",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Override guardrails: { maxToolCalls, timeout, maxTokenBudget }."
+          },
+          {
+            "name": "enabled",
+            "tsType": "boolean",
+            "required": false,
+            "httpLocation": "body",
+            "description": "Update the enabled flag."
+          }
+        ]
+      }
+    }
+  },
+  "bff": {
+    "hookFile": "src/hooks/api/use-bff.ts",
+    "serviceFile": "src/services/api/bff-service.ts",
+    "note": "BFF routes use POST body filter: { field: { operator: \"eq\"|\"ne\"|\"gt\"|\"lt\"|\"in\"|\"between\"|\"contains\", value, values[] } }. List params (page, limit, sortBy, sortOrder, q) are query params. List response: { items: T[], total, totalPage, currentPage, pageItem }. Get response: returns object directly. Count response: { total }.",
+    "dataViews": [
+      {
+        "name": "inviteLinkDeliveredNotificationView",
+        "isStored": true,
+        "listHook": "useinviteLinkDeliveredNotificationViewList(params?, filter?)",
+        "getHook": "useinviteLinkDeliveredNotificationView(id)",
+        "countHook": "useinviteLinkDeliveredNotificationViewCount(filter?)",
+        "properties": {
+          "id": "string",
+          "inviteCode": "string",
+          "invitedEmail": "string",
+          "usageMode": "'singleUse' | 'limitedUse'",
+          "usageLimit": "number",
+          "inviteState": "'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'",
+          "expiresAt": "string"
+        },
+        "aggregates": [],
+        "stats": []
+      },
+      {
+        "name": "inviteLinkListView",
+        "isStored": true,
+        "listHook": "useinviteLinkListViewList(params?, filter?)",
+        "getHook": "useinviteLinkListView(id)",
+        "countHook": "useinviteLinkListViewCount(filter?)",
+        "properties": {
+          "id": "string",
+          "inviteCode": "string",
+          "invitedEmail": "string",
+          "usageMode": "'singleUse' | 'limitedUse'",
+          "usageLimit": "number",
+          "usageCount": "number",
+          "inviteState": "'draft' | 'active' | 'exhausted' | 'revoked' | 'expired' | 'consumed'",
+          "expiresAt": "string",
+          "lastUsedAt": "string",
+          "registeredUserId": "string",
+          "deliveryRequestedAt": "string",
+          "lastDeliveredAt": "string",
+          "createdAt": "string",
+          "updatedAt": "string",
+          "isActive": "boolean"
+        },
+        "aggregates": [
+          {
+            "name": "registeredUser",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "fullname": "string",
+              "email": "string"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "presetMealWithLines",
+        "isStored": true,
+        "listHook": "usepresetMealWithLinesList(params?, filter?)",
+        "getHook": "usepresetMealWithLines(id)",
+        "countHook": "usepresetMealWithLinesCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "templateName": "string",
+          "descriptionText": "string",
+          "totalCalories": "number",
+          "totalProtein": "number",
+          "totalCarbohydrates": "number",
+          "totalFat": "number",
+          "totalSugar": "number",
+          "totalFiber": "number",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [
+          {
+            "name": "foodItems",
+            "oneToMany": true,
+            "properties": {
+              "id": "string",
+              "foodName": "string",
+              "caloriePer100g": "number",
+              "proteinPer100g": "number",
+              "carbohydratePer100g": "number",
+              "fatPer100g": "number",
+              "sugarPer100g": "number",
+              "fiberPer100g": "number",
+              "brandName": "string",
+              "foodCategory": "string"
+            }
+          },
+          {
+            "name": "lines",
+            "oneToMany": true,
+            "properties": {
+              "id": "string",
+              "foodItemId": "string",
+              "lineFoodName": "string",
+              "gramAmount": "number",
+              "lineCalories": "number",
+              "lineProtein": "number",
+              "lineCarbohydrates": "number",
+              "lineFat": "number",
+              "lineSugar": "number",
+              "lineFiber": "number"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "foodItemList",
+        "isStored": true,
+        "listHook": "usefoodItemListList(params?, filter?)",
+        "getHook": "usefoodItemList(id)",
+        "countHook": "usefoodItemListCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "foodName": "string",
+          "caloriePer100g": "number",
+          "proteinPer100g": "number",
+          "carbohydratePer100g": "number",
+          "fatPer100g": "number",
+          "sugarPer100g": "number",
+          "fiberPer100g": "number",
+          "brandName": "string",
+          "foodCategory": "string",
+          "creationSource": "'manualEntry' | 'aiAssistant'",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [],
+        "stats": [
+          {
+            "name": "rowCount",
+            "metrics": ["rowCount"]
+          }
+        ]
+      },
+      {
+        "name": "aiCandidateMealWithLines",
+        "isStored": true,
+        "listHook": "useaiCandidateMealWithLinesList(params?, filter?)",
+        "getHook": "useaiCandidateMealWithLines(id)",
+        "countHook": "useaiCandidateMealWithLinesCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "aiSessionId": "string",
+          "proposedMealDate": "string",
+          "proposedMealTime": "string",
+          "proposedSlotName": "string",
+          "candidateSource": "'aiAssistant'",
+          "warningText": "string",
+          "confirmationRequired": "boolean",
+          "isConfirmed": "boolean",
+          "isCommitted": "boolean",
+          "totalCalories": "number",
+          "totalProtein": "number",
+          "totalCarbohydrates": "number",
+          "totalFat": "number",
+          "totalSugar": "number",
+          "totalFiber": "number",
+          "committedMealLogId": "string",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [
+          {
+            "name": "session",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "sessionType": "'mealParsing' | 'nutritionGuidance'",
+              "inputText": "string",
+              "sessionState": "'pending' | 'needsConfirmation' | 'completed' | 'failed'",
+              "confidenceScore": "number",
+              "detectedLanguage": "string"
+            }
+          },
+          {
+            "name": "lines",
+            "oneToMany": true,
+            "properties": {
+              "id": "string",
+              "detectedFoodName": "string",
+              "estimatedGrams": "number",
+              "estimatedCalories": "number",
+              "estimatedProtein": "number",
+              "estimatedCarbohydrates": "number",
+              "estimatedFat": "number",
+              "estimatedSugar": "number",
+              "estimatedFiber": "number",
+              "quantityConfidence": "number",
+              "nutritionReference": "string",
+              "saveAsFood": "boolean"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "mealLogWithLines",
+        "isStored": true,
+        "listHook": "usemealLogWithLinesList(params?, filter?)",
+        "getHook": "usemealLogWithLines(id)",
+        "countHook": "usemealLogWithLinesCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "mealDate": "string",
+          "mealTime": "string",
+          "slotName": "string",
+          "logSource": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant'",
+          "noteText": "string",
+          "totalCalories": "number",
+          "totalProtein": "number",
+          "totalCarbohydrates": "number",
+          "totalFat": "number",
+          "totalSugar": "number",
+          "totalFiber": "number",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [
+          {
+            "name": "mealLines",
+            "oneToMany": true,
+            "properties": {
+              "id": "string",
+              "itemName": "string",
+              "consumedGrams": "number",
+              "itemCalories": "number",
+              "itemProtein": "number",
+              "itemCarbohydrates": "number",
+              "itemFat": "number",
+              "itemSugar": "number",
+              "itemFiber": "number",
+              "lineSource": "'foodLibrary' | 'presetTemplate' | 'manualEntry' | 'aiAssistant' | 'temporaryAi'",
+              "sourceFoodItemId": "string",
+              "sourcePresetMealId": "string"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "aiSessionHistory",
+        "isStored": true,
+        "listHook": "useaiSessionHistoryList(params?, filter?)",
+        "getHook": "useaiSessionHistory(id)",
+        "countHook": "useaiSessionHistoryCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "sessionType": "'mealParsing' | 'nutritionGuidance'",
+          "inputText": "string",
+          "detectedLanguage": "string",
+          "sessionState": "'pending' | 'needsConfirmation' | 'completed' | 'failed'",
+          "confidenceScore": "number",
+          "finalResponseText": "string",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [
+          {
+            "name": "guidanceNote",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "questionType": "string",
+              "contextRange": "string",
+              "answerSummary": "string",
+              "cautionText": "string"
+            }
+          },
+          {
+            "name": "candidateMeal",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "proposedMealDate": "string",
+              "proposedSlotName": "string",
+              "totalCalories": "number",
+              "confirmationRequired": "boolean",
+              "warningText": "string"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "dailyProgressView",
+        "isStored": true,
+        "listHook": "usedailyProgressViewList(params?, filter?)",
+        "getHook": "usedailyProgressView(id)",
+        "countHook": "usedailyProgressViewCount(filter?)",
+        "properties": {
+          "id": "string",
+          "userId": "string",
+          "summaryDate": "string",
+          "consumedCalories": "number",
+          "consumedProtein": "number",
+          "consumedCarbohydrates": "number",
+          "consumedFat": "number",
+          "consumedSugar": "number",
+          "consumedFiber": "number",
+          "targetCalories": "number",
+          "targetProtein": "number",
+          "targetCarbohydrates": "number",
+          "targetFat": "number",
+          "targetSugar": "number",
+          "targetFiber": "number",
+          "exceededMetrics": "string",
+          "mealCount": "number",
+          "createdAt": "string",
+          "updatedAt": "string"
+        },
+        "aggregates": [
+          {
+            "name": "userProfile",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "fullname": "string",
+              "email": "string"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "weeklyAnalyticsView",
+        "isStored": true,
+        "listHook": "useweeklyAnalyticsViewList(params?, filter?)",
+        "getHook": "useweeklyAnalyticsView(id)",
+        "countHook": "useweeklyAnalyticsViewCount(filter?)",
+        "properties": {
+          "summaryDate": "string",
+          "consumedCalories": "number",
+          "consumedProtein": "number",
+          "consumedCarbohydrates": "number",
+          "consumedFat": "number",
+          "consumedSugar": "number",
+          "consumedFiber": "number",
+          "targetCalories": "number",
+          "targetProtein": "number",
+          "targetCarbohydrates": "number",
+          "targetFat": "number",
+          "targetSugar": "number",
+          "targetFiber": "number",
+          "exceededMetrics": "string",
+          "mealCount": "number"
+        },
+        "aggregates": [],
+        "stats": [
+          {
+            "name": "avgDailyCalories",
+            "metrics": ["avgDailyCalories"]
+          },
+          {
+            "name": "avgDailyProtein",
+            "metrics": ["avgDailyProtein"]
+          },
+          {
+            "name": "avgDailyCarbohydrates",
+            "metrics": ["avgDailyCarbohydrates"]
+          },
+          {
+            "name": "avgDailyFat",
+            "metrics": ["avgDailyFat"]
+          },
+          {
+            "name": "avgDailySugar",
+            "metrics": ["avgDailySugar"]
+          },
+          {
+            "name": "avgDailyFiber",
+            "metrics": ["avgDailyFiber"]
+          },
+          {
+            "name": "goalHitRateCalories",
+            "metrics": ["goalHitRateCalories"]
+          },
+          {
+            "name": "goalHitRateProtein",
+            "metrics": ["goalHitRateProtein"]
+          },
+          {
+            "name": "goalHitRateCarbohydrates",
+            "metrics": ["goalHitRateCarbohydrates"]
+          },
+          {
+            "name": "goalHitRateFat",
+            "metrics": ["goalHitRateFat"]
+          },
+          {
+            "name": "goalHitRateSugar",
+            "metrics": ["goalHitRateSugar"]
+          },
+          {
+            "name": "goalHitRateFiber",
+            "metrics": ["goalHitRateFiber"]
+          }
+        ]
+      },
+      {
+        "name": "monthlyAnalyticsView",
+        "isStored": true,
+        "listHook": "usemonthlyAnalyticsViewList(params?, filter?)",
+        "getHook": "usemonthlyAnalyticsView(id)",
+        "countHook": "usemonthlyAnalyticsViewCount(filter?)",
+        "properties": {
+          "summaryDate": "string",
+          "consumedCalories": "number",
+          "consumedProtein": "number",
+          "consumedCarbohydrates": "number",
+          "consumedFat": "number",
+          "consumedSugar": "number",
+          "consumedFiber": "number",
+          "targetCalories": "number",
+          "targetProtein": "number",
+          "targetCarbohydrates": "number",
+          "targetFat": "number",
+          "targetSugar": "number",
+          "targetFiber": "number",
+          "exceededMetrics": "string",
+          "mealCount": "number"
+        },
+        "aggregates": [],
+        "stats": [
+          {
+            "name": "avgDailyCalories",
+            "metrics": ["avgDailyCalories"]
+          },
+          {
+            "name": "avgDailyProtein",
+            "metrics": ["avgDailyProtein"]
+          },
+          {
+            "name": "avgDailyCarbohydrates",
+            "metrics": ["avgDailyCarbohydrates"]
+          },
+          {
+            "name": "avgDailySugar",
+            "metrics": ["avgDailySugar"]
+          },
+          {
+            "name": "avgDailyFat",
+            "metrics": ["avgDailyFat"]
+          },
+          {
+            "name": "avgDailyFiber",
+            "metrics": ["avgDailyFiber"]
+          },
+          {
+            "name": "goalHitRateProtein",
+            "metrics": ["goalHitRateProtein"]
+          },
+          {
+            "name": "goalHitRateCarbohydrates",
+            "metrics": ["goalHitRateCarbohydrates"]
+          },
+          {
+            "name": "goalHitRateCalories",
+            "metrics": ["goalHitRateCalories"]
+          },
+          {
+            "name": "goalHitRateFat",
+            "metrics": ["goalHitRateFat"]
+          },
+          {
+            "name": "goalHitRateSugar",
+            "metrics": ["goalHitRateSugar"]
+          },
+          {
+            "name": "goalHitRateFiber",
+            "metrics": ["goalHitRateFiber"]
+          }
+        ]
+      },
+      {
+        "name": "dailyNutritionSummaryNotificationView",
+        "isStored": true,
+        "listHook": "usedailyNutritionSummaryNotificationViewList(params?, filter?)",
+        "getHook": "usedailyNutritionSummaryNotificationView(id)",
+        "countHook": "usedailyNutritionSummaryNotificationViewCount(filter?)",
+        "properties": {
+          "userId": "string",
+          "summaryDate": "string",
+          "consumedCalories": "number",
+          "consumedProtein": "number",
+          "consumedCarbohydrates": "number",
+          "consumedFat": "number",
+          "consumedSugar": "number",
+          "consumedFiber": "number",
+          "targetCalories": "number",
+          "targetProtein": "number",
+          "targetCarbohydrates": "number",
+          "targetFat": "number",
+          "targetSugar": "number",
+          "targetFiber": "number",
+          "exceededMetrics": "string",
+          "mealCount": "number"
+        },
+        "aggregates": [
+          {
+            "name": "userProfile",
+            "oneToMany": false,
+            "properties": {
+              "id": "string",
+              "fullname": "string",
+              "email": "string"
+            }
+          }
+        ],
+        "stats": []
+      },
+      {
+        "name": "dailyMealReminderNotificationView",
+        "isStored": true,
+        "listHook": "usedailyMealReminderNotificationViewList(params?, filter?)",
+        "getHook": "usedailyMealReminderNotificationView(id)",
+        "countHook": "usedailyMealReminderNotificationViewCount(filter?)",
+        "properties": {
+          "id": "string",
+          "fullname": "string",
+          "email": "string"
+        },
+        "aggregates": [
+          {
+            "name": "todayNutritionDay",
+            "oneToMany": false,
+            "properties": {
+              "mealCount": "number"
+            }
+          }
+        ],
+        "stats": []
+      }
+    ]
+  }
+}

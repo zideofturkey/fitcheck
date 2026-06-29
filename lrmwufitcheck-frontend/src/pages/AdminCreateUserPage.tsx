@@ -1,0 +1,309 @@
+import { useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCreateUser, useUploadUserAvatar } from "@/hooks/api/use-auth";
+import {
+  ArrowLeft,
+  ChevronRight,
+  User,
+  Camera,
+  Eye,
+  EyeOff,
+  Info,
+  UserPlus,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+export default function AdminCreateUserPage() {
+  const navigate = useNavigate();
+  const createUser = useCreateUser();
+  const uploadAvatar = useUploadUserAvatar();
+
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const calculatePasswordStrength = (pw: string): number => {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    return score;
+  };
+
+  const passwordStrength = calculatePasswordStrength(password);
+
+  const strengthColors = [
+    "bg-muted",
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-green-500",
+  ];
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      return;
+    }
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+
+    const doCreate = (avatarUrl?: string) => {
+      createUser.mutate(
+        {
+          email,
+          password,
+          fullname,
+          ...(avatarUrl ? { avatar: avatarUrl } : {}),
+        },
+        {
+          onSuccess: () => {
+            navigate("/admin/users");
+          },
+        },
+      );
+    };
+
+    if (avatarFile) {
+      uploadAvatar.mutate(avatarFile, {
+        onSuccess: (response) => {
+          doCreate(response?.file?.id);
+        },
+        onError: () => {
+          doCreate();
+        },
+      });
+    } else {
+      doCreate();
+    }
+  };
+
+  return (
+    <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Page Header */}
+      <header className="mb-8">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Link
+            to="/admin/users"
+            className="hover:text-foreground transition-colors"
+          >
+            Users
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">Create User</span>
+        </nav>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Create New User
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Add a new user account with email, password, and profile details.
+          </p>
+        </div>
+      </header>
+
+      {/* Form Card */}
+      <div className="bg-card rounded-xl border border-border shadow-sm">
+        <form className="p-6 space-y-6" onSubmit={handleSubmit}>
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border overflow-hidden">
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Avatar preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-10 h-10 text-muted-foreground" />
+                )}
+              </div>
+              <button
+                type="button"
+                className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
+                aria-label="Upload avatar"
+                onClick={handleAvatarClick}
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Optional — JPG, PNG, or WebP up to 5MB
+            </p>
+          </div>
+
+          {/* Full Name */}
+          <div className="space-y-2">
+            <Label htmlFor="fullname">Full Name</Label>
+            <Input
+              type="text"
+              id="fullname"
+              name="fullname"
+              placeholder="e.g. Alex Demir"
+              value={fullname}
+              onChange={(e) => setFullname(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="e.g. alex@fitcheck.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Min. 8 characters"
+                className="pr-12"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted transition-colors"
+                aria-label="Toggle password visibility"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <Eye className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+            </div>
+            {/* Password strength indicator */}
+            <div className="flex gap-1 mt-2">
+              {[1, 2, 3, 4].map((level) => (
+                <div
+                  key={level}
+                  className={`h-1 flex-1 rounded-full ${
+                    passwordStrength >= level
+                      ? strengthColors[passwordStrength]
+                      : "bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use 8+ characters with a mix of letters, numbers & symbols
+            </p>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            {passwordError && (
+              <p className="text-xs text-destructive">{passwordError}</p>
+            )}
+          </div>
+
+          {/* Info Note */}
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
+            <Info className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium text-foreground mb-1">Important</p>
+              <p>
+                The user will be assigned the <strong>user</strong> role by
+                default. Admins can change roles later from the user detail
+                page. Email verification is not set during admin creation — the
+                user must verify their email after first login.
+              </p>
+            </div>
+          </div>
+
+          {/* Server error */}
+          {createUser.error && (
+            <p className="text-sm text-destructive">
+              {(createUser.error as Error)?.message || "Failed to create user."}
+            </p>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 pt-2">
+            <Button
+              type="submit"
+              disabled={createUser.isPending || uploadAvatar.isPending}
+            >
+              <UserPlus className="w-4 h-4" />
+              {createUser.isPending || uploadAvatar.isPending
+                ? "Creating..."
+                : "Create User"}
+            </Button>
+            <Link
+              to="/admin/users"
+              className="inline-flex items-center gap-2 h-11 px-4 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </Link>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
+}

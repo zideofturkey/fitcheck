@@ -1,0 +1,3194 @@
+{
+  "generatedAt": "2026-06-29T12:24:55.959Z",
+  "projectName": "fitcheck",
+  "pages": [
+    {
+      "pageId": "login",
+      "pageName": "Login",
+      "route": "/login",
+      "layout": "auth",
+      "requiredAuth": false,
+      "purpose": "User authentication via email and password",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useLogin",
+          "trigger": "form submit",
+          "description": "Authenticates user with credentials",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": ["email", "password"],
+      "suggestedComponents": ["Card", "Form", "Button", "Alert"]
+    },
+    {
+      "pageId": "email-verification",
+      "pageName": "EmailVerification",
+      "route": "/verify-email",
+      "layout": "auth",
+      "requiredAuth": false,
+      "purpose": "Two-step email verification: request code then confirm",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useStartEmailVerification",
+          "trigger": "form submit",
+          "description": "Sends verification code to email",
+          "needsConfirmation": false
+        },
+        {
+          "hook": "useCompleteEmailVerification",
+          "trigger": "form submit",
+          "description": "Verifies the code",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": ["email", "secretCode"],
+      "suggestedComponents": ["Card", "Form", "Button", "StepView", "Alert"],
+      "notes": "Multi-step flow: enter email → receive code → enter code to verify"
+    },
+    {
+      "pageId": "forgot-password",
+      "pageName": "ForgotPassword",
+      "route": "/forgot-password",
+      "layout": "auth",
+      "requiredAuth": false,
+      "purpose": "Password reset via email: request code, verify, set new password",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useStartPasswordResetByEmail",
+          "trigger": "form submit",
+          "description": "Sends reset code to email",
+          "needsConfirmation": false
+        },
+        {
+          "hook": "useCompletePasswordResetByEmail",
+          "trigger": "form submit",
+          "description": "Resets password with code",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": ["email", "secretCode", "password"],
+      "suggestedComponents": ["Card", "Form", "Button", "StepView", "Alert"],
+      "notes": "Multi-step flow: enter email → receive code → enter code + new password"
+    },
+    {
+      "pageId": "profile",
+      "pageName": "Profile",
+      "route": "/profile",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View and edit the current user profile",
+      "primaryQuery": {
+        "hook": "useCurrentUser",
+        "type": "get",
+        "description": "Fetches current user session and profile"
+      },
+      "mutations": [
+        {
+          "hook": "useUpdateProfile",
+          "trigger": "form submit",
+          "description": "Updates user profile fields",
+          "needsConfirmation": false
+        },
+        {
+          "hook": "useUpdateUserPassword",
+          "trigger": "form submit",
+          "description": "Changes user password",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": ["fullname", "email", "avatar"],
+      "suggestedComponents": [
+        "PageHeader",
+        "Card",
+        "Form",
+        "Avatar",
+        "Button",
+        "TabGroup"
+      ],
+      "notes": "Tab or section layout: profile info + password change"
+    },
+    {
+      "pageId": "user-list",
+      "pageName": "UserList",
+      "route": "/admin/users",
+      "layout": "admin",
+      "requiredAuth": true,
+      "requiredRoles": ["admin", "superAdmin"],
+      "purpose": "List and manage all users",
+      "primaryQuery": {
+        "hook": "useUsers",
+        "type": "list",
+        "description": "Fetches all users with optional filters"
+      },
+      "mutations": [
+        {
+          "hook": "useCreateUser",
+          "trigger": "form submit",
+          "description": "Creates a new user (admin)",
+          "needsConfirmation": false
+        },
+        {
+          "hook": "useDeleteUser",
+          "trigger": "row action",
+          "description": "Permanently deletes a user",
+          "needsConfirmation": true
+        },
+        {
+          "hook": "useUpdateUserRole",
+          "trigger": "row action",
+          "description": "Changes user role",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": ["fullname", "email", "roleId", "isActive", "createdAt"],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "DropdownMenu",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "email",
+          "type": "search",
+          "label": "Email"
+        },
+        {
+          "field": "fullname",
+          "type": "search",
+          "label": "Name"
+        },
+        {
+          "field": "roleId",
+          "type": "select",
+          "label": "Role"
+        }
+      ]
+    },
+    {
+      "pageId": "dashboard",
+      "pageName": "Dashboard",
+      "route": "/",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Overview dashboard showing key metrics and recent activity",
+      "primaryQuery": null,
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [],
+      "suggestedComponents": [
+        "PageHeader",
+        "Grid",
+        "StatCard",
+        "Card",
+        "DataTable"
+      ],
+      "notes": "Populate with StatCards querying counts from the most important entities. Add a recent-activity DataTable for the primary entity."
+    },
+    {
+      "pageId": "invite-link-list",
+      "pageName": "InviteLinkList",
+      "route": "/invite-links",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage invitelinks",
+      "primaryQuery": {
+        "hook": "useListInviteLinks",
+        "type": "list",
+        "description": "Fetches paginated inviteLinks"
+      },
+      "mutations": [],
+      "keyFields": [
+        "inviteCodeId",
+        "invitedEmailId",
+        "usageModeId",
+        "usageLimitId",
+        "usageCountId",
+        "inviteStateId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "usageModeId",
+          "type": "select",
+          "label": "usageModeId"
+        },
+        {
+          "field": "inviteStateId",
+          "type": "select",
+          "label": "inviteStateId"
+        }
+      ]
+    },
+    {
+      "pageId": "invite-link-detail",
+      "pageName": "InviteLinkDetail",
+      "route": "/invite-links/:inviteLinkId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View inviteLink details and related data",
+      "primaryQuery": {
+        "hook": "useGetInviteLink",
+        "type": "get",
+        "description": "Fetches a single inviteLink by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "ownerUserId",
+        "inviteCodeId",
+        "invitedEmailId",
+        "usageModeId",
+        "usageLimitId",
+        "usageCountId",
+        "inviteStateId",
+        "expiresAtId",
+        "lastUsedAtId",
+        "registeredUserId",
+        "deliveryRequestedAtId",
+        "lastDeliveredAtId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "invite-link-create",
+      "pageName": "InviteLinkCreate",
+      "route": "/invite-links/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new inviteLink",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreateInviteLink",
+          "trigger": "form submit",
+          "description": "Creates a new inviteLink",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "ownerUserId",
+        "inviteCodeId",
+        "invitedEmailId",
+        "usageModeId",
+        "usageLimitId",
+        "usageCountId",
+        "inviteStateId",
+        "expiresAtId",
+        "lastUsedAtId",
+        "registeredUserId",
+        "deliveryRequestedAtId",
+        "lastDeliveredAtId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "invite-link-edit",
+      "pageName": "InviteLinkEdit",
+      "route": "/invite-links/:inviteLinkId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing inviteLink",
+      "primaryQuery": {
+        "hook": "useGetInviteLink",
+        "type": "get",
+        "description": "Fetches current inviteLink data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useConsumeInviteLink",
+          "trigger": "form submit",
+          "description": "Updates the inviteLink",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "invitedEmailId",
+        "usageLimitId",
+        "usageCountId",
+        "inviteStateId",
+        "expiresAtId",
+        "lastUsedAtId",
+        "deliveryRequestedAtId",
+        "lastDeliveredAtId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "invite-audit-list",
+      "pageName": "InviteAuditList",
+      "route": "/invite-audits",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage inviteaudits",
+      "primaryQuery": {
+        "hook": "useListInviteAudits",
+        "type": "list",
+        "description": "Fetches paginated inviteAudits"
+      },
+      "mutations": [],
+      "keyFields": [
+        "eventTypeId",
+        "eventAtId",
+        "eventNoteId",
+        "relatedEmailId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "inviteLinkId",
+          "type": "search",
+          "label": "inviteLinkId"
+        },
+        {
+          "field": "eventTypeId",
+          "type": "select",
+          "label": "eventTypeId"
+        }
+      ]
+    },
+    {
+      "pageId": "macro-target-detail",
+      "pageName": "MacroTargetDetail",
+      "route": "/macro-targets/:macroTargetId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View macroTarget details and related data",
+      "primaryQuery": {
+        "hook": "useGetMyMacroTargetForLogging",
+        "type": "get",
+        "description": "Fetches a single macroTarget by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "calorieTargetId",
+        "proteinTargetId",
+        "carbohydrateTargetId",
+        "fatTargetId",
+        "sugarTargetId",
+        "fiberTargetId",
+        "effectiveFromId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "macro-target-create",
+      "pageName": "MacroTargetCreate",
+      "route": "/macro-targets/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new macroTarget",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useSetMacroTarget",
+          "trigger": "form submit",
+          "description": "Creates a new macroTarget",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "calorieTargetId",
+        "proteinTargetId",
+        "carbohydrateTargetId",
+        "fatTargetId",
+        "sugarTargetId",
+        "fiberTargetId",
+        "effectiveFromId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "food-item-list",
+      "pageName": "FoodItemList",
+      "route": "/food-items",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage fooditems",
+      "primaryQuery": {
+        "hook": "useListFoodItems",
+        "type": "list",
+        "description": "Fetches paginated foodItems"
+      },
+      "mutations": [
+        {
+          "hook": "useDeleteFoodItem",
+          "trigger": "row action",
+          "description": "Deletes a foodItem",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "foodNameId",
+        "caloriePer100gId",
+        "proteinPer100gId",
+        "carbohydratePer100gId",
+        "fatPer100gId",
+        "sugarPer100gId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "foodCategoryId",
+          "type": "search",
+          "label": "foodCategoryId"
+        },
+        {
+          "field": "creationSourceId",
+          "type": "select",
+          "label": "creationSourceId"
+        }
+      ]
+    },
+    {
+      "pageId": "food-item-detail",
+      "pageName": "FoodItemDetail",
+      "route": "/food-items/:foodItemId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View foodItem details and related data",
+      "primaryQuery": {
+        "hook": "useGetFoodItemForLogging",
+        "type": "get",
+        "description": "Fetches a single foodItem by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [
+        {
+          "hook": "useDeleteFoodItem",
+          "trigger": "button click",
+          "description": "Deletes this foodItem",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "foodNameId",
+        "caloriePer100gId",
+        "proteinPer100gId",
+        "carbohydratePer100gId",
+        "fatPer100gId",
+        "sugarPer100gId",
+        "fiberPer100gId",
+        "brandNameId",
+        "foodCategoryId",
+        "creationSourceId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "food-item-create",
+      "pageName": "FoodItemCreate",
+      "route": "/food-items/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new foodItem",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreateFoodItem",
+          "trigger": "form submit",
+          "description": "Creates a new foodItem",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "foodNameId",
+        "caloriePer100gId",
+        "proteinPer100gId",
+        "carbohydratePer100gId",
+        "fatPer100gId",
+        "sugarPer100gId",
+        "fiberPer100gId",
+        "brandNameId",
+        "foodCategoryId",
+        "creationSourceId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "food-item-edit",
+      "pageName": "FoodItemEdit",
+      "route": "/food-items/:foodItemId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing foodItem",
+      "primaryQuery": {
+        "hook": "useGetFoodItemForLogging",
+        "type": "get",
+        "description": "Fetches current foodItem data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useUpdateFoodItem",
+          "trigger": "form submit",
+          "description": "Updates the foodItem",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "foodNameId",
+        "caloriePer100gId",
+        "proteinPer100gId",
+        "carbohydratePer100gId",
+        "fatPer100gId",
+        "sugarPer100gId",
+        "fiberPer100gId",
+        "brandNameId",
+        "foodCategoryId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "preset-meal-list",
+      "pageName": "PresetMealList",
+      "route": "/preset-meals",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage presetmeals",
+      "primaryQuery": {
+        "hook": "useListPresetMeals",
+        "type": "list",
+        "description": "Fetches paginated presetMeals"
+      },
+      "mutations": [
+        {
+          "hook": "useDeletePresetMeal",
+          "trigger": "row action",
+          "description": "Deletes a presetMeal",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "templateNameId",
+        "descriptionTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ]
+    },
+    {
+      "pageId": "preset-meal-detail",
+      "pageName": "PresetMealDetail",
+      "route": "/preset-meals/:presetMealId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View presetMeal details and related data",
+      "primaryQuery": {
+        "hook": "useGetPresetMealForLogging",
+        "type": "get",
+        "description": "Fetches a single presetMeal by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [
+        {
+          "hook": "useDeletePresetMeal",
+          "trigger": "button click",
+          "description": "Deletes this presetMeal",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "templateNameId",
+        "descriptionTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "preset-meal-create",
+      "pageName": "PresetMealCreate",
+      "route": "/preset-meals/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new presetMeal",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreatePresetMeal",
+          "trigger": "form submit",
+          "description": "Creates a new presetMeal",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "templateNameId",
+        "descriptionTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "preset-meal-edit",
+      "pageName": "PresetMealEdit",
+      "route": "/preset-meals/:presetMealId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing presetMeal",
+      "primaryQuery": {
+        "hook": "useGetPresetMealForLogging",
+        "type": "get",
+        "description": "Fetches current presetMeal data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useUpdatePresetMeal",
+          "trigger": "form submit",
+          "description": "Updates the presetMeal",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "templateNameId",
+        "descriptionTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "preset-line-list",
+      "pageName": "PresetLineList",
+      "route": "/preset-lines",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage presetlines",
+      "primaryQuery": {
+        "hook": "useListPresetLines",
+        "type": "list",
+        "description": "Fetches paginated presetLines"
+      },
+      "mutations": [
+        {
+          "hook": "useDeletePresetLine",
+          "trigger": "row action",
+          "description": "Deletes a presetLine",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "lineFoodNameId",
+        "gramAmountId",
+        "lineCaloriesId",
+        "lineProteinId",
+        "lineCarbohydratesId",
+        "lineFatId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "presetMealId",
+          "type": "search",
+          "label": "presetMealId"
+        }
+      ]
+    },
+    {
+      "pageId": "preset-line-create",
+      "pageName": "PresetLineCreate",
+      "route": "/preset-lines/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new presetLine",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useAddPresetLine",
+          "trigger": "form submit",
+          "description": "Creates a new presetLine",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "presetMealId",
+        "foodItemId",
+        "lineFoodNameId",
+        "gramAmountId",
+        "lineCaloriesId",
+        "lineProteinId",
+        "lineCarbohydratesId",
+        "lineFatId",
+        "lineSugarId",
+        "lineFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "meal-log-list",
+      "pageName": "MealLogList",
+      "route": "/meal-logs",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage meallogs",
+      "primaryQuery": {
+        "hook": "useListMealLogs",
+        "type": "list",
+        "description": "Fetches paginated mealLogs"
+      },
+      "mutations": [
+        {
+          "hook": "useDeleteMealLog",
+          "trigger": "row action",
+          "description": "Deletes a mealLog",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "mealDateId",
+        "mealTimeId",
+        "slotNameId",
+        "logSourceId",
+        "noteTextId",
+        "totalCaloriesId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "mealDateId",
+          "type": "dateRange",
+          "label": "mealDateId"
+        },
+        {
+          "field": "logSourceId",
+          "type": "select",
+          "label": "logSourceId"
+        }
+      ]
+    },
+    {
+      "pageId": "meal-log-detail",
+      "pageName": "MealLogDetail",
+      "route": "/meal-logs/:mealLogId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View mealLog details and related data",
+      "primaryQuery": {
+        "hook": "useGetMealLog",
+        "type": "get",
+        "description": "Fetches a single mealLog by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [
+        {
+          "hook": "useDeleteMealLog",
+          "trigger": "button click",
+          "description": "Deletes this mealLog",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "mealDateId",
+        "mealTimeId",
+        "slotNameId",
+        "logSourceId",
+        "noteTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "meal-log-create",
+      "pageName": "MealLogCreate",
+      "route": "/meal-logs/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new mealLog",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreateMealLog",
+          "trigger": "form submit",
+          "description": "Creates a new mealLog",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "mealDateId",
+        "mealTimeId",
+        "slotNameId",
+        "logSourceId",
+        "noteTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "meal-log-edit",
+      "pageName": "MealLogEdit",
+      "route": "/meal-logs/:mealLogId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing mealLog",
+      "primaryQuery": {
+        "hook": "useGetMealLog",
+        "type": "get",
+        "description": "Fetches current mealLog data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useUpdateMealLog",
+          "trigger": "form submit",
+          "description": "Updates the mealLog",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "mealDateId",
+        "mealTimeId",
+        "slotNameId",
+        "noteTextId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "meal-line-list",
+      "pageName": "MealLineList",
+      "route": "/meal-lines",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage meallines",
+      "primaryQuery": {
+        "hook": "useListMealLines",
+        "type": "list",
+        "description": "Fetches paginated mealLines"
+      },
+      "mutations": [
+        {
+          "hook": "useDeleteMealLine",
+          "trigger": "row action",
+          "description": "Deletes a mealLine",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "itemNameId",
+        "consumedGramsId",
+        "itemCaloriesId",
+        "itemProteinId",
+        "itemCarbohydratesId",
+        "itemFatId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "mealLogId",
+          "type": "search",
+          "label": "mealLogId"
+        },
+        {
+          "field": "lineSourceId",
+          "type": "select",
+          "label": "lineSourceId",
+          "options": [
+            "foodLibrary",
+            "presetTemplate",
+            "manualEntry",
+            "aiAssistant",
+            "temporaryAi"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "meal-line-create",
+      "pageName": "MealLineCreate",
+      "route": "/meal-lines/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new mealLine",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreateMealLine",
+          "trigger": "form submit",
+          "description": "Creates a new mealLine",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "mealLogId",
+        "sourceFoodItemId",
+        "sourcePresetMealId",
+        "itemNameId",
+        "consumedGramsId",
+        "itemCaloriesId",
+        "itemProteinId",
+        "itemCarbohydratesId",
+        "itemFatId",
+        "itemSugarId",
+        "itemFiberId",
+        "lineSourceId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "nutrition-day-list",
+      "pageName": "NutritionDayList",
+      "route": "/nutrition-days",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage nutritiondays",
+      "primaryQuery": {
+        "hook": "useGetMonthlyAnalytics",
+        "type": "list",
+        "description": "Fetches paginated nutritionDays"
+      },
+      "mutations": [],
+      "keyFields": [
+        "summaryDateId",
+        "consumedCaloriesId",
+        "consumedProteinId",
+        "consumedCarbohydratesId",
+        "consumedFatId",
+        "consumedSugarId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "summaryDateId",
+          "type": "dateRange",
+          "label": "summaryDateId"
+        }
+      ]
+    },
+    {
+      "pageId": "nutrition-day-detail",
+      "pageName": "NutritionDayDetail",
+      "route": "/nutrition-days/:nutritionDayId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View nutritionDay details and related data",
+      "primaryQuery": {
+        "hook": "useGetNutritionDay",
+        "type": "get",
+        "description": "Fetches a single nutritionDay by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "summaryDateId",
+        "consumedCaloriesId",
+        "consumedProteinId",
+        "consumedCarbohydratesId",
+        "consumedFatId",
+        "consumedSugarId",
+        "consumedFiberId",
+        "targetCaloriesId",
+        "targetProteinId",
+        "targetCarbohydratesId",
+        "targetFatId",
+        "targetSugarId",
+        "targetFiberId",
+        "exceededMetricsId",
+        "mealCountId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "nutrition-day-edit",
+      "pageName": "NutritionDayEdit",
+      "route": "/nutrition-days/:nutritionDayId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing nutritionDay",
+      "primaryQuery": {
+        "hook": "useGetNutritionDay",
+        "type": "get",
+        "description": "Fetches current nutritionDay data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useTriggerDailySummary",
+          "trigger": "form submit",
+          "description": "Updates the nutritionDay",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "consumedCaloriesId",
+        "consumedProteinId",
+        "consumedCarbohydratesId",
+        "consumedFatId",
+        "consumedSugarId",
+        "consumedFiberId",
+        "targetCaloriesId",
+        "targetProteinId",
+        "targetCarbohydratesId",
+        "targetFatId",
+        "targetSugarId",
+        "targetFiberId",
+        "exceededMetricsId",
+        "mealCountId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "ai-session-list",
+      "pageName": "AiSessionList",
+      "route": "/ai-sessions",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage aisessions",
+      "primaryQuery": {
+        "hook": "useListAiSessions",
+        "type": "list",
+        "description": "Fetches paginated aiSessions"
+      },
+      "mutations": [],
+      "keyFields": [
+        "sessionTypeId",
+        "inputTextId",
+        "detectedLanguageId",
+        "sessionStateId",
+        "confidenceScoreId",
+        "finalResponseTextId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ],
+      "filters": [
+        {
+          "field": "userId",
+          "type": "search",
+          "label": "userId"
+        },
+        {
+          "field": "sessionTypeId",
+          "type": "select",
+          "label": "sessionTypeId"
+        },
+        {
+          "field": "sessionStateId",
+          "type": "select",
+          "label": "sessionStateId"
+        }
+      ]
+    },
+    {
+      "pageId": "ai-session-detail",
+      "pageName": "AiSessionDetail",
+      "route": "/ai-sessions/:aiSessionId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View aiSession details and related data",
+      "primaryQuery": {
+        "hook": "useGetAiSession",
+        "type": "get",
+        "description": "Fetches a single aiSession by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "sessionTypeId",
+        "inputTextId",
+        "detectedLanguageId",
+        "sessionStateId",
+        "confidenceScoreId",
+        "finalResponseTextId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "ai-session-create",
+      "pageName": "AiSessionCreate",
+      "route": "/ai-sessions/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new aiSession",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useAskNutritionQuestion",
+          "trigger": "form submit",
+          "description": "Creates a new aiSession",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "userId",
+        "sessionTypeId",
+        "inputTextId",
+        "detectedLanguageId",
+        "sessionStateId",
+        "confidenceScoreId",
+        "finalResponseTextId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "ai-candidate-meal-list",
+      "pageName": "AiCandidateMealList",
+      "route": "/ai-candidate-meals",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage aicandidatemeals",
+      "primaryQuery": {
+        "hook": "useListAiCandidateMeals",
+        "type": "list",
+        "description": "Fetches paginated aiCandidateMeals"
+      },
+      "mutations": [],
+      "keyFields": [
+        "proposedMealDateId",
+        "proposedMealTimeId",
+        "proposedSlotNameId",
+        "candidateSourceId",
+        "warningTextId",
+        "confirmationRequiredId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "userId",
+          "type": "search",
+          "label": "userId"
+        },
+        {
+          "field": "aiSessionId",
+          "type": "search",
+          "label": "aiSessionId"
+        },
+        {
+          "field": "isConfirmedId",
+          "type": "search",
+          "label": "isConfirmedId"
+        },
+        {
+          "field": "isCommittedId",
+          "type": "search",
+          "label": "isCommittedId"
+        },
+        {
+          "field": "candidateSourceId",
+          "type": "select",
+          "label": "candidateSourceId",
+          "options": ["aiAssistant"]
+        }
+      ]
+    },
+    {
+      "pageId": "ai-candidate-meal-detail",
+      "pageName": "AiCandidateMealDetail",
+      "route": "/ai-candidate-meals/:aiCandidateMealId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View aiCandidateMeal details and related data",
+      "primaryQuery": {
+        "hook": "useGetAiCandidateMeal",
+        "type": "get",
+        "description": "Fetches a single aiCandidateMeal by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "aiSessionId",
+        "proposedMealDateId",
+        "proposedMealTimeId",
+        "proposedSlotNameId",
+        "candidateSourceId",
+        "warningTextId",
+        "confirmationRequiredId",
+        "isConfirmedId",
+        "isCommittedId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId",
+        "committedMealLogId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "ai-candidate-meal-edit",
+      "pageName": "AiCandidateMealEdit",
+      "route": "/ai-candidate-meals/:aiCandidateMealId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing aiCandidateMeal",
+      "primaryQuery": {
+        "hook": "useGetAiCandidateMeal",
+        "type": "get",
+        "description": "Fetches current aiCandidateMeal data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useRejectCandidateMeal",
+          "trigger": "form submit",
+          "description": "Updates the aiCandidateMeal",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "proposedMealDateId",
+        "proposedMealTimeId",
+        "proposedSlotNameId",
+        "warningTextId",
+        "confirmationRequiredId",
+        "isConfirmedId",
+        "isCommittedId",
+        "totalCaloriesId",
+        "totalProteinId",
+        "totalCarbohydratesId",
+        "totalFatId",
+        "totalSugarId",
+        "totalFiberId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "ai-guidance-note-list",
+      "pageName": "AiGuidanceNoteList",
+      "route": "/ai-guidance-notes",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage aiguidancenotes",
+      "primaryQuery": {
+        "hook": "useListAiGuidanceNotes",
+        "type": "list",
+        "description": "Fetches paginated aiGuidanceNotes"
+      },
+      "mutations": [],
+      "keyFields": [
+        "questionTypeId",
+        "contextRangeId",
+        "answerSummaryId",
+        "rationaleTextId",
+        "referencedMetricKeysId",
+        "cautionTextId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "userId",
+          "type": "search",
+          "label": "userId"
+        },
+        {
+          "field": "questionTypeId",
+          "type": "search",
+          "label": "questionTypeId"
+        },
+        {
+          "field": "contextRangeId",
+          "type": "search",
+          "label": "contextRangeId"
+        }
+      ]
+    },
+    {
+      "pageId": "ai-guidance-note-detail",
+      "pageName": "AiGuidanceNoteDetail",
+      "route": "/ai-guidance-notes/:aiGuidanceNoteId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View aiGuidanceNote details and related data",
+      "primaryQuery": {
+        "hook": "useGetAiGuidanceNote",
+        "type": "get",
+        "description": "Fetches a single aiGuidanceNote by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "aiSessionId",
+        "questionTypeId",
+        "contextRangeId",
+        "answerSummaryId",
+        "rationaleTextId",
+        "referencedMetricKeysId",
+        "cautionTextId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "sys_agent-override-list",
+      "pageName": "Sys_agentOverrideList",
+      "route": "/sys_agent-overrides",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage sys_agentoverrides",
+      "primaryQuery": {
+        "hook": "useListAgentOverrides",
+        "type": "list",
+        "description": "Fetches paginated sys_agentOverrides"
+      },
+      "mutations": [
+        {
+          "hook": "useDeleteAgentOverride",
+          "trigger": "row action",
+          "description": "Deletes a sys_agentOverride",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "agentNameId",
+        "providerId",
+        "modelId",
+        "systemPromptId",
+        "temperatureId",
+        "maxTokensId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button",
+        "Dialog",
+        "Form"
+      ]
+    },
+    {
+      "pageId": "sys_agent-override-detail",
+      "pageName": "Sys_agentOverrideDetail",
+      "route": "/sys_agent-overrides/:sys_agentOverrideId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View sys_agentOverride details and related data",
+      "primaryQuery": {
+        "hook": "useGetAgentOverride",
+        "type": "get",
+        "description": "Fetches a single sys_agentOverride by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [
+        {
+          "hook": "useDeleteAgentOverride",
+          "trigger": "button click",
+          "description": "Deletes this sys_agentOverride",
+          "needsConfirmation": true
+        }
+      ],
+      "keyFields": [
+        "agentNameId",
+        "providerId",
+        "modelId",
+        "systemPromptId",
+        "temperatureId",
+        "maxTokensId",
+        "responseFormatId",
+        "selectedToolsId",
+        "guardrailsId",
+        "enabledId",
+        "updatedById"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card",
+        "Button",
+        "Link"
+      ]
+    },
+    {
+      "pageId": "sys_agent-override-create",
+      "pageName": "Sys_agentOverrideCreate",
+      "route": "/sys_agent-overrides/new",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Create a new sys_agentOverride",
+      "primaryQuery": null,
+      "mutations": [
+        {
+          "hook": "useCreateAgentOverride",
+          "trigger": "form submit",
+          "description": "Creates a new sys_agentOverride",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "agentNameId",
+        "providerId",
+        "modelId",
+        "systemPromptId",
+        "temperatureId",
+        "maxTokensId",
+        "responseFormatId",
+        "selectedToolsId",
+        "guardrailsId",
+        "enabledId",
+        "updatedById"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "sys_agent-override-edit",
+      "pageName": "Sys_agentOverrideEdit",
+      "route": "/sys_agent-overrides/:sys_agentOverrideId/edit",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Edit an existing sys_agentOverride",
+      "primaryQuery": {
+        "hook": "useGetAgentOverride",
+        "type": "get",
+        "description": "Fetches current sys_agentOverride data to populate form"
+      },
+      "mutations": [
+        {
+          "hook": "useUpdateAgentOverride",
+          "trigger": "form submit",
+          "description": "Updates the sys_agentOverride",
+          "needsConfirmation": false
+        }
+      ],
+      "keyFields": [
+        "providerId",
+        "modelId",
+        "systemPromptId",
+        "temperatureId",
+        "maxTokensId",
+        "responseFormatId",
+        "selectedToolsId",
+        "guardrailsId",
+        "enabledId"
+      ],
+      "suggestedComponents": ["Breadcrumbs", "PageHeader", "Form", "Button"]
+    },
+    {
+      "pageId": "sys_tool-catalog-list",
+      "pageName": "Sys_toolCatalogList",
+      "route": "/sys_tool-catalogs",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage sys_toolcatalogs",
+      "primaryQuery": {
+        "hook": "useListToolCatalog",
+        "type": "list",
+        "description": "Fetches paginated sys_toolCatalogs"
+      },
+      "mutations": [],
+      "keyFields": [
+        "toolNameId",
+        "serviceNameId",
+        "descriptionId",
+        "parametersId",
+        "lastRefreshedId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "serviceNameId",
+          "type": "search",
+          "label": "serviceNameId"
+        }
+      ]
+    },
+    {
+      "pageId": "sys_tool-catalog-detail",
+      "pageName": "Sys_toolCatalogDetail",
+      "route": "/sys_tool-catalogs/:sys_toolCatalogId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View sys_toolCatalog details and related data",
+      "primaryQuery": {
+        "hook": "useGetToolCatalogEntry",
+        "type": "get",
+        "description": "Fetches a single sys_toolCatalog by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "toolNameId",
+        "serviceNameId",
+        "descriptionId",
+        "parametersId",
+        "lastRefreshedId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "sys_agent-execution-list",
+      "pageName": "Sys_agentExecutionList",
+      "route": "/sys_agent-executions",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage sys_agentexecutions",
+      "primaryQuery": {
+        "hook": "useListAgentExecutions",
+        "type": "list",
+        "description": "Fetches paginated sys_agentExecutions"
+      },
+      "mutations": [],
+      "keyFields": [
+        "agentNameId",
+        "agentTypeId",
+        "sourceId",
+        "inputId",
+        "outputId",
+        "toolCallsId"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "agentNameId",
+          "type": "search",
+          "label": "agentNameId"
+        },
+        {
+          "field": "agentTypeId",
+          "type": "select",
+          "label": "agentTypeId"
+        },
+        {
+          "field": "sourceId",
+          "type": "select",
+          "label": "sourceId"
+        },
+        {
+          "field": "userId",
+          "type": "search",
+          "label": "userId"
+        },
+        {
+          "field": "statusId",
+          "type": "select",
+          "label": "statusId"
+        }
+      ]
+    },
+    {
+      "pageId": "sys_agent-execution-detail",
+      "pageName": "Sys_agentExecutionDetail",
+      "route": "/sys_agent-executions/:sys_agentExecutionId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View sys_agentExecution details and related data",
+      "primaryQuery": {
+        "hook": "useGetAgentExecution",
+        "type": "get",
+        "description": "Fetches a single sys_agentExecution by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "agentNameId",
+        "agentTypeId",
+        "sourceId",
+        "userId",
+        "inputId",
+        "outputId",
+        "toolCallsId",
+        "tokenUsageId",
+        "durationMsId",
+        "statusId",
+        "errorId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "sys_agent-conversation-list",
+      "pageName": "Sys_agentConversationList",
+      "route": "/sys_agent-conversations",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse and manage sys_agentconversations",
+      "primaryQuery": {
+        "hook": "useListAgentChats",
+        "type": "list",
+        "description": "Fetches paginated sys_agentConversations"
+      },
+      "mutations": [],
+      "keyFields": ["sessionId", "agentNameId", "messagesId", "messageCountId"],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "Button"
+      ],
+      "filters": [
+        {
+          "field": "agentNameId",
+          "type": "search",
+          "label": "agentNameId"
+        },
+        {
+          "field": "userId",
+          "type": "search",
+          "label": "userId"
+        }
+      ]
+    },
+    {
+      "pageId": "sys_agent-conversation-detail",
+      "pageName": "Sys_agentConversationDetail",
+      "route": "/sys_agent-conversations/:sys_agentConversationId",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View sys_agentConversation details and related data",
+      "primaryQuery": {
+        "hook": "useGetAgentChatMessages",
+        "type": "get",
+        "description": "Fetches a single sys_agentConversation by ID"
+      },
+      "secondaryQueries": [],
+      "mutations": [],
+      "keyFields": [
+        "sessionId",
+        "agentNameId",
+        "userId",
+        "messagesId",
+        "messageCountId"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Badge",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "invite-link-delivered-notification-view-view-list",
+      "pageName": "inviteLinkDeliveredNotificationViewList",
+      "route": "/invite-link-delivered-notification-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse inviteLinkDeliveredNotificationView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "useinviteLinkDeliveredNotificationViewList",
+        "type": "list",
+        "description": "Fetches paginated inviteLinkDeliveredNotificationView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "inviteCode",
+        "invitedEmail",
+        "usageMode",
+        "usageLimit",
+        "inviteState",
+        "expiresAt"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "invite-link-delivered-notification-view-view-detail",
+      "pageName": "inviteLinkDeliveredNotificationViewDetail",
+      "route": "/invite-link-delivered-notification-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View inviteLinkDeliveredNotificationView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "useinviteLinkDeliveredNotificationView",
+        "type": "get",
+        "description": "Fetches a single inviteLinkDeliveredNotificationView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "inviteCode",
+        "invitedEmail",
+        "usageMode",
+        "usageLimit",
+        "inviteState",
+        "expiresAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "invite-link-list-view-view-list",
+      "pageName": "inviteLinkListViewList",
+      "route": "/invite-link-list-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse inviteLinkListView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "useinviteLinkListViewList",
+        "type": "list",
+        "description": "Fetches paginated inviteLinkListView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "inviteCode",
+        "invitedEmail",
+        "usageMode",
+        "usageLimit",
+        "usageCount",
+        "inviteState",
+        "expiresAt"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "invite-link-list-view-view-detail",
+      "pageName": "inviteLinkListViewDetail",
+      "route": "/invite-link-list-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View inviteLinkListView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "useinviteLinkListView",
+        "type": "get",
+        "description": "Fetches a single inviteLinkListView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "inviteCode",
+        "invitedEmail",
+        "usageMode",
+        "usageLimit",
+        "usageCount",
+        "inviteState",
+        "expiresAt",
+        "lastUsedAt",
+        "registeredUserId",
+        "deliveryRequestedAt",
+        "lastDeliveredAt",
+        "createdAt",
+        "updatedAt",
+        "isActive"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ],
+      "notes": "Has 1 aggregated relation(s): registeredUser"
+    },
+    {
+      "pageId": "preset-meal-with-lines-view-list",
+      "pageName": "presetMealWithLinesList",
+      "route": "/preset-meal-with-lines",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse presetMealWithLines data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usepresetMealWithLinesList",
+        "type": "list",
+        "description": "Fetches paginated presetMealWithLines list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "templateName",
+        "descriptionText",
+        "totalCalories",
+        "totalProtein",
+        "totalCarbohydrates",
+        "totalFat"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "preset-meal-with-lines-view-detail",
+      "pageName": "presetMealWithLinesDetail",
+      "route": "/preset-meal-with-lines/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View presetMealWithLines detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usepresetMealWithLines",
+        "type": "get",
+        "description": "Fetches a single presetMealWithLines record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "templateName",
+        "descriptionText",
+        "totalCalories",
+        "totalProtein",
+        "totalCarbohydrates",
+        "totalFat",
+        "totalSugar",
+        "totalFiber",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card",
+        "TabGroup"
+      ],
+      "notes": "Has 2 aggregated relation(s): foodItems, lines"
+    },
+    {
+      "pageId": "food-item-list-view-list",
+      "pageName": "foodItemListList",
+      "route": "/food-item-list",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse foodItemList data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usefoodItemListList",
+        "type": "list",
+        "description": "Fetches paginated foodItemList list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "foodName",
+        "caloriePer100g",
+        "proteinPer100g",
+        "carbohydratePer100g",
+        "fatPer100g",
+        "sugarPer100g"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "food-item-list-view-detail",
+      "pageName": "foodItemListDetail",
+      "route": "/food-item-list/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View foodItemList detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usefoodItemList",
+        "type": "get",
+        "description": "Fetches a single foodItemList record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "foodName",
+        "caloriePer100g",
+        "proteinPer100g",
+        "carbohydratePer100g",
+        "fatPer100g",
+        "sugarPer100g",
+        "fiberPer100g",
+        "brandName",
+        "foodCategory",
+        "creationSource",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "ai-candidate-meal-with-lines-view-list",
+      "pageName": "aiCandidateMealWithLinesList",
+      "route": "/ai-candidate-meal-with-lines",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse aiCandidateMealWithLines data view with aggregated data",
+      "primaryQuery": {
+        "hook": "useaiCandidateMealWithLinesList",
+        "type": "list",
+        "description": "Fetches paginated aiCandidateMealWithLines list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "aiSessionId",
+        "proposedMealDate",
+        "proposedMealTime",
+        "proposedSlotName",
+        "candidateSource",
+        "warningText"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "ai-candidate-meal-with-lines-view-detail",
+      "pageName": "aiCandidateMealWithLinesDetail",
+      "route": "/ai-candidate-meal-with-lines/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View aiCandidateMealWithLines detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "useaiCandidateMealWithLines",
+        "type": "get",
+        "description": "Fetches a single aiCandidateMealWithLines record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "aiSessionId",
+        "proposedMealDate",
+        "proposedMealTime",
+        "proposedSlotName",
+        "candidateSource",
+        "warningText",
+        "confirmationRequired",
+        "isConfirmed",
+        "isCommitted",
+        "totalCalories",
+        "totalProtein",
+        "totalCarbohydrates",
+        "totalFat",
+        "totalSugar",
+        "totalFiber",
+        "committedMealLogId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card",
+        "TabGroup"
+      ],
+      "notes": "Has 2 aggregated relation(s): session, lines"
+    },
+    {
+      "pageId": "meal-log-with-lines-view-list",
+      "pageName": "mealLogWithLinesList",
+      "route": "/meal-log-with-lines",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse mealLogWithLines data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usemealLogWithLinesList",
+        "type": "list",
+        "description": "Fetches paginated mealLogWithLines list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "mealDate",
+        "mealTime",
+        "slotName",
+        "logSource",
+        "noteText",
+        "totalCalories"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "meal-log-with-lines-view-detail",
+      "pageName": "mealLogWithLinesDetail",
+      "route": "/meal-log-with-lines/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View mealLogWithLines detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usemealLogWithLines",
+        "type": "get",
+        "description": "Fetches a single mealLogWithLines record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "mealDate",
+        "mealTime",
+        "slotName",
+        "logSource",
+        "noteText",
+        "totalCalories",
+        "totalProtein",
+        "totalCarbohydrates",
+        "totalFat",
+        "totalSugar",
+        "totalFiber",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ],
+      "notes": "Has 1 aggregated relation(s): mealLines"
+    },
+    {
+      "pageId": "ai-session-history-view-list",
+      "pageName": "aiSessionHistoryList",
+      "route": "/ai-session-history",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse aiSessionHistory data view with aggregated data",
+      "primaryQuery": {
+        "hook": "useaiSessionHistoryList",
+        "type": "list",
+        "description": "Fetches paginated aiSessionHistory list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "sessionType",
+        "inputText",
+        "detectedLanguage",
+        "sessionState",
+        "confidenceScore",
+        "finalResponseText"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "ai-session-history-view-detail",
+      "pageName": "aiSessionHistoryDetail",
+      "route": "/ai-session-history/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View aiSessionHistory detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "useaiSessionHistory",
+        "type": "get",
+        "description": "Fetches a single aiSessionHistory record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "sessionType",
+        "inputText",
+        "detectedLanguage",
+        "sessionState",
+        "confidenceScore",
+        "finalResponseText",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card",
+        "TabGroup"
+      ],
+      "notes": "Has 2 aggregated relation(s): guidanceNote, candidateMeal"
+    },
+    {
+      "pageId": "daily-progress-view-view-list",
+      "pageName": "dailyProgressViewList",
+      "route": "/daily-progress-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse dailyProgressView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usedailyProgressViewList",
+        "type": "list",
+        "description": "Fetches paginated dailyProgressView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "daily-progress-view-view-detail",
+      "pageName": "dailyProgressViewDetail",
+      "route": "/daily-progress-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View dailyProgressView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usedailyProgressView",
+        "type": "get",
+        "description": "Fetches a single dailyProgressView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "id",
+        "userId",
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories",
+        "targetProtein",
+        "targetCarbohydrates",
+        "targetFat",
+        "targetSugar",
+        "targetFiber",
+        "exceededMetrics",
+        "mealCount",
+        "createdAt",
+        "updatedAt"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ],
+      "notes": "Has 1 aggregated relation(s): userProfile"
+    },
+    {
+      "pageId": "weekly-analytics-view-view-list",
+      "pageName": "weeklyAnalyticsViewList",
+      "route": "/weekly-analytics-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse weeklyAnalyticsView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "useweeklyAnalyticsViewList",
+        "type": "list",
+        "description": "Fetches paginated weeklyAnalyticsView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "weekly-analytics-view-view-detail",
+      "pageName": "weeklyAnalyticsViewDetail",
+      "route": "/weekly-analytics-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View weeklyAnalyticsView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "useweeklyAnalyticsView",
+        "type": "get",
+        "description": "Fetches a single weeklyAnalyticsView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories",
+        "targetProtein",
+        "targetCarbohydrates",
+        "targetFat",
+        "targetSugar",
+        "targetFiber",
+        "exceededMetrics",
+        "mealCount"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "monthly-analytics-view-view-list",
+      "pageName": "monthlyAnalyticsViewList",
+      "route": "/monthly-analytics-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse monthlyAnalyticsView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usemonthlyAnalyticsViewList",
+        "type": "list",
+        "description": "Fetches paginated monthlyAnalyticsView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "monthly-analytics-view-view-detail",
+      "pageName": "monthlyAnalyticsViewDetail",
+      "route": "/monthly-analytics-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View monthlyAnalyticsView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usemonthlyAnalyticsView",
+        "type": "get",
+        "description": "Fetches a single monthlyAnalyticsView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories",
+        "targetProtein",
+        "targetCarbohydrates",
+        "targetFat",
+        "targetSugar",
+        "targetFiber",
+        "exceededMetrics",
+        "mealCount"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ]
+    },
+    {
+      "pageId": "daily-nutrition-summary-notification-view-view-list",
+      "pageName": "dailyNutritionSummaryNotificationViewList",
+      "route": "/daily-nutrition-summary-notification-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse dailyNutritionSummaryNotificationView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usedailyNutritionSummaryNotificationViewList",
+        "type": "list",
+        "description": "Fetches paginated dailyNutritionSummaryNotificationView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber"
+      ],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "daily-nutrition-summary-notification-view-view-detail",
+      "pageName": "dailyNutritionSummaryNotificationViewDetail",
+      "route": "/daily-nutrition-summary-notification-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View dailyNutritionSummaryNotificationView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usedailyNutritionSummaryNotificationView",
+        "type": "get",
+        "description": "Fetches a single dailyNutritionSummaryNotificationView record"
+      },
+      "mutations": [],
+      "keyFields": [
+        "userId",
+        "summaryDate",
+        "consumedCalories",
+        "consumedProtein",
+        "consumedCarbohydrates",
+        "consumedFat",
+        "consumedSugar",
+        "consumedFiber",
+        "targetCalories",
+        "targetProtein",
+        "targetCarbohydrates",
+        "targetFat",
+        "targetSugar",
+        "targetFiber",
+        "exceededMetrics",
+        "mealCount"
+      ],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ],
+      "notes": "Has 1 aggregated relation(s): userProfile"
+    },
+    {
+      "pageId": "daily-meal-reminder-notification-view-view-list",
+      "pageName": "dailyMealReminderNotificationViewList",
+      "route": "/daily-meal-reminder-notification-view",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "Browse dailyMealReminderNotificationView data view with aggregated data",
+      "primaryQuery": {
+        "hook": "usedailyMealReminderNotificationViewList",
+        "type": "list",
+        "description": "Fetches paginated dailyMealReminderNotificationView list from Elasticsearch"
+      },
+      "mutations": [],
+      "keyFields": ["id", "fullname", "email"],
+      "suggestedComponents": [
+        "PageHeader",
+        "SearchInput",
+        "DataTable",
+        "SelectFilter"
+      ],
+      "notes": "BFF stored view — supports full-text search, filters, and sorting via Elasticsearch"
+    },
+    {
+      "pageId": "daily-meal-reminder-notification-view-view-detail",
+      "pageName": "dailyMealReminderNotificationViewDetail",
+      "route": "/daily-meal-reminder-notification-view/:id",
+      "layout": "main",
+      "requiredAuth": true,
+      "purpose": "View dailyMealReminderNotificationView detail with aggregated relations",
+      "primaryQuery": {
+        "hook": "usedailyMealReminderNotificationView",
+        "type": "get",
+        "description": "Fetches a single dailyMealReminderNotificationView record"
+      },
+      "mutations": [],
+      "keyFields": ["id", "fullname", "email"],
+      "suggestedComponents": [
+        "Breadcrumbs",
+        "PageHeader",
+        "DetailGroup",
+        "Card"
+      ],
+      "notes": "Has 1 aggregated relation(s): todayNutritionDay"
+    }
+  ],
+  "layouts": [
+    {
+      "layoutId": "auth",
+      "description": "Minimal centered layout for authentication pages (no sidebar)",
+      "pages": ["login", "email-verification", "forgot-password"]
+    },
+    {
+      "layoutId": "main",
+      "description": "Primary application layout with sidebar navigation and top bar",
+      "sidebarSections": [
+        {
+          "label": "Overview",
+          "items": [
+            {
+              "pageId": "dashboard",
+              "label": "Dashboard",
+              "icon": "LayoutDashboard"
+            }
+          ]
+        },
+        {
+          "label": "InviteLink",
+          "items": [
+            {
+              "pageId": "invite-link-list",
+              "label": "InviteLinks",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "InviteAudit",
+          "items": [
+            {
+              "pageId": "invite-audit-list",
+              "label": "InviteAudits",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "FoodItem",
+          "items": [
+            {
+              "pageId": "food-item-list",
+              "label": "FoodItems",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "PresetMeal",
+          "items": [
+            {
+              "pageId": "preset-meal-list",
+              "label": "PresetMeals",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "PresetLine",
+          "items": [
+            {
+              "pageId": "preset-line-list",
+              "label": "PresetLines",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "MealLog",
+          "items": [
+            {
+              "pageId": "meal-log-list",
+              "label": "MealLogs",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "MealLine",
+          "items": [
+            {
+              "pageId": "meal-line-list",
+              "label": "MealLines",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "NutritionDay",
+          "items": [
+            {
+              "pageId": "nutrition-day-list",
+              "label": "NutritionDays",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "AiSession",
+          "items": [
+            {
+              "pageId": "ai-session-list",
+              "label": "AiSessions",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "AiCandidateMeal",
+          "items": [
+            {
+              "pageId": "ai-candidate-meal-list",
+              "label": "AiCandidateMeals",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "AiGuidanceNote",
+          "items": [
+            {
+              "pageId": "ai-guidance-note-list",
+              "label": "AiGuidanceNotes",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "Sys_agentOverride",
+          "items": [
+            {
+              "pageId": "sys_agent-override-list",
+              "label": "Sys_agentOverrides",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "Sys_toolCatalog",
+          "items": [
+            {
+              "pageId": "sys_tool-catalog-list",
+              "label": "Sys_toolCatalogs",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "Sys_agentExecution",
+          "items": [
+            {
+              "pageId": "sys_agent-execution-list",
+              "label": "Sys_agentExecutions",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "Sys_agentConversation",
+          "items": [
+            {
+              "pageId": "sys_agent-conversation-list",
+              "label": "Sys_agentConversations",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "inviteLinkDeliveredNotificationView",
+          "items": [
+            {
+              "pageId": "invite-link-delivered-notification-view-view-list",
+              "label": "inviteLinkDeliveredNotificationViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "inviteLinkListView",
+          "items": [
+            {
+              "pageId": "invite-link-list-view-view-list",
+              "label": "inviteLinkListViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "presetMealWithLines",
+          "items": [
+            {
+              "pageId": "preset-meal-with-lines-view-list",
+              "label": "presetMealWithLiness",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "foodItemList",
+          "items": [
+            {
+              "pageId": "food-item-list-view-list",
+              "label": "foodItemLists",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "aiCandidateMealWithLines",
+          "items": [
+            {
+              "pageId": "ai-candidate-meal-with-lines-view-list",
+              "label": "aiCandidateMealWithLiness",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "mealLogWithLines",
+          "items": [
+            {
+              "pageId": "meal-log-with-lines-view-list",
+              "label": "mealLogWithLiness",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "aiSessionHistory",
+          "items": [
+            {
+              "pageId": "ai-session-history-view-list",
+              "label": "aiSessionHistorys",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "dailyProgressView",
+          "items": [
+            {
+              "pageId": "daily-progress-view-view-list",
+              "label": "dailyProgressViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "weeklyAnalyticsView",
+          "items": [
+            {
+              "pageId": "weekly-analytics-view-view-list",
+              "label": "weeklyAnalyticsViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "monthlyAnalyticsView",
+          "items": [
+            {
+              "pageId": "monthly-analytics-view-view-list",
+              "label": "monthlyAnalyticsViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "dailyNutritionSummaryNotificationView",
+          "items": [
+            {
+              "pageId": "daily-nutrition-summary-notification-view-view-list",
+              "label": "dailyNutritionSummaryNotificationViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "dailyMealReminderNotificationView",
+          "items": [
+            {
+              "pageId": "daily-meal-reminder-notification-view-view-list",
+              "label": "dailyMealReminderNotificationViews",
+              "icon": "List"
+            }
+          ]
+        },
+        {
+          "label": "Account",
+          "items": [
+            {
+              "pageId": "profile",
+              "label": "Profile",
+              "icon": "User"
+            }
+          ]
+        }
+      ],
+      "mobileTabBar": [
+        {
+          "pageId": "dashboard",
+          "label": "Home",
+          "icon": "Home"
+        },
+        {
+          "pageId": "invite-link-list",
+          "label": "InviteLink",
+          "icon": "List"
+        },
+        {
+          "pageId": "invite-audit-list",
+          "label": "InviteAudit",
+          "icon": "List"
+        },
+        {
+          "pageId": "food-item-list",
+          "label": "FoodItem",
+          "icon": "List"
+        },
+        {
+          "pageId": "profile",
+          "label": "Profile",
+          "icon": "User"
+        }
+      ],
+      "pages": [
+        "profile",
+        "dashboard",
+        "invite-link-list",
+        "invite-link-detail",
+        "invite-link-create",
+        "invite-link-edit",
+        "invite-audit-list",
+        "macro-target-detail",
+        "macro-target-create",
+        "food-item-list",
+        "food-item-detail",
+        "food-item-create",
+        "food-item-edit",
+        "preset-meal-list",
+        "preset-meal-detail",
+        "preset-meal-create",
+        "preset-meal-edit",
+        "preset-line-list",
+        "preset-line-create",
+        "meal-log-list",
+        "meal-log-detail",
+        "meal-log-create",
+        "meal-log-edit",
+        "meal-line-list",
+        "meal-line-create",
+        "nutrition-day-list",
+        "nutrition-day-detail",
+        "nutrition-day-edit",
+        "ai-session-list",
+        "ai-session-detail",
+        "ai-session-create",
+        "ai-candidate-meal-list",
+        "ai-candidate-meal-detail",
+        "ai-candidate-meal-edit",
+        "ai-guidance-note-list",
+        "ai-guidance-note-detail",
+        "sys_agent-override-list",
+        "sys_agent-override-detail",
+        "sys_agent-override-create",
+        "sys_agent-override-edit",
+        "sys_tool-catalog-list",
+        "sys_tool-catalog-detail",
+        "sys_agent-execution-list",
+        "sys_agent-execution-detail",
+        "sys_agent-conversation-list",
+        "sys_agent-conversation-detail",
+        "invite-link-delivered-notification-view-view-list",
+        "invite-link-delivered-notification-view-view-detail",
+        "invite-link-list-view-view-list",
+        "invite-link-list-view-view-detail",
+        "preset-meal-with-lines-view-list",
+        "preset-meal-with-lines-view-detail",
+        "food-item-list-view-list",
+        "food-item-list-view-detail",
+        "ai-candidate-meal-with-lines-view-list",
+        "ai-candidate-meal-with-lines-view-detail",
+        "meal-log-with-lines-view-list",
+        "meal-log-with-lines-view-detail",
+        "ai-session-history-view-list",
+        "ai-session-history-view-detail",
+        "daily-progress-view-view-list",
+        "daily-progress-view-view-detail",
+        "weekly-analytics-view-view-list",
+        "weekly-analytics-view-view-detail",
+        "monthly-analytics-view-view-list",
+        "monthly-analytics-view-view-detail",
+        "daily-nutrition-summary-notification-view-view-list",
+        "daily-nutrition-summary-notification-view-view-detail",
+        "daily-meal-reminder-notification-view-view-list",
+        "daily-meal-reminder-notification-view-view-detail"
+      ]
+    },
+    {
+      "layoutId": "admin",
+      "description": "Admin layout with extended sidebar for management pages",
+      "sidebarSections": [
+        {
+          "label": "Management",
+          "items": [
+            {
+              "pageId": "user-list",
+              "label": "Users",
+              "icon": "Settings"
+            }
+          ]
+        }
+      ],
+      "pages": ["user-list"]
+    }
+  ],
+  "entityPageMap": {
+    "InviteLink": {
+      "list": "invite-link-list",
+      "detail": "invite-link-detail",
+      "create": "invite-link-create",
+      "edit": "invite-link-edit"
+    },
+    "InviteAudit": {
+      "list": "invite-audit-list"
+    },
+    "MacroTarget": {
+      "detail": "macro-target-detail",
+      "create": "macro-target-create"
+    },
+    "FoodItem": {
+      "list": "food-item-list",
+      "detail": "food-item-detail",
+      "create": "food-item-create",
+      "edit": "food-item-edit"
+    },
+    "PresetMeal": {
+      "list": "preset-meal-list",
+      "detail": "preset-meal-detail",
+      "create": "preset-meal-create",
+      "edit": "preset-meal-edit"
+    },
+    "PresetLine": {
+      "list": "preset-line-list",
+      "create": "preset-line-create"
+    },
+    "MealLog": {
+      "list": "meal-log-list",
+      "detail": "meal-log-detail",
+      "create": "meal-log-create",
+      "edit": "meal-log-edit"
+    },
+    "MealLine": {
+      "list": "meal-line-list",
+      "create": "meal-line-create"
+    },
+    "NutritionDay": {
+      "list": "nutrition-day-list",
+      "detail": "nutrition-day-detail",
+      "edit": "nutrition-day-edit"
+    },
+    "AiSession": {
+      "list": "ai-session-list",
+      "detail": "ai-session-detail",
+      "create": "ai-session-create"
+    },
+    "AiCandidateMeal": {
+      "list": "ai-candidate-meal-list",
+      "detail": "ai-candidate-meal-detail",
+      "edit": "ai-candidate-meal-edit"
+    },
+    "AiCandidateLine": {},
+    "AiGuidanceNote": {
+      "list": "ai-guidance-note-list",
+      "detail": "ai-guidance-note-detail"
+    },
+    "Sys_agentOverride": {
+      "list": "sys_agent-override-list",
+      "detail": "sys_agent-override-detail",
+      "create": "sys_agent-override-create",
+      "edit": "sys_agent-override-edit"
+    },
+    "Sys_toolCatalog": {
+      "list": "sys_tool-catalog-list",
+      "detail": "sys_tool-catalog-detail"
+    },
+    "Sys_agentExecution": {
+      "list": "sys_agent-execution-list",
+      "detail": "sys_agent-execution-detail"
+    },
+    "Sys_agentConversation": {
+      "list": "sys_agent-conversation-list",
+      "detail": "sys_agent-conversation-detail"
+    },
+    "inviteLinkDeliveredNotificationView": {
+      "list": "invite-link-delivered-notification-view-view-list",
+      "detail": "invite-link-delivered-notification-view-view-detail"
+    },
+    "inviteLinkListView": {
+      "list": "invite-link-list-view-view-list",
+      "detail": "invite-link-list-view-view-detail"
+    },
+    "presetMealWithLines": {
+      "list": "preset-meal-with-lines-view-list",
+      "detail": "preset-meal-with-lines-view-detail"
+    },
+    "foodItemList": {
+      "list": "food-item-list-view-list",
+      "detail": "food-item-list-view-detail"
+    },
+    "aiCandidateMealWithLines": {
+      "list": "ai-candidate-meal-with-lines-view-list",
+      "detail": "ai-candidate-meal-with-lines-view-detail"
+    },
+    "mealLogWithLines": {
+      "list": "meal-log-with-lines-view-list",
+      "detail": "meal-log-with-lines-view-detail"
+    },
+    "aiSessionHistory": {
+      "list": "ai-session-history-view-list",
+      "detail": "ai-session-history-view-detail"
+    },
+    "dailyProgressView": {
+      "list": "daily-progress-view-view-list",
+      "detail": "daily-progress-view-view-detail"
+    },
+    "weeklyAnalyticsView": {
+      "list": "weekly-analytics-view-view-list",
+      "detail": "weekly-analytics-view-view-detail"
+    },
+    "monthlyAnalyticsView": {
+      "list": "monthly-analytics-view-view-list",
+      "detail": "monthly-analytics-view-view-detail"
+    },
+    "dailyNutritionSummaryNotificationView": {
+      "list": "daily-nutrition-summary-notification-view-view-list",
+      "detail": "daily-nutrition-summary-notification-view-view-detail"
+    },
+    "dailyMealReminderNotificationView": {
+      "list": "daily-meal-reminder-notification-view-view-list",
+      "detail": "daily-meal-reminder-notification-view-view-detail"
+    },
+    "User": {
+      "list": "user-list",
+      "profile": "profile"
+    }
+  }
+}
