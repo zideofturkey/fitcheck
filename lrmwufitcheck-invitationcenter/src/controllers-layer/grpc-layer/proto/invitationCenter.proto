@@ -1,0 +1,56 @@
+
+syntax = "proto3";
+
+package invitationCenter;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message inviteLink {
+    string id = 1;
+    string ownerUserId = 2;
+    string inviteCode = 3;
+    string invitedEmail = 4;
+    int32 usageMode = 5;
+    int32 usageLimit = 6;
+    int32 usageCount = 7;
+    int32 inviteState = 8;
+    google.protobuf.Timestamp expiresAt = 9;
+    google.protobuf.Timestamp lastUsedAt = 10;
+    string registeredUserId = 11;
+    google.protobuf.Timestamp deliveryRequestedAt = 12;
+    google.protobuf.Timestamp lastDeliveredAt = 13;
+}
+message inviteAudit {
+    string id = 1;
+    string inviteLinkId = 2;
+    int32 eventType = 3;
+    google.protobuf.Timestamp eventAt = 4;
+    string actorUserId = 5;
+    string eventNote = 6;
+    string relatedEmail = 7;
+}
+
+
+
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service invitationCenterService {
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}

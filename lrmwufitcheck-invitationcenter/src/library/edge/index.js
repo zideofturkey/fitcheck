@@ -1,0 +1,16 @@
+module.exports = {
+  m2mCreateInviteLink: require("./m2mCreateInviteLink.js"),
+  m2mBulkCreateInviteLink: require("./m2mBulkCreateInviteLink.js"),
+  m2mUpdateInviteLinkById: require("./m2mUpdateInviteLinkById.js"),
+  m2mDeleteInviteLinkById: require("./m2mDeleteInviteLinkById.js"),
+  m2mUpdateInviteLinkByQuery: require("./m2mUpdateInviteLinkByQuery.js"),
+  m2mDeleteInviteLinkByQuery: require("./m2mDeleteInviteLinkByQuery.js"),
+  m2mUpdateInviteLinkByIdList: require("./m2mUpdateInviteLinkByIdList.js"),
+  m2mCreateInviteAudit: require("./m2mCreateInviteAudit.js"),
+  m2mBulkCreateInviteAudit: require("./m2mBulkCreateInviteAudit.js"),
+  m2mUpdateInviteAuditById: require("./m2mUpdateInviteAuditById.js"),
+  m2mDeleteInviteAuditById: require("./m2mDeleteInviteAuditById.js"),
+  m2mUpdateInviteAuditByQuery: require("./m2mUpdateInviteAuditByQuery.js"),
+  m2mDeleteInviteAuditByQuery: require("./m2mDeleteInviteAuditByQuery.js"),
+  m2mUpdateInviteAuditByIdList: require("./m2mUpdateInviteAuditByIdList.js"),
+};
