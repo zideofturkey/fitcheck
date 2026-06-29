@@ -1,0 +1,17 @@
+# Pending migration file - generated at deploy time, ephemeral
+
+# One file per server, always same name
+
+pending-migration.js
+
+# Completed migrations are tracked (provide audit trail from all environments)
+
+# Archive files are named: migration-{env}-{from}-to-{to}-{timestamp}.js
+
+# e.g., migration-staging-1.0.0-to-1.1.0-2026-01-19T10-30-00.js
+
+# Always keep the folder structure and docs
+
+!.gitkeep
+!README.md
+!.gitignore

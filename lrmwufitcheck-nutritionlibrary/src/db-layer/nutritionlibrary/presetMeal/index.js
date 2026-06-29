@@ -1,0 +1,30 @@
+const utils = require("./utils");
+const dbApiScripts = require("./dbApiScripts");
+
+module.exports = {
+  createPresetMeal: utils.createPresetMeal,
+  createBulkPresetMeal: utils.createBulkPresetMeal,
+  getIdListOfPresetMealByField: utils.getIdListOfPresetMealByField,
+  getPresetMealById: utils.getPresetMealById,
+  getPresetMealAggById: utils.getPresetMealAggById,
+  getPresetMealListByQuery: utils.getPresetMealListByQuery,
+  getPresetMealListByMQuery: utils.getPresetMealListByMQuery,
+  getPresetMealStatsByQuery: utils.getPresetMealStatsByQuery,
+  getPresetMealStatsByMQuery: utils.getPresetMealStatsByMQuery,
+  getPresetMealByQuery: utils.getPresetMealByQuery,
+  getPresetMealByMQuery: utils.getPresetMealByMQuery,
+  updatePresetMealById: utils.updatePresetMealById,
+  updatePresetMealByIdList: utils.updatePresetMealByIdList,
+  updatePresetMealByQuery: utils.updatePresetMealByQuery,
+  updatePresetMealByMQuery: utils.updatePresetMealByMQuery,
+  deletePresetMealById: utils.deletePresetMealById,
+  deletePresetMealByQuery: utils.deletePresetMealByQuery,
+  deletePresetMealByMQuery: utils.deletePresetMealByMQuery,
+  dbScriptCreatePresetmeal: dbApiScripts.dbScriptCreatePresetmeal,
+  dbScriptGetPresetmeal: dbApiScripts.dbScriptGetPresetmeal,
+  dbScriptListPresetmeals: dbApiScripts.dbScriptListPresetmeals,
+  dbScriptUpdatePresetmeal: dbApiScripts.dbScriptUpdatePresetmeal,
+  dbScriptDeletePresetmeal: dbApiScripts.dbScriptDeletePresetmeal,
+  dbScriptGetPresetmealforlogging: dbApiScripts.dbScriptGetPresetmealforlogging,
+  dbScript_fetchListpresetmeal: dbApiScripts.dbScript_fetchListpresetmeal,
+};

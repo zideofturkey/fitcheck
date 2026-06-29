@@ -1,0 +1,728 @@
+{
+  "info": {
+    "name": "fitcheck-nutritionlibrary-service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "setMacroTarget",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"macroTargetId\": \"00000000-0000-0000-0000-000000000000\",\n  \"calorieTarget\": 0,\n  \"proteinTarget\": 0,\n  \"carbohydrateTarget\": 0,\n  \"fatTarget\": 0,\n  \"sugarTarget\": 0,\n  \"fiberTarget\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/macro-targets",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "macro-targets"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getMyMacroTarget",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/macro-targets/me",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "macro-targets",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createFoodItem",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"foodItemId\": \"00000000-0000-0000-0000-000000000000\",\n  \"foodName\": \"example\",\n  \"caloriePer100g\": 0,\n  \"proteinPer100g\": 0,\n  \"carbohydratePer100g\": 0,\n  \"fatPer100g\": 0,\n  \"sugarPer100g\": 0,\n  \"fiberPer100g\": 0,\n  \"brandName\": \"example\",\n  \"foodCategory\": \"example\",\n  \"creationSource\": \"value\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getFoodItem",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items/:foodItemId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items",
+            ":foodItemId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listFoodItems",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items"
+          ],
+          "query": [
+            {
+              "key": "searchTerm",
+              "value": "String"
+            },
+            {
+              "key": "foodCategory",
+              "value": "String"
+            },
+            {
+              "key": "creationSource",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updateFoodItem",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"foodName\": \"example\",\n  \"caloriePer100g\": 0,\n  \"proteinPer100g\": 0,\n  \"carbohydratePer100g\": 0,\n  \"fatPer100g\": 0,\n  \"sugarPer100g\": 0,\n  \"fiberPer100g\": 0,\n  \"brandName\": \"example\",\n  \"foodCategory\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items/:foodItemId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items",
+            ":foodItemId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deleteFoodItem",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items/:foodItemId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items",
+            ":foodItemId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "createPresetMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetMealId\": \"00000000-0000-0000-0000-000000000000\",\n  \"templateName\": \"example\",\n  \"descriptionText\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getPresetMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listPresetMeals",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updatePresetMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"templateName\": \"example\",\n  \"descriptionText\": \"example\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deletePresetMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "addPresetLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetLineId\": \"00000000-0000-0000-0000-000000000000\",\n  \"foodItemId\": \"00000000-0000-0000-0000-000000000000\",\n  \"gramAmount\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId/lines",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId",
+            "lines"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listPresetLines",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId/lines",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId",
+            "lines"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "deletePresetLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId/lines/:presetLineId",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId",
+            "lines",
+            ":presetLineId"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getPresetMealForLogging",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/preset-meals/:presetMealId/for-logging",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "preset-meals",
+            ":presetMealId",
+            "for-logging"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getFoodItemForLogging",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/food-items/:foodItemId/for-logging",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "food-items",
+            ":foodItemId",
+            "for-logging"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getMyMacroTargetForLogging",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/macro-targets/me/for-logging",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "macro-targets",
+            "me",
+            "for-logging"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListMacroTarget",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistmacrotarget",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistmacrotarget"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListFoodItem",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistfooditem",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistfooditem"
+          ],
+          "query": [
+            {
+              "key": "foodCategory",
+              "value": "String"
+            },
+            {
+              "key": "creationSource",
+              "value": "Enum"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListPresetMeal",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistpresetmeal",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistpresetmeal"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "_fetchListPresetLine",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "ExampleValue",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{serviceUrl}}//v1/_fetchlistpresetline",
+          "host": [
+            "{{serviceUrl}}"
+          ],
+          "path": [
+            "v1",
+            "_fetchlistpresetline"
+          ],
+          "query": [
+            {
+              "key": "presetMealId",
+              "value": "ID"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

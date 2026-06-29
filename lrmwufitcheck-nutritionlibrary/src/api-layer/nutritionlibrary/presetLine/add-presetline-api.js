@@ -1,0 +1,533 @@
+const { runMScript } = require("common");
+
+const PresetLineManager = require("./PresetLineManager");
+
+const {
+  dbScriptAddPresetline,
+  getPresetMealByQuery,
+  getFoodItemByQuery,
+} = require("dbLayer");
+const { ElasticIndexer } = require("serviceCommon");
+const {
+  hexaLogger,
+  PaymentGateError,
+  HttpServerError,
+  BadRequestError,
+  NotAuthenticatedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+  UnprocessableEntityError,
+  isValidObjectId,
+  isValidUUID,
+  getRedisData,
+} = require("common");
+
+// use this object to access db utils functions with in Mscript or actions
+const db = require("dbLayer");
+
+class AddPresetLineManager extends PresetLineManager {
+  constructor(request, controllerType) {
+    super(request, {
+      name: "addPresetLine",
+      controllerType: controllerType,
+      pagination: false,
+      crudType: "create",
+      loginRequired: true,
+      M2MAllowed: false,
+    });
+
+    this.dataName = "presetLine";
+  }
+
+  parametersToJson(jsonObj) {
+    super.parametersToJson(jsonObj);
+    jsonObj.presetLineId = this.presetLineId;
+    jsonObj.foodItemId = this.foodItemId;
+    jsonObj.gramAmount = this.gramAmount;
+    jsonObj.presetMealId = this.presetMealId;
+  }
+
+  async checkBasicAuth() {
+    if (this.checkAbsolute()) return true;
+  }
+
+  readRestParameters(request) {
+    this.presetLineId = request.body?.["presetLineId"];
+    this.foodItemId = request.body?.["foodItemId"];
+    this.gramAmount = request.body?.["gramAmount"];
+    this.presetMealId = request.params?.["presetMealId"];
+    this.id = request.body?.id ?? request.query?.id ?? request.id;
+    this.requestData = request.body;
+    this.queryData = request.query ?? {};
+    const url = request.url;
+    this.urlPath = url.slice(1).split("/").join(".");
+
+    this.presetLineId = this.presetLineId ?? this.id;
+    this.id = this.presetLineId;
+  }
+
+  readMcpParameters(request) {
+    this.presetLineId = request.mcpParams?.["presetLineId"];
+    this.foodItemId = request.mcpParams?.["foodItemId"];
+    this.gramAmount = request.mcpParams?.["gramAmount"];
+    this.presetMealId = request.mcpParams?.["presetMealId"];
+    this.id = request.mcpParams?.id;
+    this.requestData = request.mcpParams;
+
+    this.presetLineId = this.presetLineId ?? this.id;
+    this.id = this.presetLineId;
+  }
+
+  async transformParameters() {}
+
+  // data clause methods
+
+  async buildDataClause() {
+    const { newUUID } = require("common");
+
+    const { hashString } = require("common");
+
+    if (this.id) this.presetLineId = this.id;
+    if (!this.presetLineId) this.presetLineId = newUUID(false);
+    this.id = this.presetLineId;
+
+    const dataClause = {
+      id: this.presetLineId,
+      presetMealId: runMScript(() => this.presetMealId, {
+        path: "services[2].businessLogic[12].dataClauseItems[0].value",
+      }),
+      foodItemId: runMScript(() => this.foodItemId, {
+        path: "services[2].businessLogic[12].dataClauseItems[1].value",
+      }),
+      lineFoodName: runMScript(() => this.resolvedFood.foodName, {
+        path: "services[2].businessLogic[12].dataClauseItems[2].value",
+      }),
+      gramAmount: runMScript(() => this.gramAmount, {
+        path: "services[2].businessLogic[12].dataClauseItems[3].value",
+      }),
+      lineCalories: runMScript(
+        () => (this.resolvedFood.caloriePer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[4].value" },
+      ),
+      lineProtein: runMScript(
+        () => (this.resolvedFood.proteinPer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[5].value" },
+      ),
+      lineCarbohydrates: runMScript(
+        () => (this.resolvedFood.carbohydratePer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[6].value" },
+      ),
+      lineFat: runMScript(
+        () => (this.resolvedFood.fatPer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[7].value" },
+      ),
+      lineSugar: runMScript(
+        () => (this.resolvedFood.sugarPer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[8].value" },
+      ),
+      lineFiber: runMScript(
+        () => (this.resolvedFood.fiberPer100g * this.gramAmount) / 100,
+        { path: "services[2].businessLogic[12].dataClauseItems[9].value" },
+      ),
+      isActive: true,
+      _archivedAt: null,
+    };
+
+    // Resolve any Promise-valued fields. Designers should normally write
+    // `await LIB.xx()` in MScript when the call is async, but if they
+    // forget the `await`, runMScript returns the unresolved Promise and
+    // it lands here. Awaiting Promise values keeps the row write safe;
+    // sync values pass through untouched (no microtask cost).
+    for (const _dcKey of Object.keys(dataClause)) {
+      const _dcVal = dataClause[_dcKey];
+      if (_dcVal && typeof _dcVal.then === "function") {
+        dataClause[_dcKey] = await _dcVal;
+      }
+    }
+
+    // ID-typed dataClause fields strict-validation
+    {
+      const { isValidUUID } = require("common");
+      const _idValidator = isValidUUID;
+      const _idFieldsAndIsArray = [
+        ["presetMealId", false],
+        ["foodItemId", false],
+      ];
+      for (const [_idKey, _isArr] of _idFieldsAndIsArray) {
+        const _idVal = dataClause[_idKey];
+        if (_idVal == null) continue; // nullable / unset ID columns OK
+        if (_isArr) {
+          if (!Array.isArray(_idVal)) {
+            throw new BadRequestError(`errMsg_${_idKey}MustBeAnArray`);
+          }
+          for (const _item of _idVal) {
+            if (_item == null) continue;
+            if (!_idValidator(_item)) {
+              throw new BadRequestError(
+                `errMsg_${_idKey}ArrayHasAnInvalidItem`,
+              );
+            }
+          }
+        } else {
+          if (!_idValidator(_idVal)) {
+            throw new BadRequestError(`errMsg_${_idKey}TypeIsNotValid`);
+          }
+        }
+      }
+    }
+
+    return dataClause;
+  }
+
+  checkParameterType_presetLineId(paramValue) {
+    if (!isValidUUID(paramValue)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  checkParameter_presetLineId() {
+    if (this.presetLineId == null) return;
+
+    if (Array.isArray(this.presetLineId)) {
+      throw new BadRequestError("errMsg_presetLineIdMustNotBeAnArray");
+    }
+
+    // Parameter Type: ID
+
+    if (!this.checkParameterType_presetLineId(this.presetLineId)) {
+      throw new BadRequestError("errMsg_presetLineIdTypeIsNotValid");
+    }
+  }
+
+  checkParameterType_foodItemId(paramValue) {
+    if (!isValidUUID(paramValue)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  checkParameter_foodItemId() {
+    if (this.foodItemId == null) {
+      throw new BadRequestError("errMsg_foodItemIdisRequired");
+    }
+
+    if (Array.isArray(this.foodItemId)) {
+      throw new BadRequestError("errMsg_foodItemIdMustNotBeAnArray");
+    }
+
+    // Parameter Type: ID
+
+    if (!this.checkParameterType_foodItemId(this.foodItemId)) {
+      throw new BadRequestError("errMsg_foodItemIdTypeIsNotValid");
+    }
+  }
+
+  checkParameterType_gramAmount(paramValue) {
+    if (isNaN(paramValue)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  checkParameter_gramAmount() {
+    if (this.gramAmount == null) {
+      throw new BadRequestError("errMsg_gramAmountisRequired");
+    }
+
+    if (Array.isArray(this.gramAmount)) {
+      throw new BadRequestError("errMsg_gramAmountMustNotBeAnArray");
+    }
+
+    // Parameter Type: Double
+
+    if (!this.checkParameterType_gramAmount(this.gramAmount)) {
+      throw new BadRequestError("errMsg_gramAmountTypeIsNotValid");
+    }
+  }
+
+  checkParameter_presetMealId() {
+    if (this.presetMealId == null) {
+      throw new BadRequestError("errMsg_presetMealIdisRequired");
+    }
+
+    if (Array.isArray(this.presetMealId)) {
+      throw new BadRequestError("errMsg_presetMealIdMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
+  checkParameters() {
+    if (this.presetLineId === "") this.presetLineId = null;
+    this.checkParameter_presetLineId();
+
+    if (this.foodItemId === "") this.foodItemId = null;
+    this.checkParameter_foodItemId();
+
+    this.checkParameter_gramAmount();
+
+    this.checkParameter_presetMealId();
+
+    // filter parameters
+  }
+
+  checkAbsolute() {
+    if (this.absoluteAuth !== null) return this.absoluteAuth;
+
+    // Check if user has an absolute role to ignore all authorization validations and return
+    if (this.userHasRole("superAdmin")) {
+      this.absoluteAuth = true;
+      return true;
+    }
+    this.absoluteAuth = false;
+    return false;
+  }
+
+  async executeMainOperation() {
+    return await dbScriptAddPresetline(this);
+
+    /* 
+    the main operation result is accessable in the context through 
+    this.dbResult, this.presetLine, this.data
+    */
+  }
+
+  async addToOutput() {
+    const _target = this._streamOutput ?? this.output;
+  }
+
+  // Work Flow
+
+  async afterCheckParameters() {
+    try {
+      this.parentPreset = await this.fetchParentPreset();
+    } catch (err) {
+      console.log("fetchParentPreset Action Error:", err.message);
+      //**errorLog
+      throw err;
+    }
+    try {
+      await this.validateParentPresetExists();
+    } catch (err) {
+      console.log("validateParentPresetExists Action Error:", err.message);
+      //**errorLog
+      throw err;
+    }
+    try {
+      this.resolvedFood = await this.fetchFoodItem();
+    } catch (err) {
+      console.log("fetchFoodItem Action Error:", err.message);
+      //**errorLog
+      throw err;
+    }
+    try {
+      await this.validateFoodItemExists();
+    } catch (err) {
+      console.log("validateFoodItemExists Action Error:", err.message);
+      //**errorLog
+      throw err;
+    }
+  }
+
+  async afterMainCreateOperation() {
+    try {
+      await this.recalcPresetTotalsAfterAdd();
+    } catch (err) {
+      console.log("recalcPresetTotalsAfterAdd Action Error:", err.message);
+      //**errorLog
+      throw err;
+    }
+  }
+
+  // Action Store
+
+  /***********************************************************************
+   ** Ensure the parent preset exists and belongs to the user
+   ***********************************************************************/
+
+  async validateParentPresetExists() {
+    if (this.checkAbsolute()) return true;
+
+    let isValid;
+    try {
+      isValid = runMScript(() => this.parentPreset != null, {
+        path: "services[2].businessLogic[12].actions.validationActions[0].validationScript",
+      });
+      // Async-safety: when the validation script calls an async LIB
+      // function without `await` (e.g. `LIB.validateGroupMembership(...)`
+      // instead of `await LIB.validateGroupMembership(...)`), the
+      // expression evaluates to an unresolved Promise. Without this pass,
+      // the Promise is stored in isValid/isError, the `if (!isValid)`
+      // check below sees a truthy thenable (so passes), and the eventual
+      // rejection surfaces as an unhandled rejection → 500 instead of the
+      // intended typed 4xx. Mirrors the dataClause Promise-resolve pass
+      // in inc.dataclausemethod.ejs.
+      if (isValid && typeof isValid.then === "function") {
+        isValid = await isValid;
+      }
+    } catch (err) {
+      // Designer-emitted 4xx throws (BadRequestError, ForbiddenError,
+      // NotFoundError, ConflictError, UnprocessableEntityError, …) propagate
+      // verbatim — the MScript intentionally surfaced a typed business
+      // validation failure and its message belongs in the response. Only
+      // wrap genuinely unexpected exceptions (TypeError, ReferenceError,
+      // null-deref, etc.) as 500 so operators can tell "rule rejected
+      // input" from "the validation itself crashed".
+      if (
+        err &&
+        typeof err.status === "number" &&
+        err.status >= 400 &&
+        err.status < 500
+      ) {
+        throw err;
+      }
+      throw new HttpServerError(
+        `Validation 'validateParentPresetExists' script failed: ${err.message}`,
+        err,
+      );
+    }
+
+    if (!isValid) {
+      throw new ForbiddenError("Preset meal not found or access denied");
+    }
+    return isValid;
+  }
+
+  /***********************************************************************
+   ** Ensure the food item exists and belongs to the user
+   ***********************************************************************/
+
+  async validateFoodItemExists() {
+    let isValid;
+    try {
+      isValid = runMScript(() => this.resolvedFood != null, {
+        path: "services[2].businessLogic[12].actions.validationActions[1].validationScript",
+      });
+      // Async-safety: when the validation script calls an async LIB
+      // function without `await` (e.g. `LIB.validateGroupMembership(...)`
+      // instead of `await LIB.validateGroupMembership(...)`), the
+      // expression evaluates to an unresolved Promise. Without this pass,
+      // the Promise is stored in isValid/isError, the `if (!isValid)`
+      // check below sees a truthy thenable (so passes), and the eventual
+      // rejection surfaces as an unhandled rejection → 500 instead of the
+      // intended typed 4xx. Mirrors the dataClause Promise-resolve pass
+      // in inc.dataclausemethod.ejs.
+      if (isValid && typeof isValid.then === "function") {
+        isValid = await isValid;
+      }
+    } catch (err) {
+      // Designer-emitted 4xx throws (BadRequestError, ForbiddenError,
+      // NotFoundError, ConflictError, UnprocessableEntityError, …) propagate
+      // verbatim — the MScript intentionally surfaced a typed business
+      // validation failure and its message belongs in the response. Only
+      // wrap genuinely unexpected exceptions (TypeError, ReferenceError,
+      // null-deref, etc.) as 500 so operators can tell "rule rejected
+      // input" from "the validation itself crashed".
+      if (
+        err &&
+        typeof err.status === "number" &&
+        err.status >= 400 &&
+        err.status < 500
+      ) {
+        throw err;
+      }
+      throw new HttpServerError(
+        `Validation 'validateFoodItemExists' script failed: ${err.message}`,
+        err,
+      );
+    }
+
+    if (!isValid) {
+      throw new NotFoundError("Food item not found");
+    }
+    return isValid;
+  }
+
+  /***********************************************************************
+   ** Fetch the parent preset meal to validate ownership
+   ***********************************************************************/
+  async fetchParentPreset() {
+    // Fetch Object on childObject presetMeal
+
+    const userQuery = {
+      $and: [
+        runMScript(
+          () => ({
+            id: this.presetMealId,
+            userId: this.session.userId,
+            isActive: true,
+          }),
+          {
+            path: "services[2].businessLogic[12].actions.fetchObjectActions[0].whereClause",
+          },
+        ),
+        { isActive: true },
+      ],
+    };
+
+    const { convertUserQueryToSequelizeQuery } = require("common");
+    const scriptQuery = convertUserQueryToSequelizeQuery(userQuery);
+
+    // get object from db
+    const data = await getPresetMealByQuery(scriptQuery);
+
+    return data;
+  }
+
+  /***********************************************************************
+   ** Fetch the food item to validate ownership and get nutrition values
+   ***********************************************************************/
+  async fetchFoodItem() {
+    // Fetch Object on childObject foodItem
+
+    const userQuery = {
+      $and: [
+        runMScript(
+          () => ({
+            id: this.foodItemId,
+            userId: this.session.userId,
+            isActive: true,
+          }),
+          {
+            path: "services[2].businessLogic[12].actions.fetchObjectActions[1].whereClause",
+          },
+        ),
+        { isActive: true },
+      ],
+    };
+
+    const { convertUserQueryToSequelizeQuery } = require("common");
+    const scriptQuery = convertUserQueryToSequelizeQuery(userQuery);
+
+    // get object from db
+    const data = await getFoodItemByQuery(scriptQuery);
+
+    return data;
+  }
+
+  /***********************************************************************
+   ** Recalculate and persist aggregate nutrition totals on the parent
+   ** preset after the new line is created
+   ***********************************************************************/
+
+  async recalcPresetTotalsAfterAdd() {
+    try {
+      return runMScript(() => LIB.recalculatePresetTotals(this.presetMealId), {
+        path: "services[2].businessLogic[12].actions.functionCallActions[0].callScript",
+      });
+    } catch (err) {
+      console.error(
+        "Error in FunctionCallAction recalcPresetTotalsAfterAdd:",
+        err,
+      );
+      throw err;
+    }
+  }
+}
+
+module.exports = AddPresetLineManager;

@@ -1,0 +1,82 @@
+
+syntax = "proto3";
+
+package nutritionLibrary;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+message macroTarget {
+    string id = 1;
+    string userId = 2;
+    double calorieTarget = 3;
+    double proteinTarget = 4;
+    double carbohydrateTarget = 5;
+    double fatTarget = 6;
+    double sugarTarget = 7;
+    double fiberTarget = 8;
+    google.protobuf.Timestamp effectiveFrom = 9;
+}
+message foodItem {
+    string id = 1;
+    string userId = 2;
+    string foodName = 3;
+    double caloriePer100g = 4;
+    double proteinPer100g = 5;
+    double carbohydratePer100g = 6;
+    double fatPer100g = 7;
+    double sugarPer100g = 8;
+    double fiberPer100g = 9;
+    string brandName = 10;
+    string foodCategory = 11;
+    int32 creationSource = 12;
+}
+message presetMeal {
+    string id = 1;
+    string userId = 2;
+    string templateName = 3;
+    string descriptionText = 4;
+    double totalCalories = 5;
+    double totalProtein = 6;
+    double totalCarbohydrates = 7;
+    double totalFat = 8;
+    double totalSugar = 9;
+    double totalFiber = 10;
+}
+message presetLine {
+    string id = 1;
+    string presetMealId = 2;
+    string foodItemId = 3;
+    string lineFoodName = 4;
+    double gramAmount = 5;
+    double lineCalories = 6;
+    double lineProtein = 7;
+    double lineCarbohydrates = 8;
+    double lineFat = 9;
+    double lineSugar = 10;
+    double lineFiber = 11;
+}
+
+
+
+
+message VoidRequest {}
+
+message CurrentUserReply {
+    string userId = 1;
+    string sessionId = 2;
+    string fullname = 3;
+    string email = 4;
+    string roleId = 5;
+    string avatar = 6;
+    bool emailVerified = 7;
+        string accessToken = 8;
+}
+
+message HelloMessageReply {
+    string hello = 1;
+}
+
+service nutritionLibraryService {
+    rpc currentUser(VoidRequest) returns (CurrentUserReply);
+    rpc helloMessage(VoidRequest) returns (HelloMessageReply);
+}

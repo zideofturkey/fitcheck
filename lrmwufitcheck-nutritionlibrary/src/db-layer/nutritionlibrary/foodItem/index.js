@@ -1,0 +1,30 @@
+const utils = require("./utils");
+const dbApiScripts = require("./dbApiScripts");
+
+module.exports = {
+  createFoodItem: utils.createFoodItem,
+  createBulkFoodItem: utils.createBulkFoodItem,
+  getIdListOfFoodItemByField: utils.getIdListOfFoodItemByField,
+  getFoodItemById: utils.getFoodItemById,
+  getFoodItemAggById: utils.getFoodItemAggById,
+  getFoodItemListByQuery: utils.getFoodItemListByQuery,
+  getFoodItemListByMQuery: utils.getFoodItemListByMQuery,
+  getFoodItemStatsByQuery: utils.getFoodItemStatsByQuery,
+  getFoodItemStatsByMQuery: utils.getFoodItemStatsByMQuery,
+  getFoodItemByQuery: utils.getFoodItemByQuery,
+  getFoodItemByMQuery: utils.getFoodItemByMQuery,
+  updateFoodItemById: utils.updateFoodItemById,
+  updateFoodItemByIdList: utils.updateFoodItemByIdList,
+  updateFoodItemByQuery: utils.updateFoodItemByQuery,
+  updateFoodItemByMQuery: utils.updateFoodItemByMQuery,
+  deleteFoodItemById: utils.deleteFoodItemById,
+  deleteFoodItemByQuery: utils.deleteFoodItemByQuery,
+  deleteFoodItemByMQuery: utils.deleteFoodItemByMQuery,
+  dbScriptCreateFooditem: dbApiScripts.dbScriptCreateFooditem,
+  dbScriptGetFooditem: dbApiScripts.dbScriptGetFooditem,
+  dbScriptListFooditems: dbApiScripts.dbScriptListFooditems,
+  dbScriptUpdateFooditem: dbApiScripts.dbScriptUpdateFooditem,
+  dbScriptDeleteFooditem: dbApiScripts.dbScriptDeleteFooditem,
+  dbScriptGetFooditemforlogging: dbApiScripts.dbScriptGetFooditemforlogging,
+  dbScript_fetchListfooditem: dbApiScripts.dbScript_fetchListfooditem,
+};
