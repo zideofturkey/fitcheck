@@ -6,6 +6,7 @@ const {
   dbScriptAddPresetline,
   getPresetMealByQuery,
   getFoodItemByQuery,
+  getDishByQuery,
 } = require("dbLayer");
 const { ElasticIndexer } = require("serviceCommon");
 const {
@@ -44,6 +45,7 @@ class AddPresetLineManager extends PresetLineManager {
     super.parametersToJson(jsonObj);
     jsonObj.presetLineId = this.presetLineId;
     jsonObj.foodItemId = this.foodItemId;
+    jsonObj.dishId = this.dishId;
     jsonObj.gramAmount = this.gramAmount;
     jsonObj.presetMealId = this.presetMealId;
   }
@@ -55,6 +57,7 @@ class AddPresetLineManager extends PresetLineManager {
   readRestParameters(request) {
     this.presetLineId = request.body?.["presetLineId"];
     this.foodItemId = request.body?.["foodItemId"];
+    this.dishId = request.body?.["dishId"];
     this.gramAmount = request.body?.["gramAmount"];
     this.presetMealId = request.params?.["presetMealId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
@@ -70,6 +73,7 @@ class AddPresetLineManager extends PresetLineManager {
   readMcpParameters(request) {
     this.presetLineId = request.mcpParams?.["presetLineId"];
     this.foodItemId = request.mcpParams?.["foodItemId"];
+    this.dishId = request.mcpParams?.["dishId"];
     this.gramAmount = request.mcpParams?.["gramAmount"];
     this.presetMealId = request.mcpParams?.["presetMealId"];
     this.id = request.mcpParams?.id;
@@ -92,43 +96,60 @@ class AddPresetLineManager extends PresetLineManager {
     if (!this.presetLineId) this.presetLineId = newUUID(false);
     this.id = this.presetLineId;
 
+    // Either/or nutrition source: exactly one of foodItemId/dishId is set
+    // by this point (enforced in validateExactlyOneSource()). A foodItem
+    // line scales per-100g values by gramAmount, exactly as before. A dish
+    // line scales the dish's own totals against the dish's totalGramWeight
+    // (its base recipe weight - sum of its own dishLine gram amounts),
+    // mirroring the per-100g approach but using the dish's own weight as
+    // the base instead of a fixed 100g.
+    const isFoodSource = this.foodItemId != null;
+    const dishFactor = isFoodSource
+      ? null
+      : this.resolvedDish.totalGramWeight > 0
+        ? this.gramAmount / this.resolvedDish.totalGramWeight
+        : 0;
+
+    const round2 = (v) => Math.round(v * 100) / 100;
+
     const dataClause = {
       id: this.presetLineId,
-      presetMealId: runMScript(() => this.presetMealId, {
-        path: "services[2].businessLogic[12].dataClauseItems[0].value",
-      }),
-      foodItemId: runMScript(() => this.foodItemId, {
-        path: "services[2].businessLogic[12].dataClauseItems[1].value",
-      }),
-      lineFoodName: runMScript(() => this.resolvedFood.foodName, {
-        path: "services[2].businessLogic[12].dataClauseItems[2].value",
-      }),
-      gramAmount: runMScript(() => this.gramAmount, {
-        path: "services[2].businessLogic[12].dataClauseItems[3].value",
-      }),
-      lineCalories: runMScript(
-        () => (this.resolvedFood.caloriePer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[4].value" },
+      presetMealId: this.presetMealId,
+      foodItemId: this.foodItemId ?? null,
+      dishId: this.dishId ?? null,
+      lineFoodName: isFoodSource
+        ? this.resolvedFood.foodName
+        : this.resolvedDish.dishName,
+      gramAmount: this.gramAmount,
+      lineCalories: round2(
+        isFoodSource
+          ? (this.resolvedFood.caloriePer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalCalories * dishFactor,
       ),
-      lineProtein: runMScript(
-        () => (this.resolvedFood.proteinPer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[5].value" },
+      lineProtein: round2(
+        isFoodSource
+          ? (this.resolvedFood.proteinPer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalProtein * dishFactor,
       ),
-      lineCarbohydrates: runMScript(
-        () => (this.resolvedFood.carbohydratePer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[6].value" },
+      lineCarbohydrates: round2(
+        isFoodSource
+          ? (this.resolvedFood.carbohydratePer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalCarbohydrates * dishFactor,
       ),
-      lineFat: runMScript(
-        () => (this.resolvedFood.fatPer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[7].value" },
+      lineFat: round2(
+        isFoodSource
+          ? (this.resolvedFood.fatPer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalFat * dishFactor,
       ),
-      lineSugar: runMScript(
-        () => (this.resolvedFood.sugarPer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[8].value" },
+      lineSugar: round2(
+        isFoodSource
+          ? (this.resolvedFood.sugarPer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalSugar * dishFactor,
       ),
-      lineFiber: runMScript(
-        () => (this.resolvedFood.fiberPer100g * this.gramAmount) / 100,
-        { path: "services[2].businessLogic[12].dataClauseItems[9].value" },
+      lineFiber: round2(
+        isFoodSource
+          ? (this.resolvedFood.fiberPer100g * this.gramAmount) / 100
+          : this.resolvedDish.totalFiber * dishFactor,
       ),
       isActive: true,
       _archivedAt: null,
@@ -153,6 +174,7 @@ class AddPresetLineManager extends PresetLineManager {
       const _idFieldsAndIsArray = [
         ["presetMealId", false],
         ["foodItemId", false],
+        ["dishId", false],
       ];
       for (const [_idKey, _isArr] of _idFieldsAndIsArray) {
         const _idVal = dataClause[_idKey];
@@ -211,9 +233,7 @@ class AddPresetLineManager extends PresetLineManager {
   }
 
   checkParameter_foodItemId() {
-    if (this.foodItemId == null) {
-      throw new BadRequestError("errMsg_foodItemIdisRequired");
-    }
+    if (this.foodItemId == null) return;
 
     if (Array.isArray(this.foodItemId)) {
       throw new BadRequestError("errMsg_foodItemIdMustNotBeAnArray");
@@ -223,6 +243,28 @@ class AddPresetLineManager extends PresetLineManager {
 
     if (!this.checkParameterType_foodItemId(this.foodItemId)) {
       throw new BadRequestError("errMsg_foodItemIdTypeIsNotValid");
+    }
+  }
+
+  checkParameterType_dishId(paramValue) {
+    if (!isValidUUID(paramValue)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  checkParameter_dishId() {
+    if (this.dishId == null) return;
+
+    if (Array.isArray(this.dishId)) {
+      throw new BadRequestError("errMsg_dishIdMustNotBeAnArray");
+    }
+
+    // Parameter Type: ID
+
+    if (!this.checkParameterType_dishId(this.dishId)) {
+      throw new BadRequestError("errMsg_dishIdTypeIsNotValid");
     }
   }
 
@@ -268,6 +310,9 @@ class AddPresetLineManager extends PresetLineManager {
 
     if (this.foodItemId === "") this.foodItemId = null;
     this.checkParameter_foodItemId();
+
+    if (this.dishId === "") this.dishId = null;
+    this.checkParameter_dishId();
 
     this.checkParameter_gramAmount();
 
@@ -319,18 +364,42 @@ class AddPresetLineManager extends PresetLineManager {
       throw err;
     }
     try {
-      this.resolvedFood = await this.fetchFoodItem();
+      await this.validateExactlyOneSource();
     } catch (err) {
-      console.log("fetchFoodItem Action Error:", err.message);
+      console.log("validateExactlyOneSource Action Error:", err.message);
       //**errorLog
       throw err;
     }
-    try {
-      await this.validateFoodItemExists();
-    } catch (err) {
-      console.log("validateFoodItemExists Action Error:", err.message);
-      //**errorLog
-      throw err;
+    if (this.foodItemId != null) {
+      try {
+        this.resolvedFood = await this.fetchFoodItem();
+      } catch (err) {
+        console.log("fetchFoodItem Action Error:", err.message);
+        //**errorLog
+        throw err;
+      }
+      try {
+        await this.validateFoodItemExists();
+      } catch (err) {
+        console.log("validateFoodItemExists Action Error:", err.message);
+        //**errorLog
+        throw err;
+      }
+    } else {
+      try {
+        this.resolvedDish = await this.fetchDish();
+      } catch (err) {
+        console.log("fetchDish Action Error:", err.message);
+        //**errorLog
+        throw err;
+      }
+      try {
+        await this.validateDishExists();
+      } catch (err) {
+        console.log("validateDishExists Action Error:", err.message);
+        //**errorLog
+        throw err;
+      }
     }
   }
 
@@ -396,6 +465,22 @@ class AddPresetLineManager extends PresetLineManager {
       throw new ForbiddenError("Preset meal not found or access denied");
     }
     return isValid;
+  }
+
+  /***********************************************************************
+   ** Ensure exactly one of foodItemId / dishId was provided - a preset
+   ** line references either an ingredient or a dish, never both/neither
+   ***********************************************************************/
+
+  async validateExactlyOneSource() {
+    const hasFood = this.foodItemId != null;
+    const hasDish = this.dishId != null;
+    if (hasFood === hasDish) {
+      throw new BadRequestError(
+        "errMsg_ExactlyOneOfFoodItemIdOrDishIdMustBeProvided",
+      );
+    }
+    return true;
   }
 
   /***********************************************************************
@@ -506,6 +591,38 @@ class AddPresetLineManager extends PresetLineManager {
 
     // get object from db
     const data = await getFoodItemByQuery(scriptQuery);
+
+    return data;
+  }
+
+  /***********************************************************************
+   ** Ensure the dish exists and belongs to the user
+   ***********************************************************************/
+
+  async validateDishExists() {
+    if (!this.resolvedDish) {
+      throw new NotFoundError("Dish not found");
+    }
+    return true;
+  }
+
+  /***********************************************************************
+   ** Fetch the dish to validate ownership and get its aggregate nutrition
+   ***********************************************************************/
+  async fetchDish() {
+    if (!this.dishId) return null;
+
+    const userQuery = {
+      $and: [
+        { id: this.dishId, userId: this.session.userId, isActive: true },
+        { isActive: true },
+      ],
+    };
+
+    const { convertUserQueryToSequelizeQuery } = require("common");
+    const scriptQuery = convertUserQueryToSequelizeQuery(userQuery);
+
+    const data = await getDishByQuery(scriptQuery);
 
     return data;
   }

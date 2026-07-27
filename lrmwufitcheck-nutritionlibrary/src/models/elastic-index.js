@@ -66,6 +66,47 @@ const presetLineMapping = {
   id: { type: "keyword" },
   presetMealId: { type: "keyword", index: true },
   foodItemId: { type: "keyword", index: false },
+  dishId: { type: "keyword", index: true },
+  lineFoodName: { type: "keyword", index: false },
+  gramAmount: { type: "double", index: false },
+  lineCalories: { type: "double", index: false },
+  lineProtein: { type: "double", index: false },
+  lineCarbohydrates: { type: "double", index: false },
+  lineFat: { type: "double", index: false },
+  lineSugar: { type: "double", index: false },
+  lineFiber: { type: "double", index: false },
+  isActive: { type: "boolean" },
+  recordVersion: { type: "integer" },
+  createdAt: { type: "date" },
+  updatedAt: { type: "date" },
+  _owner: { type: "keyword" },
+};
+const dishMapping = {
+  id: { type: "keyword" },
+  userId: { type: "keyword", index: false },
+  dishName: {
+    type: "keyword",
+    index: true,
+    fields: { ftext: { type: "text" } },
+  },
+  descriptionText: { type: "keyword", index: false },
+  totalCalories: { type: "double", index: false },
+  totalProtein: { type: "double", index: false },
+  totalCarbohydrates: { type: "double", index: false },
+  totalFat: { type: "double", index: false },
+  totalSugar: { type: "double", index: false },
+  totalFiber: { type: "double", index: false },
+  totalGramWeight: { type: "double", index: false },
+  isActive: { type: "boolean" },
+  recordVersion: { type: "integer" },
+  createdAt: { type: "date" },
+  updatedAt: { type: "date" },
+  _owner: { type: "keyword" },
+};
+const dishLineMapping = {
+  id: { type: "keyword" },
+  dishId: { type: "keyword", index: true },
+  foodItemId: { type: "keyword", index: false },
   lineFoodName: { type: "keyword", index: false },
   gramAmount: { type: "double", index: false },
   lineCalories: { type: "double", index: false },
@@ -87,6 +128,8 @@ const ELASTIC_MAPPINGS = {
   foodItem: foodItemMapping,
   presetMeal: presetMealMapping,
   presetLine: presetLineMapping,
+  dish: dishMapping,
+  dishLine: dishLineMapping,
 };
 
 const updateElasticIndexMappings = async () => {
@@ -99,6 +142,10 @@ const updateElasticIndexMappings = async () => {
     await new ElasticIndexer("presetMeal").updateMapping(presetMealMapping);
     ElasticIndexer.addMapping("presetLine", presetLineMapping);
     await new ElasticIndexer("presetLine").updateMapping(presetLineMapping);
+    ElasticIndexer.addMapping("dish", dishMapping);
+    await new ElasticIndexer("dish").updateMapping(dishMapping);
+    ElasticIndexer.addMapping("dishLine", dishLineMapping);
+    await new ElasticIndexer("dishLine").updateMapping(dishLineMapping);
   } catch (err) {
     hexaLogger.insertError(
       "UpdateElasticIndexMappingsError",

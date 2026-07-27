@@ -26,4 +26,16 @@ module.exports = {
   ListPresetLinesManager: require("./presetLine/list-presetlines-api"),
   DeletePresetLineManager: require("./presetLine/delete-presetline-api"),
   _fetchListPresetLineManager: require("./presetLine/_fetch-listpresetline-api"),
+  // Dish Db Object
+  CreateDishManager: require("./dish/create-dish-api"),
+  GetDishManager: require("./dish/get-dish-api"),
+  ListDishesManager: require("./dish/list-dishes-api"),
+  UpdateDishManager: require("./dish/update-dish-api"),
+  DeleteDishManager: require("./dish/delete-dish-api"),
+  _fetchListDishManager: require("./dish/_fetch-listdish-api"),
+  // DishLine Db Object
+  AddDishLineManager: require("./dishLine/add-dishline-api"),
+  ListDishLinesManager: require("./dishLine/list-dishlines-api"),
+  DeleteDishLineManager: require("./dishLine/delete-dishline-api"),
+  _fetchListDishLineManager: require("./dishLine/_fetch-listdishline-api"),
 };

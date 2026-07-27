@@ -1,7 +1,7 @@
 const { HttpServerError, NotFoundError } = require("common");
 const { hexaLogger } = require("common");
 
-const { MacroTarget, FoodItem, PresetMeal, PresetLine } = require("models");
+const { MacroTarget, FoodItem, PresetMeal, PresetLine, Dish, DishLine } = require("models");
 const { Op } = require("sequelize");
 
 const getMacroTargetAggById = async (macroTargetId) => {

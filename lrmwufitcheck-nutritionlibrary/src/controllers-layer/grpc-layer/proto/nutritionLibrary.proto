@@ -54,6 +54,33 @@ message presetLine {
     double lineFat = 9;
     double lineSugar = 10;
     double lineFiber = 11;
+    string dishId = 12;
+}
+message dish {
+    string id = 1;
+    string userId = 2;
+    string dishName = 3;
+    string descriptionText = 4;
+    double totalCalories = 5;
+    double totalProtein = 6;
+    double totalCarbohydrates = 7;
+    double totalFat = 8;
+    double totalSugar = 9;
+    double totalFiber = 10;
+    double totalGramWeight = 11;
+}
+message dishLine {
+    string id = 1;
+    string dishId = 2;
+    string foodItemId = 3;
+    string lineFoodName = 4;
+    double gramAmount = 5;
+    double lineCalories = 6;
+    double lineProtein = 7;
+    double lineCarbohydrates = 8;
+    double lineFat = 9;
+    double lineSugar = 10;
+    double lineFiber = 11;
 }
 
 

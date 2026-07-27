@@ -1,0 +1,68 @@
+
+# Isolated local dev infrastructure for lrmwufitcheck-nutritionlibrary only.
+# Not part of the Mindbricks deploy pipeline - for local `npm start` (SERVICE_CONFIG=dev)
+# development against .dev.env, which points at localhost:5432 / localhost:6379 / localhost:9200.
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml down          # stop (keep data)
+#   docker compose -f docker-compose.dev.yml down -v       # stop and wipe data volumes
+
+name: lrmwufitcheck-nutritionlibrary-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nutritionlibrary-dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+      # PG_PASSWORD is empty in .dev.env - trust auth matches that (dev-only, localhost-bound)
+      POSTGRES_DB: lrmwufitcheck-nutritionlibrary-service
+    ports:
+      - "5432:5432"
+    volumes:
+      - nutritionlibrary-dev-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: nutritionlibrary-dev-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - nutritionlibrary-dev-redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: nutritionlibrary-dev-elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - nutritionlibrary-dev-esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  nutritionlibrary-dev-pgdata:
+  nutritionlibrary-dev-redisdata:
+  nutritionlibrary-dev-esdata:

@@ -4,4 +4,6 @@ module.exports = {
   foodItemRouter: require("./foodItem"),
   presetMealRouter: require("./presetMeal"),
   presetLineRouter: require("./presetLine"),
+  dishRouter: require("./dish"),
+  dishLineRouter: require("./dishLine"),
 };

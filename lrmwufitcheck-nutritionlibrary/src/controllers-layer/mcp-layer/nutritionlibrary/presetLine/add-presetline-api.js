@@ -25,7 +25,8 @@ class AddPresetLineMcpController extends NutritionLibraryServiceMcpController {
               .uuid()
               .describe("The unique primary key of the data object as UUID"),
             presetMealId: z.string().uuid().describe(""),
-            foodItemId: z.string().uuid().describe(""),
+            foodItemId: z.string().uuid().nullable().describe(""),
+            dishId: z.string().uuid().nullable().describe(""),
             lineFoodName: z.string().max(255).describe(""),
             gramAmount: z.number().describe(""),
             lineCalories: z.number().describe(""),
@@ -56,9 +57,23 @@ class AddPresetLineMcpController extends NutritionLibraryServiceMcpController {
         .describe(
           "The access token of the logged-in user. Pass this to authenticate API calls on behalf of the user. Required for protected routes, optional for public routes.",
         ),
-      foodItemId: z.string().uuid().describe(""),
+      foodItemId: z
+        .string()
+        .uuid()
+        .optional()
+        .describe("Required if dishId is not provided."),
 
-      gramAmount: z.number().describe(""),
+      dishId: z
+        .string()
+        .uuid()
+        .optional()
+        .describe("Required if foodItemId is not provided."),
+
+      gramAmount: z
+        .number()
+        .describe(
+          "Grams of the ingredient (if foodItemId) or grams of the dish actually consumed (if dishId, scaled against the dish's total recipe weight).",
+        ),
 
       presetMealId: z
         .string()
@@ -79,7 +94,7 @@ module.exports = (headers) => {
   return {
     name: "addPresetLine",
     description:
-      "Add a food item line to a preset meal. Validates preset ownership and food item ownership, calculates nutrition snapshot, creates the line, then recalculates parent preset totals." +
+      "Add a line to a preset meal, referencing either a food item (foodItemId) or a dish (dishId) - exactly one must be provided. Validates preset ownership and the referenced item's ownership, calculates a nutrition snapshot, creates the line, then recalculates parent preset totals." +
       requiredRolesMarker,
     requiredRoles,
     parameters: AddPresetLineMcpController.getInputScheme(),

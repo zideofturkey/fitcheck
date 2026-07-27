@@ -13,6 +13,8 @@ function collectAllTools(headers) {
     foodItemMcpRouter,
     presetMealMcpRouter,
     presetLineMcpRouter,
+    dishMcpRouter,
+    dishLineMcpRouter,
     getSessionRouter,
   } = mcpExports;
 
@@ -30,6 +32,8 @@ function collectAllTools(headers) {
   (foodItemMcpRouter || []).forEach(addTool);
   (presetMealMcpRouter || []).forEach(addTool);
   (presetLineMcpRouter || []).forEach(addTool);
+  (dishMcpRouter || []).forEach(addTool);
+  (dishLineMcpRouter || []).forEach(addTool);
 
   const sessionToolList = getSessionRouter(headers);
   (sessionToolList || []).forEach(addTool);

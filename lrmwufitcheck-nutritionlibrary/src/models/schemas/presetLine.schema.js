@@ -7,7 +7,7 @@ const { DataTypes, Op } = require("sequelize");
 const schemaDef = {
   objectName: "presetLine",
   modelName: "PresetLine",
-  description: `A single food item entry within a preset meal template. Stores a gram amount and snapshot nutrition values calculated at line creation. Lines are created or deleted to modify a preset; individual lines are not edited (replace pattern).`,
+  description: `A single food item or dish entry within a preset meal template. References exactly one of foodItemId or dishId. Stores a gram amount and snapshot nutrition values calculated at line creation (scaled per-100g for a foodItem, or scaled against the dish's own total gram weight for a dish). Lines are created or deleted to modify a preset; individual lines are not edited (replace pattern).`,
   dbType: "postgresql",
   useSoftDelete: true,
 
@@ -24,8 +24,11 @@ const schemaDef = {
     },
     foodItemId: {
       type: DataTypes.UUID,
-      allowNull: false,
-      defaultValue: "00000000-0000-0000-0000-000000000000",
+      allowNull: true,
+    },
+    dishId: {
+      type: DataTypes.UUID,
+      allowNull: true,
     },
     lineFoodName: {
       type: DataTypes.STRING,
@@ -90,6 +93,12 @@ const schemaDef = {
       name: "preset_lines_food_item_id",
       unique: false,
       fields: ["foodItemId"],
+      where: { isActive: true },
+    },
+    {
+      name: "preset_lines_dish_id",
+      unique: false,
+      fields: ["dishId"],
       where: { isActive: true },
     },
   ],

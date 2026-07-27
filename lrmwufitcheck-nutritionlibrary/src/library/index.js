@@ -1,5 +1,6 @@
 module.exports = {
   recalculatePresetTotals: require("./functions/recalculatePresetTotals.js"),
+  recalculateDishTotals: require("./functions/recalculateDishTotals.js"),
   calculateLineNutrition: require("./functions/calculateLineNutrition.js"),
   m2mCreateMacroTarget: require("./edge/m2mCreateMacroTarget.js"),
   m2mBulkCreateMacroTarget: require("./edge/m2mBulkCreateMacroTarget.js"),

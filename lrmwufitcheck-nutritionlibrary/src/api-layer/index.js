@@ -27,5 +27,17 @@ module.exports = {
   ListPresetLinesManager: require("./nutritionlibrary/presetLine/list-presetlines-api"),
   DeletePresetLineManager: require("./nutritionlibrary/presetLine/delete-presetline-api"),
   _fetchListPresetLineManager: require("./nutritionlibrary/presetLine/_fetch-listpresetline-api"),
+  // Dish Db Object
+  CreateDishManager: require("./nutritionlibrary/dish/create-dish-api"),
+  GetDishManager: require("./nutritionlibrary/dish/get-dish-api"),
+  ListDishesManager: require("./nutritionlibrary/dish/list-dishes-api"),
+  UpdateDishManager: require("./nutritionlibrary/dish/update-dish-api"),
+  DeleteDishManager: require("./nutritionlibrary/dish/delete-dish-api"),
+  _fetchListDishManager: require("./nutritionlibrary/dish/_fetch-listdish-api"),
+  // DishLine Db Object
+  AddDishLineManager: require("./nutritionlibrary/dishLine/add-dishline-api"),
+  ListDishLinesManager: require("./nutritionlibrary/dishLine/list-dishlines-api"),
+  DeleteDishLineManager: require("./nutritionlibrary/dishLine/delete-dishline-api"),
+  _fetchListDishLineManager: require("./nutritionlibrary/dishLine/_fetch-listdishline-api"),
   integrationRouter: require("./integrations/testRouter"),
 };

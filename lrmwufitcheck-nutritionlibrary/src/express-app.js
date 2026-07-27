@@ -205,12 +205,16 @@ const {
   foodItemRouter,
   presetMealRouter,
   presetLineRouter,
+  dishRouter,
+  dishLineRouter,
 } = require("restLayer");
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);
 app.use("", presetMealRouter);
 app.use("", presetLineRouter);
+app.use("", dishRouter);
+app.use("", dishLineRouter);
 
 // swagger
 

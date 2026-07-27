@@ -13,6 +13,8 @@ const MacroTarget = require("./macroTarget");
 const FoodItem = require("./foodItem");
 const PresetMeal = require("./presetMeal");
 const PresetLine = require("./presetLine");
+const Dish = require("./dish");
+const DishLine = require("./dishLine");
 
 MacroTarget.prototype.getData = function () {
   const data = this.dataValues;
@@ -83,6 +85,42 @@ PresetLine.prototype.getData = function () {
 
   data.presetMeal = this.presetMeal ? this.presetMeal.getData() : undefined;
   data.foodItem = this.foodItem ? this.foodItem.getData() : undefined;
+  data.dish = this.dish ? this.dish.getData() : undefined;
+
+  for (const key of Object.keys(data)) {
+    if (key.startsWith("json_")) {
+      data[key] = JSON.parse(data[key]);
+      const newKey = key.slice(5);
+      data[newKey] = data[key];
+      delete data[key];
+    }
+  }
+
+  return data;
+};
+
+Dish.prototype.getData = function () {
+  const data = this.dataValues;
+
+  for (const key of Object.keys(data)) {
+    if (key.startsWith("json_")) {
+      data[key] = JSON.parse(data[key]);
+      const newKey = key.slice(5);
+      data[newKey] = data[key];
+      delete data[key];
+    }
+  }
+
+  data._owner = data.userId ?? undefined;
+
+  return data;
+};
+
+DishLine.prototype.getData = function () {
+  const data = this.dataValues;
+
+  data.dish = this.dish ? this.dish.getData() : undefined;
+  data.foodItem = this.foodItem ? this.foodItem.getData() : undefined;
 
   for (const key of Object.keys(data)) {
     if (key.startsWith("json_")) {
@@ -110,11 +148,34 @@ PresetLine.belongsTo(FoodItem, {
   constraints: false,
 });
 
+PresetLine.belongsTo(Dish, {
+  as: "dish",
+  foreignKey: "dishId",
+  targetKey: "id",
+  constraints: false,
+});
+
+DishLine.belongsTo(Dish, {
+  as: "dish",
+  foreignKey: "dishId",
+  targetKey: "id",
+  constraints: false,
+});
+
+DishLine.belongsTo(FoodItem, {
+  as: "foodItem",
+  foreignKey: "foodItemId",
+  targetKey: "id",
+  constraints: false,
+});
+
 module.exports = {
   MacroTarget,
   FoodItem,
   PresetMeal,
   PresetLine,
+  Dish,
+  DishLine,
   updateElasticIndexMappings,
   getElasticMapping,
   ELASTIC_MAPPINGS,

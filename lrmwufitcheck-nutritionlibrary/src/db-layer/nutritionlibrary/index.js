@@ -2,6 +2,8 @@ const macroTargetFunctions = require("./macroTarget");
 const foodItemFunctions = require("./foodItem");
 const presetMealFunctions = require("./presetMeal");
 const presetLineFunctions = require("./presetLine");
+const dishFunctions = require("./dish");
+const dishLineFunctions = require("./dishLine");
 
 module.exports = {
   // nutritionlibrary Database
@@ -108,4 +110,50 @@ module.exports = {
   dbScriptDeletePresetline: presetLineFunctions.dbScriptDeletePresetline,
   dbScript_fetchListpresetline:
     presetLineFunctions.dbScript_fetchListpresetline,
+  createDish: dishFunctions.createDish,
+  createBulkDish: dishFunctions.createBulkDish,
+  getIdListOfDishByField: dishFunctions.getIdListOfDishByField,
+  getDishById: dishFunctions.getDishById,
+  getDishAggById: dishFunctions.getDishAggById,
+  getDishListByQuery: dishFunctions.getDishListByQuery,
+  getDishListByMQuery: dishFunctions.getDishListByMQuery,
+  getDishStatsByQuery: dishFunctions.getDishStatsByQuery,
+  getDishStatsByMQuery: dishFunctions.getDishStatsByMQuery,
+  getDishByQuery: dishFunctions.getDishByQuery,
+  getDishByMQuery: dishFunctions.getDishByMQuery,
+  updateDishById: dishFunctions.updateDishById,
+  updateDishByIdList: dishFunctions.updateDishByIdList,
+  updateDishByQuery: dishFunctions.updateDishByQuery,
+  updateDishByMQuery: dishFunctions.updateDishByMQuery,
+  deleteDishById: dishFunctions.deleteDishById,
+  deleteDishByQuery: dishFunctions.deleteDishByQuery,
+  deleteDishByMQuery: dishFunctions.deleteDishByMQuery,
+  dbScriptCreateDish: dishFunctions.dbScriptCreateDish,
+  dbScriptGetDish: dishFunctions.dbScriptGetDish,
+  dbScriptListDishes: dishFunctions.dbScriptListDishes,
+  dbScriptUpdateDish: dishFunctions.dbScriptUpdateDish,
+  dbScriptDeleteDish: dishFunctions.dbScriptDeleteDish,
+  dbScript_fetchListdish: dishFunctions.dbScript_fetchListdish,
+  createDishLine: dishLineFunctions.createDishLine,
+  createBulkDishLine: dishLineFunctions.createBulkDishLine,
+  getIdListOfDishLineByField: dishLineFunctions.getIdListOfDishLineByField,
+  getDishLineById: dishLineFunctions.getDishLineById,
+  getDishLineAggById: dishLineFunctions.getDishLineAggById,
+  getDishLineListByQuery: dishLineFunctions.getDishLineListByQuery,
+  getDishLineListByMQuery: dishLineFunctions.getDishLineListByMQuery,
+  getDishLineStatsByQuery: dishLineFunctions.getDishLineStatsByQuery,
+  getDishLineStatsByMQuery: dishLineFunctions.getDishLineStatsByMQuery,
+  getDishLineByQuery: dishLineFunctions.getDishLineByQuery,
+  getDishLineByMQuery: dishLineFunctions.getDishLineByMQuery,
+  updateDishLineById: dishLineFunctions.updateDishLineById,
+  updateDishLineByIdList: dishLineFunctions.updateDishLineByIdList,
+  updateDishLineByQuery: dishLineFunctions.updateDishLineByQuery,
+  updateDishLineByMQuery: dishLineFunctions.updateDishLineByMQuery,
+  deleteDishLineById: dishLineFunctions.deleteDishLineById,
+  deleteDishLineByQuery: dishLineFunctions.deleteDishLineByQuery,
+  deleteDishLineByMQuery: dishLineFunctions.deleteDishLineByMQuery,
+  dbScriptAddDishline: dishLineFunctions.dbScriptAddDishline,
+  dbScriptListDishlines: dishLineFunctions.dbScriptListDishlines,
+  dbScriptDeleteDishline: dishLineFunctions.dbScriptDeleteDishline,
+  dbScript_fetchListdishline: dishLineFunctions.dbScript_fetchListdishline,
 };

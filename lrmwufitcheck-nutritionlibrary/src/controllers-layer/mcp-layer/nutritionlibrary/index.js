@@ -5,5 +5,7 @@ module.exports = (headers) => {
     foodItemMcpRouter: require("./foodItem")(headers),
     presetMealMcpRouter: require("./presetMeal")(headers),
     presetLineMcpRouter: require("./presetLine")(headers),
+    dishMcpRouter: require("./dish")(headers),
+    dishLineMcpRouter: require("./dishLine")(headers),
   };
 };

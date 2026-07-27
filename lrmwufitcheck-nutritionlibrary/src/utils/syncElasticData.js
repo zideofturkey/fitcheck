@@ -21,6 +21,12 @@ const {
   getPresetLineById,
   getIdListOfPresetLineByField,
   countPresetLine,
+  getDishById,
+  getIdListOfDishByField,
+  countDish,
+  getDishLineById,
+  getIdListOfDishLineByField,
+  countDishLine,
 } = require("dbLayer");
 
 const { ElasticIndexer } = require("serviceCommon");
@@ -87,6 +93,22 @@ const dataObjectRegistry = {
     getById: getPresetLineById,
     getIdList: getIdListOfPresetLineByField,
     count: countPresetLine,
+  },
+  dish: {
+    name: "dish",
+    modelName: "Dish",
+    pluralName: "dishes",
+    getById: getDishById,
+    getIdList: getIdListOfDishByField,
+    count: countDish,
+  },
+  dishLine: {
+    name: "dishLine",
+    modelName: "DishLine",
+    pluralName: "dishLines",
+    getById: getDishLineById,
+    getIdList: getIdListOfDishLineByField,
+    count: countDishLine,
   },
 };
 

@@ -16,6 +16,8 @@ const schemas = {
   foodItem: require("./foodItem.schema"),
   presetMeal: require("./presetMeal.schema"),
   presetLine: require("./presetLine.schema"),
+  dish: require("./dish.schema"),
+  dishLine: require("./dishLine.schema"),
 };
 
 /**
