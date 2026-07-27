@@ -209,6 +209,13 @@ const {
   dishLineRouter,
 } = require("restLayer");
 
+// Lightweight (non-Mindbricks) routes. Mounted BEFORE foodItemRouter so
+// static paths like /v1/food-items/grouped are matched before the heavy
+// GET /v1/food-items/:foodItemId route would otherwise swallow them
+// (Express matches in registration order, not by path specificity).
+const foodItemGroupsRouter = require("./routes/food-item-groups");
+app.use("", foodItemGroupsRouter);
+
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);
 app.use("", presetMealRouter);

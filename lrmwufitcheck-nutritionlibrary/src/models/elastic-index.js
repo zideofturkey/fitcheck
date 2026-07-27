@@ -32,6 +32,8 @@ const foodItemMapping = {
   sugarPer100g: { type: "double", index: false },
   fiberPer100g: { type: "double", index: false },
   brandName: { type: "keyword", index: false },
+  baseName: { type: "keyword", index: true },
+  parentIngredientId: { type: "keyword", index: true },
   foodCategory: { type: "keyword", index: true },
   creationSource: { type: "keyword", index: true },
   creationSource_idx: { type: "integer" },

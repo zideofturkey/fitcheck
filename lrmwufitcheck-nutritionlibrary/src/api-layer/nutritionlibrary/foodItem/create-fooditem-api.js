@@ -2,7 +2,7 @@ const { runMScript } = require("common");
 
 const FoodItemManager = require("./FoodItemManager");
 
-const { dbScriptCreateFooditem } = require("dbLayer");
+const { dbScriptCreateFooditem, getFoodItemByQuery } = require("dbLayer");
 const { ElasticIndexer } = require("serviceCommon");
 const {
   hexaLogger,
@@ -47,6 +47,7 @@ class CreateFoodItemManager extends FoodItemManager {
     jsonObj.sugarPer100g = this.sugarPer100g;
     jsonObj.fiberPer100g = this.fiberPer100g;
     jsonObj.brandName = this.brandName;
+    jsonObj.baseName = this.baseName;
     jsonObj.foodCategory = this.foodCategory;
     jsonObj.creationSource = this.creationSource;
     jsonObj.userId = this.userId;
@@ -66,6 +67,7 @@ class CreateFoodItemManager extends FoodItemManager {
     this.sugarPer100g = request.body?.["sugarPer100g"];
     this.fiberPer100g = request.body?.["fiberPer100g"];
     this.brandName = request.body?.["brandName"];
+    this.baseName = request.body?.["baseName"];
     this.foodCategory = request.body?.["foodCategory"];
     this.creationSource = request.body?.["creationSource"];
     this.userId = request.session?.["userId"];
@@ -89,6 +91,7 @@ class CreateFoodItemManager extends FoodItemManager {
     this.sugarPer100g = request.mcpParams?.["sugarPer100g"];
     this.fiberPer100g = request.mcpParams?.["fiberPer100g"];
     this.brandName = request.mcpParams?.["brandName"];
+    this.baseName = request.mcpParams?.["baseName"];
     this.foodCategory = request.mcpParams?.["foodCategory"];
     this.creationSource = request.mcpParams?.["creationSource"];
     this.userId = request.session?.["userId"];
@@ -111,6 +114,22 @@ class CreateFoodItemManager extends FoodItemManager {
     if (this.id) this.foodItemId = this.id;
     if (!this.foodItemId) this.foodItemId = newUUID(false);
     this.id = this.foodItemId;
+
+    // Ingredient brand-variant grouping: if baseName is given, link this
+    // item to the existing canonical record for that baseName (the first
+    // item ever created with it - the one with no parent of its own). If
+    // no canonical record exists yet, this item becomes it (parentIngredientId
+    // stays null) and later variants will link to it.
+    let parentIngredientId = null;
+    if (this.baseName) {
+      const canonicalParent = await getFoodItemByQuery({
+        userId: this.userId,
+        baseName: this.baseName,
+        parentIngredientId: null,
+        isActive: true,
+      });
+      if (canonicalParent) parentIngredientId = canonicalParent.id;
+    }
 
     const dataClause = {
       id: this.foodItemId,
@@ -139,6 +158,8 @@ class CreateFoodItemManager extends FoodItemManager {
       brandName: runMScript(() => this.brandName || null, {
         path: "services[2].businessLogic[2].dataClauseItems[7].value",
       }),
+      baseName: this.baseName || null,
+      parentIngredientId: parentIngredientId,
       foodCategory: runMScript(() => this.foodCategory || null, {
         path: "services[2].businessLogic[2].dataClauseItems[8].value",
       }),
@@ -382,6 +403,16 @@ class CreateFoodItemManager extends FoodItemManager {
     // Parameter Type: String
   }
 
+  checkParameter_baseName() {
+    if (this.baseName == null) return;
+
+    if (Array.isArray(this.baseName)) {
+      throw new BadRequestError("errMsg_baseNameMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_foodCategory() {
     if (this.foodCategory == null) return;
 
@@ -484,6 +515,8 @@ class CreateFoodItemManager extends FoodItemManager {
     this.checkParameter_fiberPer100g();
 
     this.checkParameter_brandName();
+
+    this.checkParameter_baseName();
 
     this.checkParameter_foodCategory();
 

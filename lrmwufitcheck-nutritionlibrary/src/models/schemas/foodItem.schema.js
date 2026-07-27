@@ -61,6 +61,14 @@ const schemaDef = {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    baseName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    parentIngredientId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     foodCategory: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -105,6 +113,18 @@ const schemaDef = {
       name: "food_items_creation_source",
       unique: false,
       fields: ["creationSource"],
+      where: { isActive: true },
+    },
+    {
+      name: "food_items_base_name",
+      unique: false,
+      fields: ["baseName"],
+      where: { isActive: true },
+    },
+    {
+      name: "food_items_parent_ingredient_id",
+      unique: false,
+      fields: ["parentIngredientId"],
       where: { isActive: true },
     },
   ],

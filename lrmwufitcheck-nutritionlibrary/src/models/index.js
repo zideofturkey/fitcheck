@@ -169,6 +169,13 @@ DishLine.belongsTo(FoodItem, {
   constraints: false,
 });
 
+FoodItem.belongsTo(FoodItem, {
+  as: "parentIngredient",
+  foreignKey: "parentIngredientId",
+  targetKey: "id",
+  constraints: false,
+});
+
 module.exports = {
   MacroTarget,
   FoodItem,

@@ -47,6 +47,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     jsonObj.sugarPer100g = this.sugarPer100g;
     jsonObj.fiberPer100g = this.fiberPer100g;
     jsonObj.brandName = this.brandName;
+    jsonObj.baseName = this.baseName;
     jsonObj.foodCategory = this.foodCategory;
     jsonObj.userId = this.userId;
   }
@@ -65,6 +66,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.sugarPer100g = request.body?.["sugarPer100g"];
     this.fiberPer100g = request.body?.["fiberPer100g"];
     this.brandName = request.body?.["brandName"];
+    this.baseName = request.body?.["baseName"];
     this.foodCategory = request.body?.["foodCategory"];
     this.userId = request.session?.["userId"];
     this.requestData = request.body;
@@ -86,6 +88,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.sugarPer100g = request.mcpParams?.["sugarPer100g"];
     this.fiberPer100g = request.mcpParams?.["fiberPer100g"];
     this.brandName = request.mcpParams?.["brandName"];
+    this.baseName = request.mcpParams?.["baseName"];
     this.foodCategory = request.mcpParams?.["foodCategory"];
     this.userId = request.session?.["userId"];
     this.requestData = request.mcpParams;
@@ -143,6 +146,7 @@ class UpdateFoodItemManager extends FoodItemManager {
       brandName: runMScript(() => this.brandName, {
         path: "services[2].businessLogic[5].dataClauseItems[7].value",
       }),
+      baseName: this.baseName,
       foodCategory: runMScript(() => this.foodCategory, {
         path: "services[2].businessLogic[5].dataClauseItems[8].value",
       }),
@@ -405,6 +409,16 @@ class UpdateFoodItemManager extends FoodItemManager {
     // Parameter Type: String
   }
 
+  checkParameter_baseName() {
+    if (this.baseName == null) return;
+
+    if (Array.isArray(this.baseName)) {
+      throw new BadRequestError("errMsg_baseNameMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_foodCategory() {
     if (this.foodCategory == null) return;
 
@@ -456,6 +470,8 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.checkParameter_fiberPer100g();
 
     this.checkParameter_brandName();
+
+    this.checkParameter_baseName();
 
     this.checkParameter_foodCategory();
 
