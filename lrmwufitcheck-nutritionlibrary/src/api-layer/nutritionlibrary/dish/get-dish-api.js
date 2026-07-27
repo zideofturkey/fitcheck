@@ -92,7 +92,7 @@ class GetDishManager extends DishManager {
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      if (!this.isOwner && !this.dish?.isGlobal) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }

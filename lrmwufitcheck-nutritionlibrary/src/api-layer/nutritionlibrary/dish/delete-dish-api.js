@@ -96,13 +96,25 @@ class DeleteDishManager extends DishManager {
       throw new NotFoundError("errMsg_RecordNotFound");
     }
 
-    if (!this.checkAbsolute()) {
+    if (!this.checkAbsolute() && !this.userHasRole("admin")) {
+      // admin (like superAdmin via checkAbsolute) fully bypasses ownership -
+      // needed so an admin can promote ANY user's private record to
+      // isGlobal:true, not just edit already-global records.
       if (this.dish?.userId == null) {
         throw new ForbiddenError(
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      // Global records can only be modified by admins (checkAbsolute()
+      // above already lets superAdmin through) - even the original owner
+      // loses edit rights once a record is made global.
+      if (this.dish?.isGlobal) {
+        if (!this.userHasRole("admin")) {
+          throw new ForbiddenError(
+            "errMsg_GlobalRecordsCanOnlyBeModifiedByAdmin",
+          );
+        }
+      } else if (!this.isOwner) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }

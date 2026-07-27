@@ -41,6 +41,7 @@ class CreateDishManager extends DishManager {
     jsonObj.dishId = this.dishId;
     jsonObj.dishName = this.dishName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
 
@@ -52,6 +53,7 @@ class CreateDishManager extends DishManager {
     this.dishId = request.body?.["dishId"];
     this.dishName = request.body?.["dishName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
     this.requestData = request.body;
@@ -67,6 +69,7 @@ class CreateDishManager extends DishManager {
     this.dishId = request.mcpParams?.["dishId"];
     this.dishName = request.mcpParams?.["dishName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.mcpParams?.id;
     this.requestData = request.mcpParams;
@@ -98,6 +101,7 @@ class CreateDishManager extends DishManager {
       totalSugar: 0,
       totalFiber: 0,
       totalGramWeight: 0,
+      isGlobal: this.isGlobal === true,
       isActive: true,
       _archivedAt: null,
     };
@@ -185,6 +189,22 @@ class CreateDishManager extends DishManager {
     // Parameter Type: String
   }
 
+  checkParameter_isGlobal() {
+    if (this.isGlobal == null) return;
+
+    if (this.isGlobal !== true && this.isGlobal !== false) {
+      throw new BadRequestError("errMsg_isGlobalTypeIsNotValid");
+    }
+
+    if (
+      this.isGlobal === true &&
+      !this.userHasRole("admin") &&
+      !this.userHasRole("superAdmin")
+    ) {
+      throw new ForbiddenError("errMsg_OnlyAdminsCanCreateGlobalRecords");
+    }
+  }
+
   checkParameterType_userId(paramValue) {
     if (!isValidUUID(paramValue)) {
       return false;
@@ -216,6 +236,8 @@ class CreateDishManager extends DishManager {
     this.checkParameter_dishName();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_isGlobal();
 
     if (this.userId === "") this.userId = null;
     this.checkParameter_userId();

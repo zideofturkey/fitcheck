@@ -78,6 +78,11 @@ const schemaDef = {
       allowNull: false,
       defaultValue: "manualEntry",
     },
+    isGlobal: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

@@ -61,6 +61,11 @@ const schemaDef = {
       allowNull: false,
       defaultValue: 0.0,
     },
+    isGlobal: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

@@ -71,12 +71,24 @@ class ListFoodItemsManager extends FoodItemManager {
 
   async getRouteQuery() {
     const conditionalClauses = [];
-    conditionalClauses.push(
-      runMScript(
-        () => ({ $and: [{ userId: this.session.userId }, { isActive: true }] }),
-        { path: "services[2].businessLogic[4].whereClause.fullWhereClause" },
-      ),
-    );
+    // Admins/superAdmins see every record; regular users see their own
+    // plus anything marked isGlobal. isGlobal visibility is a separate
+    // admin-or-superAdmin rule from checkAbsolute() (which is superAdmin-only).
+    if (this.userHasRole("admin") || this.userHasRole("superAdmin")) {
+      conditionalClauses.push({ isActive: true });
+    } else {
+      conditionalClauses.push(
+        runMScript(
+          () => ({
+            $and: [
+              { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
+              { isActive: true },
+            ],
+          }),
+          { path: "services[2].businessLogic[4].whereClause.fullWhereClause" },
+        ),
+      );
+    }
 
     if (
       runMScript(() => this.searchTerm, {

@@ -102,7 +102,7 @@ class GetPresetMealManager extends PresetMealManager {
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      if (!this.isOwner && !this.presetMeal?.isGlobal) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }

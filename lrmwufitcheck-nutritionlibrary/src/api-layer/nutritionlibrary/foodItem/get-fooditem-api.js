@@ -101,7 +101,7 @@ class GetFoodItemManager extends FoodItemManager {
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      if (!this.isOwner && !this.foodItem?.isGlobal) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }

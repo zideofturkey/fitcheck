@@ -41,6 +41,7 @@ class UpdateDishManager extends DishManager {
     jsonObj.dishId = this.dishId;
     jsonObj.dishName = this.dishName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.isGlobal = this.isGlobal;
   }
 
   async checkBasicAuth() {
@@ -51,6 +52,7 @@ class UpdateDishManager extends DishManager {
     this.dishId = request.params?.["dishId"];
     this.dishName = request.body?.["dishName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.isGlobal = request.body?.["isGlobal"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
     const url = request.url;
@@ -64,6 +66,7 @@ class UpdateDishManager extends DishManager {
     this.dishId = request.mcpParams?.["dishId"];
     this.dishName = request.mcpParams?.["dishName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.isGlobal = request.mcpParams?.["isGlobal"];
     this.requestData = request.mcpParams;
 
     this.dishId = this.dishId ?? this.id;
@@ -96,6 +99,13 @@ class UpdateDishManager extends DishManager {
       descriptionText: this.descriptionText,
     };
 
+    // isGlobal is admin-gated (see checkParameter_isGlobal) - only include
+    // it when the client actually sent it, so omitting the field never
+    // accidentally resets it to false.
+    if (this.isGlobal != null) {
+      dataClause.isGlobal = this.isGlobal === true;
+    }
+
     // Resolve any Promise-valued fields.
     for (const _dcKey of Object.keys(dataClause)) {
       const _dcVal = dataClause[_dcKey];
@@ -123,13 +133,25 @@ class UpdateDishManager extends DishManager {
       throw new NotFoundError("errMsg_RecordNotFound");
     }
 
-    if (!this.checkAbsolute()) {
+    if (!this.checkAbsolute() && !this.userHasRole("admin")) {
+      // admin (like superAdmin via checkAbsolute) fully bypasses ownership -
+      // needed so an admin can promote ANY user's private record to
+      // isGlobal:true, not just edit already-global records.
       if (this.dish?.userId == null) {
         throw new ForbiddenError(
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      // Global records can only be modified by admins (checkAbsolute()
+      // above already lets superAdmin through) - even the original owner
+      // loses edit rights once a record is made global.
+      if (this.dish?.isGlobal) {
+        if (!this.userHasRole("admin")) {
+          throw new ForbiddenError(
+            "errMsg_GlobalRecordsCanOnlyBeModifiedByAdmin",
+          );
+        }
+      } else if (!this.isOwner) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }
@@ -179,11 +201,29 @@ class UpdateDishManager extends DishManager {
     // Parameter Type: String
   }
 
+  checkParameter_isGlobal() {
+    if (this.isGlobal == null) return;
+
+    if (this.isGlobal !== true && this.isGlobal !== false) {
+      throw new BadRequestError("errMsg_isGlobalTypeIsNotValid");
+    }
+
+    if (
+      this.isGlobal === true &&
+      !this.userHasRole("admin") &&
+      !this.userHasRole("superAdmin")
+    ) {
+      throw new ForbiddenError("errMsg_OnlyAdminsCanSetGlobalFlag");
+    }
+  }
+
   checkParameters() {
     if (this.dishId === "") this.dishId = null;
     this.checkParameter_dishId();
 
     this.checkParameter_dishName();
+
+    this.checkParameter_isGlobal();
 
     this.checkParameter_descriptionText();
 

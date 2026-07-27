@@ -61,7 +61,19 @@ class ListDishesManager extends DishManager {
   // where clause methods
 
   async getRouteQuery() {
-    return { $and: [{ userId: this.session.userId }, { isActive: true }] };
+    // Admins/superAdmins see every record; regular users see their own
+    // plus anything marked isGlobal. Note: checkAbsolute() only covers
+    // superAdmin - isGlobal visibility is a separate admin-or-superAdmin
+    // rule, so it's checked directly here rather than reusing checkAbsolute().
+    if (this.userHasRole("admin") || this.userHasRole("superAdmin")) {
+      return { isActive: true };
+    }
+    return {
+      $and: [
+        { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
+        { isActive: true },
+      ],
+    };
 
     // handle permission filter later
   }

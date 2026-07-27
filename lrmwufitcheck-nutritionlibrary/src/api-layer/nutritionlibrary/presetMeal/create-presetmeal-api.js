@@ -41,6 +41,7 @@ class CreatePresetMealManager extends PresetMealManager {
     jsonObj.presetMealId = this.presetMealId;
     jsonObj.templateName = this.templateName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
 
@@ -52,6 +53,7 @@ class CreatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.body?.["presetMealId"];
     this.templateName = request.body?.["templateName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
     this.requestData = request.body;
@@ -67,6 +69,7 @@ class CreatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.mcpParams?.["presetMealId"];
     this.templateName = request.mcpParams?.["templateName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.mcpParams?.id;
     this.requestData = request.mcpParams;
@@ -103,6 +106,7 @@ class CreatePresetMealManager extends PresetMealManager {
       totalFat: 0,
       totalSugar: 0,
       totalFiber: 0,
+      isGlobal: this.isGlobal === true,
       isActive: true,
       _archivedAt: null,
     };
@@ -194,6 +198,22 @@ class CreatePresetMealManager extends PresetMealManager {
     // Parameter Type: String
   }
 
+  checkParameter_isGlobal() {
+    if (this.isGlobal == null) return;
+
+    if (this.isGlobal !== true && this.isGlobal !== false) {
+      throw new BadRequestError("errMsg_isGlobalTypeIsNotValid");
+    }
+
+    if (
+      this.isGlobal === true &&
+      !this.userHasRole("admin") &&
+      !this.userHasRole("superAdmin")
+    ) {
+      throw new ForbiddenError("errMsg_OnlyAdminsCanCreateGlobalRecords");
+    }
+  }
+
   checkParameterType_userId(paramValue) {
     if (!isValidUUID(paramValue)) {
       return false;
@@ -225,6 +245,8 @@ class CreatePresetMealManager extends PresetMealManager {
     this.checkParameter_templateName();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_isGlobal();
 
     if (this.userId === "") this.userId = null;
     this.checkParameter_userId();

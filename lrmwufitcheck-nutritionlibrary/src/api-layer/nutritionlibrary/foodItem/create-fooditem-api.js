@@ -50,6 +50,7 @@ class CreateFoodItemManager extends FoodItemManager {
     jsonObj.baseName = this.baseName;
     jsonObj.foodCategory = this.foodCategory;
     jsonObj.creationSource = this.creationSource;
+    jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
 
@@ -70,6 +71,7 @@ class CreateFoodItemManager extends FoodItemManager {
     this.baseName = request.body?.["baseName"];
     this.foodCategory = request.body?.["foodCategory"];
     this.creationSource = request.body?.["creationSource"];
+    this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
     this.requestData = request.body;
@@ -94,6 +96,7 @@ class CreateFoodItemManager extends FoodItemManager {
     this.baseName = request.mcpParams?.["baseName"];
     this.foodCategory = request.mcpParams?.["foodCategory"];
     this.creationSource = request.mcpParams?.["creationSource"];
+    this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.mcpParams?.id;
     this.requestData = request.mcpParams;
@@ -160,6 +163,7 @@ class CreateFoodItemManager extends FoodItemManager {
       }),
       baseName: this.baseName || null,
       parentIngredientId: parentIngredientId,
+      isGlobal: this.isGlobal === true,
       foodCategory: runMScript(() => this.foodCategory || null, {
         path: "services[2].businessLogic[2].dataClauseItems[8].value",
       }),
@@ -423,6 +427,22 @@ class CreateFoodItemManager extends FoodItemManager {
     // Parameter Type: String
   }
 
+  checkParameter_isGlobal() {
+    if (this.isGlobal == null) return;
+
+    if (this.isGlobal !== true && this.isGlobal !== false) {
+      throw new BadRequestError("errMsg_isGlobalTypeIsNotValid");
+    }
+
+    if (
+      this.isGlobal === true &&
+      !this.userHasRole("admin") &&
+      !this.userHasRole("superAdmin")
+    ) {
+      throw new ForbiddenError("errMsg_OnlyAdminsCanCreateGlobalRecords");
+    }
+  }
+
   checkParameterType_creationSource(paramValue) {
     function isInt(value) {
       return (
@@ -517,6 +537,8 @@ class CreateFoodItemManager extends FoodItemManager {
     this.checkParameter_brandName();
 
     this.checkParameter_baseName();
+
+    this.checkParameter_isGlobal();
 
     this.checkParameter_foodCategory();
 

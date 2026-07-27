@@ -49,6 +49,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     jsonObj.brandName = this.brandName;
     jsonObj.baseName = this.baseName;
     jsonObj.foodCategory = this.foodCategory;
+    jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
 
@@ -68,6 +69,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.brandName = request.body?.["brandName"];
     this.baseName = request.body?.["baseName"];
     this.foodCategory = request.body?.["foodCategory"];
+    this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
@@ -90,6 +92,7 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.brandName = request.mcpParams?.["brandName"];
     this.baseName = request.mcpParams?.["baseName"];
     this.foodCategory = request.mcpParams?.["foodCategory"];
+    this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.requestData = request.mcpParams;
 
@@ -152,6 +155,13 @@ class UpdateFoodItemManager extends FoodItemManager {
       }),
     };
 
+    // isGlobal is admin-gated (see checkParameter_isGlobal) - only include
+    // it in the update when the client actually sent it, so omitting the
+    // field never accidentally resets it to false.
+    if (this.isGlobal != null) {
+      dataClause.isGlobal = this.isGlobal === true;
+    }
+
     // Resolve any Promise-valued fields. Designers should normally write
     // `await LIB.xx()` in MScript when the call is async, but if they
     // forget the `await`, runMScript returns the unresolved Promise and
@@ -212,7 +222,10 @@ class UpdateFoodItemManager extends FoodItemManager {
       throw new NotFoundError("errMsg_RecordNotFound");
     }
 
-    if (!this.checkAbsolute()) {
+    if (!this.checkAbsolute() && !this.userHasRole("admin")) {
+      // admin (like superAdmin via checkAbsolute) fully bypasses ownership -
+      // needed so an admin can promote ANY user's private record to
+      // isGlobal:true, not just edit already-global records.
       // Owner-field safety net: if the resolved owner field on the record is
       // null/undefined, the isOwner comparison could never succeed — either
       // the spec is missing a sessionSettings.isOwnerField property (so the
@@ -225,7 +238,16 @@ class UpdateFoodItemManager extends FoodItemManager {
           "errMsg_OwnerFieldIsUndefinedForOwnershipCheck",
         );
       }
-      if (!this.isOwner) {
+      // Global records can only be modified by admins (checkAbsolute()
+      // above already lets superAdmin through) - even the original owner
+      // loses edit rights once a record is made global.
+      if (this.foodItem?.isGlobal) {
+        if (!this.userHasRole("admin")) {
+          throw new ForbiddenError(
+            "errMsg_GlobalRecordsCanOnlyBeModifiedByAdmin",
+          );
+        }
+      } else if (!this.isOwner) {
         throw new ForbiddenError("errMsg_UserShouldBeTheOnwerOfTheObject");
       }
     }
@@ -429,6 +451,22 @@ class UpdateFoodItemManager extends FoodItemManager {
     // Parameter Type: String
   }
 
+  checkParameter_isGlobal() {
+    if (this.isGlobal == null) return;
+
+    if (this.isGlobal !== true && this.isGlobal !== false) {
+      throw new BadRequestError("errMsg_isGlobalTypeIsNotValid");
+    }
+
+    if (
+      this.isGlobal === true &&
+      !this.userHasRole("admin") &&
+      !this.userHasRole("superAdmin")
+    ) {
+      throw new ForbiddenError("errMsg_OnlyAdminsCanSetGlobalFlag");
+    }
+  }
+
   checkParameterType_userId(paramValue) {
     if (!isValidUUID(paramValue)) {
       return false;
@@ -472,6 +510,8 @@ class UpdateFoodItemManager extends FoodItemManager {
     this.checkParameter_brandName();
 
     this.checkParameter_baseName();
+
+    this.checkParameter_isGlobal();
 
     this.checkParameter_foodCategory();
 
