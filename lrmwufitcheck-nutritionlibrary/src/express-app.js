@@ -215,6 +215,8 @@ const {
 // (Express matches in registration order, not by path specificity).
 const foodItemGroupsRouter = require("./routes/food-item-groups");
 app.use("", foodItemGroupsRouter);
+const suggestionsRouter = require("./routes/suggestions");
+app.use("", suggestionsRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);

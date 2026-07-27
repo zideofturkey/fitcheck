@@ -15,6 +15,7 @@ const PresetMeal = require("./presetMeal");
 const PresetLine = require("./presetLine");
 const Dish = require("./dish");
 const DishLine = require("./dishLine");
+const Suggestion = require("./suggestion");
 
 MacroTarget.prototype.getData = function () {
   const data = this.dataValues;
@@ -183,6 +184,7 @@ module.exports = {
   PresetLine,
   Dish,
   DishLine,
+  Suggestion,
   updateElasticIndexMappings,
   getElasticMapping,
   ELASTIC_MAPPINGS,
