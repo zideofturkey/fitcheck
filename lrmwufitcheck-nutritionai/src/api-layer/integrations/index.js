@@ -43,6 +43,17 @@ const buildGeminiClient = () => {
         generationConfig.temperature = config.temperature;
       if (config.maxOutputTokens !== undefined)
         generationConfig.maxOutputTokens = config.maxOutputTokens;
+      // gemini-2.5-flash's "thinking" mode draws its reasoning tokens from
+      // the SAME maxOutputTokens budget, which was silently truncating the
+      // actual JSON response before it finished (finishReason: MAX_TOKENS,
+      // usageMetadata.thoughtsTokenCount eating most of the budget). Every
+      // caller in this integration wants a short structured-JSON answer,
+      // not chain-of-thought, so thinking is off by default; pass
+      // config.thinkingBudget explicitly if a future caller ever needs it.
+      generationConfig.thinkingConfig = {
+        thinkingBudget:
+          config.thinkingBudget !== undefined ? config.thinkingBudget : 0,
+      };
 
       const model = genAI.getGenerativeModel({
         model: modelName,

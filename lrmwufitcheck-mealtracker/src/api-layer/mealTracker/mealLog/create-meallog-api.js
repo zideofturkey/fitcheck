@@ -489,7 +489,12 @@ class CreateMealLogManager extends MealLogManager {
 
   checkParameter_lines() {
     if (this.lines == null) {
-      throw new BadRequestError("errMsg_linesisRequired");
+      // Lines are optional at creation time: mealLine rows can also be
+      // added afterward via the standalone POST /v1/meal-lines endpoint
+      // (e.g. nutritionAi's confirm-candidatemeal flow creates the log
+      // first, then adds each line individually).
+      this.lines = [];
+      return;
     }
 
     if (!Array.isArray(this.lines)) {

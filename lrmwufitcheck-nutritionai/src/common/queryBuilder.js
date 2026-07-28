@@ -1593,7 +1593,11 @@ const convertKeyValueToQuery = (key, value, platform) => {
     let r = value;
     if (Array.isArray(value)) {
       op = "in";
-    } else if (typeof value === "object" && value !== null) {
+    } else if (
+      typeof value === "object" &&
+      value !== null &&
+      !(value instanceof Date)
+    ) {
       const innerKey = Object.keys(value)[0];
       op = normalizeOp(innerKey);
       r = value[innerKey];

@@ -11,8 +11,7 @@ module.exports = async function recalculateMealTotals(
 ) {
   if (!mealLogId) return null;
 
-  const linesResult = await getMealLineListByMQuery({ mealLogId });
-  const lines = linesResult && linesResult.items ? linesResult.items : [];
+  const lines = (await getMealLineListByMQuery({ mealLogId })) || [];
 
   const totals = {
     totalCalories: 0,

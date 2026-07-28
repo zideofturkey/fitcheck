@@ -20,8 +20,8 @@ module.exports = async function upsertNutritionDay(
   if (!userId || !date) return null;
 
   // Sum all mealLogs for this user+date
-  const logs = await getMealLogListByMQuery({ userId, mealDate: date });
-  const mealCount = logs && logs.items ? logs.items.length : 0;
+  const logs = (await getMealLogListByMQuery({ userId, mealDate: date })) || [];
+  const mealCount = logs.length;
 
   let consumed = {
     calories: 0,
@@ -31,15 +31,13 @@ module.exports = async function upsertNutritionDay(
     sugar: 0,
     fiber: 0,
   };
-  if (logs && logs.items) {
-    for (const log of logs.items) {
-      consumed.calories += log.totalCalories || 0;
-      consumed.protein += log.totalProtein || 0;
-      consumed.carbohydrates += log.totalCarbohydrates || 0;
-      consumed.fat += log.totalFat || 0;
-      consumed.sugar += log.totalSugar || 0;
-      consumed.fiber += log.totalFiber || 0;
-    }
+  for (const log of logs) {
+    consumed.calories += log.totalCalories || 0;
+    consumed.protein += log.totalProtein || 0;
+    consumed.carbohydrates += log.totalCarbohydrates || 0;
+    consumed.fat += log.totalFat || 0;
+    consumed.sugar += log.totalSugar || 0;
+    consumed.fiber += log.totalFiber || 0;
   }
 
   // Fetch macro targets from nutritionLibrary service
@@ -105,17 +103,18 @@ module.exports = async function upsertNutritionDay(
   };
 
   // Upsert: check if exists
-  const existing = await getNutritionDayListByMQuery({
-    userId,
-    summaryDate: date,
-  });
-  if (existing && existing.items && existing.items.length > 0) {
+  const existing =
+    (await getNutritionDayListByMQuery({
+      userId,
+      summaryDate: date,
+    })) || [];
+  if (existing.length > 0) {
     await updateNutritionDayByMQuery(
-      { userId, summaryDate: date },
       payload,
+      { userId, summaryDate: date },
       context,
     );
-    return { ...existing.items[0], ...payload };
+    return { ...existing[0], ...payload };
   } else {
     const created = await createNutritionDay(payload, context);
     return created;

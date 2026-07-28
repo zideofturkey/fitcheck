@@ -5,6 +5,7 @@ const AiSessionManager = require("./AiSessionManager");
 const {
   dbScriptParseMeal,
   createAiCandidateMeal,
+  createAiCandidateLine,
   updateAiSessionByQuery,
 } = require("dbLayer");
 const { ElasticIndexer } = require("serviceCommon");
@@ -344,7 +345,43 @@ class ParseMealManager extends AiSessionManager {
    ** detected food item
    ***********************************************************************/
 
-  async runStep_loopCreateCandidateLines(lineItem, stepIndex, stepResults) {}
+  async runStep_loopCreateCandidateLines(lineItem, stepIndex, stepResults) {
+    const stepResult_createCandidateLine = await this.createCandidateLine(
+      lineItem,
+      stepIndex,
+      stepResults,
+    );
+    stepResults[`createCandidateLine_${stepIndex}`] =
+      stepResult_createCandidateLine;
+  }
+
+  /***********************************************************************
+   ** Insert one aiCandidateLine row per food item Gemini detected in the
+   ** parsed meal, linked to the aiCandidateMeal created just before this
+   ** loop runs.
+   ***********************************************************************/
+  async createCandidateLine(lineItem) {
+    const { newUUID } = require("common");
+
+    const params = {
+      id: newUUID(false),
+      userId: this.session.userId,
+      aiCandidateMealId: this.createdCandidateMeal.id,
+      detectedFoodName: lineItem.detectedFoodName,
+      estimatedGrams: lineItem.estimatedGrams,
+      estimatedCalories: lineItem.estimatedCalories,
+      estimatedProtein: lineItem.estimatedProtein,
+      estimatedCarbohydrates: lineItem.estimatedCarbohydrates,
+      estimatedFat: lineItem.estimatedFat,
+      estimatedSugar: lineItem.estimatedSugar,
+      estimatedFiber: lineItem.estimatedFiber,
+      quantityConfidence: lineItem.quantityConfidence,
+      nutritionReference: lineItem.nutritionReference,
+      saveAsFood: false,
+    };
+
+    return await createAiCandidateLine(params, this);
+  }
 
   async loopCreateCandidateLines() {
     // Loop Action

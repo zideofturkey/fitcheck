@@ -490,7 +490,7 @@ class AskNutritionQuestionManager extends AiSessionManager {
       _callerBearer ? { userBearer: _callerBearer } : {},
     );
 
-    return resp?.content ?? resp;
+    return resp?.macroTarget ?? resp?.content ?? resp;
   }
 
   /***********************************************************************
@@ -530,7 +530,7 @@ class AskNutritionQuestionManager extends AiSessionManager {
       _callerBearer ? { userBearer: _callerBearer } : {},
     );
 
-    return resp?.content ?? resp;
+    return resp?.nutritionDay ?? resp?.content ?? resp;
   }
 }
 

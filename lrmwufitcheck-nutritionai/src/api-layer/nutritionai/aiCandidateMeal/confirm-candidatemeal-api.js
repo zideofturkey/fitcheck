@@ -837,7 +837,7 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
       _callerBearer ? { userBearer: _callerBearer } : {},
     );
 
-    return resp?.content ?? resp;
+    return resp?.mealLog ?? resp?.content ?? resp;
   }
 
   /***********************************************************************
@@ -924,7 +924,7 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
       _callerBearer ? { userBearer: _callerBearer } : {},
     );
 
-    return resp?.content ?? resp;
+    return resp?.mealLine ?? resp?.content ?? resp;
   }
 
   /***********************************************************************
@@ -1016,7 +1016,7 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
       _callerBearer ? { userBearer: _callerBearer } : {},
     );
 
-    return resp?.content ?? resp;
+    return resp?.foodItem ?? resp?.content ?? resp;
   }
 }
 
