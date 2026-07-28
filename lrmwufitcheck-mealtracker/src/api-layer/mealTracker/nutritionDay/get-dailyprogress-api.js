@@ -64,7 +64,15 @@ class GetDailyProgressManager extends NutritionDayManager {
 
   async getRouteQuery() {
     return runMScript(
-      () => ({ userId: this.session.userId, summaryDate: this.targetDate }),
+      () => ({
+        userId: this.session.userId,
+        // Pass an actual Date instance, not the raw "YYYY-MM-DD" string:
+        // Sequelize's DATE serializer re-parses plain strings using local-
+        // timezone semantics, which silently shifts the value by the host's
+        // UTC offset and misses rows stored at true UTC midnight (native
+        // `new Date()` parses ISO date-only strings as UTC, per spec).
+        summaryDate: new Date(this.targetDate),
+      }),
       { path: "services[3].businessLogic[9].whereClause.fullWhereClause" },
     );
 
@@ -166,7 +174,7 @@ class GetDailyProgressManager extends NutritionDayManager {
 
   async afterCheckParameters() {
     try {
-      this.targetDate = await this.setTargetDate();
+      await this.setTargetDate();
     } catch (err) {
       console.log("setTargetDate Action Error:", err.message);
       //**errorLog
