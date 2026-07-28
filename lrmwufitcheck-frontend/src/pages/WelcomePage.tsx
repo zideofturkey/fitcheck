@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Bell,
@@ -17,13 +18,14 @@ import {
 } from "lucide-react";
 
 export default function WelcomePage() {
+  const { t } = useTranslation();
   return (
     <>
       {/* MOBILE TOP HEADER */}
       <header className="md:hidden fixed top-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-b border-border h-14 flex items-center px-4 gap-3">
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
@@ -32,7 +34,7 @@ export default function WelcomePage() {
         </h1>
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label="Notifications"
+          aria-label={t("system.notifications")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -56,7 +58,7 @@ export default function WelcomePage() {
                 to="/"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
               >
-                House
+                {t("system.home")}
               </Link>
               <Link
                 to="/features"
@@ -78,14 +80,14 @@ export default function WelcomePage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {t("system.signIn")}
             </Link>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
             >
               <Mail className="w-4 h-4" />
-              Have an Invite
+              {t("system.haveInvite")}
             </Link>
           </div>
         </div>
@@ -108,16 +110,14 @@ export default function WelcomePage() {
             {/* HERO */}
             <section className="relative pt-16 md:pt-24 pb-20 md:pb-32 text-center">
               <p className="text-xs md:text-sm uppercase tracking-[0.2em] font-semibold text-accent-foreground mb-5">
-                Private Nutrition Tracker
+                {t("welcome.tagline")}
               </p>
               <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground max-w-4xl mx-auto leading-[1.05]">
-                Track your nutrition.
-                <br className="hidden md:block" /> Own your data.
+                {t("welcome.heroTitle1")}
+                <br className="hidden md:block" /> {t("welcome.heroTitle2")}
               </h1>
               <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                A private, invite‑only meal logging platform for people who take
-                their health seriously — without sharing a single calorie with
-                advertisers, coaches, or social networks.
+                {t("welcome.heroSubtitle")}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
@@ -125,14 +125,14 @@ export default function WelcomePage() {
                   className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Get Started
+                  {t("welcome.getStarted")}
                 </Link>
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
-                  Sign In
+                  {t("system.signIn")}
                 </Link>
               </div>
 
@@ -146,14 +146,14 @@ export default function WelcomePage() {
                       <div className="flex items-center gap-2 mb-3">
                         <Flame className="w-4 h-4 text-primary" />
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Today
+                          {t("welcome.today")}
                         </span>
                       </div>
                       <p className="text-3xl font-bold text-foreground tracking-tight">
                         1,847
                       </p>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        of 2,200 kcal consumed
+                        {t("welcome.consumedOf", { total: "2,200" })}
                       </p>
                       <div className="mt-3 w-full h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className="h-full w-[84%] bg-primary rounded-full" />
@@ -162,18 +162,18 @@ export default function WelcomePage() {
                   </div>
                   <div className="bg-card border border-border rounded-2xl shadow-lg p-5 text-start">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Protein
+                      {t("welcome.proteinLabel")}
                     </p>
                     <p className="text-2xl font-bold text-foreground mt-1 tracking-tight">
                       118 g
                     </p>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      of 140 g target
+                      {t("welcome.proteinOf", { target: 140 })}
                     </p>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-4 italic">
-                  Real dashboard preview — your macros, your privacy.
+                  {t("welcome.dashboardPreview")}
                 </p>
               </div>
             </section>
@@ -182,12 +182,11 @@ export default function WelcomePage() {
             <section className="pb-20 md:pb-28">
               <div className="mx-auto max-w-5xl text-center mb-14">
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                  Everything you need.
-                  <br className="hidden sm:block" /> Nothing you don&apos;t.
+                  {t("welcome.featuresTitle1")}
+                  <br className="hidden sm:block" /> {t("welcome.featuresTitle2")}
                 </h2>
                 <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-                  FitCheck is focused on one thing: private, accurate,
-                  insightful nutrition tracking for one person — you.
+                  {t("welcome.featuresSubtitle")}
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -197,12 +196,10 @@ export default function WelcomePage() {
                     <Salad className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    Private Food Library
+                    {t("welcome.feature1Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Build your own personal food database with nutrition values
-                    per 100 g. Editable anytime — it&apos;s yours, and only
-                    yours.
+                    {t("welcome.feature1Desc")}
                   </p>
                 </div>
                 {/* Card 2 */}
@@ -211,11 +208,10 @@ export default function WelcomePage() {
                     <Layers className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    Preset Meal Templates
+                    {t("welcome.feature2Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Save your go‑to meals as reusable templates. Log a full
-                    breakfast or post‑workout shake in two taps.
+                    {t("welcome.feature2Desc")}
                   </p>
                 </div>
                 {/* Card 3 */}
@@ -224,12 +220,10 @@ export default function WelcomePage() {
                     <Sparkles className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    AI Meal Parsing
+                    {t("welcome.feature3Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Describe what you ate in plain language — &quot;a bowl of
-                    lentil soup and a slice of bread&quot; — and let the AI
-                    estimate and log it for you.
+                    {t("welcome.feature3Desc")}
                   </p>
                 </div>
                 {/* Card 4 */}
@@ -238,12 +232,10 @@ export default function WelcomePage() {
                     <Target className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    Custom Daily Targets
+                    {t("welcome.feature4Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Set your own calorie, protein, carb, fat, sugar, and fiber
-                    goals. The dashboard shows exactly how close you are — no
-                    generic RDA.
+                    {t("welcome.feature4Desc")}
                   </p>
                 </div>
                 {/* Card 5 */}
@@ -252,11 +244,10 @@ export default function WelcomePage() {
                     <Circle className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    Weekly & Monthly Analytics
+                    {t("welcome.feature5Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    See 7‑day and 30‑day trends for every macro. Spot patterns,
-                    adjust your targets, and stay on track over time.
+                    {t("welcome.feature5Desc")}
                   </p>
                 </div>
                 {/* Card 6 */}
@@ -265,11 +256,10 @@ export default function WelcomePage() {
                     <ShieldCheck className="w-5 h-5 text-secondary-foreground" />
                   </div>
                   <h3 className="text-base font-semibold text-foreground mb-2">
-                    Strict Data Isolation
+                    {t("welcome.feature6Title")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    No global food DB, no social sharing, no coaches peeking.
-                    Every record is scoped to your account. Privacy by design.
+                    {t("welcome.feature6Desc")}
                   </p>
                 </div>
               </div>
@@ -279,26 +269,24 @@ export default function WelcomePage() {
             <section className="pb-20 md:pb-32">
               <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-primary/5 via-background to-accent/10 border border-border/50 rounded-3xl p-10 md:p-16 shadow-md">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-4">
-                  Ready to take control of your nutrition — privately?
+                  {t("welcome.closingTitle")}
                 </h2>
                 <p className="text-muted-foreground max-w-xl mx-auto mb-8 leading-relaxed">
-                  FitCheck is invite‑only by design. Your data is yours, your
-                  insights are personal, and your tracking is invisible to
-                  everyone else.
+                  {t("welcome.closingSubtitle")}
                 </p>
                 <Link
                   to="/register"
                   className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Get Started
+                  {t("welcome.getStarted")}
                 </Link>
               </div>
             </section>
 
             {/* MINIMAL FOOTER */}
             <div className="border-t border-border pt-8 pb-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-              <p>&copy; 2025 FitCheck. All rights reserved.</p>
+              <p>{t("system.copyright")}</p>
               <div className="flex items-center gap-6">
                 <a href="#" className="hover:text-foreground transition-colors">
                   Privacy
@@ -454,35 +442,35 @@ export default function WelcomePage() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-primary transition-colors"
           >
             <House className="w-5 h-5" />
-            <span className="text-[10px] font-medium">House</span>
+            <span className="text-[10px] font-medium">{t("system.home")}</span>
           </Link>
           <Link
             to="/meals"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Utensils className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Meals</span>
+            <span className="text-[10px] font-medium">{t("system.meals")}</span>
           </Link>
           <Link
             to="/dashboard"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Circle className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Progress</span>
+            <span className="text-[10px] font-medium">{t("system.progress")}</span>
           </Link>
           <Link
             to="/ai-sessions"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium">AI</span>
+            <span className="text-[10px] font-medium">{t("system.ai")}</span>
           </Link>
           <Link
             to="/profile"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Profile</span>
+            <span className="text-[10px] font-medium">{t("system.profile")}</span>
           </Link>
         </div>
       </nav>

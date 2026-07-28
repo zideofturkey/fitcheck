@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { KeyRound, Hash, CircleCheck, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { useCompletePasswordResetByEmail } from "@/hooks/api/use-auth";
 import { useStartPasswordResetByEmail } from "@/hooks/api/use-auth";
 
 const PasswordResetCompletePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Form state
@@ -57,7 +59,7 @@ const PasswordResetCompletePage = () => {
     // passed via route state or query params.
     const email = sessionStorage.getItem("resetEmail") || "";
     if (!email) {
-      setError("No email found. Please go back to the forgot password page.");
+      setError(t("passwordResetComplete.noEmailFound"));
       return;
     }
 
@@ -67,7 +69,9 @@ const PasswordResetCompletePage = () => {
       },
       onError: (err: unknown) => {
         const message =
-          err instanceof Error ? err.message : "Failed to resend code.";
+          err instanceof Error
+            ? err.message
+            : t("passwordResetComplete.resendFailed");
         setError(message);
       },
     });
@@ -78,23 +82,23 @@ const PasswordResetCompletePage = () => {
     setError(null);
 
     if (resetCode.length !== 6) {
-      setError("Please enter the 6-digit reset code.");
+      setError(t("passwordResetComplete.enterCode"));
       return;
     }
 
     if (!newPassword) {
-      setError("Please enter a new password.");
+      setError(t("passwordResetComplete.enterPassword"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("passwordResetComplete.passwordMismatch"));
       return;
     }
 
     const email = sessionStorage.getItem("resetEmail") || "";
     if (!email) {
-      setError("No email found. Please go back to the forgot password page.");
+      setError(t("passwordResetComplete.noEmailFound"));
       return;
     }
 
@@ -107,7 +111,9 @@ const PasswordResetCompletePage = () => {
         },
         onError: (err: unknown) => {
           const message =
-            err instanceof Error ? err.message : "Password reset failed.";
+            err instanceof Error
+              ? err.message
+              : t("passwordResetComplete.resetFailed");
           setError(message);
         },
       },
@@ -127,18 +133,17 @@ const PasswordResetCompletePage = () => {
             <KeyRound className="w-7 h-7 text-primary" />
           </div>
           <h2 className="text-xl font-bold tracking-tight mb-1">
-            Reset your password
+            {t("passwordResetComplete.title")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            We sent a 6‑digit code to your email. Enter it below along with your
-            new password.
+            {t("passwordResetComplete.subtitle")}
           </p>
         </div>
 
         {/* Code index badge (dev/test) */}
         <div className="flex items-center justify-between mb-6 bg-muted/60 rounded-xl px-4 py-3">
           <span className="text-xs font-medium text-muted-foreground">
-            Code index
+            {t("passwordResetComplete.codeIndex")}
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-secondary text-secondary-foreground text-sm font-mono font-semibold">
             <Hash className="w-3.5 h-3.5" />
@@ -149,7 +154,7 @@ const PasswordResetCompletePage = () => {
         {/* Secret code display (dev/test only) */}
         <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/20 text-center">
           <p className="text-xs text-muted-foreground mb-1">
-            Development mode — your secret code is
+            {t("passwordResetComplete.devModeHint")}
           </p>
           <p className="text-2xl font-mono font-bold tracking-[0.2em] text-primary">
             482 931
@@ -159,7 +164,7 @@ const PasswordResetCompletePage = () => {
             className="mt-2 text-xs text-primary hover:underline font-medium"
             onClick={handleCopyCode}
           >
-            Copy code
+            {t("passwordResetComplete.copyCode")}
           </button>
         </div>
 
@@ -174,7 +179,9 @@ const PasswordResetCompletePage = () => {
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* 6-digit code input */}
           <div className="space-y-2">
-            <Label htmlFor="reset-code">Reset code</Label>
+            <Label htmlFor="reset-code">
+              {t("passwordResetComplete.resetCode")}
+            </Label>
             <Input
               id="reset-code"
               type="text"
@@ -189,17 +196,19 @@ const PasswordResetCompletePage = () => {
               className="h-12 text-center text-lg font-mono tracking-[0.3em]"
             />
             <p className="text-xs text-muted-foreground">
-              Enter the 6‑digit code from your email
+              {t("passwordResetComplete.codeHint")}
             </p>
           </div>
 
           {/* New password */}
           <div className="space-y-2">
-            <Label htmlFor="new-password">New password</Label>
+            <Label htmlFor="new-password">
+              {t("passwordResetComplete.newPassword")}
+            </Label>
             <Input
               id="new-password"
               type="password"
-              placeholder="Enter new password"
+              placeholder={t("passwordResetComplete.newPasswordPlaceholder")}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="h-12"
@@ -208,11 +217,15 @@ const PasswordResetCompletePage = () => {
 
           {/* Confirm new password */}
           <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
+            <Label htmlFor="confirm-password">
+              {t("passwordResetComplete.confirmPassword")}
+            </Label>
             <Input
               id="confirm-password"
               type="password"
-              placeholder="Re-enter new password"
+              placeholder={t(
+                "passwordResetComplete.confirmPasswordPlaceholder",
+              )}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="h-12"
@@ -226,11 +239,11 @@ const PasswordResetCompletePage = () => {
             className="w-full h-12 font-semibold"
           >
             {completeResetMutation.isPending ? (
-              <>Resetting...</>
+              <>{t("passwordResetComplete.resetting")}</>
             ) : (
               <>
                 <CircleCheck className="w-4 h-4" />
-                Reset Password
+                {t("passwordResetComplete.resetPassword")}
               </>
             )}
           </Button>
@@ -240,7 +253,7 @@ const PasswordResetCompletePage = () => {
         <div className="mt-6 flex flex-col gap-3 items-center">
           {cooldownSeconds > 0 ? (
             <p className="text-xs text-muted-foreground">
-              Resend available in{" "}
+              {t("passwordResetComplete.resendAvailable")}{" "}
               <span className="font-mono">{cooldownSeconds}</span>s
             </p>
           ) : (
@@ -251,14 +264,14 @@ const PasswordResetCompletePage = () => {
               className="text-sm font-medium text-primary hover:underline transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:pointer-events-none"
             >
               <RotateCw className="w-3.5 h-3.5" />
-              Resend code
+              {t("passwordResetComplete.resendCode")}
             </button>
           )}
           <Link
             to="/login"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Back to sign in
+            {t("passwordResetComplete.backToSignIn")}
           </Link>
         </div>
       </div>

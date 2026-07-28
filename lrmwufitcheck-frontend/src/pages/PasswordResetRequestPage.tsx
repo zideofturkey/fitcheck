@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +17,9 @@ import {
   Mail,
   ArrowRight,
   ArrowLeft,
-  CircleCheck,
   Loader,
   KeyRound,
   Lock,
-  Check,
 } from "lucide-react";
 import {
   useStartPasswordResetByEmail,
@@ -28,6 +27,7 @@ import {
 } from "@/hooks/api/use-auth";
 
 export default function PasswordResetRequestPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<"email" | "reset">("email");
   const [email, setEmail] = useState("");
@@ -44,9 +44,7 @@ export default function PasswordResetRequestPage() {
     startReset.mutate(email, {
       onSuccess: () => setStep("reset"),
       onError: (err: any) =>
-        setError(
-          err?.message || "Failed to send reset code. Please try again.",
-        ),
+        setError(err?.message || t("passwordReset.sendCodeFailed")),
     });
   };
 
@@ -58,9 +56,7 @@ export default function PasswordResetRequestPage() {
       {
         onSuccess: () => navigate("/login", { state: { passwordReset: true } }),
         onError: (err: any) =>
-          setError(
-            err?.message || "Password reset Check your code and try again.",
-          ),
+          setError(err?.message || t("passwordReset.resetFailed")),
       },
     );
   };
@@ -77,12 +73,14 @@ export default function PasswordResetRequestPage() {
             )}
           </div>
           <CardTitle className="text-xl">
-            {step === "email" ? "Reset your password" : "Create new password"}
+            {step === "email"
+              ? t("passwordReset.resetTitle")
+              : t("passwordReset.newPasswordTitle")}
           </CardTitle>
           <CardDescription className="text-sm">
             {step === "email"
-              ? "Enter your email and we'll send you a reset code."
-              : `Enter the code sent to ${email} and choose a new password.`}
+              ? t("passwordReset.resetSubtitle")
+              : t("passwordReset.newPasswordSubtitle", { email })}
           </CardDescription>
         </CardHeader>
 
@@ -90,7 +88,7 @@ export default function PasswordResetRequestPage() {
           {step === "email" ? (
             <form onSubmit={handleSendCode} className="flex flex-col gap-4">
               <div className="text-left">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">{t("passwordReset.emailAddress")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -116,7 +114,7 @@ export default function PasswordResetRequestPage() {
                 ) : (
                   <ArrowRight className="w-4 h-4" />
                 )}
-                Send Reset Code
+                {t("passwordReset.sendResetCode")}
               </Button>
             </form>
           ) : (
@@ -125,10 +123,12 @@ export default function PasswordResetRequestPage() {
               className="flex flex-col gap-4"
             >
               <div className="text-left">
-                <Label htmlFor="secretCode">Reset code</Label>
+                <Label htmlFor="secretCode">
+                  {t("passwordReset.resetCode")}
+                </Label>
                 <Input
                   id="secretCode"
-                  placeholder="6-digit code"
+                  placeholder={t("passwordReset.resetCodePlaceholder")}
                   value={secretCode}
                   onChange={(e) => setSecretCode(e.target.value)}
                   required
@@ -136,11 +136,13 @@ export default function PasswordResetRequestPage() {
                 />
               </div>
               <div className="text-left">
-                <Label htmlFor="password">New password</Label>
+                <Label htmlFor="password">
+                  {t("passwordReset.newPassword")}
+                </Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Min. 8 characters"
+                  placeholder={t("passwordReset.newPasswordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -162,7 +164,7 @@ export default function PasswordResetRequestPage() {
                 ) : (
                   <Lock className="w-4 h-4" />
                 )}
-                Reset Password
+                {t("passwordReset.resetPassword")}
               </Button>
               <button
                 type="button"
@@ -173,7 +175,7 @@ export default function PasswordResetRequestPage() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1"
               >
                 <ArrowLeft className="w-3 h-3" />
-                Back to email
+                {t("passwordReset.backToEmail")}
               </button>
             </form>
           )}
@@ -183,17 +185,16 @@ export default function PasswordResetRequestPage() {
           {step === "email" && (
             <>
               <p className="text-sm text-muted-foreground">
-                Remember your password?{" "}
+                {t("passwordReset.rememberPassword")}{" "}
                 <Link
                   to="/login"
                   className="text-primary hover:underline font-medium"
                 >
-                  Sign in
+                  {t("passwordReset.signIn")}
                 </Link>
               </p>
               <p className="text-xs text-muted-foreground border-t border-border pt-4 w-full">
-                FitCheck is invite‑only. You need an invitation link to create
-                an account.
+                {t("passwordReset.inviteOnlyNote")}
               </p>
             </>
           )}

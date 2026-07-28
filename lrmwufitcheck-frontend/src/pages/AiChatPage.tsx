@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { History, Loader, Sparkles, Send, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { useParseMeal } from "@/hooks/api/use-nutritionai";
 import { nutritionaiService } from "@/services/api/nutritionai-api";
 
 export default function AiChatPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const parseMeal = useParseMeal();
   const [inputText, setInputText] = useState("");
@@ -23,7 +25,7 @@ export default function AiChatPage() {
           const session = sessionRes.aiSession;
           const sessionId = session?.id;
           if (!sessionId) {
-            toast.error("AI oturumu oluşturulamadı.");
+            toast.error(t("aiChat.sessionCreateFailed"));
             return;
           }
           // The candidate meal is linked to the session — fetch it.
@@ -50,7 +52,7 @@ export default function AiChatPage() {
             (err as { response?: { data?: { message?: string } } })?.response
               ?.data?.message ??
             (err as Error)?.message ??
-            "AI analizi sırasında bir hata oluştu.";
+            t("aiChat.analysisError");
           toast.error(msg);
         },
       },
@@ -63,10 +65,10 @@ export default function AiChatPage() {
         <div className="space-y-1">
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
             <Sparkles className="w-6 h-6 text-primary" />
-            AI Öğün Analizi
+            {t("aiChat.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Yediğinizi doğal dilde tarif edin, AI besin değerlerini hesaplasın.
+            {t("aiChat.subtitle")}
           </p>
         </div>
         <Link
@@ -74,7 +76,7 @@ export default function AiChatPage() {
           className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <History className="w-4 h-4" />
-          Geçmiş
+          {t("aiChat.history")}
         </Link>
       </header>
 
@@ -84,21 +86,19 @@ export default function AiChatPage() {
             htmlFor="ai-meal-input"
             className="block text-sm font-medium text-foreground"
           >
-            Ne yediniz?
+            {t("aiChat.whatDidYouEat")}
           </label>
           <textarea
             id="ai-meal-input"
             rows={5}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Örneğin: '2 yumurta ve 40g sucuk yedim'"
+            placeholder={t("aiChat.placeholder")}
             disabled={parseMeal.isPending}
             className="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow resize-none disabled:opacity-60"
           />
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">
-              AI analizinin doğru çalışması için miktarları belirtin (örn. 100g, 2 adet).
-            </p>
+            <p className="text-xs text-muted-foreground">{t("aiChat.hint")}</p>
             <Button
               type="submit"
               disabled={parseMeal.isPending || !inputText.trim()}
@@ -107,12 +107,12 @@ export default function AiChatPage() {
               {parseMeal.isPending ? (
                 <>
                   <Loader className="w-4 h-4 animate-spin" />
-                  Analiz Ediliyor…
+                  {t("aiChat.analyzing")}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Analiz Et
+                  {t("aiChat.analyze")}
                 </>
               )}
             </Button>
@@ -123,7 +123,7 @@ export default function AiChatPage() {
           <div className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
             <Loader className="w-5 h-5 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">
-              AI analiz ediyor... Bu birkaç saniye sürebilir.
+              {t("aiChat.analyzingLong")}
             </p>
           </div>
         )}
@@ -131,9 +131,7 @@ export default function AiChatPage() {
         {parseMeal.isError && (
           <div className="mt-5 flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
             <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-            <p className="text-sm text-destructive">
-              Analiz başarısız oldu. Lütfen tekrar deneyin.
-            </p>
+            <p className="text-sm text-destructive">{t("aiChat.failed")}</p>
           </div>
         )}
       </Card>
@@ -141,19 +139,15 @@ export default function AiChatPage() {
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-            Örnek
+            {t("aiChat.example")}
           </p>
-          <p className="text-sm text-foreground">
-            &ldquo;Kahvaltıda 2 omlet, 1 dilim ekmek ve çay&rdquo;
-          </p>
+          <p className="text-sm text-foreground">{t("aiChat.exampleText")}</p>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-            İpucu
+            {t("aiChat.tip")}
           </p>
-          <p className="text-sm text-foreground">
-            Miktar belirtmek (g, adet, bardak) daha doğru sonuç verir.
-          </p>
+          <p className="text-sm text-foreground">{t("aiChat.tipText")}</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Ban,
   ChevronLeft,
@@ -35,55 +36,8 @@ const STATES: InviteState[] = [
 
 const MODES: InviteLink["usageMode"][] = ["singleUse", "limitedUse"];
 
-function getStatusBadge(state: InviteState) {
-  switch (state) {
-    case "active":
-      return {
-        className: "bg-secondary text-secondary-foreground",
-        dotClass: "bg-chart-1",
-        label: "Active",
-      };
-    case "draft":
-      return {
-        className: "bg-muted text-muted-foreground",
-        dotClass: "bg-foreground/30",
-        label: "Draft",
-      };
-    case "expired":
-      return {
-        className: "bg-chart-4/15 text-chart-4",
-        dotClass: "bg-chart-4",
-        label: "Expired",
-      };
-    case "consumed":
-      return {
-        className: "bg-chart-1/15 text-chart-1",
-        dotClass: "bg-chart-1",
-        label: "Consumed",
-      };
-    case "revoked":
-      return {
-        className: "bg-destructive/10 text-destructive",
-        dotClass: "bg-destructive",
-        label: "Revoked",
-      };
-    case "exhausted":
-      return {
-        className: "bg-muted text-muted-foreground",
-        dotClass: "bg-foreground/40",
-        label: "Exhausted",
-      };
-    default:
-      return {
-        className: "bg-muted text-muted-foreground",
-        dotClass: "bg-foreground/30",
-        label: state,
-      };
-  }
-}
-
-function formatDate(iso?: string) {
-  if (!iso) return "No expiry";
+function formatDate(iso: string | undefined, t: (key: string) => string) {
+  if (!iso) return t("adminInvites.noExpiry");
   try {
     return new Date(iso).toLocaleDateString("tr-TR", {
       day: "numeric",
@@ -96,9 +50,66 @@ function formatDate(iso?: string) {
 }
 
 export default function AdminInviteListPage() {
+  const { t } = useTranslation();
   const [stateFilter, setStateFilter] = useState<string>("");
   const [modeFilter, setModeFilter] = useState<string>("");
   const [page, setPage] = useState(1);
+
+  const STATE_LABEL: Record<InviteState, string> = {
+    active: t("adminInvites.stateActive"),
+    draft: t("adminInvites.stateDraft"),
+    expired: t("adminInvites.stateExpired"),
+    consumed: t("adminInvites.stateConsumed"),
+    revoked: t("adminInvites.stateRevoked"),
+    exhausted: t("adminInvites.stateExhausted"),
+  };
+
+  function getStatusBadge(state: InviteState) {
+    switch (state) {
+      case "active":
+        return {
+          className: "bg-secondary text-secondary-foreground",
+          dotClass: "bg-chart-1",
+          label: STATE_LABEL.active,
+        };
+      case "draft":
+        return {
+          className: "bg-muted text-muted-foreground",
+          dotClass: "bg-foreground/30",
+          label: STATE_LABEL.draft,
+        };
+      case "expired":
+        return {
+          className: "bg-chart-4/15 text-chart-4",
+          dotClass: "bg-chart-4",
+          label: STATE_LABEL.expired,
+        };
+      case "consumed":
+        return {
+          className: "bg-chart-1/15 text-chart-1",
+          dotClass: "bg-chart-1",
+          label: STATE_LABEL.consumed,
+        };
+      case "revoked":
+        return {
+          className: "bg-destructive/10 text-destructive",
+          dotClass: "bg-destructive",
+          label: STATE_LABEL.revoked,
+        };
+      case "exhausted":
+        return {
+          className: "bg-muted text-muted-foreground",
+          dotClass: "bg-foreground/40",
+          label: STATE_LABEL.exhausted,
+        };
+      default:
+        return {
+          className: "bg-muted text-muted-foreground",
+          dotClass: "bg-foreground/30",
+          label: state,
+        };
+    }
+  }
 
   const params = {
     inviteState: (stateFilter || undefined) as InviteState | undefined,
@@ -118,7 +129,7 @@ export default function AdminInviteListPage() {
 
   const handleActivate = (id: string) => activateMutation.mutate(id);
   const handleRevoke = (id: string) => {
-    if (!confirm("Revoke this invite link?")) return;
+    if (!confirm(t("adminInvites.revokeConfirm"))) return;
     revokeMutation.mutate({ inviteLinkId: id, data: {} });
   };
   const handleDeliver = (id: string) => deliverMutation.mutate(id);
@@ -128,10 +139,10 @@ export default function AdminInviteListPage() {
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Invite Links
+            {t("adminInvites.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage invitation links for onboarding new users.
+            {t("adminInvites.subtitle")}
           </p>
         </div>
         <Link
@@ -139,7 +150,7 @@ export default function AdminInviteListPage() {
           className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium shadow hover:bg-primary/90 transition-colors min-h-[44px]"
         >
           <Plus className="w-4 h-4" />
-          Create Invite
+          {t("adminInvites.createInvite")}
         </Link>
       </header>
 
@@ -153,12 +164,12 @@ export default function AdminInviteListPage() {
               setPage(1);
             }}
             className="flex-1 sm:max-w-[180px] rounded-md border border-input bg-background text-sm px-3 py-2 min-h-[44px] text-foreground"
-            aria-label="Filter by state"
+            aria-label={t("adminInvites.filterByState")}
           >
-            <option value="">All States</option>
+            <option value="">{t("adminInvites.allStates")}</option>
             {STATES.map((s) => (
               <option key={s} value={s}>
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {STATE_LABEL[s]}
               </option>
             ))}
           </select>
@@ -172,12 +183,14 @@ export default function AdminInviteListPage() {
               setPage(1);
             }}
             className="flex-1 sm:max-w-[180px] rounded-md border border-input bg-background text-sm px-3 py-2 min-h-[44px] text-foreground"
-            aria-label="Filter by usage mode"
+            aria-label={t("adminInvites.filterByMode")}
           >
-            <option value="">All Modes</option>
+            <option value="">{t("adminInvites.allModes")}</option>
             {MODES.map((m) => (
               <option key={m} value={m}>
-                {m === "singleUse" ? "Single Use" : "Limited Use"}
+                {m === "singleUse"
+                  ? t("adminInvites.singleUse")
+                  : t("adminInvites.limitedUse")}
               </option>
             ))}
           </select>
@@ -187,13 +200,13 @@ export default function AdminInviteListPage() {
       {isLoading && invites.length === 0 && (
         <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
           <Loader className="w-4 h-4 animate-spin mr-2" />
-          Yükleniyor…
+          {t("adminInvites.loading")}
         </Card>
       )}
 
       {!isLoading && invites.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
-          No invite links found.
+          {t("adminInvites.noInvites")}
         </Card>
       )}
 
@@ -204,25 +217,25 @@ export default function AdminInviteListPage() {
             <thead className="bg-muted/50">
               <tr className="border-b border-border">
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  Email
+                  {t("adminInvites.colEmail")}
                 </th>
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  Code
+                  {t("adminInvites.colCode")}
                 </th>
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  State
+                  {t("adminInvites.colState")}
                 </th>
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  Usage
+                  {t("adminInvites.colUsage")}
                 </th>
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  Expires
+                  {t("adminInvites.colExpires")}
                 </th>
                 <th className="text-start px-4 py-3 font-semibold text-muted-foreground">
-                  Created
+                  {t("adminInvites.colCreated")}
                 </th>
                 <th className="text-end px-4 py-3 font-semibold text-muted-foreground">
-                  Actions
+                  {t("adminInvites.colActions")}
                 </th>
               </tr>
             </thead>
@@ -242,13 +255,13 @@ export default function AdminInviteListPage() {
                           </span>
                         ) : (
                           <span className="text-muted-foreground italic">
-                            Open invite
+                            {t("adminInvites.openInvite")}
                           </span>
                         )}
                         <span className="text-xs text-muted-foreground">
                           {invite.usageMode === "singleUse"
-                            ? "Single Use"
-                            : "Limited Use"}
+                            ? t("adminInvites.singleUse")
+                            : t("adminInvites.limitedUse")}
                         </span>
                       </div>
                     </td>
@@ -275,17 +288,17 @@ export default function AdminInviteListPage() {
                     <td
                       className={`px-4 py-3 ${invite.inviteState === "expired" ? "text-destructive" : "text-muted-foreground"}`}
                     >
-                      {formatDate(invite.expiresAt)}
+                      {formatDate(invite.expiresAt, t)}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {formatDate(invite.createdAt)}
+                      {formatDate(invite.createdAt, t)}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           to={`/admin/invites/${invite.id}`}
                           className="p-2 rounded-md hover:bg-accent transition-colors"
-                          aria-label="View details"
+                          aria-label={t("adminInvites.viewDetails")}
                         >
                           <Eye className="w-4 h-4 text-muted-foreground" />
                         </Link>
@@ -295,7 +308,7 @@ export default function AdminInviteListPage() {
                               type="button"
                               onClick={() => handleDeliver(invite.id)}
                               className="p-2 rounded-md hover:bg-accent transition-colors"
-                              aria-label="Send email"
+                              aria-label={t("adminInvites.sendEmail")}
                             >
                               <Mail className="w-4 h-4 text-muted-foreground" />
                             </button>
@@ -303,7 +316,7 @@ export default function AdminInviteListPage() {
                               type="button"
                               onClick={() => handleRevoke(invite.id)}
                               className="p-2 rounded-md hover:bg-accent transition-colors"
-                              aria-label="Revoke"
+                              aria-label={t("adminInvites.revoke")}
                             >
                               <Ban className="w-4 h-4 text-muted-foreground" />
                             </button>
@@ -314,7 +327,7 @@ export default function AdminInviteListPage() {
                             type="button"
                             onClick={() => handleActivate(invite.id)}
                             className="p-2 rounded-md hover:bg-accent transition-colors"
-                            aria-label="Activate"
+                            aria-label={t("adminInvites.activate")}
                           >
                             <Play className="w-4 h-4 text-chart-1" />
                           </button>
@@ -330,14 +343,15 @@ export default function AdminInviteListPage() {
 
         <div className="flex items-center justify-between px-4 py-3 border-t border-border">
           <p className="text-xs text-muted-foreground">
-            Page {page} of {totalPages} · {totalCount} total
+            {t("adminInvites.pageOf", { page, totalPages })} · {totalCount}{" "}
+            {t("adminInvites.total")}
           </p>
           <div className="flex items-center gap-1">
             <button
               type="button"
               className="p-2 rounded-md border border-border hover:bg-muted transition-colors disabled:opacity-40"
               disabled={page <= 1}
-              aria-label="Previous page"
+              aria-label={t("adminInvites.previousPage")}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               <ChevronLeft className="w-4 h-4" />
@@ -346,7 +360,7 @@ export default function AdminInviteListPage() {
               type="button"
               className="p-2 rounded-md border border-border hover:bg-muted transition-colors disabled:opacity-40"
               disabled={page >= totalPages}
-              aria-label="Next page"
+              aria-label={t("adminInvites.nextPage")}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
               <ChevronRight className="w-4 h-4" />
@@ -369,13 +383,13 @@ export default function AdminInviteListPage() {
                     </p>
                   ) : (
                     <p className="font-semibold text-sm text-muted-foreground italic">
-                      Open invite
+                      {t("adminInvites.openInvite")}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
                     {invite.usageMode === "singleUse"
-                      ? "Single Use"
-                      : "Limited Use"}
+                      ? t("adminInvites.singleUse")
+                      : t("adminInvites.limitedUse")}
                   </p>
                 </div>
                 <span
@@ -394,31 +408,39 @@ export default function AdminInviteListPage() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-muted-foreground">Usage</span>
+                  <span className="text-muted-foreground">
+                    {t("adminInvites.colUsage")}
+                  </span>
                   <p className="font-medium">
                     {invite.usageCount} / {invite.usageLimit ?? 1}
                   </p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Expires</span>
+                  <span className="text-muted-foreground">
+                    {t("adminInvites.colExpires")}
+                  </span>
                   <p
                     className={`font-medium ${invite.inviteState === "expired" ? "text-destructive" : ""}`}
                   >
-                    {formatDate(invite.expiresAt)}
+                    {formatDate(invite.expiresAt, t)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Created</span>
-                  <p className="font-medium">{formatDate(invite.createdAt)}</p>
+                  <span className="text-muted-foreground">
+                    {t("adminInvites.colCreated")}
+                  </span>
+                  <p className="font-medium">
+                    {formatDate(invite.createdAt, t)}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 pt-1 border-t border-border">
                 <Link
                   to={`/admin/invites/${invite.id}`}
                   className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
-                  aria-label="View details"
+                  aria-label={t("adminInvites.viewDetails")}
                 >
-                  <Eye className="w-4 h-4" /> View
+                  <Eye className="w-4 h-4" /> {t("adminInvites.view")}
                 </Link>
                 {invite.inviteState === "active" && (
                   <>
@@ -426,17 +448,17 @@ export default function AdminInviteListPage() {
                       type="button"
                       onClick={() => handleDeliver(invite.id)}
                       className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
-                      aria-label="Send email"
+                      aria-label={t("adminInvites.sendEmail")}
                     >
-                      <Mail className="w-4 h-4" /> Send
+                      <Mail className="w-4 h-4" /> {t("adminInvites.send")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleRevoke(invite.id)}
                       className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
-                      aria-label="Revoke"
+                      aria-label={t("adminInvites.revoke")}
                     >
-                      <Ban className="w-4 h-4" /> Revoke
+                      <Ban className="w-4 h-4" /> {t("adminInvites.revoke")}
                     </button>
                   </>
                 )}
@@ -445,9 +467,9 @@ export default function AdminInviteListPage() {
                     type="button"
                     onClick={() => handleActivate(invite.id)}
                     className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px] text-chart-1"
-                    aria-label="Activate"
+                    aria-label={t("adminInvites.activate")}
                   >
-                    <Play className="w-4 h-4" /> Activate
+                    <Play className="w-4 h-4" /> {t("adminInvites.activate")}
                   </button>
                 )}
               </div>

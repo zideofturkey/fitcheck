@@ -42,6 +42,8 @@ const FoodLibraryPage = lazy(() => import("@/pages/FoodLibraryPage"));
 const FoodItemDetailPage = lazy(() => import("@/pages/FoodItemDetailPage"));
 const PresetMealsPage = lazy(() => import("@/pages/PresetMealsPage"));
 const PresetMealDetailPage = lazy(() => import("@/pages/PresetMealDetailPage"));
+const DishesPage = lazy(() => import("@/pages/DishesPage"));
+const DishDetailPage = lazy(() => import("@/pages/DishDetailPage"));
 const MealHistoryPage = lazy(() => import("@/pages/MealHistoryPage"));
 const MealDetailPage = lazy(() => import("@/pages/MealDetailPage"));
 const LogMealPage = lazy(() => import("@/pages/LogMealPage"));
@@ -70,6 +72,12 @@ const AdminCreateInvitePage = lazy(
 const AdminUserListPage = lazy(() => import("@/pages/AdminUserListPage"));
 const AdminUserDetailPage = lazy(() => import("@/pages/AdminUserDetailPage"));
 const AdminCreateUserPage = lazy(() => import("@/pages/AdminCreateUserPage"));
+const AdminSuggestionsPage = lazy(
+  () => import("@/pages/AdminSuggestionsPage"),
+);
+const AdminBulkImportPage = lazy(
+  () => import("@/pages/AdminBulkImportPage"),
+);
 
 // Public / system
 const WelcomePage = lazy(() => import("@/pages/WelcomePage"));
@@ -152,6 +160,8 @@ export default function App() {
                 path="/preset-meals/:presetMealId"
                 element={<PresetMealDetailPage />}
               />
+              <Route path="/dishes" element={<DishesPage />} />
+              <Route path="/dishes/:dishId" element={<DishDetailPage />} />
               <Route path="/meals" element={<MealHistoryPage />} />
               <Route path="/meals/log" element={<LogMealPage />} />
               <Route path="/meals/:id/edit" element={<EditMealPage />} />
@@ -228,6 +238,22 @@ export default function App() {
                 element={
                   <RoleProtectedRoute roles={["superAdmin", "admin"]}>
                     <AdminUserDetailPage />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/suggestions"
+                element={
+                  <RoleProtectedRoute roles={["superAdmin", "admin"]}>
+                    <AdminSuggestionsPage />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/bulk-import"
+                element={
+                  <RoleProtectedRoute roles={["superAdmin", "admin"]}>
+                    <AdminBulkImportPage />
                   </RoleProtectedRoute>
                 }
               />

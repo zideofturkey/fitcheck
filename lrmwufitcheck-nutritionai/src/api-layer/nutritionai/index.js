@@ -14,6 +14,7 @@ module.exports = {
   _fetchListAiCandidateMealManager: require("./aiCandidateMeal/_fetch-listaicandidatemeal-api"),
   // AiCandidateLine Db Object
   UpdateAiCandidateLineManager: require("./aiCandidateLine/update-aicandidateline-api"),
+  ListAiCandidateLinesManager: require("./aiCandidateLine/list-aicandidatelines-api"),
   _fetchListAiCandidateLineManager: require("./aiCandidateLine/_fetch-listaicandidateline-api"),
   // AiGuidanceNote Db Object
   GetAiGuidanceNoteManager: require("./aiGuidanceNote/get-aiguidancenote-api"),

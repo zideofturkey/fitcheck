@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Loader, Search, X, BookOpen, Layers, PencilLine } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  Loader,
+  Search,
+  X,
+  BookOpen,
+  Layers,
+  PencilLine,
+  UtensilsCrossed,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -7,11 +16,13 @@ import {
   useListPresetMeals,
   useListPresetLines,
 } from "@/hooks/api/use-nutritionlibrary";
+import { useListDishes, useListDishLines } from "@/hooks/api/use-dish";
 import type {
   NutritionlibraryFoodItem,
   NutritionlibraryPresetMeal,
   NutritionlibraryPresetLine,
 } from "@/types/api";
+import type { Dish } from "@/services/api/dish-api";
 
 export type PickedFoodLine = {
   itemName: string;
@@ -22,9 +33,10 @@ export type PickedFoodLine = {
   itemFat: number;
   itemSugar: number;
   itemFiber: number;
-  lineSource: "foodLibrary" | "presetTemplate" | "manualEntry";
+  lineSource: "foodLibrary" | "presetTemplate" | "dishTemplate" | "manualEntry";
   sourceFoodItemId?: string;
   sourcePresetMealId?: string;
+  sourceDishId?: string;
 };
 
 interface FoodPickerModalProps {
@@ -36,7 +48,7 @@ interface FoodPickerModalProps {
   onManualEntry: () => void;
 }
 
-type Tab = "library" | "presets";
+type Tab = "library" | "presets" | "dishes";
 
 const round = (n: number) => +n.toFixed(1);
 
@@ -46,6 +58,7 @@ export default function FoodPickerModal({
   onPick,
   onManualEntry,
 }: FoodPickerModalProps) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("library");
   const [search, setSearch] = useState("");
   const [selectedFood, setSelectedFood] =
@@ -53,6 +66,7 @@ export default function FoodPickerModal({
   const [grams, setGrams] = useState<number>(100);
   const [selectedPreset, setSelectedPreset] =
     useState<NutritionlibraryPresetMeal | null>(null);
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
   const { data: foodData, isLoading: foodLoading } = useListFoodItems({
     searchTerm: search || undefined,
@@ -62,16 +76,22 @@ export default function FoodPickerModal({
     searchTerm: search || undefined,
     pageRowCount: 20,
   });
+  const { data: dishData, isLoading: dishesLoading } = useListDishes({
+    dishName: search || undefined,
+    pageRowCount: 20,
+  });
   // Fetch lines for the selected preset meal so we can snapshot them.
   const { data: presetLinesData } = useListPresetLines(
     selectedPreset?.id ?? null,
   );
+  const { data: dishLinesData } = useListDishLines(selectedDish?.id ?? null);
 
   if (!open) return null;
 
   const close = () => {
     setSelectedFood(null);
     setSelectedPreset(null);
+    setSelectedDish(null);
     setGrams(100);
     setSearch("");
     onClose();
@@ -134,6 +154,27 @@ export default function FoodPickerModal({
     close();
   };
 
+  const confirmDish = () => {
+    if (!selectedDish) return;
+    const lines = dishLinesData?.dishLines ?? [];
+    const picked: PickedFoodLine[] = lines.map((l) => ({
+      itemName: l.lineFoodName,
+      consumedGrams: l.gramAmount,
+      itemCalories: l.lineCalories,
+      itemProtein: l.lineProtein,
+      itemCarbohydrates: l.lineCarbohydrates ?? 0,
+      itemFat: l.lineFat ?? 0,
+      itemSugar: l.lineSugar ?? 0,
+      itemFiber: l.lineFiber ?? 0,
+      lineSource: "dishTemplate",
+      sourceDishId: selectedDish.id,
+    }));
+    if (picked.length > 0) {
+      onPick(picked);
+    }
+    close();
+  };
+
   return (
     <>
       <div
@@ -144,12 +185,14 @@ export default function FoodPickerModal({
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold">Besin Ekle</h2>
+          <h2 className="text-lg font-semibold">
+            {t("foodPickerModal.title")}
+          </h2>
           <button
             type="button"
             onClick={close}
             className="rounded-full p-1.5 hover:bg-muted"
-            aria-label="Close"
+            aria-label={t("foodPickerModal.closeAria")}
           >
             <X className="size-5" />
           </button>
@@ -170,13 +213,14 @@ export default function FoodPickerModal({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            Yiyecek Kütüphanesi
+            {t("foodPickerModal.foodLibraryTab")}
           </button>
           <button
             type="button"
             onClick={() => {
               setTab("presets");
               setSelectedFood(null);
+              setSelectedDish(null);
             }}
             className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               tab === "presets"
@@ -185,7 +229,23 @@ export default function FoodPickerModal({
             }`}
           >
             <Layers className="w-4 h-4" />
-            Hazır Öğünler
+            {t("foodPickerModal.presetMealsTab")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("dishes");
+              setSelectedFood(null);
+              setSelectedPreset(null);
+            }}
+            className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              tab === "dishes"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <UtensilsCrossed className="w-4 h-4" />
+            {t("foodPickerModal.dishesTab")}
           </button>
         </div>
 
@@ -195,7 +255,13 @@ export default function FoodPickerModal({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder={tab === "library" ? "Besin ara..." : "Öğün ara..."}
+              placeholder={
+                tab === "library"
+                  ? t("foodPickerModal.searchFoods")
+                  : tab === "dishes"
+                    ? t("foodPickerModal.searchDishes")
+                    : t("foodPickerModal.searchPresets")
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -209,11 +275,11 @@ export default function FoodPickerModal({
             (foodLoading ? (
               <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
                 <Loader className="w-4 h-4 animate-spin mr-2" />
-                Yükleniyor…
+                {t("foodPickerModal.loading")}
               </div>
             ) : (foodData?.foodItems ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
-                Besin bulunamadı.
+                {t("foodPickerModal.noFoodsFound")}
               </p>
             ) : (
               (foodData?.foodItems ?? []).map((food) => {
@@ -246,11 +312,11 @@ export default function FoodPickerModal({
             (presetsLoading ? (
               <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
                 <Loader className="w-4 h-4 animate-spin mr-2" />
-                Yükleniyor…
+                {t("foodPickerModal.loading")}
               </div>
             ) : (presetData?.presetMeals ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
-                Hazır öğün bulunamadı.
+                {t("foodPickerModal.noPresetsFound")}
               </p>
             ) : (
               (presetData?.presetMeals ?? []).map((pm) => {
@@ -274,6 +340,39 @@ export default function FoodPickerModal({
                 );
               })
             ))}
+
+          {tab === "dishes" &&
+            (dishesLoading ? (
+              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                <Loader className="w-4 h-4 animate-spin mr-2" />
+                {t("foodPickerModal.loading")}
+              </div>
+            ) : (dishData?.dishes ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                {t("foodPickerModal.noDishesFound")}
+              </p>
+            ) : (
+              (dishData?.dishes ?? []).map((dish) => {
+                const isSelected = selectedDish?.id === dish.id;
+                return (
+                  <button
+                    key={dish.id}
+                    type="button"
+                    onClick={() => setSelectedDish(dish)}
+                    className={`w-full text-left rounded-md border p-3 transition-colors ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    <p className="text-sm font-medium">{dish.dishName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {dish.totalCalories} kcal · {dish.totalProtein}g protein
+                    </p>
+                  </button>
+                );
+              })
+            ))}
         </div>
 
         {/* Gram + preview (library) */}
@@ -281,7 +380,7 @@ export default function FoodPickerModal({
           <div className="border-t border-border p-4 space-y-3 bg-muted/30">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
-                Gram miktarı
+                {t("foodPickerModal.gramAmount")}
               </label>
               <div className="relative">
                 <Input
@@ -298,12 +397,12 @@ export default function FoodPickerModal({
             </div>
             <div className="grid grid-cols-3 gap-2 text-xs">
               {[
-                ["Kalori", `${foodPreview.calories} kcal`],
-                ["Protein", `${foodPreview.protein} g`],
-                ["Karb", `${foodPreview.carbs} g`],
-                ["Yağ", `${foodPreview.fat} g`],
-                ["Şeker", `${foodPreview.sugar} g`],
-                ["Lif", `${foodPreview.fiber} g`],
+                [t("foodPickerModal.calories"), `${foodPreview.calories} kcal`],
+                [t("foodPickerModal.protein"), `${foodPreview.protein} g`],
+                [t("foodPickerModal.carbs"), `${foodPreview.carbs} g`],
+                [t("foodPickerModal.fat"), `${foodPreview.fat} g`],
+                [t("foodPickerModal.sugar"), `${foodPreview.sugar} g`],
+                [t("foodPickerModal.fiber"), `${foodPreview.fiber} g`],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -320,7 +419,7 @@ export default function FoodPickerModal({
               disabled={grams <= 0}
               onClick={confirmFood}
             >
-              {gramValue}g Ekle
+              {t("foodPickerModal.addGrams", { grams: gramValue })}
             </Button>
           </div>
         )}
@@ -333,12 +432,32 @@ export default function FoodPickerModal({
                 {selectedPreset.templateName}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Tüm besinler bu öğüne eklenecek ({selectedPreset.totalCalories}{" "}
-                kcal toplam).
+                {t("foodPickerModal.allFoodsWillBeAdded", {
+                  calories: selectedPreset.totalCalories,
+                })}
               </p>
             </div>
             <Button type="button" className="w-full" onClick={confirmPreset}>
-              Öğünü Ekle
+              {t("foodPickerModal.addMeal")}
+            </Button>
+          </div>
+        )}
+
+        {/* Confirm dish */}
+        {tab === "dishes" && selectedDish && (
+          <div className="border-t border-border p-4 space-y-3 bg-muted/30">
+            <div className="rounded-md bg-card border border-border p-3 text-sm">
+              <p className="font-medium text-foreground">
+                {selectedDish.dishName}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t("foodPickerModal.allIngredientsWillBeAdded", {
+                  calories: selectedDish.totalCalories,
+                })}
+              </p>
+            </div>
+            <Button type="button" className="w-full" onClick={confirmDish}>
+              {t("foodPickerModal.addDish")}
             </Button>
           </div>
         )}
@@ -354,7 +473,7 @@ export default function FoodPickerModal({
             className="w-full flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-foreground py-2"
           >
             <PencilLine className="w-4 h-4" />
-            Listede yok mu? Elle gir
+            {t("foodPickerModal.notInList")}
           </button>
         </div>
       </div>

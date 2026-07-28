@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Loader } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useGetWeeklyAnalytics } from "@/hooks/api/use-mealtracker";
@@ -6,13 +7,14 @@ import type { MealtrackerNutritionDay } from "@/types/api";
 
 function formatDay(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-US", { weekday: "short" });
+    return new Date(iso).toLocaleDateString("tr-TR", { weekday: "short" });
   } catch {
     return iso;
   }
 }
 
 export default function WeeklyAnalyticsPage() {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetWeeklyAnalytics();
   const days = data?.nutritionDays ?? [];
 
@@ -53,31 +55,31 @@ export default function WeeklyAnalyticsPage() {
 
   const macroBars = [
     {
-      name: "Protein",
+      name: t("weeklyAnalytics.protein"),
       avg: averages.pro / n,
       target: averages.tPro / n,
       color: "bg-chart-1",
     },
     {
-      name: "Carbs",
+      name: t("weeklyAnalytics.carbs"),
       avg: averages.car / n,
       target: averages.tCar / n,
       color: "bg-chart-2",
     },
     {
-      name: "Fat",
+      name: t("weeklyAnalytics.fat"),
       avg: averages.fat / n,
       target: averages.tFat / n,
       color: "bg-chart-3",
     },
     {
-      name: "Sugar",
+      name: t("weeklyAnalytics.sugar"),
       avg: averages.sug / n,
       target: averages.tSug / n,
       color: "bg-destructive",
     },
     {
-      name: "Fiber",
+      name: t("weeklyAnalytics.fiber"),
       avg: averages.fib / n,
       target: averages.tFib / n,
       color: "bg-chart-4",
@@ -96,33 +98,33 @@ export default function WeeklyAnalyticsPage() {
             to="/dashboard"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" /> Dashboard
+            <ArrowLeft className="w-4 h-4" /> {t("weeklyAnalytics.dashboard")}
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Weekly Analytics
+            {t("weeklyAnalytics.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Last 7 days of nutrition tracking.
+            {t("weeklyAnalytics.subtitle")}
           </p>
         </div>
         <Link
           to="/analytics/monthly"
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted"
         >
-          Monthly view
+          {t("weeklyAnalytics.monthlyView")}
         </Link>
       </header>
 
       {isLoading && days.length === 0 && (
         <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
           <Loader className="w-4 h-4 animate-spin mr-2" />
-          Yükleniyor…
+          {t("weeklyAnalytics.loading")}
         </Card>
       )}
 
       {!isLoading && days.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
-          No data available for the past week.
+          {t("weeklyAnalytics.noData")}
         </Card>
       )}
 
@@ -131,9 +133,12 @@ export default function WeeklyAnalyticsPage() {
           {/* Calorie trend */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Calories</h2>
+              <h2 className="text-lg font-semibold">
+                {t("weeklyAnalytics.calories")}
+              </h2>
               <span className="text-xs text-muted-foreground">
-                Target: {targetCalories} kcal · {onTrack}/{days.length} on track
+                {t("weeklyAnalytics.target")}: {targetCalories} kcal ·{" "}
+                {onTrack}/{days.length} {t("weeklyAnalytics.onTrack")}
               </span>
             </div>
             <div className="flex items-end justify-between gap-2 h-44">
@@ -172,7 +177,7 @@ export default function WeeklyAnalyticsPage() {
           {/* Macro averages */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">
-              Macro Averages (per day)
+              {t("weeklyAnalytics.macroAverages")}
             </h2>
             <div className="space-y-3">
               {macroBars.map((m) => {

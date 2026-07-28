@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ChevronLeft,
   ChevronRight,
   Coffee,
   Cookie,
   Eye,
-  Filter,
   Layers,
   Loader,
   Moon,
@@ -33,36 +33,6 @@ const SLOT_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   snack: Cookie,
 };
 
-const SOURCE_STYLE: Record<
-  MealSource,
-  {
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    cls: string;
-  }
-> = {
-  foodLibrary: {
-    icon: Layers,
-    label: "Library",
-    cls: "bg-secondary text-secondary-foreground",
-  },
-  presetTemplate: {
-    icon: Layers,
-    label: "Preset",
-    cls: "bg-accent/30 text-accent-foreground",
-  },
-  manualEntry: {
-    icon: Pencil,
-    label: "Manual",
-    cls: "bg-muted text-muted-foreground",
-  },
-  aiAssistant: {
-    icon: Sparkles,
-    label: "AI",
-    cls: "bg-chart-3/20 text-chart-3",
-  },
-};
-
 function isoToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -76,7 +46,7 @@ function isoDaysAgo(n: number) {
 
 function formatGroupHeader(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-US", {
+    return new Date(iso).toLocaleDateString("tr-TR", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -88,13 +58,49 @@ function formatGroupHeader(iso: string) {
 }
 
 export default function MealHistoryPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
+  void queryClient;
   const [page, setPage] = useState(1);
-  const [mobileDateFilter, setMobileDateFilter] =
-    useState<string>("Last 7 days");
+  const [mobileDateFilter, setMobileDateFilter] = useState<string>("last7");
   const [fromDate, setFromDate] = useState(isoDaysAgo(7));
   const [toDate, setToDate] = useState(isoToday());
   const [sourceFilter, setSourceFilter] = useState<string>("");
+
+  const SOURCE_STYLE: Record<
+    string,
+    {
+      icon: React.ComponentType<{ className?: string }>;
+      label: string;
+      cls: string;
+    }
+  > = {
+    foodLibrary: {
+      icon: Layers,
+      label: t("mealHistory.librarySource"),
+      cls: "bg-secondary text-secondary-foreground",
+    },
+    presetTemplate: {
+      icon: Layers,
+      label: t("mealHistory.presetSource"),
+      cls: "bg-accent/30 text-accent-foreground",
+    },
+    dishTemplate: {
+      icon: Layers,
+      label: t("dashboard.sourceDish"),
+      cls: "bg-pink-100 text-pink-700",
+    },
+    manualEntry: {
+      icon: Pencil,
+      label: t("mealHistory.manualSource"),
+      cls: "bg-muted text-muted-foreground",
+    },
+    aiAssistant: {
+      icon: Sparkles,
+      label: t("mealHistory.aiSource"),
+      cls: "bg-chart-3/20 text-chart-3",
+    },
+  };
 
   const params = useMemo(
     () => ({
@@ -125,19 +131,26 @@ export default function MealHistoryPage() {
     return Array.from(groups.entries()).sort(([a], [b]) => (a < b ? 1 : -1));
   }, [meals]);
 
+  const mobileFilters = [
+    { key: "today", label: t("mealHistory.today") },
+    { key: "yesterday", label: t("mealHistory.yesterday") },
+    { key: "last7", label: t("mealHistory.last7Days") },
+    { key: "last30", label: t("mealHistory.last30Days") },
+  ];
+
   const setMobileRange = (range: string) => {
     setMobileDateFilter(range);
-    if (range === "Today") {
+    if (range === "today") {
       setFromDate(isoToday());
       setToDate(isoToday());
-    } else if (range === "Yesterday") {
+    } else if (range === "yesterday") {
       const y = isoDaysAgo(1);
       setFromDate(y);
       setToDate(y);
-    } else if (range === "Last 7 days") {
+    } else if (range === "last7") {
       setFromDate(isoDaysAgo(7));
       setToDate(isoToday());
-    } else if (range === "Last 30 days") {
+    } else if (range === "last30") {
       setFromDate(isoDaysAgo(30));
       setToDate(isoToday());
     }
@@ -145,7 +158,7 @@ export default function MealHistoryPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this meal log?")) return;
+    if (!confirm(t("mealHistory.deleteConfirm"))) return;
     deleteMutation.mutate(id);
   };
 
@@ -154,10 +167,10 @@ export default function MealHistoryPage() {
       <header className="relative mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Meal History
+            {t("mealHistory.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Review your logged meals
+            {t("mealHistory.subtitle")}
           </p>
         </div>
         <Link
@@ -165,7 +178,7 @@ export default function MealHistoryPage() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.98]"
         >
           <Plus className="size-4" />
-          Log Meal
+          {t("mealHistory.logMeal")}
         </Link>
       </header>
 
@@ -180,18 +193,18 @@ export default function MealHistoryPage() {
         }
       >
         <div className="flex items-center gap-2 min-w-max pb-1">
-          {["Today", "Yesterday", "Last 7 days", "Last 30 days"].map((f) => (
+          {mobileFilters.map((f) => (
             <button
-              key={f}
+              key={f.key}
               type="button"
-              onClick={() => setMobileRange(f)}
+              onClick={() => setMobileRange(f.key)}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                mobileDateFilter === f
+                mobileDateFilter === f.key
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground font-medium"
               }`}
             >
-              {f}
+              {f.label}
             </button>
           ))}
         </div>
@@ -208,7 +221,7 @@ export default function MealHistoryPage() {
               setPage(1);
             }}
             className="bg-transparent text-sm text-foreground outline-none w-32"
-            aria-label="From date"
+            aria-label={t("mealHistory.fromDate")}
           />
           <span className="text-sm text-muted-foreground">–</span>
           <input
@@ -219,7 +232,7 @@ export default function MealHistoryPage() {
               setPage(1);
             }}
             className="bg-transparent text-sm text-foreground outline-none w-32"
-            aria-label="To date"
+            aria-label={t("mealHistory.toDate")}
           />
         </div>
         <select
@@ -228,14 +241,22 @@ export default function MealHistoryPage() {
             setSourceFilter(e.target.value);
             setPage(1);
           }}
-          aria-label="Filter by source"
+          aria-label={t("mealHistory.filterBySource")}
           className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
         >
-          <option value="">All Sources</option>
-          <option value="foodLibrary">Food Library</option>
-          <option value="presetTemplate">Preset Template</option>
-          <option value="manualEntry">Manual Entry</option>
-          <option value="aiAssistant">AI Assistant</option>
+          <option value="">{t("mealHistory.allSources")}</option>
+          <option value="foodLibrary">
+            {t("mealHistory.sourceFoodLibrary")}
+          </option>
+          <option value="presetTemplate">
+            {t("mealHistory.sourcePresetTemplate")}
+          </option>
+          <option value="manualEntry">
+            {t("mealHistory.sourceManualEntry")}
+          </option>
+          <option value="aiAssistant">
+            {t("mealHistory.sourceAiAssistant")}
+          </option>
         </select>
         <button
           type="button"
@@ -247,10 +268,10 @@ export default function MealHistoryPage() {
           }}
           className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
-          <RotateCw className="size-4" /> Reset
+          <RotateCw className="size-4" /> {t("mealHistory.reset")}
         </button>
         <span className="text-xs text-muted-foreground ms-auto">
-          {totalCount} meals total
+          {totalCount} {t("mealHistory.mealsTotal")}
         </span>
       </div>
 
@@ -258,7 +279,7 @@ export default function MealHistoryPage() {
       {isLoading && meals.length === 0 && (
         <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
           <Loader className="w-4 h-4 animate-spin mr-2" />
-          Yükleniyor…
+          {t("mealHistory.loading")}
         </Card>
       )}
 
@@ -268,15 +289,17 @@ export default function MealHistoryPage() {
           <div className="mb-5 rounded-full bg-muted p-5">
             <UtensilsCrossed className="size-10 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold mb-1">No meals logged yet</h3>
+          <h3 className="text-lg font-semibold mb-1">
+            {t("mealHistory.noMealsTitle")}
+          </h3>
           <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-            Start tracking your nutrition by logging your first meal.
+            {t("mealHistory.noMealsDesc")}
           </p>
           <Link
             to="/meals/log"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
-            <Plus className="size-4" /> Log Your First Meal
+            <Plus className="size-4" /> {t("mealHistory.logFirstMeal")}
           </Link>
         </div>
       )}
@@ -292,7 +315,11 @@ export default function MealHistoryPage() {
               {dateMeals.map((meal) => {
                 const SlotIcon =
                   SLOT_ICON[meal.slotName?.toLowerCase()] ?? UtensilsCrossed;
-                const src = SOURCE_STYLE[meal.logSource];
+                const src = SOURCE_STYLE[meal.logSource] ?? {
+                  icon: UtensilsCrossed,
+                  label: meal.logSource,
+                  cls: "bg-muted text-muted-foreground",
+                };
                 return (
                   <div
                     key={meal.id}
@@ -322,31 +349,31 @@ export default function MealHistoryPage() {
                           <span className="font-medium text-foreground">
                             {meal.totalProtein} g
                           </span>{" "}
-                          Protein
+                          {t("mealHistory.protein")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
                             {meal.totalCarbohydrates} g
                           </span>{" "}
-                          Carbs
+                          {t("mealHistory.carbs")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
                             {meal.totalFat} g
                           </span>{" "}
-                          Fat
+                          {t("mealHistory.fat")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
                             {meal.totalSugar} g
                           </span>{" "}
-                          Sugar
+                          {t("mealHistory.sugar")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
                             {meal.totalFiber} g
                           </span>{" "}
-                          Fiber
+                          {t("mealHistory.fiber")}
                         </span>
                       </div>
                       {meal.noteText && (
@@ -362,21 +389,21 @@ export default function MealHistoryPage() {
                         to={`/meals/${meal.id}`}
                         className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                       >
-                        <Eye className="size-3.5" /> View
+                        <Eye className="size-3.5" /> {t("mealHistory.view")}
                       </Link>
                       <Link
                         to={`/meals/${meal.id}/edit`}
                         className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                       >
-                        <Pencil className="size-3.5" /> Edit
+                        <Pencil className="size-3.5" /> {t("mealHistory.edit")}
                       </Link>
                       <button
                         type="button"
                         onClick={() => handleDelete(meal.id)}
                         className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                        aria-label="Delete meal"
+                        aria-label={t("mealHistory.deleteAria")}
                       >
-                        <Trash2 className="size-3.5" /> Delete
+                        <Trash2 className="size-3.5" /> {t("mealHistory.delete")}
                       </button>
                     </div>
                   </div>
@@ -390,10 +417,10 @@ export default function MealHistoryPage() {
       {/* Pagination */}
       <nav
         className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-4"
-        aria-label="Meal list pagination"
+        aria-label={t("mealHistory.pagination")}
       >
         <span className="text-sm text-muted-foreground">
-          Page {page} of {totalPages}
+          {t("mealHistory.pageOf", { page, totalPages })}
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -401,7 +428,7 @@ export default function MealHistoryPage() {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
             className="inline-flex items-center justify-center size-9 rounded-lg border border-border bg-muted/50 text-muted-foreground disabled:opacity-50 hover:bg-muted transition-colors"
-            aria-label="Previous page"
+            aria-label={t("mealHistory.previousPage")}
           >
             <ChevronLeft className="size-4" />
           </button>
@@ -410,7 +437,7 @@ export default function MealHistoryPage() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
             className="inline-flex items-center justify-center size-9 rounded-lg border border-border bg-muted/50 text-muted-foreground disabled:opacity-50 hover:bg-muted transition-colors"
-            aria-label="Next page"
+            aria-label={t("mealHistory.nextPage")}
           >
             <ChevronRight className="size-4" />
           </button>

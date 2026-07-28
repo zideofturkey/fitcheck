@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/hooks/api/use-auth";
 import {
   useGetDailyProgress,
@@ -19,20 +20,6 @@ import {
 } from "lucide-react";
 import type { MealtrackerMealLog } from "@/types/api";
 
-const SOURCE_LABEL: Record<MealtrackerMealLog["logSource"], string> = {
-  foodLibrary: "Kütüphane",
-  presetTemplate: "Preset",
-  manualEntry: "Manuel",
-  aiAssistant: "AI",
-};
-
-const SOURCE_COLOR: Record<MealtrackerMealLog["logSource"], string> = {
-  foodLibrary: "bg-emerald-100 text-emerald-700",
-  presetTemplate: "bg-amber-100 text-amber-700",
-  manualEntry: "bg-blue-100 text-blue-700",
-  aiAssistant: "bg-purple-100 text-purple-700",
-};
-
 function todayIso() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -51,6 +38,7 @@ function formatMealDate(iso: string) {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { data: userData } = useCurrentUser();
   const today = todayIso();
   const { data: progressData, isLoading: progressLoading } =
@@ -60,6 +48,22 @@ export default function DashboardPage() {
   });
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
 
+  const SOURCE_LABEL: Record<string, string> = {
+    foodLibrary: t("dashboard.sourceLibrary"),
+    presetTemplate: t("dashboard.sourcePreset"),
+    manualEntry: t("dashboard.sourceManual"),
+    aiAssistant: t("dashboard.sourceAi"),
+    dishTemplate: t("dashboard.sourceDish"),
+  };
+
+  const SOURCE_COLOR: Record<string, string> = {
+    foodLibrary: "bg-emerald-100 text-emerald-700",
+    presetTemplate: "bg-amber-100 text-amber-700",
+    manualEntry: "bg-blue-100 text-blue-700",
+    aiAssistant: "bg-purple-100 text-purple-700",
+    dishTemplate: "bg-pink-100 text-pink-700",
+  };
+
   const toggleMeal = (key: string) =>
     setExpandedMeals((prev) => {
       const next = new Set(prev);
@@ -67,6 +71,7 @@ export default function DashboardPage() {
       else next.add(key);
       return next;
     });
+  void toggleMeal;
 
   const progress = progressData?.nutritionDay;
   const meals = mealsData?.mealLogs ?? [];
@@ -85,31 +90,31 @@ export default function DashboardPage() {
 
   const macros = [
     {
-      key: "Protein",
+      key: t("dashboard.protein"),
       consumed: progress?.consumedProtein ?? 0,
       target: progress?.targetProtein ?? 0,
       color: "bg-primary",
     },
     {
-      key: "Karbonhidrat",
+      key: t("dashboard.carbs"),
       consumed: progress?.consumedCarbohydrates ?? 0,
       target: progress?.targetCarbohydrates ?? 0,
       color: "bg-blue-500",
     },
     {
-      key: "Yağ",
+      key: t("dashboard.fat"),
       consumed: progress?.consumedFat ?? 0,
       target: progress?.targetFat ?? 0,
       color: "bg-amber-500",
     },
     {
-      key: "Şeker",
+      key: t("dashboard.sugar"),
       consumed: progress?.consumedSugar ?? 0,
       target: progress?.targetSugar ?? 0,
       color: "bg-red-500",
     },
     {
-      key: "Lif",
+      key: t("dashboard.fiber"),
       consumed: progress?.consumedFiber ?? 0,
       target: progress?.targetFiber ?? 0,
       color: "bg-green-500",
@@ -138,27 +143,29 @@ export default function DashboardPage() {
               to="/dashboard"
               className="hover:text-foreground transition-colors"
             >
-              Ana Sayfa
+              {t("dashboard.home")}
             </Link>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-foreground font-medium">Dashboard</span>
+            <span className="text-foreground font-medium">
+              {t("dashboard.breadcrumb")}
+            </span>
           </nav>
           <h1 className="text-2xl font-bold text-foreground">
-            Günlük İlerleme
+            {t("dashboard.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Hoş geldin {userName}, bugünkü besin alımın ve hedeflerin
+            {t("dashboard.welcome", { name: userName })}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button variant="outline" size="sm" className="gap-2">
             <Calendar className="w-4 h-4" />
-            Bugün
+            {t("dashboard.today")}
           </Button>
           <Link to="/meals/log">
             <Button size="sm" className="gap-2">
               <Plus className="w-4 h-4" />
-              Yeni Öğün
+              {t("dashboard.newMeal")}
             </Button>
           </Link>
         </div>
@@ -167,7 +174,7 @@ export default function DashboardPage() {
       {isLoading && !progress ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground">
           <Loader className="w-5 h-5 animate-spin mr-2" />
-          Yükleniyor…
+          {t("dashboard.loading")}
         </div>
       ) : (
         <>
@@ -175,7 +182,7 @@ export default function DashboardPage() {
           <section className="mb-6">
             <Card className="p-5">
               <h4 className="text-sm font-semibold text-foreground mb-4">
-                Günlük Kalori Özeti
+                {t("dashboard.dailyCalorieSummary")}
               </h4>
               <div className="flex items-center justify-center mb-4">
                 <div className="relative w-36 h-36">
@@ -233,7 +240,7 @@ export default function DashboardPage() {
           {/* Macro Progress */}
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              Makro Detayları
+              {t("dashboard.macroDetails")}
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {macros.map((m) => {
@@ -252,7 +259,7 @@ export default function DashboardPage() {
                           variant="destructive"
                           className="text-xs px-1.5 py-0.5"
                         >
-                          Aşıldı
+                          {t("dashboard.exceeded")}
                         </Badge>
                       )}
                     </div>
@@ -291,7 +298,9 @@ export default function DashboardPage() {
                 <p className="text-2xl font-bold text-foreground">
                   {mealCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Bugünkü öğünler</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.todaysMeals")}
+                </p>
               </div>
             </Card>
             <Card
@@ -306,7 +315,9 @@ export default function DashboardPage() {
                 <p className="text-2xl font-bold text-destructive">
                   {exceededCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Aşılan hedef</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.exceededTarget")}
+                </p>
               </div>
             </Card>
           </div>
@@ -315,27 +326,25 @@ export default function DashboardPage() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-foreground">
-                Bugünün Öğünleri
+                {t("dashboard.todaysMealsTitle")}
               </h2>
               <Link
                 to="/meals"
                 className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               >
-                Tümünü gör <ArrowRight className="w-4 h-4" />
+                {t("dashboard.viewAll")} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             {meals.length === 0 ? (
               <Card className="p-8 text-center text-sm text-muted-foreground">
-                Henüz bugün için öğün kaydedilmedi.
+                {t("dashboard.noMealsToday")}
               </Card>
             ) : (
               <div className="flex flex-col gap-2">
                 <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
                   {formatMealDate(today)}
                 </h3>
-                {meals.map((meal) => {
-                  const mealKey = meal.id;
-                  const isExpanded = expandedMeals.has(mealKey);
+                {meals.map((meal: MealtrackerMealLog) => {
                   return (
                     <Card key={meal.id} className="p-3">
                       <div className="flex items-center justify-between">
@@ -352,10 +361,11 @@ export default function DashboardPage() {
                         </div>
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                            SOURCE_COLOR[meal.logSource]
+                            SOURCE_COLOR[meal.logSource] ??
+                            "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {SOURCE_LABEL[meal.logSource]}
+                          {SOURCE_LABEL[meal.logSource] ?? meal.logSource}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center gap-3">
@@ -377,7 +387,7 @@ export default function DashboardPage() {
                         to={`/meals/${meal.id}`}
                         className="mt-2 inline-flex text-xs text-primary hover:underline"
                       >
-                        Detayları göster{" "}
+                        {t("dashboard.viewDetails")}{" "}
                         <ArrowRight className="w-3 h-3 inline" />
                       </Link>
                     </Card>
@@ -392,7 +402,7 @@ export default function DashboardPage() {
             <Link
               to="/meals/log"
               className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
-              aria-label="Yeni öğün ekle"
+              aria-label={t("dashboard.addMealAria")}
             >
               <Plus className="w-6 h-6" />
             </Link>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Trash2,
@@ -15,7 +16,6 @@ import {
   Circle,
   Check,
   ShieldCheck,
-  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +35,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -56,6 +55,7 @@ import { useUpdateUserPasswordByAdmin } from "@/hooks/api/use-auth";
 import { useDeleteUser } from "@/hooks/api/use-auth";
 
 const AdminUserDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
 
@@ -171,14 +171,11 @@ const AdminUserDetailPage: React.FC = () => {
           to="/admin/users"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Users
+          <ArrowLeft className="w-4 h-4" /> {t("adminUserDetail.backToUsers")}
         </Link>
         <Card>
           <CardContent className="p-10 text-center">
-            <p className="text-destructive">
-              Failed to load user. The user may not exist or you lack
-              permissions.
-            </p>
+            <p className="text-destructive">{t("adminUserDetail.loadFailed")}</p>
           </CardContent>
         </Card>
       </div>
@@ -196,10 +193,12 @@ const AdminUserDetailPage: React.FC = () => {
             to="/admin/users"
             className="hover:text-foreground transition-colors"
           >
-            Users
+            {t("adminUserDetail.users")}
           </Link>
           <span>/</span>
-          <span className="text-foreground">User Details</span>
+          <span className="text-foreground">
+            {t("adminUserDetail.userDetails")}
+          </span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
@@ -207,7 +206,7 @@ const AdminUserDetailPage: React.FC = () => {
               {user.fullname}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Manage user details, roles, and access.
+              {t("adminUserDetail.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -215,33 +214,38 @@ const AdminUserDetailPage: React.FC = () => {
               to="/admin/users"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Users
+              <ArrowLeft className="w-4 h-4" /> {t("adminUserDetail.backToUsers")}
             </Link>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm">
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete User
+                  {t("adminUserDetail.deleteUser")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete User Permanently</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("adminUserDetail.deletePermanentlyTitle")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete {user.fullname} and all
-                    associated data. This action cannot be undone.
+                    {t("adminUserDetail.deletePermanentlyDesc", {
+                      name: user.fullname,
+                    })}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>
+                    {t("adminUserDetail.cancel")}
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={deleteUser.isPending}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {deleteUser.isPending
-                      ? "Deleting..."
-                      : "Delete Permanently"}
+                      ? t("adminUserDetail.deleting")
+                      : t("adminUserDetail.deletePermanently")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -276,23 +280,25 @@ const AdminUserDetailPage: React.FC = () => {
                     className={`w-2 h-2 rounded-full ${user.isActive ? "bg-chart-2" : "bg-destructive"}`}
                   />
                   <span className="text-sm text-muted-foreground">
-                    {user.isActive ? "Active" : "Inactive"}
+                    {user.isActive
+                      ? t("adminUserDetail.active")
+                      : t("adminUserDetail.inactive")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CircleCheck className="w-4 h-4 text-chart-1" />
                   <span className="text-sm text-muted-foreground">
                     {user.emailVerified
-                      ? "Email Verified"
-                      : "Email Not Verified"}
+                      ? t("adminUserDetail.emailVerified")
+                      : t("adminUserDetail.emailNotVerified")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    Joined{" "}
+                    {t("adminUserDetail.joined")}{" "}
                     {user.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                      ? new Date(user.createdAt).toLocaleDateString("tr-TR", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
@@ -303,9 +309,9 @@ const AdminUserDetailPage: React.FC = () => {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="w-4 h-4" />
                   <span>
-                    Updated{" "}
+                    {t("adminUserDetail.updated")}{" "}
                     {user.updatedAt
-                      ? new Date(user.updatedAt).toLocaleDateString("en-US", {
+                      ? new Date(user.updatedAt).toLocaleDateString("tr-TR", {
                           month: "short",
                           day: "numeric",
                           year: "numeric",
@@ -317,15 +323,15 @@ const AdminUserDetailPage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Button size="sm">
                   <Pencil className="w-4 h-4 mr-2" />
-                  Edit Profile
+                  {t("adminUserDetail.editProfile")}
                 </Button>
                 <Button variant="outline" size="sm">
                   <Key className="w-4 h-4 mr-2" />
-                  Reset Password
+                  {t("adminUserDetail.resetPassword")}
                 </Button>
                 <Button variant="outline" size="sm">
                   <Shield className="w-4 h-4 mr-2" />
-                  Change Role
+                  {t("adminUserDetail.changeRole")}
                 </Button>
               </div>
             </div>
@@ -338,15 +344,17 @@ const AdminUserDetailPage: React.FC = () => {
         {/* Edit Profile Form */}
         <Card>
           <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
+            <CardTitle>{t("adminUserDetail.editProfile")}</CardTitle>
             <CardDescription>
-              Update the user's name and avatar.
+              {t("adminUserDetail.editProfileDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSaveProfile} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="fullname">Full Name</Label>
+                <Label htmlFor="fullname">
+                  {t("adminUserDetail.fullName")}
+                </Label>
                 <Input
                   id="fullname"
                   value={fullname}
@@ -354,7 +362,9 @@ const AdminUserDetailPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">
+                  {t("adminUserDetail.emailAddress")}
+                </Label>
                 <Input
                   id="email"
                   value={user.email}
@@ -362,21 +372,22 @@ const AdminUserDetailPage: React.FC = () => {
                   className="bg-muted text-muted-foreground cursor-not-allowed"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Email cannot be User must verify any new email through the
-                  verification flow.
+                  {t("adminUserDetail.emailCannotChange")}
                 </p>
               </div>
               <div className="flex items-center gap-3 pt-2">
                 <Button type="submit" disabled={updateUser.isPending}>
                   <Check className="w-4 h-4 mr-2" />
-                  {updateUser.isPending ? "Saving..." : "Save Changes"}
+                  {updateUser.isPending
+                    ? t("adminUserDetail.saving")
+                    : t("adminUserDetail.saveChanges")}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setFullname(user.fullname ?? "")}
                 >
-                  Cancel
+                  {t("adminUserDetail.cancel")}
                 </Button>
               </div>
             </form>
@@ -386,22 +397,24 @@ const AdminUserDetailPage: React.FC = () => {
         {/* Role Management */}
         <Card>
           <CardHeader>
-            <CardTitle>Role Management</CardTitle>
-            <CardDescription>Assign or change the user's role.</CardDescription>
+            <CardTitle>{t("adminUserDetail.roleManagement")}</CardTitle>
+            <CardDescription>
+              {t("adminUserDetail.roleManagementDesc")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="role">Current Role</Label>
+              <Label htmlFor="role">{t("adminUserDetail.currentRole")}</Label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
                 <SelectTrigger id="role">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">
-                    Admin — Full management, cannot delete other admins
+                    {t("adminUserDetail.roleAdminDesc")}
                   </SelectItem>
                   <SelectItem value="user">
-                    User — Standard user, own data only
+                    {t("adminUserDetail.roleUserDesc")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -410,11 +423,13 @@ const AdminUserDetailPage: React.FC = () => {
               <div className="flex items-start gap-3">
                 <Info className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground">Role Rules</p>
+                  <p className="font-medium text-foreground">
+                    {t("adminUserDetail.roleRulesTitle")}
+                  </p>
                   <ul className="list-disc list-inside space-y-0.5">
-                    <li>SuperAdmin role cannot be changed</li>
-                    <li>Admin roles can only be assigned by SuperAdmin</li>
-                    <li>Admins cannot delete users with Admin role</li>
+                    <li>{t("adminUserDetail.roleRule1")}</li>
+                    <li>{t("adminUserDetail.roleRule2")}</li>
+                    <li>{t("adminUserDetail.roleRule3")}</li>
                   </ul>
                 </div>
               </div>
@@ -425,7 +440,9 @@ const AdminUserDetailPage: React.FC = () => {
               disabled={updateRole.isPending}
             >
               <ShieldCheck className="w-4 h-4 mr-2" />
-              {updateRole.isPending ? "Updating..." : "Update Role"}
+              {updateRole.isPending
+                ? t("adminUserDetail.updating")
+                : t("adminUserDetail.updateRole")}
             </Button>
           </CardContent>
         </Card>
@@ -433,20 +450,22 @@ const AdminUserDetailPage: React.FC = () => {
         {/* Password Reset */}
         <Card>
           <CardHeader>
-            <CardTitle>Reset Password</CardTitle>
+            <CardTitle>{t("adminUserDetail.resetPassword")}</CardTitle>
             <CardDescription>
-              Set a new password for this user. No old password required.
+              {t("adminUserDetail.resetPasswordDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleResetPassword} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password">
+                  {t("adminUserDetail.newPassword")}
+                </Label>
                 <div className="relative">
                   <Input
                     id="new-password"
                     type={showNewPassword ? "text" : "password"}
-                    placeholder="Enter new password"
+                    placeholder={t("adminUserDetail.newPasswordPlaceholder")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="pr-12"
@@ -473,18 +492,21 @@ const AdminUserDetailPage: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Use 8+ characters with a mix of letters, numbers, and
-                    symbols.
+                    {t("adminUserDetail.passwordHint")}
                   </p>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-password">
+                  {t("adminUserDetail.confirmNewPassword")}
+                </Label>
                 <div className="relative">
                   <Input
                     id="confirm-password"
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Re-enter new password"
+                    placeholder={t(
+                      "adminUserDetail.confirmPasswordPlaceholder",
+                    )}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pr-12"
@@ -512,7 +534,9 @@ const AdminUserDetailPage: React.FC = () => {
                   }
                 >
                   <Key className="w-4 h-4 mr-2" />
-                  {resetPassword.isPending ? "Resetting..." : "Reset Password"}
+                  {resetPassword.isPending
+                    ? t("adminUserDetail.resetting")
+                    : t("adminUserDetail.resetPasswordBtn")}
                 </Button>
               </div>
             </form>
@@ -522,10 +546,11 @@ const AdminUserDetailPage: React.FC = () => {
         {/* Danger Zone */}
         <Card className="border-destructive/30">
           <CardHeader>
-            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardTitle className="text-destructive">
+              {t("adminUserDetail.dangerZone")}
+            </CardTitle>
             <CardDescription>
-              Permanently delete this user and all their data. This action
-              cannot be undone.
+              {t("adminUserDetail.dangerZoneDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -534,17 +559,12 @@ const AdminUserDetailPage: React.FC = () => {
                 <Circle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
                 <div className="space-y-2 text-sm">
                   <p className="font-medium text-destructive">
-                    Delete User Permanently
+                    {t("adminUserDetail.deletePermanentlyTitle2")}
                   </p>
                   <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
-                    <li>
-                      All meal logs, food library, presets, and targets will be
-                      erased
-                    </li>
-                    <li>
-                      AI session history and guidance notes will be removed
-                    </li>
-                    <li>This action is irreversible</li>
+                    <li>{t("adminUserDetail.deleteItem1")}</li>
+                    <li>{t("adminUserDetail.deleteItem2")}</li>
+                    <li>{t("adminUserDetail.deleteItem3")}</li>
                   </ul>
                 </div>
               </div>
@@ -559,7 +579,7 @@ const AdminUserDetailPage: React.FC = () => {
                 htmlFor="confirm-delete"
                 className="text-sm text-muted-foreground"
               >
-                I understand that this action is permanent and cannot be undone.
+                {t("adminUserDetail.confirmDeleteCheckbox")}
               </Label>
             </div>
             <Button
@@ -569,7 +589,9 @@ const AdminUserDetailPage: React.FC = () => {
               onClick={handleDelete}
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              {deleteUser.isPending ? "Deleting..." : "Delete User Permanently"}
+              {deleteUser.isPending
+                ? t("adminUserDetail.deleting")
+                : t("adminUserDetail.deleteUserPermanently")}
             </Button>
           </CardContent>
         </Card>

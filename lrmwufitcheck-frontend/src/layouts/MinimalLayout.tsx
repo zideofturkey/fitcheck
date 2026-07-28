@@ -7,11 +7,13 @@ import {
   Salad,
   User as UserIcon,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 
 export default function MinimalLayout() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -21,7 +23,7 @@ export default function MinimalLayout() {
           type="button"
           onClick={() => window.history.back()}
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
@@ -31,7 +33,7 @@ export default function MinimalLayout() {
         <Link
           to="/profile"
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label="Profile"
+          aria-label={t("minimalLayout.profileAria")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </Link>
@@ -55,19 +57,19 @@ export default function MinimalLayout() {
                 to="/dashboard"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
               >
-                Dashboard
+                {t("nav.dashboard")}
               </Link>
               <Link
                 to="/meals"
                 className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-medium"
               >
-                Meals
+                {t("nav.meals")}
               </Link>
               <Link
                 to="/ai-sessions"
                 className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-medium"
               >
-                AI Chat
+                {t("nav.aiChat")}
               </Link>
             </nav>
           </div>
@@ -78,7 +80,7 @@ export default function MinimalLayout() {
                 className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
               >
                 <UserIcon className="w-4 h-4" />
-                {user?.fullname ?? "Account"}
+                {user?.fullname ?? t("minimalLayout.account")}
               </Link>
             ) : (
               <Link
@@ -86,7 +88,7 @@ export default function MinimalLayout() {
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
               >
                 <LogIn className="w-4 h-4" />
-                Sign In
+                {t("system.signIn")}
               </Link>
             )}
           </div>
@@ -111,12 +113,12 @@ export default function MinimalLayout() {
               <span className="font-bold text-lg">FitCheck</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Private, invite‑only nutrition tracking. Your data stays yours.
+              {t("footer.tagline")}
             </p>
           </div>
           <div>
             <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Product
+              {t("minimalLayout.product")}
             </h4>
             <ul className="space-y-2.5">
               <li>
@@ -124,7 +126,7 @@ export default function MinimalLayout() {
                   to="/dashboard"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Dashboard
+                  {t("nav.dashboard")}
                 </Link>
               </li>
               <li>
@@ -132,7 +134,7 @@ export default function MinimalLayout() {
                   to="/meals"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Meal History
+                  {t("nav.mealHistory")}
                 </Link>
               </li>
               <li>
@@ -140,14 +142,14 @@ export default function MinimalLayout() {
                   to="/ai-sessions"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  AI Assistant
+                  {t("minimalLayout.aiAssistant")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Account
+              {t("minimalLayout.account")}
             </h4>
             <ul className="space-y-2.5">
               <li>
@@ -155,7 +157,7 @@ export default function MinimalLayout() {
                   to="/profile"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Profile
+                  {t("nav.profile")}
                 </Link>
               </li>
               {isAuthenticated ? (
@@ -165,7 +167,7 @@ export default function MinimalLayout() {
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    Sign out
+                    {t("minimalLayout.signOut")}
                   </Link>
                 </li>
               ) : (
@@ -174,7 +176,7 @@ export default function MinimalLayout() {
                     to="/login"
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Sign In
+                    {t("system.signIn")}
                   </Link>
                 </li>
               )}
@@ -182,7 +184,7 @@ export default function MinimalLayout() {
           </div>
           <div>
             <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Insights
+              {t("minimalLayout.insights")}
             </h4>
             <ul className="space-y-2.5">
               <li>
@@ -190,7 +192,7 @@ export default function MinimalLayout() {
                   to="/analytics/weekly"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Weekly Analytics
+                  {t("nav.weeklyAnalytics")}
                 </Link>
               </li>
               <li>
@@ -198,7 +200,7 @@ export default function MinimalLayout() {
                   to="/analytics/monthly"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Monthly Analytics
+                  {t("nav.monthlyAnalytics")}
                 </Link>
               </li>
               <li>
@@ -206,26 +208,26 @@ export default function MinimalLayout() {
                   to="/food-library"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Food Library
+                  {t("nav.foodLibrary")}
                 </Link>
               </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2025 FitCheck. All rights reserved.</p>
+          <p>{t("system.copyright")}</p>
           <div className="flex items-center gap-4">
             <Link
               to="/welcome"
               className="hover:text-foreground transition-colors"
             >
-              About
+              {t("authLayout.about")}
             </Link>
             <Link
               to="/login"
               className="hover:text-foreground transition-colors"
             >
-              Sign In
+              {t("system.signIn")}
             </Link>
           </div>
         </div>
@@ -242,28 +244,28 @@ export default function MinimalLayout() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-primary transition-colors"
           >
             <Salad className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Home</span>
+            <span className="text-[10px] font-medium">{t("system.home")}</span>
           </Link>
           <Link
             to="/meals"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <LogIn className="w-5 h-5 rotate-45" />
-            <span className="text-[10px] font-medium">Meals</span>
+            <span className="text-[10px] font-medium">{t("system.meals")}</span>
           </Link>
           <Link
             to="/ai-sessions"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Bell className="w-5 h-5" />
-            <span className="text-[10px] font-medium">AI</span>
+            <span className="text-[10px] font-medium">{t("system.ai")}</span>
           </Link>
           <Link
             to="/profile"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <UserIcon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Profile</span>
+            <span className="text-[10px] font-medium">{t("system.profile")}</span>
           </Link>
         </div>
       </nav>

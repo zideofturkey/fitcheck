@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   Layers,
   Loader,
-  Pencil,
   Plus,
   Trash2,
   X,
@@ -21,6 +21,7 @@ import {
 } from "@/hooks/api/use-nutritionlibrary";
 
 export default function PresetMealsPage() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useListPresetMeals({
     pageNumber: page,
@@ -37,7 +38,7 @@ export default function PresetMealsPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / 12));
 
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this preset meal?")) return;
+    if (!confirm(t("presetMeals.deleteConfirm"))) return;
     deleteMutation.mutate(id);
   };
 
@@ -69,27 +70,26 @@ export default function PresetMealsPage() {
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Preset Meals
+              {t("presetMeals.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Reusable meal templates for quick logging.
+              {t("presetMeals.subtitle")}
             </p>
           </div>
           <Button onClick={() => setCreateOpen(true)} className="gap-2">
             <Plus className="size-4" aria-hidden="true" />
-            New Preset
+            {t("presetMeals.newPreset")}
           </Button>
         </header>
 
         {isLoading && presets.length === 0 ? (
           <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
             <Loader className="w-4 h-4 animate-spin mr-2" />
-            Yükleniyor…
+            {t("presetMeals.loading")}
           </Card>
         ) : presets.length === 0 ? (
           <Card className="p-8 text-center text-sm text-muted-foreground">
-            Henüz kayıtlı preset öğün yok. Yeni bir preset oluşturmak için
-            &quot;New Preset&quot; butonunu kullanın.
+            {t("presetMeals.empty")}
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -116,7 +116,7 @@ export default function PresetMealsPage() {
                     type="button"
                     onClick={() => handleDelete(preset.id)}
                     className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Delete preset"
+                    aria-label={t("presetMeals.deleteAria")}
                   >
                     <Trash2 className="size-3.5" aria-hidden="true" />
                   </button>
@@ -132,26 +132,32 @@ export default function PresetMealsPage() {
                 <div className="mb-4 grid grid-cols-2 gap-3 text-xs">
                   <div className="rounded-md bg-muted px-3 py-2">
                     <span className="block text-muted-foreground">
-                      Calories
+                      {t("presetMeals.calories")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
                       {preset.totalCalories} kcal
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
-                    <span className="block text-muted-foreground">Protein</span>
+                    <span className="block text-muted-foreground">
+                      {t("presetMeals.protein")}
+                    </span>
                     <span className="text-sm font-semibold text-foreground">
                       {preset.totalProtein} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
-                    <span className="block text-muted-foreground">Carbs</span>
+                    <span className="block text-muted-foreground">
+                      {t("presetMeals.carbs")}
+                    </span>
                     <span className="text-sm font-semibold text-foreground">
                       {preset.totalCarbohydrates} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
-                    <span className="block text-muted-foreground">Fat</span>
+                    <span className="block text-muted-foreground">
+                      {t("presetMeals.fat")}
+                    </span>
                     <span className="text-sm font-semibold text-foreground">
                       {preset.totalFat} g
                     </span>
@@ -162,7 +168,7 @@ export default function PresetMealsPage() {
                   to={`/preset-meals/${preset.id}`}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary/10 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
                 >
-                  View Details
+                  {t("presetMeals.viewDetails")}
                   <ArrowRight className="size-3.5" aria-hidden="true" />
                 </Link>
               </div>
@@ -172,12 +178,13 @@ export default function PresetMealsPage() {
 
         <div className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-6">
           <p className="text-sm text-muted-foreground">
-            Showing{" "}
+            {t("presetMeals.showing")}{" "}
             <span className="font-medium text-foreground">
               {presets.length}
             </span>{" "}
-            of <span className="font-medium text-foreground">{totalCount}</span>{" "}
-            presets
+            {t("presetMeals.of")}{" "}
+            <span className="font-medium text-foreground">{totalCount}</span>{" "}
+            {t("presetMeals.presets")}
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -185,22 +192,26 @@ export default function PresetMealsPage() {
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-              aria-label="Previous page"
+              aria-label={t("presetMeals.previousPage")}
             >
               <ChevronLeft className="size-4" aria-hidden="true" />
-              <span className="hidden sm:ml-1 sm:inline">Previous</span>
+              <span className="hidden sm:ml-1 sm:inline">
+                {t("presetMeals.previous")}
+              </span>
             </button>
             <span className="px-2 text-sm text-muted-foreground">
-              Page {page} of {totalPages}
+              {t("presetMeals.pageOf", { page, totalPages })}
             </span>
             <button
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-              aria-label="Next page"
+              aria-label={t("presetMeals.nextPage")}
             >
-              <span className="hidden sm:mr-1 sm:inline">Next</span>
+              <span className="hidden sm:mr-1 sm:inline">
+                {t("presetMeals.next")}
+              </span>
               <ChevronRight className="size-4" aria-hidden="true" />
             </button>
           </div>
@@ -217,12 +228,14 @@ export default function PresetMealsPage() {
           />
           <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <h2 className="text-lg font-semibold">New Preset</h2>
+              <h2 className="text-lg font-semibold">
+                {t("presetMeals.newPreset")}
+              </h2>
               <button
                 type="button"
                 onClick={() => setCreateOpen(false)}
                 className="rounded-full p-1.5 hover:bg-muted"
-                aria-label="Close"
+                aria-label={t("presetMeals.closeAria")}
               >
                 <X className="size-5" />
               </button>
@@ -232,7 +245,9 @@ export default function PresetMealsPage() {
               className="flex-1 overflow-y-auto p-6 space-y-4"
             >
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Name *</label>
+                <label className="block text-sm font-medium">
+                  {t("presetMeals.name")} *
+                </label>
                 <Input
                   value={createForm.name}
                   onChange={(e) =>
@@ -242,7 +257,9 @@ export default function PresetMealsPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium">Description</label>
+                <label className="block text-sm font-medium">
+                  {t("presetMeals.description")}
+                </label>
                 <Input
                   value={createForm.description}
                   onChange={(e) =>
@@ -254,8 +271,7 @@ export default function PresetMealsPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                You can add food items to this preset from the detail page after
-                creation.
+                {t("presetMeals.createHint")}
               </p>
               <div className="flex gap-3 pt-4 border-t border-border">
                 <Button
@@ -264,14 +280,16 @@ export default function PresetMealsPage() {
                   className="flex-1"
                   onClick={() => setCreateOpen(false)}
                 >
-                  Cancel
+                  {t("presetMeals.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="flex-1"
                   disabled={createMutation.isPending}
                 >
-                  {createMutation.isPending ? "Saving…" : "Save Preset"}
+                  {createMutation.isPending
+                    ? t("presetMeals.saving")
+                    : t("presetMeals.savePreset")}
                 </Button>
               </div>
             </form>

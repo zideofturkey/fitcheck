@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Brain,
@@ -30,6 +31,7 @@ function formatDateTime(iso?: string) {
 }
 
 export default function AiGuidanceNoteDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useGetAiGuidanceNote(id);
 
@@ -39,7 +41,7 @@ export default function AiGuidanceNoteDetailPage() {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader className="w-5 h-5 animate-spin mr-2" />
-        Yükleniyor…
+        {t("aiGuidanceNote.loading")}
       </div>
     );
   }
@@ -48,13 +50,13 @@ export default function AiGuidanceNoteDetailPage() {
     return (
       <Card className="p-8 text-center">
         <p className="text-sm text-muted-foreground">
-          Guidance note bulunamadı.
+          {t("aiGuidanceNote.notFound")}
         </p>
         <Link
           to="/ai-sessions"
           className="mt-3 inline-block text-sm text-primary hover:underline"
         >
-          AI oturumlarına dön
+          {t("aiGuidanceNote.backToSessions")}
         </Link>
       </Card>
     );
@@ -69,7 +71,7 @@ export default function AiGuidanceNoteDetailPage() {
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        Session Detail
+        {t("aiGuidanceNote.sessionDetail")}
       </Link>
 
       <Card className="shadow-md overflow-hidden">
@@ -94,7 +96,7 @@ export default function AiGuidanceNoteDetailPage() {
         <div className="p-6 border-b border-border">
           <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-primary" />
-            Answer
+            {t("aiGuidanceNote.answer")}
           </h2>
           <p className="text-base leading-relaxed text-foreground bg-muted/50 rounded-lg p-4 whitespace-pre-line">
             {note.answerSummary}
@@ -106,7 +108,7 @@ export default function AiGuidanceNoteDetailPage() {
             <summary className="flex items-center justify-between p-6 cursor-pointer hover:bg-muted/50 transition-colors list-none">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Brain className="w-4 h-4 text-chart-2" />
-                How was this calculated?
+                {t("aiGuidanceNote.howCalculated")}
               </h3>
               <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-open:rotate-180" />
             </summary>
@@ -124,7 +126,7 @@ export default function AiGuidanceNoteDetailPage() {
               <TriangleAlert className="w-5 h-5 text-chart-4 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-foreground mb-1">
-                  Heads up
+                  {t("aiGuidanceNote.headsUp")}
                 </p>
                 <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {note.cautionText}
@@ -138,13 +140,13 @@ export default function AiGuidanceNoteDetailPage() {
           <Button variant="secondary" asChild>
             <Link to="/ai-sessions">
               <History className="w-4 h-4" />
-              View All Sessions
+              {t("aiGuidanceNote.viewAllSessions")}
             </Link>
           </Button>
           <Link to="/ai-sessions">
             <Button>
               <MessageCircle className="w-4 h-4" />
-              Ask Another Question
+              {t("aiGuidanceNote.askAnother")}
             </Button>
           </Link>
         </div>

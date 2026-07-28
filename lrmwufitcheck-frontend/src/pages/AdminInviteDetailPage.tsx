@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Ban,
   Check,
@@ -36,6 +37,7 @@ function formatDateTime(iso?: string) {
 }
 
 export default function AdminInviteDetailPage() {
+  const { t } = useTranslation();
   const { inviteLinkId } = useParams<{ inviteLinkId: string }>();
   const [copied, setCopied] = useState(false);
 
@@ -53,7 +55,7 @@ export default function AdminInviteDetailPage() {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader className="w-5 h-5 animate-spin mr-2" />
-        Yükleniyor…
+        {t("adminInviteDetail.loading")}
       </div>
     );
   }
@@ -61,12 +63,14 @@ export default function AdminInviteDetailPage() {
   if (error || !invite) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-muted-foreground">Davet bulunamadı.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("adminInviteDetail.notFound")}
+        </p>
         <Link
           to="/admin/invites"
           className="mt-3 inline-block text-sm text-primary hover:underline"
         >
-          Tüm davetler
+          {t("adminInviteDetail.allInvites")}
         </Link>
       </Card>
     );
@@ -79,7 +83,7 @@ export default function AdminInviteDetailPage() {
   };
 
   const handleRevoke = () => {
-    if (!confirm("Revoke this invite link?")) return;
+    if (!confirm(t("adminInviteDetail.revokeConfirm"))) return;
     revokeMutation.mutate({ inviteLinkId: invite.id, data: {} });
   };
 
@@ -94,16 +98,18 @@ export default function AdminInviteDetailPage() {
               to="/admin/invites"
               className="hover:text-foreground transition-colors"
             >
-              Invites
+              {t("adminInviteDetail.invites")}
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-foreground">Invite Detail</span>
+            <span className="text-foreground">
+              {t("adminInviteDetail.inviteDetail")}
+            </span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Invite Link Detail
+            {t("adminInviteDetail.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            View invite metadata and audit timeline.
+            {t("adminInviteDetail.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -113,7 +119,7 @@ export default function AdminInviteDetailPage() {
             disabled={deliverMutation.isPending}
           >
             <Send className="w-4 h-4" />
-            Send Email
+            {t("adminInviteDetail.sendEmail")}
           </Button>
           <Button
             variant="destructive"
@@ -121,7 +127,7 @@ export default function AdminInviteDetailPage() {
             disabled={revokeMutation.isPending}
           >
             <Ban className="w-4 h-4" />
-            Revoke
+            {t("adminInviteDetail.revoke")}
           </Button>
         </div>
       </div>
@@ -131,7 +137,9 @@ export default function AdminInviteDetailPage() {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">Invite Code</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("adminInviteDetail.inviteCode")}
+                </h2>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent text-accent-foreground">
                   <span className="w-1.5 h-1.5 rounded-full bg-chart-1" />
                   {invite.inviteState}
@@ -157,29 +165,35 @@ export default function AdminInviteDetailPage() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-muted text-muted-foreground">
                 <Users className="w-3.5 h-3.5" />
                 {invite.usageMode === "singleUse"
-                  ? "Single Use"
-                  : "Limited Use"}{" "}
+                  ? t("adminInviteDetail.singleUse")
+                  : t("adminInviteDetail.limitedUse")}{" "}
                 · {Math.max(0, (invite.usageLimit ?? 1) - invite.usageCount)}{" "}
-                remaining
+                {t("adminInviteDetail.remaining")}
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              ["Invited Email", invite.invitedEmail ?? "—"],
+              [t("adminInviteDetail.invitedEmail"), invite.invitedEmail ?? "—"],
               [
-                "Usage",
-                `${invite.usageCount} / ${invite.usageLimit ?? 1} used`,
+                t("adminInviteDetail.usage"),
+                `${invite.usageCount} / ${invite.usageLimit ?? 1} ${t("adminInviteDetail.used")}`,
               ],
-              ["Expires", formatDateTime(invite.expiresAt)],
-              ["Created", formatDateTime(invite.createdAt)],
-              ["Last Used", formatDateTime(invite.lastUsedAt)],
+              [t("adminInviteDetail.expires"), formatDateTime(invite.expiresAt)],
+              [t("adminInviteDetail.created"), formatDateTime(invite.createdAt)],
               [
-                "Delivery Requested",
+                t("adminInviteDetail.lastUsed"),
+                formatDateTime(invite.lastUsedAt),
+              ],
+              [
+                t("adminInviteDetail.deliveryRequested"),
                 formatDateTime(invite.deliveryRequestedAt),
               ],
-              ["Last Delivered", formatDateTime(invite.lastDeliveredAt)],
+              [
+                t("adminInviteDetail.lastDelivered"),
+                formatDateTime(invite.lastDeliveredAt),
+              ],
             ].map(([label, value]) => (
               <div key={label} className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -195,16 +209,18 @@ export default function AdminInviteDetailPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Audit Trail</h2>
+            <h2 className="text-lg font-semibold">
+              {t("adminInviteDetail.auditTrail")}
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Chronological log of all events on this invite link.
+              {t("adminInviteDetail.auditSubtitle")}
             </p>
           </div>
         </div>
 
         {audits.length === 0 ? (
           <Card className="p-6 text-center text-sm text-muted-foreground">
-            No audit events recorded.
+            {t("adminInviteDetail.noAudits")}
           </Card>
         ) : (
           <Card className="shadow-sm overflow-hidden">

@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { Loader } from "lucide-react";
 
@@ -39,6 +40,7 @@ export function RoleProtectedRoute({
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -60,9 +62,11 @@ export function RoleProtectedRoute({
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-6 text-center">
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Forbidden</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t("common.forbidden")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            You don&apos;t have permission to view this page.
+            {t("common.forbiddenMessage")}
           </p>
         </div>
       </div>

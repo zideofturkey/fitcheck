@@ -283,6 +283,7 @@ class CreateMealLogManager extends MealLogManager {
     const enumOptions = [
       "foodlibrary",
       "presettemplate",
+      "dishtemplate",
       "manualentry",
       "aiassistant",
     ];

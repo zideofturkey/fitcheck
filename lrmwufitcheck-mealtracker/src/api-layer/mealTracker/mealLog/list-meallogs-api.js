@@ -469,6 +469,7 @@ class ListMealLogsManager extends MealLogManager {
     const enumOptions = [
       "foodlibrary",
       "presettemplate",
+      "dishtemplate",
       "manualentry",
       "aiassistant",
     ];

@@ -1,6 +1,7 @@
 // EditMealPage — wired to useGetMealLog + useUpdateMealLog
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   CalendarClock,
@@ -24,6 +25,7 @@ import { Card } from "@/components/ui/card";
 import { Loader } from "lucide-react";
 
 export default function EditMealPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useGetMealLog(id);
@@ -82,7 +84,7 @@ export default function EditMealPage() {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader className="w-5 h-5 animate-spin mr-2" />
-        Yükleniyor…
+        {t("editMeal.loading")}
       </div>
     );
   }
@@ -90,12 +92,14 @@ export default function EditMealPage() {
   if (!meal) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-muted-foreground">Öğün bulunamadı.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("editMeal.notFound")}
+        </p>
         <Link
           to="/meals"
           className="mt-3 inline-block text-sm text-primary hover:underline"
         >
-          Öğün geçmişine dön
+          {t("editMeal.backToHistory")}
         </Link>
       </Card>
     );
@@ -110,11 +114,13 @@ export default function EditMealPage() {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to meal</span>
+          <span>{t("editMeal.backToMeal")}</span>
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Edit Meal</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t("editMeal.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Update meal details, times, notes, and nutrition totals.
+          {t("editMeal.subtitle")}
         </p>
       </header>
 
@@ -124,7 +130,7 @@ export default function EditMealPage() {
         <section className="bg-card rounded-xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
           <div className="flex items-center gap-3">
             <CalendarClock className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Date & Time</h2>
+            <h2 className="text-lg font-semibold">{t("editMeal.dateTime")}</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -134,7 +140,7 @@ export default function EditMealPage() {
                 htmlFor="mealDate"
                 className="block text-sm font-medium text-foreground"
               >
-                Meal Date
+                {t("editMeal.mealDate")}
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -154,7 +160,7 @@ export default function EditMealPage() {
                 htmlFor="mealTime"
                 className="block text-sm font-medium text-foreground"
               >
-                Meal Time
+                {t("editMeal.mealTime")}
               </label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -174,7 +180,7 @@ export default function EditMealPage() {
         <section className="bg-card rounded-xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
           <div className="flex items-center gap-3">
             <Tag className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Meal Slot & Source</h2>
+            <h2 className="text-lg font-semibold">{t("editMeal.slotSource")}</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -184,7 +190,7 @@ export default function EditMealPage() {
                 htmlFor="slotName"
                 className="block text-sm font-medium text-foreground"
               >
-                Meal Slot
+                {t("editMeal.mealSlot")}
               </label>
               <div className="relative">
                 <UtensilsCrossed className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -194,11 +200,11 @@ export default function EditMealPage() {
                   onChange={(e) => setSlotName(e.target.value)}
                   className="w-full h-10 pl-10 pr-8 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors appearance-none"
                 >
-                  <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
-                  <option value="snack">Snack</option>
-                  <option value="custom">Custom…</option>
+                  <option value="breakfast">{t("editMeal.breakfast")}</option>
+                  <option value="lunch">{t("editMeal.lunch")}</option>
+                  <option value="dinner">{t("editMeal.dinner")}</option>
+                  <option value="snack">{t("editMeal.snack")}</option>
+                  <option value="custom">{t("editMeal.custom")}</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               </div>
@@ -207,15 +213,15 @@ export default function EditMealPage() {
             {/* Source (read-only badge) */}
             <div className="space-y-2">
               <span className="block text-sm font-medium text-foreground">
-                Log Source
+                {t("editMeal.logSource")}
               </span>
               <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-border bg-muted/50">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
                   <BookOpen className="w-3 h-3" />
-                  Food Library
+                  {t("editMeal.foodLibrary")}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  (read-only)
+                  {t("editMeal.readOnly")}
                 </span>
               </div>
             </div>
@@ -226,7 +232,7 @@ export default function EditMealPage() {
         <section className="bg-card rounded-xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
           <div className="flex items-center gap-3">
             <StickyNote className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Notes</h2>
+            <h2 className="text-lg font-semibold">{t("editMeal.notes")}</h2>
           </div>
 
           <div className="space-y-2">
@@ -234,18 +240,18 @@ export default function EditMealPage() {
               htmlFor="noteText"
               className="block text-sm font-medium text-foreground"
             >
-              Meal Notes (optional)
+              {t("editMeal.mealNotesOptional")}
             </label>
             <textarea
               id="noteText"
               rows={3}
-              placeholder="e.g., homemade, felt great afterwards…"
+              placeholder={t("editMeal.notesPlaceholder")}
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              {noteText.length} characters
+              {noteText.length} {t("editMeal.characters")}
             </p>
           </div>
         </section>
@@ -254,11 +260,12 @@ export default function EditMealPage() {
         <section className="bg-card rounded-xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
           <div className="flex items-center gap-3">
             <Flame className="w-5 h-5 text-chart-4" />
-            <h2 className="text-lg font-semibold">Nutrition Totals</h2>
+            <h2 className="text-lg font-semibold">
+              {t("editMeal.nutritionTotals")}
+            </h2>
           </div>
           <p className="text-sm text-muted-foreground -mt-3">
-            Edit the meal-level totals manually. Individual food item lines are
-            updated on the meal detail page.
+            {t("editMeal.nutritionTotalsHint")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -268,7 +275,7 @@ export default function EditMealPage() {
                 htmlFor="totalCalories"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Calories</span>
+                <span>{t("editMeal.calories")}</span>
                 <span className="text-xs text-muted-foreground">kcal</span>
               </label>
               <input
@@ -287,7 +294,7 @@ export default function EditMealPage() {
                 htmlFor="totalProtein"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Protein</span>
+                <span>{t("editMeal.protein")}</span>
                 <span className="text-xs text-muted-foreground">g</span>
               </label>
               <input
@@ -306,7 +313,7 @@ export default function EditMealPage() {
                 htmlFor="totalCarbohydrates"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Carbs</span>
+                <span>{t("editMeal.carbs")}</span>
                 <span className="text-xs text-muted-foreground">g</span>
               </label>
               <input
@@ -325,7 +332,7 @@ export default function EditMealPage() {
                 htmlFor="totalFat"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Fat</span>
+                <span>{t("editMeal.fat")}</span>
                 <span className="text-xs text-muted-foreground">g</span>
               </label>
               <input
@@ -344,7 +351,7 @@ export default function EditMealPage() {
                 htmlFor="totalSugar"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Sugar</span>
+                <span>{t("editMeal.sugar")}</span>
                 <span className="text-xs text-muted-foreground">g</span>
               </label>
               <input
@@ -363,7 +370,7 @@ export default function EditMealPage() {
                 htmlFor="totalFiber"
                 className="flex items-center justify-between text-sm font-medium text-foreground"
               >
-                <span>Fiber</span>
+                <span>{t("editMeal.fiber")}</span>
                 <span className="text-xs text-muted-foreground">g</span>
               </label>
               <input
@@ -382,10 +389,12 @@ export default function EditMealPage() {
         <section className="bg-card rounded-xl border border-border shadow-sm p-5 sm:p-6 space-y-5">
           <div className="flex items-center gap-3">
             <ListChecks className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Food Items</h2>
+            <h2 className="text-lg font-semibold">
+              {t("editMeal.foodItems")}
+            </h2>
           </div>
           <p className="text-sm text-muted-foreground -mt-3">
-            These line items are edited individually on the meal detail page.
+            {t("editMeal.foodItemsHint")}
           </p>
 
           <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
@@ -455,7 +464,7 @@ export default function EditMealPage() {
             className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Edit individual items on meal detail</span>
+            <span>{t("editMeal.editItemsLink")}</span>
           </Link>
         </section>
 
@@ -466,14 +475,14 @@ export default function EditMealPage() {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg border border-input bg-background text-foreground text-sm font-medium hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" />
-            Cancel
+            {t("editMeal.cancel")}
           </Link>
           <button
             type="submit"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-8 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
           >
             <Check className="w-4 h-4" />
-            Save Changes
+            {t("editMeal.saveChanges")}
           </button>
         </div>
       </form>

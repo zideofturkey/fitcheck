@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,7 +25,11 @@ import FoodPickerModal, {
 
 type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
 
-type LineSource = "foodLibrary" | "presetTemplate" | "manualEntry";
+type LineSource =
+  | "foodLibrary"
+  | "presetTemplate"
+  | "dishTemplate"
+  | "manualEntry";
 
 interface FoodItemEntry {
   id: string;
@@ -39,6 +44,7 @@ interface FoodItemEntry {
   source: LineSource;
   sourceFoodItemId?: string;
   sourcePresetMealId?: string;
+  sourceDishId?: string;
 }
 
 type WizardStep = 1 | 2 | 3;
@@ -53,24 +59,21 @@ function nowTime() {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-function deriveLogSource(
-  items: FoodItemEntry[],
-): "foodLibrary" | "presetTemplate" | "manualEntry" {
+function deriveLogSource(items: FoodItemEntry[]): LineSource {
   const sources = new Set(items.map((i) => i.source));
   if (sources.size === 0) return "manualEntry";
   if (sources.size === 1) {
-    const only = items[0].source;
-    if (only === "foodLibrary") return "foodLibrary";
-    if (only === "presetTemplate") return "presetTemplate";
-    return "manualEntry";
+    return items[0].source;
   }
   // Mixed sources — prefer the most "structured" one present.
   if (sources.has("presetTemplate")) return "presetTemplate";
+  if (sources.has("dishTemplate")) return "dishTemplate";
   if (sources.has("foodLibrary")) return "foodLibrary";
   return "manualEntry";
 }
 
 function LogMealPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createMutation = useCreateMealLog();
   const [step, setStep] = useState<WizardStep>(1);
@@ -87,10 +90,10 @@ function LogMealPage() {
     icon: React.ElementType;
     label: string;
   }[] = [
-    { value: "breakfast", icon: Sunrise, label: "Breakfast" },
-    { value: "lunch", icon: Sun, label: "Lunch" },
-    { value: "dinner", icon: Moon, label: "Dinner" },
-    { value: "snack", icon: Apple, label: "Snack" },
+    { value: "breakfast", icon: Sunrise, label: t("logMeal.breakfast") },
+    { value: "lunch", icon: Sun, label: t("logMeal.lunch") },
+    { value: "dinner", icon: Moon, label: t("logMeal.dinner") },
+    { value: "snack", icon: Apple, label: t("logMeal.snack") },
   ];
 
   const updateFoodItem = (
@@ -140,6 +143,7 @@ function LogMealPage() {
       source: l.lineSource,
       sourceFoodItemId: l.sourceFoodItemId,
       sourcePresetMealId: l.sourcePresetMealId,
+      sourceDishId: l.sourceDishId,
     }));
     setFoodItems((prev) => [...prev, ...newEntries]);
   };
@@ -164,7 +168,10 @@ function LogMealPage() {
         mealDate: date,
         mealTime: time,
         slotName,
-        logSource: deriveLogSource(foodItems),
+        logSource: deriveLogSource(foodItems) as
+          | "foodLibrary"
+          | "presetTemplate"
+          | "manualEntry",
         noteText: notes || undefined,
         totalCalories: totals.calories,
         totalProtein: totals.protein,
@@ -181,7 +188,10 @@ function LogMealPage() {
           itemFat: f.fat,
           itemSugar: f.sugar,
           itemFiber: f.fiber,
-          lineSource: f.source,
+          // "dishTemplate" isn't in the generated union (mealLine.lineSource
+          // is an unvalidated free string column backend-side) — cast here
+          // rather than editing the auto-generated mealtracker-api.ts types.
+          lineSource: f.source as "foodLibrary" | "presetTemplate" | "manualEntry",
           sourceFoodItemId: f.sourceFoodItemId,
           sourcePresetMealId: f.sourcePresetMealId,
         })),
@@ -198,9 +208,9 @@ function LogMealPage() {
   const stepIndicator = (
     <div className="flex items-center justify-center gap-2 mb-8">
       {[
-        { num: 1, icon: Calendar, label: "Date & Time" },
-        { num: 2, icon: Clock, label: "Meal Slot" },
-        { num: 3, icon: Sandwich, label: "Food Items" },
+        { num: 1, icon: Calendar, label: t("logMeal.stepDateTime") },
+        { num: 2, icon: Clock, label: t("logMeal.stepMealSlot") },
+        { num: 3, icon: Sandwich, label: t("logMeal.stepFoodItems") },
       ].map((s, i) => (
         <div key={s.num} className="flex items-center gap-2">
           <div className="flex items-center gap-2">
@@ -229,10 +239,10 @@ function LogMealPage() {
     <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
       <header className="mb-8 space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Log a Meal
+          {t("logMeal.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Record what you ate — step by step.
+          {t("logMeal.subtitle")}
         </p>
       </header>
 
@@ -253,13 +263,13 @@ function LogMealPage() {
                 1
               </div>
               <h2 className="text-lg font-semibold text-foreground">
-                When did you eat?
+                {t("logMeal.whenDidYouEat")}
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
-                  Date
+                  {t("logMeal.date")}
                 </label>
                 <div className="relative">
                   <input
@@ -273,7 +283,7 @@ function LogMealPage() {
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
-                  Time
+                  {t("logMeal.time")}
                 </label>
                 <div className="relative">
                   <input
@@ -288,7 +298,7 @@ function LogMealPage() {
             </div>
             <div className="flex justify-end">
               <Button type="submit">
-                Next: Meal Slot <ArrowRight className="w-4 h-4" />
+                {t("logMeal.nextMealSlot")} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </section>
@@ -310,7 +320,7 @@ function LogMealPage() {
                 2
               </div>
               <h2 className="text-lg font-semibold text-foreground">
-                Which meal is this?
+                {t("logMeal.whichMeal")}
               </h2>
             </div>
             <div className="flex items-center gap-1 p-1 bg-muted rounded-lg w-fit">
@@ -332,13 +342,13 @@ function LogMealPage() {
               className={`space-y-2 ${mealSlot === "snack" ? "" : "hidden"}`}
             >
               <label className="block text-sm font-medium text-foreground">
-                Custom Slot Name
+                {t("logMeal.customSlotName")}
               </label>
               <input
                 type="text"
                 value={customSlotName}
                 onChange={(e) => setCustomSlotName(e.target.value)}
-                placeholder="e.g. Post-workout shake"
+                placeholder={t("logMeal.customSlotPlaceholder")}
                 className="w-full rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
               />
             </div>
@@ -349,10 +359,10 @@ function LogMealPage() {
                 onClick={() => setStep(1)}
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t("logMeal.back")}
               </Button>
               <Button type="submit">
-                Next: Add Foods <ArrowRight className="w-4 h-4" />
+                {t("logMeal.nextAddFoods")} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </section>
@@ -368,7 +378,7 @@ function LogMealPage() {
                 3
               </div>
               <h2 className="text-lg font-semibold text-foreground">
-                What did you eat?
+                {t("logMeal.whatDidYouEat")}
               </h2>
             </div>
             <div className="space-y-4">
@@ -395,15 +405,17 @@ function LogMealPage() {
                           onChange={(e) =>
                             updateFoodItem(item.id, "name", e.target.value)
                           }
-                          placeholder="Food name"
+                          placeholder={t("logMeal.foodNamePlaceholder")}
                           className="w-full bg-transparent border-none text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none"
                         />
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {item.source === "manualEntry"
-                            ? "Manual entry"
+                            ? t("logMeal.manualEntry")
                             : item.source === "presetTemplate"
-                              ? "From preset meal"
-                              : "From food library"}
+                              ? t("logMeal.fromPresetMeal")
+                              : item.source === "dishTemplate"
+                                ? t("logMeal.fromDish")
+                                : t("logMeal.fromFoodLibrary")}
                         </p>
                       </div>
                     </div>
@@ -411,14 +423,14 @@ function LogMealPage() {
                       type="button"
                       onClick={() => removeFoodItem(item.id)}
                       className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      aria-label="Remove item"
+                      aria-label={t("logMeal.removeItemAria")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                      Amount
+                      {t("logMeal.amount")}
                     </label>
                     <div className="relative flex-1">
                       <input
@@ -435,40 +447,44 @@ function LogMealPage() {
                         className="w-full rounded-lg border border-input bg-card px-3 py-2.5 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
-                        grams
+                        {t("logMeal.grams")}
                       </span>
                     </div>
                   </div>
                   <details className="group">
                     <summary className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors list-none">
                       <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
-                      Nutrition snapshot (auto-calculated)
+                      {t("logMeal.nutritionSnapshot")}
                     </summary>
                     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {[
                         {
-                          label: "Calories",
+                          label: t("logMeal.calories"),
                           field: "calories" as const,
                           step: 1,
                         },
                         {
-                          label: "Protein (g)",
+                          label: t("logMeal.protein"),
                           field: "protein" as const,
                           step: 0.1,
                         },
                         {
-                          label: "Carbs (g)",
+                          label: t("logMeal.carbs"),
                           field: "carbs" as const,
                           step: 0.1,
                         },
-                        { label: "Fat (g)", field: "fat" as const, step: 0.1 },
                         {
-                          label: "Sugar (g)",
+                          label: t("logMeal.fat"),
+                          field: "fat" as const,
+                          step: 0.1,
+                        },
+                        {
+                          label: t("logMeal.sugar"),
                           field: "sugar" as const,
                           step: 0.1,
                         },
                         {
-                          label: "Fiber (g)",
+                          label: t("logMeal.fiber"),
                           field: "fiber" as const,
                           step: 0.1,
                         },
@@ -502,40 +518,60 @@ function LogMealPage() {
                 className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-4 text-sm font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Plus className="w-5 h-5" />
-                Add Food Item
+                {t("logMeal.addFoodItem")}
               </button>
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">
-                Notes{" "}
+                {t("logMeal.notes")}{" "}
                 <span className="text-muted-foreground font-normal">
-                  (optional)
+                  {t("logMeal.optional")}
                 </span>
               </label>
               <textarea
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any notes about this meal..."
+                placeholder={t("logMeal.notesPlaceholder")}
                 className="w-full rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow resize-none"
               />
             </div>
             <div className="rounded-xl border border-border bg-muted/20 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-foreground mb-3">
-                Meal Totals
+                {t("logMeal.mealTotals")}
               </h3>
               <div className="grid grid-cols-3 gap-x-4 gap-y-2 sm:grid-cols-6">
                 {[
-                  { label: "Calories", value: totals.calories, unit: "" },
                   {
-                    label: "Protein",
+                    label: t("logMeal.calories"),
+                    value: totals.calories,
+                    unit: "",
+                  },
+                  {
+                    label: t("dashboard.protein"),
                     value: totals.protein.toFixed(1),
                     unit: "g",
                   },
-                  { label: "Carbs", value: totals.carbs, unit: "g" },
-                  { label: "Fat", value: totals.fat.toFixed(1), unit: "g" },
-                  { label: "Sugar", value: totals.sugar, unit: "g" },
-                  { label: "Fiber", value: totals.fiber.toFixed(1), unit: "g" },
+                  {
+                    label: t("dashboard.carbs"),
+                    value: totals.carbs,
+                    unit: "g",
+                  },
+                  {
+                    label: t("dashboard.fat"),
+                    value: totals.fat.toFixed(1),
+                    unit: "g",
+                  },
+                  {
+                    label: t("dashboard.sugar"),
+                    value: totals.sugar,
+                    unit: "g",
+                  },
+                  {
+                    label: t("dashboard.fiber"),
+                    value: totals.fiber.toFixed(1),
+                    unit: "g",
+                  },
                 ].map(({ label, value, unit }) => (
                   <div key={label} className="space-y-0.5">
                     <p className="text-xs text-muted-foreground">{label}</p>
@@ -556,11 +592,11 @@ function LogMealPage() {
                 onClick={() => setStep(2)}
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {t("logMeal.back")}
               </Button>
               <Button type="submit" className="shadow-md hover:shadow-lg">
                 <Check className="w-4 h-4" />
-                Log Meal
+                {t("logMeal.logMealBtn")}
               </Button>
             </div>
           </section>

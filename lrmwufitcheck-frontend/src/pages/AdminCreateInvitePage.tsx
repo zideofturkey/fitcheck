@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Calendar,
   ChevronRight,
@@ -18,6 +19,7 @@ import { useCreateInviteLink } from "@/hooks/api/use-invitationcenter";
 type UsageMode = "singleUse" | "limitedUse";
 
 export default function AdminCreateInvitePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createMutation = useCreateInviteLink();
   const [invitedEmail, setInvitedEmail] = useState("");
@@ -43,12 +45,18 @@ export default function AdminCreateInvitePage() {
     );
   };
 
-  const summaryMode = usageMode === "singleUse" ? "Single Use" : "Limited Use";
+  const summaryMode =
+    usageMode === "singleUse"
+      ? t("adminCreateInvite.singleUse")
+      : t("adminCreateInvite.limitedUse");
   const summaryExpires = expiresAt
     ? new Date(expiresAt).toLocaleDateString()
-    : "Never";
+    : t("adminCreateInvite.never");
   const summaryLimit =
-    usageMode === "limitedUse" && usageLimit ? `${usageLimit} uses` : "N/A";
+    usageMode === "limitedUse" && usageLimit
+      ? `${usageLimit} ${t("adminCreateInvite.usesLabel")}`
+      : t("adminCreateInvite.notApplicable");
+  void summaryLimit;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pt-8 pb-20 md:py-8">
@@ -59,18 +67,19 @@ export default function AdminCreateInvitePage() {
             to="/admin/invites"
             className="hover:text-foreground transition-colors"
           >
-            Invites
+            {t("adminCreateInvite.invites")}
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-foreground font-medium">Create Invite</span>
+          <span className="text-foreground font-medium">
+            {t("adminCreateInvite.createInvite")}
+          </span>
         </nav>
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Create Invite Link
+            {t("adminCreateInvite.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Generate a new unique invite link for user onboarding. The invite
-            starts in draft state and must be activated before use.
+            {t("adminCreateInvite.subtitle")}
           </p>
         </div>
       </header>
@@ -95,9 +104,9 @@ export default function AdminCreateInvitePage() {
               htmlFor="invitedEmail"
               className="text-sm font-semibold block"
             >
-              Invited Email{" "}
+              {t("adminCreateInvite.invitedEmail")}{" "}
               <span className="text-muted-foreground font-normal">
-                (optional)
+                {t("adminCreateInvite.optional")}
               </span>
             </label>
             <div className="relative">
@@ -112,13 +121,15 @@ export default function AdminCreateInvitePage() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Leave empty to create an open invite link for any user.
+              {t("adminCreateInvite.emailHint")}
             </p>
           </div>
 
           {/* Usage Mode */}
           <div className="space-y-3">
-            <p className="text-sm font-semibold">Usage Mode</p>
+            <p className="text-sm font-semibold">
+              {t("adminCreateInvite.usageMode")}
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
                 className={`relative flex items-start gap-3 p-4 rounded-lg border cursor-pointer hover:bg-muted transition-colors ${usageMode === "singleUse" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-muted/50"}`}
@@ -133,10 +144,10 @@ export default function AdminCreateInvitePage() {
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-semibold block">
-                    Single Use
+                    {t("adminCreateInvite.singleUse")}
                   </span>
                   <span className="text-xs text-muted-foreground block mt-0.5">
-                    One registration per invite link
+                    {t("adminCreateInvite.singleUseHint")}
                   </span>
                 </div>
                 <UserCheck className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -154,10 +165,10 @@ export default function AdminCreateInvitePage() {
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-semibold block">
-                    Limited Use
+                    {t("adminCreateInvite.limitedUse")}
                   </span>
                   <span className="text-xs text-muted-foreground block mt-0.5">
-                    Multiple registrations up to a limit
+                    {t("adminCreateInvite.limitedUseHint")}
                   </span>
                 </div>
                 <Users className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -168,9 +179,9 @@ export default function AdminCreateInvitePage() {
           {/* Usage Limit (conditional) */}
           <div className="space-y-2">
             <label htmlFor="usageLimit" className="text-sm font-semibold block">
-              Usage Limit{" "}
+              {t("adminCreateInvite.usageLimit")}{" "}
               <span className="text-muted-foreground font-normal">
-                (for limited use)
+                {t("adminCreateInvite.forLimitedUse")}
               </span>
             </label>
             <div className="relative w-full sm:w-40">
@@ -191,16 +202,16 @@ export default function AdminCreateInvitePage() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Set the maximum number of registrations allowed (1–100).
+              {t("adminCreateInvite.usageLimitHint")}
             </p>
           </div>
 
           {/* Expiry Date */}
           <div className="space-y-2">
             <label htmlFor="expiresAt" className="text-sm font-semibold block">
-              Expiry Date{" "}
+              {t("adminCreateInvite.expiryDate")}{" "}
               <span className="text-muted-foreground font-normal">
-                (optional)
+                {t("adminCreateInvite.optional")}
               </span>
             </label>
             <div className="relative w-full sm:w-56">
@@ -214,7 +225,7 @@ export default function AdminCreateInvitePage() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              If not set, the invite link will never expire.
+              {t("adminCreateInvite.expiryHint")}
             </p>
           </div>
 
@@ -224,24 +235,30 @@ export default function AdminCreateInvitePage() {
           {/* Summary Preview */}
           <div className="bg-muted/60 rounded-lg p-4 space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Invite Summary
+              {t("adminCreateInvite.inviteSummary")}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <Target className="w-3.5 h-3.5 text-primary" />
-                <span className="text-muted-foreground">Mode:</span>
+                <span className="text-muted-foreground">
+                  {t("adminCreateInvite.mode")}
+                </span>
                 <span className="font-medium">{summaryMode}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Expires:</span>
+                <span className="text-muted-foreground">
+                  {t("adminCreateInvite.expires")}
+                </span>
                 <span className="font-medium">{summaryExpires}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Initial State:</span>
+                <span className="text-muted-foreground">
+                  {t("adminCreateInvite.initialState")}
+                </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                  Draft
+                  {t("adminCreateInvite.draft")}
                 </span>
               </div>
             </div>
@@ -254,7 +271,7 @@ export default function AdminCreateInvitePage() {
               className="w-full sm:w-auto h-11 px-6 inline-flex items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
               <X className="w-4 h-4" />
-              Cancel
+              {t("adminCreateInvite.cancel")}
             </Link>
             <button
               type="submit"
@@ -263,8 +280,8 @@ export default function AdminCreateInvitePage() {
             >
               <Sparkles className="w-4 h-4" />
               {createMutation.isPending
-                ? "Generating…"
-                : "Generate Invite Link"}
+                ? t("adminCreateInvite.generating")
+                : t("adminCreateInvite.generateLink")}
             </button>
           </div>
         </form>

@@ -1,10 +1,12 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import * as Icons from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AuthLayout() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     void logout().finally(() => navigate("/login", { replace: true }));
@@ -30,13 +32,13 @@ export default function AuthLayout() {
                 to="/welcome"
                 className="px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
-                About
+                {t("authLayout.about")}
               </Link>
               <Link
                 to="/login"
                 className="px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
-                Sign In
+                {t("system.signIn")}
               </Link>
             </nav>
           </div>
@@ -48,7 +50,9 @@ export default function AuthLayout() {
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
               >
                 <Icons.LogOut className="w-4 h-4" />
-                Sign out ({user?.fullname ?? "User"})
+                {t("authLayout.signOut", {
+                  name: user?.fullname ?? t("authLayout.user"),
+                })}
               </button>
             ) : (
               <>
@@ -57,14 +61,14 @@ export default function AuthLayout() {
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
                 >
                   <Icons.LogIn className="w-4 h-4" />
-                  Sign In
+                  {t("system.signIn")}
                 </Link>
                 <Link
                   to="/register"
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
                 >
                   <Icons.MailPlus className="w-4 h-4" />
-                  Register
+                  {t("authLayout.register")}
                 </Link>
               </>
             )}
@@ -76,7 +80,7 @@ export default function AuthLayout() {
       <header className="md:hidden bg-card border-b border-border sticky top-0 z-40 h-14 flex items-center px-4">
         <button
           type="button"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
           onClick={() => window.history.back()}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-1"
         >
@@ -88,7 +92,7 @@ export default function AuthLayout() {
         <Link
           to="/welcome"
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-          aria-label="Home"
+          aria-label={t("authLayout.home")}
         >
           <Icons.Home className="w-5 h-5 text-muted-foreground" />
         </Link>
@@ -110,18 +114,20 @@ export default function AuthLayout() {
               FitCheck
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Private, invite‑only nutrition tracking. Your data stays yours.
+              {t("authLayout.tagline")}
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-3 text-foreground">Account</h4>
+            <h4 className="font-semibold mb-3 text-foreground">
+              {t("authLayout.account")}
+            </h4>
             <ul className="space-y-2 text-muted-foreground">
               <li>
                 <Link
                   to="/login"
                   className="hover:text-foreground transition-colors"
                 >
-                  Sign In
+                  {t("system.signIn")}
                 </Link>
               </li>
               <li>
@@ -129,7 +135,7 @@ export default function AuthLayout() {
                   to="/register"
                   className="hover:text-foreground transition-colors"
                 >
-                  Register
+                  {t("authLayout.register")}
                 </Link>
               </li>
               <li>
@@ -137,20 +143,22 @@ export default function AuthLayout() {
                   to="/forgot-password"
                   className="hover:text-foreground transition-colors"
                 >
-                  Reset Password
+                  {t("authLayout.resetPassword")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-3 text-foreground">Help</h4>
+            <h4 className="font-semibold mb-3 text-foreground">
+              {t("authLayout.help")}
+            </h4>
             <ul className="space-y-2 text-muted-foreground">
               <li>
                 <Link
                   to="/verify-email"
                   className="hover:text-foreground transition-colors"
                 >
-                  Verify Email
+                  {t("authLayout.verifyEmail")}
                 </Link>
               </li>
               <li>
@@ -158,14 +166,14 @@ export default function AuthLayout() {
                   to="/welcome"
                   className="hover:text-foreground transition-colors"
                 >
-                  About FitCheck
+                  {t("authLayout.aboutFitCheck")}
                 </Link>
               </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-border max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-          <p>&copy; 2025 FitCheck. All rights reserved.</p>
+          <p>{t("system.copyright")}</p>
         </div>
       </footer>
 
@@ -181,7 +189,7 @@ export default function AuthLayout() {
           >
             <Icons.Home className="w-5 h-5" />
             <span className="text-[10px] font-semibold tracking-tight">
-              Home
+              {t("system.home")}
             </span>
           </Link>
           <Link
@@ -190,7 +198,7 @@ export default function AuthLayout() {
           >
             <Icons.LogIn className="w-5 h-5" />
             <span className="text-[10px] font-medium tracking-tight">
-              Sign In
+              {t("system.signIn")}
             </span>
           </Link>
           <Link
@@ -199,7 +207,7 @@ export default function AuthLayout() {
           >
             <Icons.MailPlus className="w-5 h-5" />
             <span className="text-[10px] font-medium tracking-tight">
-              Register
+              {t("authLayout.register")}
             </span>
           </Link>
         </div>

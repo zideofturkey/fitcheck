@@ -445,6 +445,7 @@ class CreateMealLineManager extends MealLineManager {
     const enumOptions = [
       "foodlibrary",
       "presettemplate",
+      "dishtemplate",
       "manualentry",
       "aiassistant",
       "temporaryai",

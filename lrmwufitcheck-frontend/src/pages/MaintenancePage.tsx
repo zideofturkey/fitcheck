@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Wrench,
@@ -18,6 +19,7 @@ import {
 
 export default function MaintenancePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -25,7 +27,7 @@ export default function MaintenancePage() {
       <header className="md:hidden fixed top-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-b border-border h-14 flex items-center px-4 gap-3">
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -35,7 +37,7 @@ export default function MaintenancePage() {
         </h1>
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label="Notifications"
+          aria-label={t("system.notifications")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -59,7 +61,7 @@ export default function MaintenancePage() {
                 to="/"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
               >
-                House
+                {t("system.home")}
               </Link>
               <a
                 href="/features"
@@ -84,13 +86,13 @@ export default function MaintenancePage() {
             >
               <Link to="/login">
                 <LogIn className="w-4 h-4" />
-                Sign In
+                {t("system.signIn")}
               </Link>
             </Button>
             <Button variant="secondary" asChild size="sm" className="gap-2">
               <Link to="/register">
                 <Mail className="w-4 h-4" />
-                Request Invite
+                {t("system.requestInvite")}
               </Link>
             </Button>
           </div>
@@ -129,17 +131,15 @@ export default function MaintenancePage() {
 
               <div className="space-y-5">
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                  We'll be right back
+                  {t("maintenance.title")}
                 </h1>
                 <p className="text-sm md:text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  FitCheck is currently undergoing scheduled maintenance. We're
-                  making things better — your data is safe, and we'll be back
-                  shortly.
+                  {t("maintenance.message")}
                 </p>
 
                 <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-muted text-sm text-muted-foreground font-medium">
                   <Clock className="w-4 h-4" />
-                  Estimated downtime: 30 minutes
+                  {t("maintenance.estimatedDowntime")}
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -150,19 +150,19 @@ export default function MaintenancePage() {
                     onClick={() => window.location.reload()}
                   >
                     <RefreshCw className="w-4 h-4" />
-                    Check Status
+                    {t("maintenance.checkStatus")}
                   </Button>
                   <a
                     href="#"
                     className="inline-flex items-center gap-2 h-11 px-6 text-sm font-semibold rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Circle className="w-4 h-4" />
-                    Follow for updates
+                    {t("maintenance.followUpdates")}
                   </a>
                 </div>
 
                 <p className="text-xs text-muted-foreground pt-1">
-                  Questions? Reach us at{" "}
+                  {t("maintenance.questionsMessage")}{" "}
                   <a
                     href="mailto:support@fitcheck.app"
                     className="underline underline-offset-2 hover:text-foreground transition-colors"
@@ -277,7 +277,7 @@ export default function MaintenancePage() {
           </div>
         </div>
         <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2025 FitCheck. All rights reserved.</p>
+          <p>{t("system.copyright")}</p>
           <div className="flex items-center gap-4">
             <a
               href="#"
@@ -318,35 +318,35 @@ export default function MaintenancePage() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-primary transition-colors"
           >
             <House className="w-5 h-5" />
-            <span className="text-[10px] font-medium">House</span>
+            <span className="text-[10px] font-medium">{t("system.home")}</span>
           </Link>
           <Link
             to="/meals"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Utensils className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Meals</span>
+            <span className="text-[10px] font-medium">{t("system.meals")}</span>
           </Link>
           <Link
             to="/dashboard"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Circle className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Progress</span>
+            <span className="text-[10px] font-medium">{t("system.progress")}</span>
           </Link>
           <Link
             to="/ai-sessions"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium">AI</span>
+            <span className="text-[10px] font-medium">{t("system.ai")}</span>
           </Link>
           <Link
             to="/profile"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Profile</span>
+            <span className="text-[10px] font-medium">{t("system.profile")}</span>
           </Link>
         </div>
       </nav>

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   Plus,
@@ -44,6 +45,7 @@ import {
 } from "@/hooks/api/use-auth";
 
 function AdminUserListPage() {
+  const { t } = useTranslation();
   // ── Filter / pagination state ──
   const [searchText, setSearchText] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -125,7 +127,7 @@ function AdminUserListPage() {
 
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString("en-GB", {
+    return new Date(dateStr).toLocaleDateString("tr-TR", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -139,9 +141,9 @@ function AdminUserListPage() {
   };
 
   const roleLabel = (role: string) => {
-    if (role === "superAdmin") return "Super Admin";
-    if (role === "admin") return "Admin";
-    return "User";
+    if (role === "superAdmin") return t("adminUsers.superAdmin");
+    if (role === "admin") return t("adminUsers.admin");
+    return t("adminUsers.user");
   };
 
   const pageNumbers = (): (number | "...")[] => {
@@ -167,9 +169,11 @@ function AdminUserListPage() {
       <header className="mb-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t("adminUsers.title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Manage platform members, roles, and access.
+              {t("adminUsers.subtitle")}
             </p>
           </div>
           <Link
@@ -177,7 +181,7 @@ function AdminUserListPage() {
             className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" aria-hidden />
-            Add User
+            {t("adminUsers.addUser")}
           </Link>
         </div>
       </header>
@@ -191,7 +195,7 @@ function AdminUserListPage() {
           />
           <Input
             type="search"
-            placeholder="Search by name or email..."
+            placeholder={t("adminUsers.searchPlaceholder")}
             value={searchText}
             onChange={(e) => {
               setSearchText(e.target.value);
@@ -209,13 +213,15 @@ function AdminUserListPage() {
             }}
           >
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="All Roles" />
+              <SelectValue placeholder={t("adminUsers.allRoles")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Roles</SelectItem>
-              <SelectItem value="superAdmin">Super Admin</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="">{t("adminUsers.allRoles")}</SelectItem>
+              <SelectItem value="superAdmin">
+                {t("adminUsers.superAdmin")}
+              </SelectItem>
+              <SelectItem value="admin">{t("adminUsers.admin")}</SelectItem>
+              <SelectItem value="user">{t("adminUsers.user")}</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -229,9 +235,15 @@ function AdminUserListPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="25">25 per page</SelectItem>
-              <SelectItem value="50">50 per page</SelectItem>
-              <SelectItem value="100">100 per page</SelectItem>
+              <SelectItem value="25">
+                {t("adminUsers.perPage", { count: 25 })}
+              </SelectItem>
+              <SelectItem value="50">
+                {t("adminUsers.perPage", { count: 50 })}
+              </SelectItem>
+              <SelectItem value="100">
+                {t("adminUsers.perPage", { count: 100 })}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -268,10 +280,10 @@ function AdminUserListPage() {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-destructive">
-                Failed to load users
+                {t("adminUsers.failedTitle")}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Please check your connection and try again.
+                {t("adminUsers.failedDesc")}
               </p>
               <Button
                 variant="outline"
@@ -280,7 +292,7 @@ function AdminUserListPage() {
                 onClick={() => refetch()}
               >
                 <RefreshCw className="w-3.5 h-3.5" aria-hidden />
-                Retry
+                {t("adminUsers.retry")}
               </Button>
             </div>
           </div>
@@ -293,17 +305,18 @@ function AdminUserListPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <Users className="w-8 h-8 text-muted-foreground" aria-hidden />
           </div>
-          <h3 className="text-lg font-semibold">No users found</h3>
+          <h3 className="text-lg font-semibold">
+            {t("adminUsers.emptyTitle")}
+          </h3>
           <p className="mt-1 mb-6 text-sm text-muted-foreground max-w-sm">
-            Try adjusting your search or filters, or create a new user to get
-            started.
+            {t("adminUsers.emptyDesc")}
           </p>
           <Link
             to="/admin/users/create"
             className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-4 h-4" aria-hidden />
-            Add User
+            {t("adminUsers.addUser")}
           </Link>
         </div>
       )}
@@ -315,19 +328,19 @@ function AdminUserListPage() {
             {/* Table Header */}
             <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-3.5 border-b border-border bg-muted/50">
               <span className="col-span-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                User
+                {t("adminUsers.colUser")}
               </span>
               <span className="col-span-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Role
+                {t("adminUsers.colRole")}
               </span>
               <span className="col-span-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Verified
+                {t("adminUsers.colVerified")}
               </span>
               <span className="col-span-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Joined
+                {t("adminUsers.colJoined")}
               </span>
               <span className="col-span-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-end">
-                Actions
+                {t("adminUsers.colActions")}
               </span>
             </div>
 
@@ -378,7 +391,9 @@ function AdminUserListPage() {
                         />
                       </span>
                       <span className="text-muted-foreground">
-                        {user.emailVerified ? "Verified" : "Pending"}
+                        {user.emailVerified
+                          ? t("adminUsers.verified")
+                          : t("adminUsers.pending")}
                       </span>
                     </span>
                   </div>
@@ -394,7 +409,7 @@ function AdminUserListPage() {
                       <DropdownMenuTrigger asChild>
                         <button
                           className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors"
-                          aria-label="User actions"
+                          aria-label={t("adminUsers.userActions")}
                         >
                           <MoveHorizontal
                             className="w-4 h-4 text-muted-foreground"
@@ -408,7 +423,7 @@ function AdminUserListPage() {
                             to={`/admin/users/${user.id}`}
                             className="cursor-pointer"
                           >
-                            View Details
+                            {t("adminUsers.viewDetails")}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -421,7 +436,7 @@ function AdminUserListPage() {
                             setNewRole("");
                           }}
                         >
-                          Change Role
+                          {t("adminUsers.changeRole")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
@@ -432,14 +447,14 @@ function AdminUserListPage() {
                             })
                           }
                         >
-                          Delete
+                          {t("adminUsers.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <Link
                       to={`/admin/users/${user.id}`}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors"
-                      aria-label="View user details"
+                      aria-label={t("adminUsers.viewUserDetails")}
                     >
                       <ChevronRight
                         className="w-4 h-4 text-muted-foreground"
@@ -455,22 +470,22 @@ function AdminUserListPage() {
           {/* Pagination */}
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing{" "}
+              {t("adminUsers.showing")}{" "}
               <span className="font-semibold text-foreground">
                 {showingFrom}–{showingTo}
               </span>{" "}
-              of{" "}
+              {t("adminUsers.of")}{" "}
               <span className="font-semibold text-foreground">
                 {totalLabel}
               </span>{" "}
-              users
+              {t("adminUsers.users")}
             </p>
             <nav className="flex items-center gap-1" aria-label="Pagination">
               <button
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 disabled={pageNumber <= 1}
                 onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
-                aria-label="Previous page"
+                aria-label={t("adminUsers.previousPage")}
               >
                 <ChevronLeft className="w-4 h-4" aria-hidden />
               </button>
@@ -503,7 +518,7 @@ function AdminUserListPage() {
                   setPageNumber((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={pageNumber >= totalPages}
-                aria-label="Next page"
+                aria-label={t("adminUsers.nextPage")}
               >
                 <ChevronRight className="w-4 h-4" aria-hidden />
               </button>
@@ -521,21 +536,22 @@ function AdminUserListPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogTitle>{t("adminUsers.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete{" "}
-              <span className="font-semibold">{deleteTarget?.name}</span>? This
-              action cannot be undone.
+              {t("adminUsers.deleteConfirm")}{" "}
+              <span className="font-semibold">{deleteTarget?.name}</span>?{" "}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("adminUsers.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending
+                ? t("adminUsers.deleting")
+                : t("adminUsers.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -553,11 +569,13 @@ function AdminUserListPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Change Role</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("adminUsers.changeRoleTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Change the role for{" "}
-              <span className="font-semibold">{roleTarget?.name}</span>. Current
-              role:{" "}
+              {t("adminUsers.changeRoleDesc1")}{" "}
+              <span className="font-semibold">{roleTarget?.name}</span>.{" "}
+              {t("adminUsers.currentRole")}{" "}
               <span className="font-semibold capitalize">
                 {roleTarget?.currentRole}
               </span>
@@ -566,22 +584,26 @@ function AdminUserListPage() {
           <div className="py-4">
             <Select value={newRole} onValueChange={setNewRole}>
               <SelectTrigger>
-                <SelectValue placeholder="Select new role" />
+                <SelectValue placeholder={t("adminUsers.selectNewRole")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="superAdmin">Super Admin</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="superAdmin">
+                  {t("adminUsers.superAdmin")}
+                </SelectItem>
+                <SelectItem value="admin">{t("adminUsers.admin")}</SelectItem>
+                <SelectItem value="user">{t("adminUsers.user")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("adminUsers.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRoleChange}
               disabled={!newRole || updateRoleMutation.isPending}
             >
-              {updateRoleMutation.isPending ? "Updating..." : "Update Role"}
+              {updateRoleMutation.isPending
+                ? t("adminUsers.updating")
+                : t("adminUsers.updateRole")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

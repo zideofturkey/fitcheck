@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { isRouteAvailable } from "@/lib/available-routes";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -17,6 +18,7 @@ import {
   Shield,
   Sparkles,
   Target,
+  UploadCloud,
   User,
   UserCog,
   Users,
@@ -25,31 +27,34 @@ import {
 } from "lucide-react";
 
 const MOBILE_NAV = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/meals/log", icon: UtensilsCrossed, label: "Log" },
-  { to: "/food-library", icon: BookOpen, label: "Library" },
-  { to: "/meals", icon: History, label: "Meals" },
-  { to: "/profile", icon: User, label: "Profile" },
+  { to: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard" },
+  { to: "/meals/log", icon: UtensilsCrossed, labelKey: "nav.log" },
+  { to: "/food-library", icon: BookOpen, labelKey: "nav.library" },
+  { to: "/meals", icon: History, labelKey: "nav.meals" },
+  { to: "/profile", icon: User, labelKey: "nav.profile" },
 ];
 
 const SIDEBAR_MAIN = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/meals/log", icon: UtensilsCrossed, label: "Log Meal" },
-  { to: "/meals", icon: History, label: "Meal History" },
-  { to: "/food-library", icon: BookOpen, label: "Food Library" },
-  { to: "/preset-meals", icon: Circle, label: "Preset Meals" },
+  { to: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard" },
+  { to: "/meals/log", icon: UtensilsCrossed, labelKey: "nav.logMeal" },
+  { to: "/meals", icon: History, labelKey: "nav.mealHistory" },
+  { to: "/food-library", icon: BookOpen, labelKey: "nav.foodLibrary" },
+  { to: "/dishes", icon: UtensilsCrossed, labelKey: "nav.dishes" },
+  { to: "/preset-meals", icon: Circle, labelKey: "nav.presetMeals" },
 ];
 
 const SIDEBAR_INSIGHTS = [
-  { to: "/profile", icon: Target, label: "Targets" },
-  { to: "/analytics/weekly", icon: Circle, label: "Weekly Analytics" },
-  { to: "/analytics/monthly", icon: Circle, label: "Monthly Analytics" },
-  { to: "/ai-chat", icon: MessageCircle, label: "AI Chat" },
+  { to: "/profile", icon: Target, labelKey: "nav.targets" },
+  { to: "/analytics/weekly", icon: Circle, labelKey: "nav.weeklyAnalytics" },
+  { to: "/analytics/monthly", icon: Circle, labelKey: "nav.monthlyAnalytics" },
+  { to: "/ai-chat", icon: MessageCircle, labelKey: "nav.aiChat" },
 ];
 
 const SIDEBAR_ADMIN = [
-  { to: "/admin/invites", icon: MailPlus, label: "Invite Links" },
-  { to: "/admin/users", icon: Users, label: "User Management" },
+  { to: "/admin/invites", icon: MailPlus, labelKey: "nav.inviteLinks" },
+  { to: "/admin/users", icon: Users, labelKey: "nav.userManagement" },
+  { to: "/admin/suggestions", icon: Sparkles, labelKey: "nav.suggestions" },
+  { to: "/admin/bulk-import", icon: UploadCloud, labelKey: "nav.bulkImport" },
 ];
 
 function initials(name?: string) {
@@ -66,6 +71,7 @@ function initials(name?: string) {
 export default function MainLayout() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleLogout = () => {
@@ -85,7 +91,7 @@ export default function MainLayout() {
       return (
         <span
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed text-sm"
-          title="Coming soon"
+          title={t("common.comingSoon")}
         >
           <Icon className="w-5 h-5" />
           {label}
@@ -112,18 +118,20 @@ export default function MainLayout() {
             type="button"
             onClick={() => setMobileSidebarOpen(true)}
             className="w-11 h-11 flex items-center justify-center -ml-2 rounded-full hover:bg-muted transition-colors"
-            aria-label="Open menu"
+            aria-label={t("nav.openMenu")}
           >
             <Menu className="w-5 h-5 text-foreground" />
           </button>
           <Link to="/dashboard" className="flex items-center gap-2">
             <Salad className="w-5 h-5 text-primary" />
-            <h1 className="text-base font-semibold tracking-tight">FitCheck</h1>
+            <h1 className="text-base font-semibold tracking-tight">
+              {t("common.appName")}
+            </h1>
           </Link>
           <Link
             to="/profile"
             className="w-11 h-11 flex items-center justify-center -mr-2 rounded-full hover:bg-muted transition-colors relative"
-            aria-label="Profile"
+            aria-label={t("nav.profile")}
           >
             <User className="w-5 h-5 text-foreground" />
           </Link>
@@ -135,28 +143,28 @@ export default function MainLayout() {
 
         <nav className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border safe-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-            {MOBILE_NAV.map(({ to, icon: Icon, label }) =>
+            {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) =>
               isRouteAvailable(to) ? (
                 <Link
                   key={to}
                   to={to}
                   className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={label}
+                  aria-label={t(labelKey)}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-[10px] font-medium leading-none">
-                    {label}
+                    {t(labelKey)}
                   </span>
                 </Link>
               ) : (
                 <span
                   key={to}
                   className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground opacity-50 cursor-not-allowed"
-                  title="Coming soon"
+                  title={t("common.comingSoon")}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-[10px] font-medium leading-none">
-                    {label}
+                    {t(labelKey)}
                   </span>
                 </span>
               ),
@@ -176,50 +184,50 @@ export default function MainLayout() {
                   className="flex items-center gap-2 font-semibold text-lg tracking-tight text-foreground"
                 >
                   <Salad className="w-6 h-6 text-primary" />
-                  <span>FitCheck</span>
+                  <span>{t("common.appName")}</span>
                 </Link>
                 <nav className="hidden lg:flex items-center gap-1">
                   <Link
                     to="/dashboard"
                     className="px-3 py-2 rounded-md text-sm font-medium bg-muted text-foreground"
                   >
-                    Dashboard
+                    {t("nav.dashboard")}
                   </Link>
                   <Link
                     to="/meals/log"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    Log Meal
+                    {t("nav.logMeal")}
                   </Link>
                   <Link
                     to="/food-library"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    Food Library
+                    {t("nav.foodLibrary")}
                   </Link>
                   <Link
                     to="/preset-meals"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    Presets
+                    {t("nav.presets")}
                   </Link>
                   <Link
                     to="/meals"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    History
+                    {t("nav.history")}
                   </Link>
                   <Link
                     to="/analytics/weekly"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    Analytics
+                    {t("nav.analytics")}
                   </Link>
                   <Link
                     to="/ai-chat"
                     className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    AI Chat
+                    {t("nav.aiChat")}
                   </Link>
                 </nav>
               </div>
@@ -231,7 +239,7 @@ export default function MainLayout() {
                 >
                   <div className="hidden sm:block text-right">
                     <p className="text-sm font-semibold leading-tight">
-                      {user?.fullname ?? "User"}
+                      {user?.fullname ?? t("nav.profile")}
                     </p>
                     <p className="text-xs text-muted-foreground leading-tight">
                       {user?.email ?? ""}
@@ -247,8 +255,8 @@ export default function MainLayout() {
                   type="button"
                   onClick={handleLogout}
                   className="p-2 rounded-full hover:bg-muted transition-colors"
-                  aria-label="Logout"
-                  title="Sign out"
+                  aria-label={t("nav.signOut")}
+                  title={t("nav.signOut")}
                 >
                   <LogOut className="w-5 h-5 text-muted-foreground" />
                 </button>
@@ -261,39 +269,39 @@ export default function MainLayout() {
           <aside className="hidden lg:flex lg:flex-col w-64 border-r border-border bg-card overflow-y-auto">
             <nav className="flex-1 px-3 py-6 space-y-1">
               <p className="px-3 mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Main
+                {t("nav.sectionMain")}
               </p>
               {SIDEBAR_MAIN.map((item) => (
                 <SidebarLink
                   key={item.to}
                   to={item.to}
                   Icon={item.icon}
-                  label={item.label}
+                  label={t(item.labelKey)}
                 />
               ))}
               <p className="px-3 mt-8 mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Insights
+                {t("nav.sectionInsights")}
               </p>
               {SIDEBAR_INSIGHTS.map((item) => (
                 <SidebarLink
                   key={item.to}
                   to={item.to}
                   Icon={item.icon}
-                  label={item.label}
+                  label={t(item.labelKey)}
                 />
               ))}
               {(user?.roleId === "superAdmin" || user?.roleId === "admin") &&
                 SIDEBAR_ADMIN.length > 0 && (
                   <>
                     <p className="px-3 mt-8 mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5" /> Admin
+                      <Shield className="w-3.5 h-3.5" /> {t("nav.sectionAdmin")}
                     </p>
                     {SIDEBAR_ADMIN.map((item) => (
                       <SidebarLink
                         key={item.to}
                         to={item.to}
                         Icon={item.icon}
-                        label={item.label}
+                        label={t(item.labelKey)}
                       />
                     ))}
                   </>
@@ -306,7 +314,7 @@ export default function MainLayout() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">
-                    {user?.fullname ?? "User"}
+                    {user?.fullname ?? t("nav.profile")}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {user?.email ?? ""}
@@ -316,7 +324,7 @@ export default function MainLayout() {
                   type="button"
                   onClick={handleLogout}
                   className="p-1.5 rounded-md hover:bg-muted transition-colors"
-                  aria-label="Logout"
+                  aria-label={t("nav.signOut")}
                 >
                   <LogOut className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -338,17 +346,16 @@ export default function MainLayout() {
                 <div className="flex items-center gap-2 mb-3">
                   <Salad className="w-5 h-5 text-primary" />
                   <span className="font-semibold text-foreground">
-                    FitCheck
+                    {t("common.appName")}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-                  Your private, invite‑only nutrition tracker. Log meals, track
-                  macros, and get AI‑powered guidance.
+                  {t("footer.tagline")}
                 </p>
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-3 text-foreground">
-                  Product
+                  {t("footer.product")}
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
@@ -356,7 +363,7 @@ export default function MainLayout() {
                       to="/dashboard"
                       className="hover:text-foreground transition-colors"
                     >
-                      Dashboard
+                      {t("nav.dashboard")}
                     </Link>
                   </li>
                   <li>
@@ -364,7 +371,7 @@ export default function MainLayout() {
                       to="/meals/log"
                       className="hover:text-foreground transition-colors"
                     >
-                      Log Meal
+                      {t("nav.logMeal")}
                     </Link>
                   </li>
                   <li>
@@ -372,7 +379,7 @@ export default function MainLayout() {
                       to="/food-library"
                       className="hover:text-foreground transition-colors"
                     >
-                      Food Library
+                      {t("nav.foodLibrary")}
                     </Link>
                   </li>
                   <li>
@@ -380,14 +387,14 @@ export default function MainLayout() {
                       to="/ai-chat"
                       className="hover:text-foreground transition-colors"
                     >
-                      AI Chat
+                      {t("nav.aiChat")}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-3 text-foreground">
-                  Support
+                  {t("footer.support")}
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
@@ -395,7 +402,7 @@ export default function MainLayout() {
                       to="/profile"
                       className="hover:text-foreground transition-colors"
                     >
-                      Profile &amp; Targets
+                      {t("footer.profileTargets")}
                     </Link>
                   </li>
                   <li>
@@ -403,7 +410,7 @@ export default function MainLayout() {
                       to="/analytics/weekly"
                       className="hover:text-foreground transition-colors"
                     >
-                      Analytics
+                      {t("nav.analytics")}
                     </Link>
                   </li>
                 </ul>
@@ -411,7 +418,7 @@ export default function MainLayout() {
             </div>
             <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-xs text-muted-foreground">
-                &copy; 2025 FitCheck. All rights reserved.
+                {t("footer.copyright")}
               </p>
             </div>
           </div>
@@ -430,52 +437,52 @@ export default function MainLayout() {
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Salad className="w-5 h-5 text-primary" />
-                <span className="font-semibold">FitCheck</span>
+                <span className="font-semibold">{t("common.appName")}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setMobileSidebarOpen(false)}
                 className="p-1.5 rounded-md hover:bg-muted transition-colors"
-                aria-label="Close menu"
+                aria-label={t("nav.closeMenu")}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
               <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Main
+                {t("nav.sectionMain")}
               </p>
               {SIDEBAR_MAIN.map((item) => (
                 <SidebarLink
                   key={item.to}
                   to={item.to}
                   Icon={item.icon}
-                  label={item.label}
+                  label={t(item.labelKey)}
                 />
               ))}
               <p className="px-3 mt-6 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Insights
+                {t("nav.sectionInsights")}
               </p>
               {SIDEBAR_INSIGHTS.map((item) => (
                 <SidebarLink
                   key={item.to}
                   to={item.to}
                   Icon={item.icon}
-                  label={item.label}
+                  label={t(item.labelKey)}
                 />
               ))}
               {(user?.roleId === "superAdmin" || user?.roleId === "admin") &&
                 SIDEBAR_ADMIN.length > 0 && (
                   <>
                     <p className="px-3 mt-8 mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5" /> Admin
+                      <Shield className="w-3.5 h-3.5" /> {t("nav.sectionAdmin")}
                     </p>
                     {SIDEBAR_ADMIN.map((item) => (
                       <SidebarLink
                         key={item.to}
                         to={item.to}
                         Icon={item.icon}
-                        label={item.label}
+                        label={t(item.labelKey)}
                       />
                     ))}
                   </>
@@ -488,7 +495,7 @@ export default function MainLayout() {
                 onClick={() => setMobileSidebarOpen(false)}
               >
                 <User className="w-5 h-5" />
-                Profile
+                {t("nav.profile")}
               </Link>
               <button
                 type="button"
@@ -496,7 +503,7 @@ export default function MainLayout() {
                 className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-sm"
               >
                 <ArrowLeftCircle className="w-5 h-5" />
-                Sign out
+                {t("nav.signOut")}
               </button>
             </div>
           </aside>

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Camera,
   Check,
@@ -11,6 +12,7 @@ import {
   Loader,
   AlertTriangle,
   RefreshCw,
+  Languages,
 } from "lucide-react";
 import {
   useCurrentUser,
@@ -21,8 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -37,6 +38,7 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const { data: session, isLoading: sessionLoading, isError, error, refetch } =
     useCurrentUser();
   const updateProfile = useUpdateProfile();
@@ -59,12 +61,16 @@ export default function ProfilePage() {
   const [archiveConfirmation, setArchiveConfirmation] = useState("");
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
 
-  // Sync fullname from session once loaded
-  const initializedRef = useState(false);
-  if (session?.fullname && !initializedRef[0]) {
-    setFullname(session.fullname);
-    initializedRef[0] = true;
-  }
+  // Sync fullname from session once loaded — a real useRef guard, run inside
+  // an effect (not during render) so it can't clobber an in-progress edit or
+  // trigger a render-time setState loop.
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (session?.fullname && !initializedRef.current) {
+      setFullname(session.fullname);
+      initializedRef.current = true;
+    }
+  }, [session?.fullname]);
 
   const handleSaveProfile = () => {
     updateProfile.mutate(
@@ -96,6 +102,12 @@ export default function ProfilePage() {
     });
   };
 
+  const handleLanguageChange = (lng: "tr" | "en") => {
+    void i18n.changeLanguage(lng);
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
+  };
+
+  const archiveConfirmPhrase = t("profile.archiveConfirmPhrase");
   const passwordMismatch =
     confirmPassword.length > 0 && newPassword !== confirmPassword;
   const canUpdatePassword =
@@ -103,7 +115,7 @@ export default function ProfilePage() {
     newPassword.length > 0 &&
     !passwordMismatch &&
     !updatePassword.isPending;
-  const canArchive = archiveConfirmation === "ARCHIVE MY ACCOUNT";
+  const canArchive = archiveConfirmation === archiveConfirmPhrase;
 
   // Compute password strength (simple heuristic)
   const passwordStrength = (() => {
@@ -157,24 +169,19 @@ export default function ProfilePage() {
             <AlertTriangle className="w-6 h-6 text-destructive" />
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">
-            Profil bilgileri yüklenemedi
+            {t("profile.loadError")}
           </h2>
           <p className="text-sm text-muted-foreground mb-5 max-w-sm">
-            Profil bilgileriniz yüklenirken bir hata oluştu. Lütfen bağlantınızı
-            kontrol edip tekrar deneyin.
+            {t("profile.loadErrorDesc")}
             {error?.message ? (
               <span className="block mt-1 text-xs text-muted-foreground/80">
                 {error.message}
               </span>
             ) : null}
           </p>
-          <Button
-            variant="default"
-            onClick={() => refetch()}
-            className="gap-2"
-          >
+          <Button variant="default" onClick={() => refetch()} className="gap-2">
             <RefreshCw className="w-4 h-4" />
-            Tekrar dene
+            {t("common.retry")}
           </Button>
         </div>
       </div>
@@ -191,15 +198,17 @@ export default function ProfilePage() {
 
       {/* Page Header */}
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage your personal information, avatar, and security settings.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t("profile.title")}
+        </h1>
+        <p className="text-sm text-muted-foreground">{t("profile.subtitle")}</p>
       </header>
 
       {/* Avatar + Basic Info Section */}
       <section className="bg-card rounded-xl border border-border shadow-sm p-6">
-        <h2 className="text-lg font-semibold mb-6">Avatar & Details</h2>
+        <h2 className="text-lg font-semibold mb-6">
+          {t("profile.avatarDetails")}
+        </h2>
 
         <div className="flex flex-col sm:flex-row items-start gap-6">
           {/* Avatar Upload Widget */}
@@ -209,7 +218,7 @@ export default function ProfilePage() {
                 {session?.avatar ? (
                   <img
                     src={session.avatar}
-                    alt={session.fullname ?? "User avatar"}
+                    alt={session.fullname ?? t("profile.userAvatarAlt")}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -220,7 +229,7 @@ export default function ProfilePage() {
               </div>
               <button
                 className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Change avatar"
+                aria-label={t("profile.changeAvatar")}
                 onClick={() => {
                   // TODO: implement avatar upload — useUploadUserAvatar
                 }}
@@ -228,13 +237,15 @@ export default function ProfilePage() {
                 <Camera className="w-6 h-6 text-white" />
               </button>
             </div>
-            <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+            <p className="text-xs text-muted-foreground">
+              {t("profile.avatarHint")}
+            </p>
           </div>
 
           {/* Profile Form Fields */}
           <div className="flex-1 w-full space-y-4">
             <div>
-              <Label className="mb-1.5">Full Name</Label>
+              <Label className="mb-1.5">{t("profile.fullName")}</Label>
               <Input
                 type="text"
                 value={fullname}
@@ -245,7 +256,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <Label className="mb-1.5">Email</Label>
+              <Label className="mb-1.5">{t("profile.email")}</Label>
               <Input
                 type="email"
                 value={session?.email ?? ""}
@@ -253,14 +264,14 @@ export default function ProfilePage() {
                 className="bg-muted/50 text-muted-foreground cursor-not-allowed"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Email cannot be changed.
+                {t("profile.emailCannotChange")}
               </p>
             </div>
             <div>
-              <Label className="mb-1.5">Role</Label>
+              <Label className="mb-1.5">{t("profile.role")}</Label>
               <Input
                 type="text"
-                value={session?.roleId ?? "User"}
+                value={session?.roleId ?? t("profile.defaultRole")}
                 disabled
                 className="bg-muted/50 text-muted-foreground cursor-not-allowed"
               />
@@ -275,23 +286,52 @@ export default function ProfilePage() {
                 ) : (
                   <Check className="w-4 h-4" />
                 )}
-                Save Changes
+                {t("profile.saveChanges")}
               </Button>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Language Section */}
+      <section className="bg-card rounded-xl border border-border shadow-sm p-6">
+        <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
+          <Languages className="w-5 h-5 text-muted-foreground" />
+          {t("profile.language")}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          {t("profile.languageDescription")}
+        </p>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant={i18n.language === "tr" ? "default" : "secondary"}
+            onClick={() => handleLanguageChange("tr")}
+          >
+            {t("profile.languageTurkish")}
+          </Button>
+          <Button
+            type="button"
+            variant={i18n.language === "en" ? "default" : "secondary"}
+            onClick={() => handleLanguageChange("en")}
+          >
+            {t("profile.languageEnglish")}
+          </Button>
+        </div>
+      </section>
+
       {/* Password Change Section */}
       <section className="bg-card rounded-xl border border-border shadow-sm p-6">
-        <h2 className="text-lg font-semibold mb-2">Change Password</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          {t("profile.changePassword")}
+        </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Update your password to keep your account secure.
+          {t("profile.changePasswordSubtitle")}
         </p>
 
         <div className="space-y-4 max-w-md">
           <div>
-            <Label className="mb-1.5">Current Password</Label>
+            <Label className="mb-1.5">{t("profile.currentPassword")}</Label>
             <div className="relative">
               <Input
                 type={showCurrentPassword ? "text" : "password"}
@@ -303,7 +343,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Toggle visibility"
+                aria-label={t("profile.toggleVisibility")}
                 onClick={() => setShowCurrentPassword((v) => !v)}
               >
                 {showCurrentPassword ? (
@@ -315,7 +355,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <Label className="mb-1.5">New Password</Label>
+            <Label className="mb-1.5">{t("profile.newPassword")}</Label>
             <div className="relative">
               <Input
                 type={showNewPassword ? "text" : "password"}
@@ -327,7 +367,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Toggle visibility"
+                aria-label={t("profile.toggleVisibility")}
                 onClick={() => setShowNewPassword((v) => !v)}
               >
                 {showNewPassword ? (
@@ -356,7 +396,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <Label className="mb-1.5">Confirm New Password</Label>
+            <Label className="mb-1.5">{t("profile.confirmNewPassword")}</Label>
             <div className="relative">
               <Input
                 type={showConfirmPassword ? "text" : "password"}
@@ -368,7 +408,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Toggle visibility"
+                aria-label={t("profile.toggleVisibility")}
                 onClick={() => setShowConfirmPassword((v) => !v)}
               >
                 {showConfirmPassword ? (
@@ -380,7 +420,7 @@ export default function ProfilePage() {
             </div>
             {passwordMismatch && (
               <p className="text-xs text-destructive mt-1">
-                Passwords do not match.
+                {t("profile.passwordsDoNotMatch")}
               </p>
             )}
           </div>
@@ -392,21 +432,24 @@ export default function ProfilePage() {
                 ) : (
                   <Lock className="w-4 h-4" />
                 )}
-                Update Password
+                {t("profile.updatePassword")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Change password?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("profile.changePasswordConfirmTitle")}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will update your account password. You will remain logged
-                  in.
+                  {t("profile.changePasswordConfirmDesc")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleUpdatePassword}>
-                  {updatePassword.isPending ? "Updating..." : "Update Password"}
+                  {updatePassword.isPending
+                    ? t("profile.updating")
+                    : t("profile.updatePassword")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -419,11 +462,10 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-destructive">
-              Archive Account
+              {t("profile.archiveAccount")}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Temporarily deactivate your account. You can restore it within 30
-              days by logging in.
+              {t("profile.archiveAccountDesc")}
             </p>
           </div>
           <AlertDialog
@@ -433,22 +475,20 @@ export default function ProfilePage() {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="shrink-0">
                 <Archive className="w-4 h-4" />
-                Archive Profile
+                {t("profile.archiveProfile")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-destructive">
-                  Archive your account?
+                  {t("profile.archiveConfirmTitle")}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
-                  <span>
-                    This will temporarily deactivate your account. Your data is
-                    kept for 1 month, and logging in again within that period
-                    will restore your account automatically.
-                  </span>
+                  <span>{t("profile.archiveConfirmDesc1")}</span>
                   <span className="block font-semibold text-foreground">
-                    Type <strong>"ARCHIVE MY ACCOUNT"</strong> to confirm:
+                    {t("profile.archiveConfirmTypeLabel")}{" "}
+                    <strong>"{archiveConfirmPhrase}"</strong>{" "}
+                    {t("profile.archiveConfirmTypeSuffix")}
                   </span>
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -456,7 +496,7 @@ export default function ProfilePage() {
                 <Input
                   value={archiveConfirmation}
                   onChange={(e) => setArchiveConfirmation(e.target.value)}
-                  placeholder='Type "ARCHIVE MY ACCOUNT"'
+                  placeholder={`"${archiveConfirmPhrase}"`}
                   className={
                     archiveConfirmation.length > 0 && !canArchive
                       ? "border-destructive"
@@ -466,7 +506,7 @@ export default function ProfilePage() {
               </div>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setArchiveConfirmation("")}>
-                  Cancel
+                  {t("common.cancel")}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleArchive}
@@ -476,7 +516,7 @@ export default function ProfilePage() {
                   {archiveProfile.isPending ? (
                     <Loader className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
-                  Archive Profile
+                  {t("profile.archiveProfile")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -485,11 +525,11 @@ export default function ProfilePage() {
         <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
           <Info className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-sm text-muted-foreground">
-            Archiving requires typing{" "}
-            <strong className="text-foreground">"ARCHIVE MY ACCOUNT"</strong> in
-            a confirmation dialog. After archiving, your data is kept for 1
-            month. Logging in again within that period will restore your account
-            automatically.
+            {t("profile.archiveInfo1")}{" "}
+            <strong className="text-foreground">
+              "{archiveConfirmPhrase}"
+            </strong>{" "}
+            {t("profile.archiveInfo2")}
           </p>
         </div>
       </section>

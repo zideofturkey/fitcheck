@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   TicketCheck,
@@ -35,6 +36,7 @@ interface InviteMetadata {
 }
 
 const RegisterWithInvitePage = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const inviteCodeFromUrl = searchParams.get("code") ?? "";
@@ -118,19 +120,19 @@ const RegisterWithInvitePage = () => {
   const validateForm = (): boolean => {
     const errors: string[] = [];
     if (password.length < 8) {
-      errors.push("Password must be at least 8 characters");
+      errors.push(t("register.passwordMinLength"));
     }
     if (password !== confirmPassword) {
-      errors.push("Passwords do not match");
+      errors.push(t("register.passwordMismatch"));
     }
     if (!fullName.trim()) {
-      errors.push("Full name is required");
+      errors.push(t("register.fullNameRequired"));
     }
     if (!email.trim()) {
-      errors.push("Email is required");
+      errors.push(t("register.emailRequired"));
     }
     if (!agreedToTerms) {
-      errors.push("You must agree to the Terms of Service and Privacy Policy");
+      errors.push(t("register.mustAgreeTerms"));
     }
     setValidationErrors(errors);
     return errors.length === 0;
@@ -159,7 +161,7 @@ const RegisterWithInvitePage = () => {
               ? String((err as { message?: unknown }).message)
               : err instanceof Error
                 ? err.message
-                : "Registration failed. Please try again.";
+                : t("register.registrationFailed");
           setValidationErrors([message]);
         },
       },
@@ -232,22 +234,20 @@ const RegisterWithInvitePage = () => {
               <CloudOff className="w-8 h-8 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold tracking-tight mb-2">
-              This invite has expired
+              {t("register.expiredTitle")}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              The invitation link you used is no longer valid. Invites have a
-              limited validity period for security.
+              {t("register.expiredDesc")}
             </p>
             <Link
               to="/login"
               className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-sm hover:opacity-95 transition-opacity"
             >
               <LogIn className="w-4 h-4" />
-              Back to Sign In
+              {t("register.backToSignIn")}
             </Link>
             <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
-              If you believe this is an error, please contact the person who
-              invited you.
+              {t("register.expiredContact")}
             </p>
           </div>
         </div>
@@ -265,21 +265,20 @@ const RegisterWithInvitePage = () => {
               <Ban className="w-8 h-8 text-muted-foreground" />
             </div>
             <h2 className="text-xl font-bold tracking-tight mb-2">
-              Invite link is no longer valid
+              {t("register.invalidTitle")}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              This invitation has been revoked or has already been used. Each
-              invite link can only be used a limited number of times.
+              {t("register.invalidDesc")}
             </p>
             <Link
               to="/login"
               className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl border border-border text-foreground font-semibold text-sm hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Sign In
+              {t("register.backToSignIn")}
             </Link>
             <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
-              Need a new invitation? Reach out to the FitCheck operator.
+              {t("register.invalidContact")}
             </p>
           </div>
         </div>
@@ -298,14 +297,13 @@ const RegisterWithInvitePage = () => {
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to sign in
+            {t("register.backToSignInLink")}
           </Link>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Create your account
+            {t("register.createAccount")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
-            Complete your registration to start tracking your nutrition
-            privately.
+            {t("register.registerSubtitle")}
           </p>
         </div>
 
@@ -314,7 +312,7 @@ const RegisterWithInvitePage = () => {
           <div className="flex items-start gap-3 p-4 rounded-xl border border-destructive/30 bg-destructive/5 text-destructive text-sm mb-6">
             <Circle className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">Please fix the following errors:</p>
+              <p className="font-medium">{t("register.fixErrors")}</p>
               <ul className="mt-1 list-disc list-inside text-sm opacity-90 space-y-0.5">
                 {validationErrors.map((err, i) => (
                   <li key={i}>{err}</li>
@@ -333,32 +331,34 @@ const RegisterWithInvitePage = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-sm text-foreground">
-                  Invitation Details
+                  {t("register.invitationDetails")}
                 </h3>
                 <div className="mt-3 space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground shrink-0">For:</span>
+                    <span className="text-muted-foreground shrink-0">
+                      {t("register.for")}
+                    </span>
                     <span className="font-medium text-foreground truncate">
                       {inviteMetadata.invitedEmail}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground shrink-0">
-                      Type:
+                      {t("register.type")}
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-xs font-medium">
                       <UserCheck className="w-3 h-3" />
                       {inviteMetadata.usageMode === "singleUse"
-                        ? "Single Use"
-                        : "Multi Use"}
+                        ? t("register.singleUse")
+                        : t("register.multiUse")}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground shrink-0">
-                      Expires:
+                      {t("register.expires")}
                     </span>
                     <span className="font-medium text-foreground">
-                      {inviteMetadata.expiresAt ?? "No expiry"}
+                      {inviteMetadata.expiresAt ?? t("register.noExpiry")}
                     </span>
                   </div>
                 </div>
@@ -366,7 +366,7 @@ const RegisterWithInvitePage = () => {
             </div>
             <div className="mt-4 pt-4 border-t border-border">
               <p className="text-xs text-muted-foreground mb-2">
-                Invite code (keep private):
+                {t("register.inviteCodeLabel")}
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 bg-muted text-foreground px-3 py-2 rounded-lg text-sm font-mono tracking-wide truncate select-all">
@@ -374,7 +374,7 @@ const RegisterWithInvitePage = () => {
                 </code>
                 <button
                   type="button"
-                  aria-label="Copy invite code"
+                  aria-label={t("register.copyCodeAria")}
                   className="w-9 h-9 flex items-center justify-center rounded-lg border border-border hover:bg-muted transition-colors shrink-0"
                   onClick={handleCopyCode}
                 >
@@ -401,7 +401,7 @@ const RegisterWithInvitePage = () => {
               htmlFor="fullname"
               className="block text-sm font-medium text-foreground"
             >
-              Full Name
+              {t("register.fullName")}
             </Label>
             <Input
               type="text"
@@ -421,7 +421,7 @@ const RegisterWithInvitePage = () => {
               htmlFor="email"
               className="block text-sm font-medium text-foreground"
             >
-              Email Address
+              {t("register.emailAddress")}
             </Label>
             <Input
               type="email"
@@ -434,7 +434,7 @@ const RegisterWithInvitePage = () => {
               className="w-full h-11 px-4 rounded-xl"
             />
             <p className="text-xs text-muted-foreground">
-              Pre-filled from your invitation. You can change it.
+              {t("register.emailPrefilled")}
             </p>
           </div>
 
@@ -444,14 +444,14 @@ const RegisterWithInvitePage = () => {
               htmlFor="password"
               className="block text-sm font-medium text-foreground"
             >
-              Password
+              {t("register.password")}
             </Label>
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                placeholder="At least 8 characters"
+                placeholder={t("register.passwordPlaceholder")}
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -459,7 +459,11 @@ const RegisterWithInvitePage = () => {
               />
               <button
                 type="button"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword
+                    ? t("register.hidePassword")
+                    : t("register.showPassword")
+                }
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
@@ -490,13 +494,13 @@ const RegisterWithInvitePage = () => {
               htmlFor="confirm-password"
               className="block text-sm font-medium text-foreground"
             >
-              Confirm Password
+              {t("register.confirmPassword")}
             </Label>
             <Input
               type="password"
               id="confirm-password"
               name="confirm-password"
-              placeholder="Re-enter your password"
+              placeholder={t("register.confirmPasswordPlaceholder")}
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -520,15 +524,14 @@ const RegisterWithInvitePage = () => {
               )}
             </button>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              I agree to the{" "}
               <span className="text-foreground font-medium">
-                Terms of Service
+                {t("register.agreeTerms1")}
               </span>{" "}
-              and{" "}
+              {t("register.agreeTermsText")}{" "}
               <span className="text-foreground font-medium">
-                Privacy Policy
+                {t("register.agreeTerms2")}
               </span>
-              . I understand my nutrition data is private and only visible to me.
+              {t("register.agreeTermsSuffix")}
             </p>
           </div>
 
@@ -541,24 +544,24 @@ const RegisterWithInvitePage = () => {
             {registerMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Creating Account…
+                {t("register.creatingAccount")}
               </span>
             ) : (
               <>
                 <UserPlus className="w-4 h-4" />
-                Create Account
+                {t("register.createAccountBtn")}
               </>
             )}
           </Button>
 
           {/* Login link */}
           <p className="text-center text-sm text-muted-foreground pt-1">
-            Already have an account?{" "}
+            {t("register.alreadyHaveAccount")}{" "}
             <Link
               to="/login"
               className="text-primary font-medium hover:underline"
             >
-              Sign in
+              {t("register.signIn")}
             </Link>
           </p>
         </form>
@@ -566,8 +569,7 @@ const RegisterWithInvitePage = () => {
         {/* Footer Note */}
         <p className="text-center text-xs text-muted-foreground mt-6 px-4">
           <ShieldCheck className="w-3.5 h-3.5 inline-block align-text-bottom mr-1 text-primary" />
-          Your account will be private and isolated. Only you can see your
-          nutrition data.
+          {t("register.footerNote")}
         </p>
       </div>
     </main>

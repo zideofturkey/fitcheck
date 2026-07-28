@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Salad,
   Mail,
@@ -19,6 +20,7 @@ import { Label } from "@/components/ui/label";
 const LoginPage = () => {
   const navigate = useNavigate();
   const loginMutation = useLogin();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("admin@fitcheck.com");
   const [password, setPassword] = useState("superadmin");
@@ -54,9 +56,11 @@ const LoginPage = () => {
           <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Salad className="w-7 h-7 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t("login.welcomeBack")}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1.5">
-            Sign in to your private nutrition tracker
+            {t("login.subtitle")}
           </p>
         </div>
 
@@ -64,7 +68,7 @@ const LoginPage = () => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-sm font-medium">
-              Email address
+              {t("login.emailAddress")}
             </Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -84,13 +88,13 @@ const LoginPage = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="password" className="text-sm font-medium">
-                Password
+                {t("login.password")}
               </Label>
               <Link
                 to="/forgot-password"
                 className="text-xs text-muted-foreground hover:text-primary transition-colors"
               >
-                Forgot?
+                {t("login.forgot")}
               </Link>
             </div>
             <div className="relative">
@@ -99,7 +103,7 @@ const LoginPage = () => {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder={t("login.enterPassword")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
@@ -107,7 +111,7 @@ const LoginPage = () => {
               />
               <button
                 type="button"
-                aria-label="Toggle password visibility"
+                aria-label={t("login.toggleVisibility")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
                 onClick={togglePasswordVisibility}
               >
@@ -130,7 +134,7 @@ const LoginPage = () => {
               htmlFor="remember"
               className="text-sm text-muted-foreground cursor-pointer"
             >
-              Keep me signed in
+              {t("login.keepSignedIn")}
             </Label>
           </div>
 
@@ -138,7 +142,7 @@ const LoginPage = () => {
             <p className="text-sm text-destructive">
               {loginMutation.error instanceof Error
                 ? loginMutation.error.message
-                : "Login failed. Please check your credentials."}
+                : t("login.loginFailed")}
             </p>
           )}
 
@@ -152,21 +156,23 @@ const LoginPage = () => {
             ) : (
               <LogIn className="w-4 h-4" />
             )}
-            Sign in
+            {t("login.signIn")}
           </Button>
         </form>
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground font-medium">or</span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {t("login.or")}
+          </span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Quick-fill SuperAdmin */}
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-3">
-            Demo credentials pre-filled
+            {t("login.demoCredentials")}
           </p>
           <button
             type="button"
@@ -174,19 +180,19 @@ const LoginPage = () => {
             onClick={fillSuperAdmin}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            Use SuperAdmin credentials
+            {t("login.useSuperAdmin")}
           </button>
         </div>
       </div>
 
       {/* Bottom link */}
       <p className="text-center text-sm text-muted-foreground mt-6">
-        Don't have an account?&nbsp;
+        {t("login.noAccount")}&nbsp;
         <Link
           to="/register"
           className="font-medium text-primary hover:underline underline-offset-4"
         >
-          Register via invite
+          {t("login.registerViaInvite")}
         </Link>
       </p>
     </div>

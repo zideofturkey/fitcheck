@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, CircleCheck, Shield, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import {
 } from "@/hooks/api/use-auth";
 
 export default function TwoFactorAuthenticationPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -83,10 +85,10 @@ export default function TwoFactorAuthenticationPage() {
           <Shield className="w-8 h-8 text-primary" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight mb-2">
-          Two-Factor Authentication
+          {t("twoFactor.title")}
         </h2>
         <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-          Enter the 6-digit verification code sent to your email to continue.
+          {t("twoFactor.subtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -113,7 +115,7 @@ export default function TwoFactorAuthenticationPage() {
           {complete2FA.error && (
             <p className="text-sm text-destructive">
               {(complete2FA.error as { message?: string })?.message ||
-                "Verification failed. Please try again."}
+                t("twoFactor.verifyFailed")}
             </p>
           )}
 
@@ -124,19 +126,21 @@ export default function TwoFactorAuthenticationPage() {
           >
             {isLoading && <Loader className="w-4 h-4 animate-spin" />}
             {!isLoading && <CircleCheck className="w-4 h-4" />}
-            Verify and continue
+            {t("twoFactor.verifyAndContinue")}
           </Button>
         </form>
 
         <p className="text-xs text-muted-foreground mt-5">
-          Didn't receive the code?{" "}
+          {t("twoFactor.notReceived")}{" "}
           <button
             type="button"
             onClick={handleResend}
             disabled={start2FA.isPending}
             className="underline hover:text-foreground transition-colors font-medium disabled:opacity-50"
           >
-            {start2FA.isPending ? "Resending..." : "Resend code"}
+            {start2FA.isPending
+              ? t("twoFactor.resending")
+              : t("twoFactor.resendCode")}
           </button>
         </p>
       </div>
@@ -147,7 +151,7 @@ export default function TwoFactorAuthenticationPage() {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to sign in
+          {t("twoFactor.backToSignIn")}
         </Link>
       </div>
     </div>

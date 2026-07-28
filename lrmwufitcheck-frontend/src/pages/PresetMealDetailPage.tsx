@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   ChevronRight,
@@ -7,7 +8,6 @@ import {
   Loader,
   Plus,
   Trash2,
-  UtensilsCrossed,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ function NutritionTile({
 }
 
 export default function PresetMealDetailPage() {
+  const { t } = useTranslation();
   const { presetMealId } = useParams<{ presetMealId: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetPresetMeal(presetMealId);
@@ -63,7 +64,7 @@ export default function PresetMealDetailPage() {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader className="w-5 h-5 animate-spin mr-2" />
-        Yükleniyor…
+        {t("presetMealDetail.loading")}
       </div>
     );
   }
@@ -71,12 +72,14 @@ export default function PresetMealDetailPage() {
   if (error || !preset) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-muted-foreground">Preset bulunamadı.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("presetMealDetail.notFound")}
+        </p>
         <Link
           to="/preset-meals"
           className="mt-3 inline-block text-sm text-primary hover:underline"
         >
-          Preset listesine dön
+          {t("presetMealDetail.backToList")}
         </Link>
       </Card>
     );
@@ -89,7 +92,7 @@ export default function PresetMealDetailPage() {
   };
 
   const handleRemoveLine = (lineId: string) => {
-    if (!confirm("Remove this food from the preset?")) return;
+    if (!confirm(t("presetMealDetail.removeConfirm"))) return;
     deleteLineMutation.mutate({
       presetMealId: preset.id,
       presetLineId: lineId,
@@ -139,7 +142,7 @@ export default function PresetMealDetailPage() {
             className="hover:text-foreground transition-colors flex items-center gap-1"
           >
             <Layers className="w-3.5 h-3.5" aria-hidden="true" />
-            Presets
+            {t("presetMealDetail.presets")}
           </Link>
           <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
           <span className="text-foreground font-medium truncate">
@@ -154,7 +157,7 @@ export default function PresetMealDetailPage() {
                 to="/preset-meals"
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
               >
-                <ArrowLeft className="w-4 h-4" /> Back
+                <ArrowLeft className="w-4 h-4" /> {t("presetMealDetail.back")}
               </Link>
               <h1 className="text-2xl font-semibold tracking-tight truncate">
                 {preset.templateName}
@@ -172,7 +175,9 @@ export default function PresetMealDetailPage() {
                 disabled={deleteMutation.isPending}
               >
                 <Trash2 className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Delete</span>
+                <span className="hidden sm:inline">
+                  {t("presetMealDetail.delete")}
+                </span>
               </Button>
             </div>
           </div>
@@ -182,32 +187,36 @@ export default function PresetMealDetailPage() {
           <Card className="rounded-xl border-border shadow-sm">
             <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-                Preset Nutrition Totals
+                {t("presetMealDetail.nutritionTotals")}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <NutritionTile
-                  label="Calories"
+                  label={t("presetMealDetail.calories")}
                   value={preset.totalCalories}
                   unit="kcal"
                 />
                 <NutritionTile
-                  label="Protein"
+                  label={t("presetMealDetail.protein")}
                   value={preset.totalProtein}
                   unit="g"
                 />
                 <NutritionTile
-                  label="Carbs"
+                  label={t("presetMealDetail.carbs")}
                   value={preset.totalCarbohydrates}
                   unit="g"
                 />
-                <NutritionTile label="Fat" value={preset.totalFat} unit="g" />
                 <NutritionTile
-                  label="Sugar"
+                  label={t("presetMealDetail.fat")}
+                  value={preset.totalFat}
+                  unit="g"
+                />
+                <NutritionTile
+                  label={t("presetMealDetail.sugar")}
                   value={preset.totalSugar}
                   unit="g"
                 />
                 <NutritionTile
-                  label="Fiber"
+                  label={t("presetMealDetail.fiber")}
                   value={preset.totalFiber}
                   unit="g"
                 />
@@ -217,9 +226,11 @@ export default function PresetMealDetailPage() {
         </section>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold tracking-tight">Food Items</h2>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t("presetMealDetail.foodItems")}
+          </h2>
           <span className="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {lines.length} {lines.length === 1 ? "item" : "items"}
+            {t("presetMealDetail.item", { count: lines.length })}
           </span>
         </div>
 
@@ -238,37 +249,49 @@ export default function PresetMealDetailPage() {
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
                     <div>
-                      <span className="text-xs text-muted-foreground">Cal</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.calories")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineCalories}
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Pro</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.protein")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineProtein}g
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Car</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.carbs")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineCarbohydrates}g
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Fat</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.fat")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineFat}g
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Sug</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.sugar")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineSugar}g
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Fib</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("presetMealDetail.fiber")}
+                      </span>
                       <span className="text-sm font-medium block">
                         {line.lineFiber}g
                       </span>
@@ -279,7 +302,9 @@ export default function PresetMealDetailPage() {
                   type="button"
                   onClick={() => handleRemoveLine(line.id)}
                   className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9 flex-shrink-0"
-                  aria-label={`Remove ${line.lineFoodName}`}
+                  aria-label={t("presetMealDetail.removeAria", {
+                    name: line.lineFoodName,
+                  })}
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -288,7 +313,7 @@ export default function PresetMealDetailPage() {
           ))}
           {lines.length === 0 && (
             <Card className="p-6 text-center text-sm text-muted-foreground">
-              No items in this preset yet.
+              {t("presetMealDetail.noItems")}
             </Card>
           )}
         </section>
@@ -306,9 +331,11 @@ export default function PresetMealDetailPage() {
             <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
               <Plus className="w-6 h-6 text-primary" aria-hidden="true" />
             </div>
-            <p className="font-semibold text-foreground">Add Food Item</p>
+            <p className="font-semibold text-foreground">
+              {t("presetMealDetail.addFoodItem")}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Search your food library to add more items
+              {t("presetMealDetail.addFoodHint")}
             </p>
           </button>
         </section>
@@ -324,12 +351,14 @@ export default function PresetMealDetailPage() {
           />
           <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <h2 className="text-lg font-semibold">Add Food</h2>
+              <h2 className="text-lg font-semibold">
+                {t("presetMealDetail.addFood")}
+              </h2>
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
                 className="rounded-full p-1.5 hover:bg-muted"
-                aria-label="Close"
+                aria-label={t("presetMealDetail.closeAria")}
               >
                 <X className="size-5" />
               </button>
@@ -337,7 +366,7 @@ export default function PresetMealDetailPage() {
             <div className="p-4 border-b border-border">
               <input
                 type="search"
-                placeholder="Search foods..."
+                placeholder={t("presetMealDetail.searchFoods")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
@@ -360,15 +389,15 @@ export default function PresetMealDetailPage() {
                   >
                     <p className="text-sm font-medium">{food.foodName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {food.caloriePer100g} kcal · {food.proteinPer100g}g protein
-                      / 100g
+                      {food.caloriePer100g} kcal · {food.proteinPer100g}g{" "}
+                      {t("presetMealDetail.protein").toLowerCase()} / 100g
                     </p>
                   </button>
                 );
               })}
               {(foodData?.foodItems ?? []).length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  No foods found.
+                  {t("presetMealDetail.noFoodsFound")}
                 </p>
               )}
             </div>
@@ -378,7 +407,7 @@ export default function PresetMealDetailPage() {
               <div className="border-t border-border p-4 space-y-3 bg-muted/30">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">
-                    Gram miktarı
+                    {t("presetMealDetail.gramAmount")}
                   </label>
                   <div className="relative">
                     <input
@@ -397,37 +426,49 @@ export default function PresetMealDetailPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Kalori</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.calories")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.calories} kcal
                     </p>
                   </div>
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Protein</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.protein")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.protein} g
                     </p>
                   </div>
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Karb</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.carbs")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.carbs} g
                     </p>
                   </div>
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Yağ</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.fat")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.fat} g
                     </p>
                   </div>
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Şeker</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.sugar")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.sugar} g
                     </p>
                   </div>
                   <div className="rounded-md bg-card border border-border p-2">
-                    <p className="text-muted-foreground">Lif</p>
+                    <p className="text-muted-foreground">
+                      {t("presetMealDetail.fiber")}
+                    </p>
                     <p className="font-semibold text-foreground">
                       {preview.fiber} g
                     </p>
@@ -440,8 +481,8 @@ export default function PresetMealDetailPage() {
                   onClick={() => handleAddFood(selectedFood.id)}
                 >
                   {addLineMutation.isPending
-                    ? "Ekleniyor…"
-                    : `${grams}g Ekle`}
+                    ? t("presetMealDetail.adding")
+                    : t("presetMealDetail.addGrams", { grams })}
                 </Button>
               </div>
             )}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   RefreshCw,
@@ -20,6 +21,7 @@ import {
 const COOLDOWN_SECONDS = 60;
 
 export default function EmailVerificationPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -50,9 +52,9 @@ export default function EmailVerificationPage() {
         setCooldown(COOLDOWN_SECONDS);
       },
       onError: (err: any) =>
-        setError(err?.message || "Failed to send verification code."),
+        setError(err?.message || t("emailVerification.sendCodeFailed")),
     });
-  }, [email, startVerification]);
+  }, [email, startVerification, t]);
 
   const handleResend = useCallback(() => {
     if (cooldown > 0 || !email.trim()) return;
@@ -64,9 +66,9 @@ export default function EmailVerificationPage() {
         setCooldown(COOLDOWN_SECONDS);
       },
       onError: (err: any) =>
-        setError(err?.message || "Failed to resend verification code."),
+        setError(err?.message || t("emailVerification.resendCodeFailed")),
     });
-  }, [cooldown, email, startVerification, codeIndex]);
+  }, [cooldown, email, startVerification, codeIndex, t]);
 
   const handleCodeChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
@@ -84,8 +86,7 @@ export default function EmailVerificationPage() {
             onSuccess: () => navigate("/login", { state: { verified: true } }),
             onError: (err: any) => {
               setError(
-                err?.message ||
-                  "The code you entered is incorrect or has expired. Please try again.",
+                err?.message || t("emailVerification.codeInvalid"),
               );
               setCode(["", "", "", "", "", ""]);
               inputRefs.current[0]?.focus();
@@ -115,10 +116,10 @@ export default function EmailVerificationPage() {
               <Salad className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight mb-2">
-              Verify Your Email
+              {t("emailVerification.title")}
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              Enter your email address to receive a verification code.
+              {t("emailVerification.subtitle")}
             </p>
             <div className="w-full space-y-4">
               <Input
@@ -145,8 +146,8 @@ export default function EmailVerificationPage() {
                 disabled={!email.trim() || startVerification.isPending}
               >
                 {startVerification.isPending
-                  ? "Sending..."
-                  : "Send Verification Code"}
+                  ? t("emailVerification.sending")
+                  : t("emailVerification.sendCode")}
               </Button>
             </div>
             <div className="border-t border-border mt-6 pt-5 text-center w-full">
@@ -155,7 +156,7 @@ export default function EmailVerificationPage() {
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                Back to sign in
+                {t("emailVerification.backToSignIn")}
               </Link>
             </div>
           </div>
@@ -167,9 +168,11 @@ export default function EmailVerificationPage() {
                 alt="FitCheck"
                 className="h-10 w-auto mb-4"
               />
-              <h1 className="text-xl font-semibold">Check Your Email</h1>
+              <h1 className="text-xl font-semibold">
+                {t("emailVerification.checkEmail")}
+              </h1>
               <p className="text-sm text-muted-foreground text-center mt-1">
-                We sent a 6-digit code to{" "}
+                {t("emailVerification.sentCode")}{" "}
                 <span className="font-medium text-foreground">{email}</span>
               </p>
             </div>
@@ -178,7 +181,8 @@ export default function EmailVerificationPage() {
               <div className="flex items-center justify-center">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold tracking-wide">
                   <Hash className="w-3.5 h-3.5" />
-                  Code index: <span className="font-mono">{codeIndex}</span>
+                  {t("emailVerification.codeIndex")}{" "}
+                  <span className="font-mono">{codeIndex}</span>
                 </span>
               </div>
 
@@ -212,11 +216,11 @@ export default function EmailVerificationPage() {
                   <RefreshCw
                     className={`w-3.5 h-3.5 ${startVerification.isPending ? "animate-spin" : ""}`}
                   />
-                  Resend code
+                  {t("emailVerification.resendCode")}
                 </button>
                 {cooldown > 0 && (
                   <span className="text-muted-foreground">
-                    Resend available in{" "}
+                    {t("emailVerification.resendAvailable")}{" "}
                     <span className="font-mono font-medium text-foreground">
                       {cooldown}s
                     </span>
@@ -227,13 +231,13 @@ export default function EmailVerificationPage() {
               {secretCode && (
                 <div className="rounded-xl border border-dashed border-border bg-muted/50 p-3 text-center">
                   <p className="text-[11px] text-muted-foreground mb-1.5 font-semibold uppercase tracking-wider">
-                    Dev mode — secret code
+                    {t("emailVerification.devMode")}
                   </p>
                   <code className="text-lg font-mono font-bold text-foreground tracking-[0.3em] select-all">
                     {secretCode}
                   </code>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    Visible only in test Copy and paste this code.
+                    {t("emailVerification.devModeHint")}
                   </p>
                 </div>
               )}
@@ -248,13 +252,13 @@ export default function EmailVerificationPage() {
 
             <div className="text-center mt-6">
               <p className="text-xs text-muted-foreground">
-                Didn't receive the email? Check your spam folder or{" "}
+                {t("emailVerification.notReceived")}{" "}
                 <button
                   type="button"
                   className="text-primary hover:underline font-medium"
                   onClick={() => setStep("email")}
                 >
-                  try a different email
+                  {t("emailVerification.tryDifferentEmail")}
                 </button>
                 .
               </p>
@@ -266,7 +270,7 @@ export default function EmailVerificationPage() {
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                Back to sign in
+                {t("emailVerification.backToSignIn")}
               </Link>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Bell,
@@ -13,13 +14,14 @@ import {
 } from "lucide-react";
 
 export default function NotFoundPage() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col min-h-screen">
       {/* MOBILE TOP HEADER */}
       <header className="md:hidden fixed top-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-b border-border h-14 flex items-center px-4 gap-3">
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
@@ -28,7 +30,7 @@ export default function NotFoundPage() {
         </h1>
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label="Notifications"
+          aria-label={t("system.notifications")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -52,7 +54,7 @@ export default function NotFoundPage() {
                 to="/"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
               >
-                House
+                {t("system.home")}
               </Link>
               <a
                 href="#"
@@ -74,14 +76,14 @@ export default function NotFoundPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {t("system.signIn")}
             </Link>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
             >
               <Mail className="w-4 h-4" />
-              Have an Invite
+              {t("system.haveInvite")}
             </Link>
           </div>
         </div>
@@ -115,11 +117,10 @@ export default function NotFoundPage() {
                 />
 
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                  Page not found
+                  {t("notFound.title")}
                 </h1>
                 <p className="text-sm md:text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  This meal didn't make it to the log. The page you're looking
-                  for doesn't exist or may have been moved.
+                  {t("notFound.message")}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -128,14 +129,14 @@ export default function NotFoundPage() {
                     className="inline-flex items-center gap-2 h-11 px-6 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
                   >
                     <House className="w-4 h-4" />
-                    Back to House
+                    {t("notFound.backToHome")}
                   </Link>
                   <Link
                     to="/login"
                     className="inline-flex items-center gap-2 h-11 px-6 text-sm font-semibold rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors"
                   >
                     <LogIn className="w-4 h-4" />
-                    Sign In
+                    {t("system.signIn")}
                   </Link>
                 </div>
               </div>
@@ -245,7 +246,7 @@ export default function NotFoundPage() {
           </div>
         </div>
         <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© 2025 FitCheck. All rights reserved.</p>
+          <p>{t("system.copyright")}</p>
           <div className="flex items-center gap-4">
             <a
               href="#"
@@ -286,35 +287,35 @@ export default function NotFoundPage() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-primary transition-colors"
           >
             <House className="w-5 h-5" />
-            <span className="text-[10px] font-medium">House</span>
+            <span className="text-[10px] font-medium">{t("system.home")}</span>
           </Link>
           <Link
             to="/meals"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Utensils className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Meals</span>
+            <span className="text-[10px] font-medium">{t("system.meals")}</span>
           </Link>
           <Link
             to="/dashboard"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <BarChart3 className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Progress</span>
+            <span className="text-[10px] font-medium">{t("system.progress")}</span>
           </Link>
           <Link
             to="/ai-sessions"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium">AI</span>
+            <span className="text-[10px] font-medium">{t("system.ai")}</span>
           </Link>
           <Link
             to="/profile"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Profile</span>
+            <span className="text-[10px] font-medium">{t("system.profile")}</span>
           </Link>
         </div>
       </nav>

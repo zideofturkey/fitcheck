@@ -15,15 +15,17 @@ import {
   House,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function InviteInvalidPage() {
+  const { t } = useTranslation();
   return (
     <>
       {/* MOBILE TOP HEADER */}
       <header className="md:hidden fixed top-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-b border-border h-14 flex items-center px-4 gap-3">
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label="Go back"
+          aria-label={t("system.goBack")}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
@@ -32,7 +34,7 @@ export default function InviteInvalidPage() {
         </h1>
         <button
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label="Notifications"
+          aria-label={t("system.notifications")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -56,7 +58,7 @@ export default function InviteInvalidPage() {
                 to="/"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
               >
-                House
+                {t("system.home")}
               </Link>
               <Link
                 to="/welcome"
@@ -78,14 +80,14 @@ export default function InviteInvalidPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {t("system.signIn")}
             </Link>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
             >
               <Mail className="w-4 h-4" />
-              Request Invite
+              {t("system.requestInvite")}
             </Link>
           </div>
         </div>
@@ -105,12 +107,11 @@ export default function InviteInvalidPage() {
               </div>
 
               <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                Invite link is invalid
+                {t("inviteInvalid.title")}
               </h1>
 
               <p className="mt-3 text-sm text-muted-foreground max-w-prose">
-                This invite link is no longer valid. It may have expired,
-                reached its usage limit, or been revoked.
+                {t("inviteInvalid.message")}
               </p>
 
               {/* Status illustration cards */}
@@ -118,10 +119,10 @@ export default function InviteInvalidPage() {
                 <div className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4">
                   <Clock className="size-5 text-chart-4" aria-hidden="true" />
                   <span className="text-xs font-medium text-foreground">
-                    Expired
+                    {t("inviteInvalid.expired")}
                   </span>
                   <span className="text-[11px] text-muted-foreground text-center">
-                    After a set time
+                    {t("inviteInvalid.expiredDesc")}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4">
@@ -130,33 +131,33 @@ export default function InviteInvalidPage() {
                     aria-hidden="true"
                   />
                   <span className="text-xs font-medium text-foreground">
-                    Exhausted
+                    {t("inviteInvalid.exhausted")}
                   </span>
                   <span className="text-[11px] text-muted-foreground text-center">
-                    Max uses reached
+                    {t("inviteInvalid.exhaustedDesc")}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-4">
                   <Ban className="size-5 text-destructive" aria-hidden="true" />
                   <span className="text-xs font-medium text-foreground">
-                    Revoked
+                    {t("inviteInvalid.revoked")}
                   </span>
                   <span className="text-[11px] text-muted-foreground text-center">
-                    By the operator
+                    {t("inviteInvalid.revokedDesc")}
                   </span>
                 </div>
               </div>
 
               {/* Action */}
               <p className="mt-8 text-sm text-muted-foreground">
-                If you believe this is a mistake, please request a new invite.
+                {t("inviteInvalid.mistakeMessage")}
               </p>
               <a
                 href="mailto:hello@fitcheck.app"
                 className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
               >
                 <Mail className="size-4" aria-hidden="true" />
-                Contact us
+                {t("inviteInvalid.contactUs")}
               </a>
 
               <p className="mt-6 text-xs text-muted-foreground">
@@ -164,14 +165,14 @@ export default function InviteInvalidPage() {
                   to="/login"
                   className="underline underline-offset-2 hover:text-foreground transition-colors"
                 >
-                  Return to sign in
+                  {t("inviteInvalid.returnToSignIn")}
                 </Link>
                 <span className="mx-2">·</span>
                 <Link
                   to="/register"
                   className="underline underline-offset-2 hover:text-foreground transition-colors"
                 >
-                  Try another code
+                  {t("inviteInvalid.tryAnotherCode")}
                 </Link>
               </p>
             </div>
@@ -264,7 +265,7 @@ export default function InviteInvalidPage() {
           </div>
         </div>
         <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2025 FitCheck. All rights reserved.</p>
+          <p>{t("system.copyright")}</p>
           <div className="flex items-center gap-4">
             <a
               href="#"
@@ -303,32 +304,32 @@ export default function InviteInvalidPage() {
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-primary transition-colors"
           >
             <House className="w-5 h-5" />
-            <span className="text-[10px] font-medium">House</span>
+            <span className="text-[10px] font-medium">{t("system.home")}</span>
           </Link>
           <Link
             to="/meals"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Utensils className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Meals</span>
+            <span className="text-[10px] font-medium">{t("system.meals")}</span>
           </Link>
           <Link
             to="/dashboard"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <Circle className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Progress</span>
+            <span className="text-[10px] font-medium">{t("system.progress")}</span>
           </Link>
           <Link to="/ai-sessions" className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors">
             <Sparkles className="w-5 h-5" />
-            <span className="text-[10px] font-medium">AI</span>
+            <span className="text-[10px] font-medium">{t("system.ai")}</span>
           </Link>
           <Link
             to="/profile"
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
           >
             <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Profile</span>
+            <span className="text-[10px] font-medium">{t("system.profile")}</span>
           </Link>
         </div>
       </nav>

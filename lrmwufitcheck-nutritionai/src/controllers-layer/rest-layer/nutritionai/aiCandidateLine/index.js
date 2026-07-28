@@ -17,6 +17,18 @@ aiCandidateLineRouter.patch(
   "/ai-candidate-lines/:aiCandidateLineId",
   require("./update-aicandidateline-api"),
 );
+// listAiCandidateLines controller (regular user, session-scoped)
+aiCandidateLineRouter.get(
+  "/v1/ai-candidate-lines",
+  require("./list-aicandidatelines-api"),
+);
+// Default-version alias: bare path resolves to v1 (the default version,
+// pinned for stability). Lets clients call either /v1/foo or /foo and
+// get the same handler. Add /v2 explicitly when a v2 ships.
+aiCandidateLineRouter.get(
+  "/ai-candidate-lines",
+  require("./list-aicandidatelines-api"),
+);
 // _fetchListAiCandidateLine controller
 aiCandidateLineRouter.get(
   "/v1/_fetchlistaicandidateline",

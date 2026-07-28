@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Loader,
@@ -31,6 +32,7 @@ function formatDate(iso?: string) {
 }
 
 export default function MealDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetMealLog(id);
@@ -48,7 +50,7 @@ export default function MealDetailPage() {
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground">
         <Loader className="w-5 h-5 animate-spin mr-2" />
-        Yükleniyor…
+        {t("mealDetail.loading")}
       </div>
     );
   }
@@ -56,12 +58,14 @@ export default function MealDetailPage() {
   if (error || !meal) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-muted-foreground">Öğün kaydı bulunamadı.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("mealDetail.notFound")}
+        </p>
         <Link
           to="/meals"
           className="mt-3 inline-block text-sm text-primary hover:underline"
         >
-          Öğün geçmişine dön
+          {t("mealDetail.backToHistory")}
         </Link>
       </Card>
     );
@@ -74,7 +78,7 @@ export default function MealDetailPage() {
   };
 
   const handleDeleteLine = (lineId: string) => {
-    if (!confirm("Bu satır silinsin mi?")) return;
+    if (!confirm(t("mealDetail.deleteLineConfirm"))) return;
     deleteLineMutation.mutate(lineId);
   };
 
@@ -87,9 +91,11 @@ export default function MealDetailPage() {
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-1"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Meal History
+            {t("mealDetail.backToHistory")}
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">Meal Detail</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("mealDetail.title")}
+          </h1>
           <p className="text-sm text-muted-foreground">
             {formatDate(meal.mealDate)} · {meal.slotName} · {meal.mealTime}
           </p>
@@ -99,14 +105,14 @@ export default function MealDetailPage() {
             to={`/meals/${meal.id}/edit`}
             className="inline-flex items-center gap-2 rounded-lg border border-input bg-card px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
           >
-            <Pencil className="w-4 h-4" /> Edit
+            <Pencil className="w-4 h-4" /> {t("mealDetail.edit")}
           </Link>
           <Button
             variant="outline"
             className="border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
             onClick={() => setDeleteDialogOpen(true)}
           >
-            <Trash2 className="w-4 h-4" /> Delete
+            <Trash2 className="w-4 h-4" /> {t("mealDetail.delete")}
           </Button>
         </div>
       </header>
@@ -123,22 +129,24 @@ export default function MealDetailPage() {
                 {meal.logSource}
               </span>
               <span className="text-xs text-muted-foreground">
-                Logged at {meal.mealTime}
+                {t("mealDetail.loggedAt")} {meal.mealTime}
               </span>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Notes</p>
+              <p className="text-sm text-muted-foreground">
+                {t("mealDetail.notes")}
+              </p>
               <p className="text-sm leading-relaxed">{meal.noteText || "—"}</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4 sm:grid-cols-6 lg:grid-cols-3">
             {[
               { value: meal.totalCalories, label: "kcal" },
-              { value: meal.totalProtein, label: "Protein g" },
-              { value: meal.totalCarbohydrates, label: "Carbs g" },
-              { value: meal.totalFat, label: "Fat g" },
-              { value: meal.totalSugar, label: "Sugar g" },
-              { value: meal.totalFiber, label: "Fiber g" },
+              { value: meal.totalProtein, label: t("mealDetail.protein") },
+              { value: meal.totalCarbohydrates, label: t("mealDetail.carbs") },
+              { value: meal.totalFat, label: t("mealDetail.fat") },
+              { value: meal.totalSugar, label: t("mealDetail.sugar") },
+              { value: meal.totalFiber, label: t("mealDetail.fiber") },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
                 <p className="text-2xl font-bold text-foreground">{value}</p>
@@ -152,10 +160,12 @@ export default function MealDetailPage() {
       {/* Meal Line Items Section */}
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold tracking-tight">Food Items</h2>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t("mealDetail.foodItems")}
+          </h2>
           <Link to={`/meals/${meal.id}/edit`}>
             <Button size="sm">
-              <Plus className="w-4 h-4" /> Add Item
+              <Plus className="w-4 h-4" /> {t("mealDetail.addItem")}
             </Button>
           </Link>
         </div>
@@ -166,14 +176,14 @@ export default function MealDetailPage() {
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 {[
-                  "Item",
-                  "Grams",
+                  t("mealDetail.colItem"),
+                  t("mealDetail.colGrams"),
                   "kcal",
-                  "Protein",
-                  "Carbs",
-                  "Fat",
-                  "Source",
-                  "Actions",
+                  t("mealDetail.colProtein"),
+                  t("mealDetail.colCarbs"),
+                  t("mealDetail.colFat"),
+                  t("mealDetail.colSource"),
+                  t("mealDetail.colActions"),
                 ].map((h, i) => (
                   <th
                     key={h}
@@ -223,7 +233,7 @@ export default function MealDetailPage() {
                       type="button"
                       onClick={() => handleDeleteLine(item.id)}
                       className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
-                      aria-label="Delete line"
+                      aria-label={t("mealDetail.deleteLineAria")}
                     >
                       <Trash2 className="w-3.5 h-3.5 text-destructive" />
                     </button>
@@ -236,7 +246,7 @@ export default function MealDetailPage() {
                     colSpan={8}
                     className="px-4 py-6 text-center text-sm text-muted-foreground"
                   >
-                    No food items in this meal.
+                    {t("mealDetail.noItems")}
                   </td>
                 </tr>
               )}
@@ -262,9 +272,9 @@ export default function MealDetailPage() {
               <div className="grid grid-cols-4 gap-2 text-center">
                 {[
                   { value: item.itemCalories, label: "kcal" },
-                  { value: item.itemProtein, label: "Protein" },
-                  { value: item.itemCarbohydrates, label: "Carbs" },
-                  { value: item.itemFat, label: "Fat" },
+                  { value: item.itemProtein, label: t("mealDetail.colProtein") },
+                  { value: item.itemCarbohydrates, label: t("mealDetail.colCarbs") },
+                  { value: item.itemFat, label: t("mealDetail.colFat") },
                 ].map(({ value, label }) => (
                   <div key={label}>
                     <p className="text-sm font-bold">{value}</p>
@@ -277,7 +287,7 @@ export default function MealDetailPage() {
                   type="button"
                   onClick={() => handleDeleteLine(item.id)}
                   className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
-                  aria-label="Delete"
+                  aria-label={t("mealDetail.delete")}
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </button>
@@ -286,7 +296,7 @@ export default function MealDetailPage() {
           ))}
           {lines.length === 0 && (
             <Card className="p-6 text-center text-sm text-muted-foreground">
-              No food items in this meal.
+              {t("mealDetail.noItems")}
             </Card>
           )}
         </div>
@@ -297,37 +307,38 @@ export default function MealDetailPage() {
           to="/meals"
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-input bg-card px-4 py-2.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors sm:w-auto"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to All Meals
+          <ArrowLeft className="w-4 h-4" /> {t("mealDetail.backToAllMeals")}
         </Link>
         <Link
           to="/meals/log"
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors sm:w-auto"
         >
-          <Plus className="w-4 h-4" /> Log Another Meal
+          <Plus className="w-4 h-4" /> {t("mealDetail.logAnotherMeal")}
         </Link>
       </div>
 
       {deleteDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <Card className="w-full max-w-md p-6 mx-4">
-            <h3 className="text-lg font-semibold mb-2">Delete Meal</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {t("mealDetail.deleteMealTitle")}
+            </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Are you sure you want to delete this meal? This action cannot be
-              undone.
+              {t("mealDetail.deleteMealConfirm")}
             </p>
             <div className="flex justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => setDeleteDialogOpen(false)}
               >
-                Cancel
+                {t("mealDetail.cancel")}
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={deleteMutation.isPending}
               >
-                <Trash2 className="w-4 h-4" /> Delete
+                <Trash2 className="w-4 h-4" /> {t("mealDetail.delete")}
               </Button>
             </div>
           </Card>

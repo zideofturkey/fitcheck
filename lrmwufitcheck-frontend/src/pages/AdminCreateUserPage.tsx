@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCreateUser, useUploadUserAvatar } from "@/hooks/api/use-auth";
 import {
-  ArrowLeft,
   ChevronRight,
   User,
   Camera,
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function AdminCreateUserPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createUser = useCreateUser();
   const uploadAvatar = useUploadUserAvatar();
@@ -72,12 +73,12 @@ export default function AdminCreateUserPage() {
     setPasswordError("");
 
     if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
+      setPasswordError(t("adminCreateUser.passwordMismatch"));
       return;
     }
 
     if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters.");
+      setPasswordError(t("adminCreateUser.passwordTooShort"));
       return;
     }
 
@@ -120,17 +121,19 @@ export default function AdminCreateUserPage() {
             to="/admin/users"
             className="hover:text-foreground transition-colors"
           >
-            Users
+            {t("adminCreateUser.users")}
           </Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-medium">Create User</span>
+          <span className="text-foreground font-medium">
+            {t("adminCreateUser.createUser")}
+          </span>
         </nav>
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Create New User
+            {t("adminCreateUser.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Add a new user account with email, password, and profile details.
+            {t("adminCreateUser.subtitle")}
           </p>
         </div>
       </header>
@@ -155,7 +158,7 @@ export default function AdminCreateUserPage() {
               <button
                 type="button"
                 className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
-                aria-label="Upload avatar"
+                aria-label={t("adminCreateUser.uploadAvatarAria")}
                 onClick={handleAvatarClick}
               >
                 <Camera className="w-4 h-4" />
@@ -169,13 +172,13 @@ export default function AdminCreateUserPage() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Optional — JPG, PNG, or WebP up to 5MB
+              {t("adminCreateUser.avatarOptional")}
             </p>
           </div>
 
           {/* Full Name */}
           <div className="space-y-2">
-            <Label htmlFor="fullname">Full Name</Label>
+            <Label htmlFor="fullname">{t("adminCreateUser.fullName")}</Label>
             <Input
               type="text"
               id="fullname"
@@ -189,7 +192,7 @@ export default function AdminCreateUserPage() {
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">{t("adminCreateUser.emailAddress")}</Label>
             <Input
               type="email"
               id="email"
@@ -203,13 +206,13 @@ export default function AdminCreateUserPage() {
 
           {/* Password */}
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("adminCreateUser.password")}</Label>
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
-                placeholder="Min. 8 characters"
+                placeholder={t("adminCreateUser.passwordPlaceholder")}
                 className="pr-12"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -218,7 +221,7 @@ export default function AdminCreateUserPage() {
               <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted transition-colors"
-                aria-label="Toggle password visibility"
+                aria-label={t("adminCreateUser.toggleVisibility")}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -242,18 +245,20 @@ export default function AdminCreateUserPage() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Use 8+ characters with a mix of letters, numbers & symbols
+              {t("adminCreateUser.passwordHint")}
             </p>
           </div>
 
           {/* Confirm Password */}
           <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Label htmlFor="confirm-password">
+              {t("adminCreateUser.confirmPassword")}
+            </Label>
             <Input
               type="password"
               id="confirm-password"
               name="confirm-password"
-              placeholder="Re-enter password"
+              placeholder={t("adminCreateUser.confirmPasswordPlaceholder")}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -267,20 +272,18 @@ export default function AdminCreateUserPage() {
           <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50 border border-border">
             <Info className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
             <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground mb-1">Important</p>
-              <p>
-                The user will be assigned the <strong>user</strong> role by
-                default. Admins can change roles later from the user detail
-                page. Email verification is not set during admin creation — the
-                user must verify their email after first login.
+              <p className="font-medium text-foreground mb-1">
+                {t("adminCreateUser.importantTitle")}
               </p>
+              <p>{t("adminCreateUser.importantNote")}</p>
             </div>
           </div>
 
           {/* Server error */}
           {createUser.error && (
             <p className="text-sm text-destructive">
-              {(createUser.error as Error)?.message || "Failed to create user."}
+              {(createUser.error as Error)?.message ||
+                t("adminCreateUser.createFailed")}
             </p>
           )}
 
@@ -292,14 +295,14 @@ export default function AdminCreateUserPage() {
             >
               <UserPlus className="w-4 h-4" />
               {createUser.isPending || uploadAvatar.isPending
-                ? "Creating..."
-                : "Create User"}
+                ? t("adminCreateUser.creating")
+                : t("adminCreateUser.createUserBtn")}
             </Button>
             <Link
               to="/admin/users"
               className="inline-flex items-center gap-2 h-11 px-4 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
-              Cancel
+              {t("adminCreateUser.cancel")}
             </Link>
           </div>
         </form>

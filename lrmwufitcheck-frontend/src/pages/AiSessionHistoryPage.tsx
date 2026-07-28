@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,24 +18,6 @@ import type { NutritionaiAiSession } from "@/types/api";
 
 type SessionType = NutritionaiAiSession["sessionType"];
 type SessionStatus = NutritionaiAiSession["sessionState"];
-
-const TYPE_LABEL: Record<SessionType, string> = {
-  mealParsing: "Meal Parsing",
-  nutritionGuidance: "Nutrition Guidance",
-};
-
-const STATUS_BADGE: Record<
-  SessionStatus,
-  { label: string; className: string }
-> = {
-  pending: { label: "Pending", className: "bg-blue-100 text-blue-700" },
-  needsConfirmation: {
-    label: "Needs Confirmation",
-    className: "bg-amber-100 text-amber-700",
-  },
-  completed: { label: "Completed", className: "bg-green-100 text-green-700" },
-  failed: { label: "Failed", className: "bg-red-100 text-red-700" },
-};
 
 const TYPE_ICON: Record<
   SessionType,
@@ -53,23 +37,51 @@ const TYPE_ICON_BG: Record<SessionType, string> = {
   nutritionGuidance: "bg-chart-2/10",
 };
 
-function relativeTime(iso?: string) {
+function relativeTime(iso: string | undefined, t: TFunction) {
   if (!iso) return "";
   const then = new Date(iso).getTime();
   const now = Date.now();
   const diffMin = Math.round((now - then) / 60000);
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 60) return t("aiSessionHistory.minutesAgo", { count: diffMin });
   const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return t("aiSessionHistory.hoursAgo", { count: diffHr });
   const diffDay = Math.round(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
+  if (diffDay < 7) return t("aiSessionHistory.daysAgo", { count: diffDay });
   return new Date(iso).toLocaleDateString();
 }
 
 export default function AiSessionHistoryPage() {
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<"all" | SessionType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+
+  const TYPE_LABEL: Record<SessionType, string> = {
+    mealParsing: t("aiSessionHistory.mealParsing"),
+    nutritionGuidance: t("aiSessionHistory.nutritionGuidance"),
+  };
+
+  const STATUS_BADGE: Record<
+    SessionStatus,
+    { label: string; className: string }
+  > = {
+    pending: {
+      label: t("aiSessionHistory.statusPending"),
+      className: "bg-blue-100 text-blue-700",
+    },
+    needsConfirmation: {
+      label: t("aiSessionHistory.statusNeedsConfirmation"),
+      className: "bg-amber-100 text-amber-700",
+    },
+    completed: {
+      label: t("aiSessionHistory.statusCompleted"),
+      className: "bg-green-100 text-green-700",
+    },
+    failed: {
+      label: t("aiSessionHistory.statusFailed"),
+      className: "bg-red-100 text-red-700",
+    },
+  };
 
   const params = {
     sessionType: activeFilter === "all" ? undefined : activeFilter,
@@ -95,19 +107,27 @@ export default function AiSessionHistoryPage() {
     label: string;
     icon: typeof Layers;
   }[] = [
-    { key: "all", label: "All", icon: Layers },
-    { key: "mealParsing", label: "Meal Parsing", icon: UtensilsCrossed },
-    { key: "nutritionGuidance", label: "Guidance", icon: MessageCircle },
+    { key: "all", label: t("aiSessionHistory.all"), icon: Layers },
+    {
+      key: "mealParsing",
+      label: t("aiSessionHistory.mealParsing"),
+      icon: UtensilsCrossed,
+    },
+    {
+      key: "nutritionGuidance",
+      label: t("aiSessionHistory.guidance"),
+      icon: MessageCircle,
+    },
   ];
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">
-          AI Session History
+          {t("aiSessionHistory.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Review your AI meal parsing and nutrition guidance interactions.
+          {t("aiSessionHistory.subtitle")}
         </p>
       </header>
 
@@ -142,7 +162,7 @@ export default function AiSessionHistoryPage() {
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search sessions..."
+              placeholder={t("aiSessionHistory.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -157,7 +177,7 @@ export default function AiSessionHistoryPage() {
       {isLoading && sessions.length === 0 && (
         <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
           <Loader className="w-4 h-4 animate-spin mr-2" />
-          Yükleniyor…
+          {t("aiSessionHistory.loading")}
         </Card>
       )}
 
@@ -165,10 +185,10 @@ export default function AiSessionHistoryPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-12 text-center">
           <MessageCircle className="mb-3 h-10 w-10 text-muted-foreground" />
           <p className="text-sm font-medium text-foreground">
-            No sessions found
+            {t("aiSessionHistory.noSessions")}
           </p>
           <p className="text-xs text-muted-foreground">
-            Try adjusting your filters or search query.
+            {t("aiSessionHistory.adjustFilters")}
           </p>
         </div>
       )}
@@ -202,7 +222,7 @@ export default function AiSessionHistoryPage() {
                       {badge.label}
                     </span>
                     <span className="ml-auto text-xs text-muted-foreground">
-                      {relativeTime(session.createdAt)}
+                      {relativeTime(session.createdAt, t)}
                     </span>
                   </div>
                   <p className="truncate text-sm text-muted-foreground">
@@ -217,7 +237,7 @@ export default function AiSessionHistoryPage() {
 
       <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
         <p className="text-sm text-muted-foreground">
-          Page {page} of {totalPages}
+          {t("aiSessionHistory.pageOf", { page, totalPages })}
         </p>
         <div className="flex items-center gap-1">
           <button
@@ -225,7 +245,7 @@ export default function AiSessionHistoryPage() {
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             className="inline-flex items-center justify-center rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted disabled:opacity-50"
-            aria-label="Previous page"
+            aria-label={t("aiSessionHistory.previousPage")}
           >
             <ChevronLeft className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -234,7 +254,7 @@ export default function AiSessionHistoryPage() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             className="inline-flex items-center justify-center rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted disabled:opacity-50"
-            aria-label="Next page"
+            aria-label={t("aiSessionHistory.nextPage")}
           >
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
