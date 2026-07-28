@@ -1,0 +1,28 @@
+# Root-level safety net for the whole monorepo. Patterns here (no leading
+# slash) match at every depth, so they protect every microservice folder
+# even if that service's own .gitignore gets overwritten by a future
+# Mindbricks regeneration ("Add/update service: X" commits replace it).
+
+node_modules/
+dist/
+**/.DS_Store
+*.log
+
+# Environment files: every per-environment variant Mindbricks generates
+# (.dev.env, .stage.env, .prod.env, .test.env, .env.local, .env.prod,
+# .env.stage, .env.test, plain .env) can hold real secrets - API keys,
+# DB/queue passwords, RSA passphrases, service tokens.
+.env
+.env.*
+*.env
+
+# RSA signing keys used by the auth service (and dev-test key copies in
+# other services) - private keys and their decryption passphrases must
+# never be committed, regardless of dev/stage/prod.
+keys/
+keysdev/
+keysprod/
+keystest/
+keysstage/
+*.pem
+pp.pwd

@@ -1,3 +1,10 @@
 node_modules/
 **/.DS_Store
 keys/rsa.key
+keysdev/
+keysprod/
+
+# Environment files (may contain API keys, DB/queue passwords, tokens)
+.env
+.env.*
+*.env

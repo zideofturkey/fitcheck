@@ -1,5 +1,9 @@
 node_modules/
 dist/
-.env
 **/.DS_Store
 *.log
+
+# Environment files (may contain API keys, DB/queue passwords, tokens)
+.env
+.env.*
+*.env
