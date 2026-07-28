@@ -217,6 +217,8 @@ const foodItemGroupsRouter = require("./routes/food-item-groups");
 app.use("", foodItemGroupsRouter);
 const suggestionsRouter = require("./routes/suggestions");
 app.use("", suggestionsRouter);
+const bulkImportRouter = require("./routes/bulk-import");
+app.use("", bulkImportRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);
