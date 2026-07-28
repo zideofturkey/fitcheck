@@ -15,7 +15,17 @@ const start = async () => {
   await repairService.runAllRepair();
   await startRepairJobs();
 
-  await startListener();
+  try {
+    await startListener();
+  } catch (err) {
+    // No Kafka broker reachable in this environment (e.g. local dev without
+    // a Kafka container) - degrade gracefully instead of crashing the whole
+    // process. The REST API still works; only live event aggregation is lost.
+    console.warn(
+      "Kafka listener failed to start, continuing without event consumption:",
+      err.message,
+    );
+  }
 };
 
 const shutdown = async () => {

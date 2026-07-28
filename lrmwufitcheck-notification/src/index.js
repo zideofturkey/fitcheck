@@ -22,7 +22,17 @@ const start = async () => {
   await databaseInit();
   await connectToRedis();
   await startMapping();
-  await startListener();
+  try {
+    await startListener();
+  } catch (err) {
+    // No Kafka broker reachable in this environment (e.g. local dev without
+    // a Kafka container) - degrade gracefully instead of crashing the whole
+    // process. The REST API still works; only live event consumption is lost.
+    console.warn(
+      "Kafka listener failed to start, continuing without event consumption:",
+      err.message,
+    );
+  }
   if (process.env.GRPC_ACTIVE) {
     await startGrpc();
   }

@@ -87,7 +87,13 @@ class GetDailyProgressManager extends NutritionDayManager {
 
   async checkInstance() {
     if (!this.nutritionDay) {
-      throw new NotFoundError("errMsg_RecordNotFound");
+      // Don't 404 here: a missing row just means no meals have been logged
+      // for this user+date yet, which is the normal, expected first-call
+      // state. afterMainGetOperation() creates a zeroed-out nutritionDay
+      // for exactly this case - throwing here would run before that ever
+      // gets a chance to, since the framework always calls checkInstance()
+      // before afterMainGetOperation() for crudType "get".
+      return;
     }
 
     if (!this.checkAbsolute()) {

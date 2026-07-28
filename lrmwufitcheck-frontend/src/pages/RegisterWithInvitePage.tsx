@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   TicketCheck,
@@ -23,18 +23,20 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRegister } from "@/hooks/api/use-auth";
+import { invitationcenterService } from "@/services/api/invitationcenter-api";
 
 type InviteStatus = "loading" | "valid" | "expired" | "invalid" | "revoked";
 
 interface InviteMetadata {
   inviteCode: string;
   invitedEmail: string;
-  usageMode: "single" | "multi";
+  usageMode: "singleUse" | "limitedUse";
   expiresAt: string | null; // null = no expiry
 }
 
 const RegisterWithInvitePage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const inviteCodeFromUrl = searchParams.get("code") ?? "";
 
   const [inviteStatus, setInviteStatus] = useState<InviteStatus>("loading");
@@ -52,39 +54,54 @@ const RegisterWithInvitePage = () => {
 
   const registerMutation = useRegister();
 
-  // Simulate fetching invite metadata from the invite code
-  // TODO: no invite-specific hook in foundation-context — invite metadata is mocked;
-  // a real implementation would call a useGetInviteByCode hook.
+  // Fetch the real invite metadata by code (read-only lookup — actual
+  // validation + consumption happens server-side when the form is
+  // submitted, via the auth service's /v1/registeruser endpoint).
   useEffect(() => {
     if (!inviteCodeFromUrl) {
       setInviteStatus("invalid");
       return;
     }
 
+    let cancelled = false;
     setInviteStatus("loading");
 
-    const timer = setTimeout(() => {
-      // Mock: always return valid for the sample code, otherwise expired
-      if (
-        inviteCodeFromUrl === "FC-INV-8k3Wm7xQpL2nV9j" ||
-        inviteCodeFromUrl.startsWith("FC-INV-")
-      ) {
+    invitationcenterService
+      .getInviteLinkByCode(inviteCodeFromUrl)
+      .then((res) => {
+        if (cancelled) return;
+        const link = res.inviteLink;
+        if (link.inviteState === "expired") {
+          setInviteStatus("expired");
+          return;
+        }
+        if (link.inviteState === "revoked") {
+          setInviteStatus("revoked");
+          return;
+        }
+        if (
+          link.inviteState === "exhausted" ||
+          link.inviteState === "consumed"
+        ) {
+          setInviteStatus("invalid");
+          return;
+        }
         setInviteStatus("valid");
         setInviteMetadata({
-          inviteCode: inviteCodeFromUrl || "FC-INV-8k3Wm7xQpL2nV9j",
-          invitedEmail: "emma.wilson@example.com",
-          usageMode: "single",
-          expiresAt: null,
+          inviteCode: link.inviteCode,
+          invitedEmail: link.invitedEmail ?? "",
+          usageMode: link.usageMode,
+          expiresAt: link.expiresAt ?? null,
         });
-        setEmail("emma.wilson@example.com");
-      } else if (inviteCodeFromUrl.includes("expired")) {
-        setInviteStatus("expired");
-      } else {
-        setInviteStatus("invalid");
-      }
-    }, 800);
+        if (link.invitedEmail) setEmail(link.invitedEmail);
+      })
+      .catch(() => {
+        if (!cancelled) setInviteStatus("invalid");
+      });
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+    };
   }, [inviteCodeFromUrl]);
 
   const handleCopyCode = useCallback(async () => {
@@ -126,16 +143,23 @@ const RegisterWithInvitePage = () => {
     if (!validateForm()) return;
 
     registerMutation.mutate(
-      {},
+      {
+        inviteCode: inviteCodeFromUrl,
+        fullname: fullName,
+        email,
+        password,
+      },
       {
         onSuccess: () => {
-          // Registration successful — redirect handled by auth flow
+          navigate("/login?registered=true");
         },
         onError: (err: unknown) => {
           const message =
-            err instanceof Error
-              ? err.message
-              : "Registration failed. Please try again.";
+            err && typeof err === "object" && "message" in err
+              ? String((err as { message?: unknown }).message)
+              : err instanceof Error
+                ? err.message
+                : "Registration failed. Please try again.";
           setValidationErrors([message]);
         },
       },
@@ -324,7 +348,7 @@ const RegisterWithInvitePage = () => {
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-xs font-medium">
                       <UserCheck className="w-3 h-3" />
-                      {inviteMetadata.usageMode === "single"
+                      {inviteMetadata.usageMode === "singleUse"
                         ? "Single Use"
                         : "Multi Use"}
                     </span>

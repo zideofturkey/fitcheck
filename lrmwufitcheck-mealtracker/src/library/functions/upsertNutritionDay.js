@@ -19,6 +19,16 @@ module.exports = async function upsertNutritionDay(
 ) {
   if (!userId || !date) return null;
 
+  // Normalize once, here, regardless of what the caller passed in: some
+  // call sites pass a real Date instance, others pass the raw "YYYY-MM-DD"
+  // string straight from a request body. Sequelize's DATE serializer
+  // re-parses plain strings using local-timezone semantics (unlike native
+  // `new Date()`, which parses ISO date-only strings as UTC), so on a
+  // non-UTC host a string value silently misses the row a Date instance
+  // would have matched - turning "update existing day" into "insert a
+  // duplicate" and tripping the (userId, summaryDate) unique constraint.
+  date = date instanceof Date ? date : new Date(date);
+
   // Sum all mealLogs for this user+date
   const logs = (await getMealLogListByMQuery({ userId, mealDate: date })) || [];
   const mealCount = logs.length;

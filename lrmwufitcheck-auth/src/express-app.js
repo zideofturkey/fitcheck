@@ -224,6 +224,10 @@ if (sseLayerExports.userSseRouter) {
 app.use("", userRouter);
 app.use("", userAvatarsFileRouter);
 
+const registerWithInviteRouter = require("./routes/register-with-invite");
+app.use("", registerWithInviteRouter);
+app.use("/v1", registerWithInviteRouter);
+
 const bucketRouter = require("bucketLayer/bucket-router");
 app.use("", bucketRouter);
 
