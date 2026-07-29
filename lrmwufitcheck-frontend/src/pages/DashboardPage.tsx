@@ -20,6 +20,7 @@ import {
   Calendar,
   ChevronRight,
   Circle,
+  Flame,
   Loader,
   Plus,
   UtensilsCrossed,
@@ -96,11 +97,13 @@ export default function DashboardPage() {
   const userName = userData?.fullname ?? "User";
 
   const calorieConsumed = progress?.consumedCalories ?? 0;
+  const calorieTargetDisplay = progress?.targetCalories ?? 0;
   const calorieTarget = progress?.targetCalories || 1;
   const caloriePct = Math.min(
     100,
     Math.round((calorieConsumed / calorieTarget) * 100),
   );
+  const calorieRemaining = calorieTargetDisplay - calorieConsumed;
   const circumference = 2 * Math.PI * 42;
   const dashOffset = circumference * (1 - caloriePct / 100);
 
@@ -212,56 +215,102 @@ export default function DashboardPage() {
         <>
           {/* Daily Summary Ring */}
           <section className="mb-6">
-            <Card className="p-5">
-              <h4 className="text-sm font-semibold text-foreground mb-4">
-                {t("dashboard.dailyCalorieSummary")}
-              </h4>
-              <div className="flex items-center justify-center mb-4">
-                <div className="relative w-36 h-36">
+            <Card className="relative overflow-hidden border-primary/10 bg-gradient-to-br from-primary/[0.07] via-card to-card p-5 sm:p-7 shadow-sm">
+              <div
+                className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/10 blur-3xl"
+                aria-hidden="true"
+              />
+              <div className="relative flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Flame className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-sm font-semibold text-foreground">
+                    {t("dashboard.dailyCalorieSummary")}
+                  </h4>
+                </div>
+                {calorieTargetDisplay > 0 && (
+                  <Badge
+                    variant={calorieRemaining < 0 ? "destructive" : "secondary"}
+                    className="text-xs font-medium"
+                  >
+                    {calorieRemaining < 0
+                      ? t("dashboard.overTarget", {
+                          amount: Math.abs(calorieRemaining),
+                        })
+                      : t("dashboard.remainingKcal", {
+                          amount: calorieRemaining,
+                        })}
+                  </Badge>
+                )}
+              </div>
+              <div className="relative flex items-center justify-center mb-6">
+                <div className="relative w-48 h-48 sm:w-60 sm:h-60">
                   <svg
-                    className="w-full h-full -rotate-90"
+                    className="w-full h-full -rotate-90 drop-shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
                     viewBox="0 0 100 100"
                   >
+                    <defs>
+                      <linearGradient
+                        id="calorieRingGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="var(--primary)" />
+                      </linearGradient>
+                    </defs>
                     <circle
                       cx="50"
                       cy="50"
                       r="42"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="10"
-                      className="text-muted"
+                      strokeWidth="9"
+                      className="text-muted/60"
                     />
                     <circle
                       cx="50"
                       cy="50"
                       r="42"
                       fill="none"
-                      stroke="currentColor"
-                      strokeWidth="10"
+                      stroke="url(#calorieRingGradient)"
+                      strokeWidth="9"
                       strokeLinecap="round"
-                      className="text-primary"
                       strokeDasharray={circumference}
                       strokeDashoffset={dashOffset}
+                      className="transition-[stroke-dashoffset] duration-700 ease-out"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-foreground">
+                    <span className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
                       {calorieConsumed}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      / {progress?.targetCalories ?? 0} kcal
+                    <span className="text-xs text-muted-foreground mt-1">
+                      / {calorieTargetDisplay} kcal
+                    </span>
+                    <span className="mt-2 text-xs font-semibold text-primary">
+                      %{caloriePct}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="relative flex flex-wrap items-center justify-center gap-2">
                 {macros.slice(0, 4).map((m) => (
-                  <div key={m.key} className="flex items-center gap-2">
+                  <div
+                    key={m.key}
+                    className="flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1.5"
+                  >
                     <span
-                      className={`w-3 h-3 rounded-full flex-shrink-0 ${m.color}`}
+                      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${m.color}`}
                     />
                     <span className="text-xs text-muted-foreground">
-                      {m.key} {m.consumed}g
+                      {m.key}
+                    </span>
+                    <span className="text-xs font-semibold text-foreground">
+                      {m.consumed}g
                     </span>
                   </div>
                 ))}

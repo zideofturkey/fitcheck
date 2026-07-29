@@ -62,17 +62,23 @@ module.exports = async function upsertNutritionDay(
   try {
     const macroTarget = await fetchRemoteObjectByMQuery("macroTarget", {
       userId,
+      isActive: true,
     });
     if (macroTarget) {
-      targets.calories = macroTarget.targetCalories || 0;
-      targets.protein = macroTarget.targetProtein || 0;
-      targets.carbohydrates = macroTarget.targetCarbohydrates || 0;
-      targets.fat = macroTarget.targetFat || 0;
-      targets.sugar = macroTarget.targetSugar || 0;
-      targets.fiber = macroTarget.targetFiber || 0;
+      // macroTarget's real fields are suffixed (calorieTarget, proteinTarget,
+      // ...) not prefixed - reading the wrong names here silently produced
+      // undefined || 0 every time, so targets were always zero even once
+      // the macroTarget document itself was found successfully.
+      targets.calories = macroTarget.calorieTarget || 0;
+      targets.protein = macroTarget.proteinTarget || 0;
+      targets.carbohydrates = macroTarget.carbohydrateTarget || 0;
+      targets.fat = macroTarget.fatTarget || 0;
+      targets.sugar = macroTarget.sugarTarget || 0;
+      targets.fiber = macroTarget.fiberTarget || 0;
     }
   } catch (e) {
-    // nutritionLibrary may not be available — proceed with zero targets
+    console.log("upsertNutritionDay: failed to fetch macroTarget:", e.message);
+    //**errorLog
   }
 
   // Compute exceededMetrics

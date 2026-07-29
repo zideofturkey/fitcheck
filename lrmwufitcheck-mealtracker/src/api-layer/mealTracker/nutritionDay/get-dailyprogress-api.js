@@ -190,20 +190,20 @@ class GetDailyProgressManager extends NutritionDayManager {
 
   async afterMainGetOperation() {
     try {
-      if (
-        runMScript(() => !this.nutritionDay, {
-          path: "services[3].businessLogic[9].actions.functionCallActions[0].condition",
-        })
-      ) {
-        this.nutritionDay = await this.initNutritionDayIfMissing();
-        // executeMainOperation() ran before this hook and found no row, so
-        // this.dbResult (and its alias this.data) are still null. buildOutput()
-        // reads this.dbResult._source unconditionally, so without this the
-        // freshly auto-created row would still crash the response with a
-        // null-dereference on every first-ever call for a user+date.
-        this.dbResult = this.nutritionDay;
-        this.data = this.nutritionDay;
-      }
+      // Always recompute, not just "if missing": the stored row's target*
+      // fields are otherwise a one-time snapshot taken at row-creation time.
+      // A user who sets/changes their macro target after today's row already
+      // exists would see a stale (often zero) target on the dashboard until
+      // some other write happened to touch the row again. Consumed totals
+      // are also re-summed from mealLogs here, so this stays correct even if
+      // called repeatedly.
+      this.nutritionDay = await this.initNutritionDayIfMissing();
+      // executeMainOperation() may have found no row (first-ever call for a
+      // user+date), leaving this.dbResult/this.data null. buildOutput() reads
+      // this.dbResult._source unconditionally, so keep both in sync with
+      // whatever initNutritionDayIfMissing just computed either way.
+      this.dbResult = this.nutritionDay;
+      this.data = this.nutritionDay;
     } catch (err) {
       console.log("initNutritionDayIfMissing Action Error:", err.message);
       //**errorLog

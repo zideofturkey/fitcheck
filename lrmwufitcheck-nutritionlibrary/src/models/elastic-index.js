@@ -3,7 +3,13 @@ const { hexaLogger } = require("common");
 
 const macroTargetMapping = {
   id: { type: "keyword" },
-  userId: { type: "keyword", index: false },
+  // Must be searchable (not index:false): mealtracker's upsertNutritionDay
+  // fetches the caller's active macro target cross-service via
+  // fetchRemoteObjectByMQuery("macroTarget", { userId }), which queries this
+  // Elasticsearch index directly - a non-indexed field can never match a
+  // term query, so the dashboard's daily-progress target silently fell back
+  // to all-zeros for every user.
+  userId: { type: "keyword" },
   calorieTarget: { type: "double", index: false },
   proteinTarget: { type: "double", index: false },
   carbohydrateTarget: { type: "double", index: false },
