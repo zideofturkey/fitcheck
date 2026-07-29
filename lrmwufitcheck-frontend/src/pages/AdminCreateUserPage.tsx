@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useCreateUser, useUploadUserAvatar } from "@/hooks/api/use-auth";
+import { authService } from "@/services/api/auth-service";
 import {
   ChevronRight,
   User,
@@ -101,7 +102,11 @@ export default function AdminCreateUserPage() {
     if (avatarFile) {
       uploadAvatar.mutate(avatarFile, {
         onSuccess: (response) => {
-          doCreate(response?.file?.id);
+          doCreate(
+            response?.file?.accessKey
+              ? authService.getUserAvatarUrl(response.file.accessKey)
+              : undefined,
+          );
         },
         onError: () => {
           doCreate();

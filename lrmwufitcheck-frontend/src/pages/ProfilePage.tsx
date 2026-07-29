@@ -19,7 +19,9 @@ import {
   useUpdateProfile,
   useUpdateUserPassword,
   useArchiveProfile,
+  useUploadUserAvatar,
 } from "@/hooks/api/use-auth";
+import { authService } from "@/services/api/auth-service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +46,8 @@ export default function ProfilePage() {
   const updateProfile = useUpdateProfile();
   const updatePassword = useUpdateUserPassword();
   const archiveProfile = useArchiveProfile();
+  const uploadAvatar = useUploadUserAvatar();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Profile form state
   const [fullname, setFullname] = useState("");
@@ -79,6 +83,20 @@ export default function ProfilePage() {
         onSuccess: () => setProfileDirty(false),
       },
     );
+  };
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    uploadAvatar.mutate(file, {
+      onSuccess: (response) => {
+        const avatarUrl = authService.getUserAvatarUrl(
+          response.file.accessKey,
+        );
+        updateProfile.mutate({ avatar: avatarUrl });
+      },
+    });
   };
 
   const handleUpdatePassword = () => {
@@ -228,14 +246,25 @@ export default function ProfilePage() {
                 )}
               </div>
               <button
-                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                type="button"
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait"
                 aria-label={t("profile.changeAvatar")}
-                onClick={() => {
-                  // TODO: implement avatar upload — useUploadUserAvatar
-                }}
+                disabled={uploadAvatar.isPending || updateProfile.isPending}
+                onClick={() => avatarInputRef.current?.click()}
               >
-                <Camera className="w-6 h-6 text-white" />
+                {uploadAvatar.isPending || updateProfile.isPending ? (
+                  <Loader className="w-6 h-6 text-white animate-spin" />
+                ) : (
+                  <Camera className="w-6 h-6 text-white" />
+                )}
               </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarFileChange}
+              />
             </div>
             <p className="text-xs text-muted-foreground">
               {t("profile.avatarHint")}

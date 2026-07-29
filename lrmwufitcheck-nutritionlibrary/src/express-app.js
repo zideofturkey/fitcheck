@@ -219,6 +219,8 @@ const suggestionsRouter = require("./routes/suggestions");
 app.use("", suggestionsRouter);
 const bulkImportRouter = require("./routes/bulk-import");
 app.use("", bulkImportRouter);
+const brandAdminRouter = require("./routes/brand-admin");
+app.use("", brandAdminRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);

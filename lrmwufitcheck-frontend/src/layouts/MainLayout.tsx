@@ -19,6 +19,7 @@ import {
   Salad,
   Shield,
   Sparkles,
+  Tag,
   Target,
   UploadCloud,
   User,
@@ -56,6 +57,7 @@ const SIDEBAR_ADMIN = [
   { to: "/admin/users", icon: Users, labelKey: "nav.userManagement" },
   { to: "/admin/suggestions", icon: Sparkles, labelKey: "nav.suggestions" },
   { to: "/admin/bulk-import", icon: UploadCloud, labelKey: "nav.bulkImport" },
+  { to: "/admin/brands", icon: Tag, labelKey: "nav.brandManagement" },
 ];
 
 function initials(name?: string) {
@@ -203,8 +205,16 @@ export default function MainLayout() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 p-1.5 rounded-full hover:bg-muted transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
-                      {initials(user?.fullname)}
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold overflow-hidden">
+                      {user?.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.fullname ?? t("nav.profile")}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        initials(user?.fullname)
+                      )}
                     </div>
                   </div>
                 </Link>

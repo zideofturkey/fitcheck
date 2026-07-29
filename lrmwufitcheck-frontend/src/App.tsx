@@ -79,6 +79,7 @@ const AdminSuggestionsPage = lazy(
 const AdminBulkImportPage = lazy(
   () => import("@/pages/AdminBulkImportPage"),
 );
+const AdminBrandsPage = lazy(() => import("@/pages/AdminBrandsPage"));
 
 // Public / system
 const WelcomePage = lazy(() => import("@/pages/WelcomePage"));
@@ -256,6 +257,14 @@ export default function App() {
                 element={
                   <RoleProtectedRoute roles={["superAdmin", "admin"]}>
                     <AdminBulkImportPage />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/brands"
+                element={
+                  <RoleProtectedRoute roles={["superAdmin", "admin"]}>
+                    <AdminBrandsPage />
                   </RoleProtectedRoute>
                 }
               />
