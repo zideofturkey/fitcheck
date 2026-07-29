@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar, Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ export default function MacroTargetForm({
   isPending,
   effectiveFrom,
 }: MacroTargetFormProps) {
+  const { t } = useTranslation();
   const [targets, setTargets] = useState<MacroTargets>(
     initialTargets ?? defaultTargets,
   );
@@ -74,16 +76,16 @@ export default function MacroTargetForm({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg font-semibold">
-                Daily Macro Targets
+                {t("targets.formTitle")}
               </CardTitle>
               {effectiveFrom ? (
                 <CardDescription className="text-sm text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  Updated on {effectiveFrom}
+                  {t("targets.updatedOn", { date: effectiveFrom })}
                 </CardDescription>
               ) : (
                 <CardDescription className="text-sm text-muted-foreground">
-                  No targets set yet
+                  {t("targets.noTargetsYet")}
                 </CardDescription>
               )}
             </div>
@@ -93,7 +95,7 @@ export default function MacroTargetForm({
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="calories" className="text-sm font-medium">
-                Calories (kcal)
+                {t("targets.calories")}
               </Label>
               <Input
                 id="calories"
@@ -107,7 +109,7 @@ export default function MacroTargetForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="protein" className="text-sm font-medium">
-                Protein (g)
+                {t("targets.protein")}
               </Label>
               <Input
                 id="protein"
@@ -121,7 +123,7 @@ export default function MacroTargetForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="carbohydrates" className="text-sm font-medium">
-                Carbs (g)
+                {t("targets.carbohydrates")}
               </Label>
               <Input
                 id="carbohydrates"
@@ -135,7 +137,7 @@ export default function MacroTargetForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="fat" className="text-sm font-medium">
-                Fat (g)
+                {t("targets.fat")}
               </Label>
               <Input
                 id="fat"
@@ -149,7 +151,7 @@ export default function MacroTargetForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="sugar" className="text-sm font-medium">
-                Sugar (g)
+                {t("targets.sugar")}
               </Label>
               <Input
                 id="sugar"
@@ -163,7 +165,7 @@ export default function MacroTargetForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="fiber" className="text-sm font-medium">
-                Fiber (g)
+                {t("targets.fiber")}
               </Label>
               <Input
                 id="fiber"
@@ -182,12 +184,12 @@ export default function MacroTargetForm({
             {isPending ? (
               <>
                 <Save className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t("targets.saving")}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Save Targets
+                {t("targets.saveTargets")}
               </>
             )}
           </Button>

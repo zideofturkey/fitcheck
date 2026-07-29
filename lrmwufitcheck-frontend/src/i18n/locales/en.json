@@ -536,7 +536,22 @@
     "aiSuggestionFailed": "AI could not generate a food suggestion.",
     "aiSuggestionRetrieveFailed": "Could not retrieve AI food suggestion.",
     "aiValuesTransferred": "AI values transferred to the form. Please review and save.",
-    "aiAnalysisError": "An error occurred during AI analysis."
+    "aiAnalysisError": "An error occurred during AI analysis.",
+    "categories": {
+      "meat": "Meat",
+      "dairy": "Dairy",
+      "bakery": "Bakery",
+      "vegetable": "Vegetable",
+      "fruit": "Fruit",
+      "grain": "Grain",
+      "grainCarbs": "Grains & Carbs",
+      "snack": "Snack",
+      "beverage": "Beverage",
+      "other": "Other"
+    },
+    "newBrandPlaceholder": "New brand name",
+    "noBrand": "No brand",
+    "addBrand": "Add new brand"
   },
   "foodItemDetail": {
     "loading": "Loading…",
@@ -1020,7 +1035,7 @@
     "log": "Log",
     "foodLibrary": "Food Library",
     "library": "Library",
-    "dishes": "Dishes",
+    "dishes": "Dish Library",
     "presetMeals": "Preset Meals",
     "presets": "Presets",
     "mealHistory": "Meal History",
@@ -1116,7 +1131,7 @@
     "confirmAndLog": "Confirm & Log"
   },
   "dishes": {
-    "title": "Dishes",
+    "title": "Dish Library",
     "subtitle": "Dish recipes made from your food items.",
     "newDish": "New Dish",
     "confirmDelete": "Are you sure you want to delete this dish?",
@@ -1152,5 +1167,21 @@
     "suggestTooltip": "Suggest: promote to the global library",
     "suggestSuccess": "Your suggestion was submitted. An admin will review it.",
     "suggestError": "Could not submit suggestion."
+  },
+  "targets": {
+    "title": "Targets",
+    "subtitle": "Set your daily calorie and macro targets.",
+    "formTitle": "Daily Macro Targets",
+    "updatedOn": "Updated on {{date}}",
+    "noTargetsYet": "No targets set yet",
+    "calories": "Calories (kcal)",
+    "protein": "Protein (g)",
+    "carbohydrates": "Carbs (g)",
+    "fat": "Fat (g)",
+    "sugar": "Sugar (g)",
+    "fiber": "Fiber (g)",
+    "saving": "Saving...",
+    "saveTargets": "Save Targets",
+    "loadError": "Failed to load targets"
   }
 }

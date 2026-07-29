@@ -536,7 +536,22 @@
     "aiSuggestionFailed": "AI besin önerisi üretemedi.",
     "aiSuggestionRetrieveFailed": "AI besin önerisi alınamadı.",
     "aiValuesTransferred": "AI değerleri forma aktarıldı. Lütfen kontrol edip kaydedin.",
-    "aiAnalysisError": "AI analizi sırasında bir hata oluştu."
+    "aiAnalysisError": "AI analizi sırasında bir hata oluştu.",
+    "categories": {
+      "meat": "Et",
+      "dairy": "Süt Ürünleri",
+      "bakery": "Fırın Ürünleri",
+      "vegetable": "Sebze",
+      "fruit": "Meyve",
+      "grain": "Tahıl",
+      "grainCarbs": "Tahıllar ve Karbonhidratlar",
+      "snack": "Atıştırmalık",
+      "beverage": "İçecek",
+      "other": "Diğer"
+    },
+    "newBrandPlaceholder": "Yeni marka adı",
+    "noBrand": "Marka yok",
+    "addBrand": "Yeni marka ekle"
   },
   "foodItemDetail": {
     "loading": "Yükleniyor…",
@@ -1020,7 +1035,7 @@
     "log": "Ekle",
     "foodLibrary": "Besin Kütüphanesi",
     "library": "Kütüphane",
-    "dishes": "Yemekler",
+    "dishes": "Yemek Kütüphanesi",
     "presetMeals": "Hazır Öğünler",
     "presets": "Hazırlar",
     "mealHistory": "Öğün Geçmişi",
@@ -1116,7 +1131,7 @@
     "confirmAndLog": "Onayla ve Kaydet"
   },
   "dishes": {
-    "title": "Yemekler",
+    "title": "Yemek Kütüphanesi",
     "subtitle": "Malzemelerden oluşturduğunuz yemek tarifleri.",
     "newDish": "Yeni Yemek",
     "confirmDelete": "Bu yemeği silmek istediğinize emin misiniz?",
@@ -1152,5 +1167,21 @@
     "suggestTooltip": "Öner: Global kütüphaneye eklenmesini öner",
     "suggestSuccess": "Öneriniz gönderildi. Bir yönetici inceleyecek.",
     "suggestError": "Öneri gönderilemedi."
+  },
+  "targets": {
+    "title": "Hedefler",
+    "subtitle": "Günlük kalori ve makro hedeflerinizi belirleyin.",
+    "formTitle": "Günlük Makro Hedefleri",
+    "updatedOn": "{{date}} tarihinde güncellendi",
+    "noTargetsYet": "Henüz hedef belirlenmedi",
+    "calories": "Kalori (kcal)",
+    "protein": "Protein (g)",
+    "carbohydrates": "Karbonhidrat (g)",
+    "fat": "Yağ (g)",
+    "sugar": "Şeker (g)",
+    "fiber": "Lif (g)",
+    "saving": "Kaydediliyor...",
+    "saveTargets": "Hedefleri Kaydet",
+    "loadError": "Hedefler yüklenemedi"
   }
 }

@@ -17,6 +17,7 @@ const {
   isValidObjectId,
   isValidUUID,
   getRedisData,
+  setRedisData,
 } = require("common");
 const { ProfileUpdatedPublisher } = require("../../api-events/publishers");
 
@@ -210,6 +211,31 @@ class UpdateProfileManager extends UserManager {
 
   async addToOutput() {
     const _target = this._streamOutput ?? this.output;
+  }
+
+  // GET /currentuser serves the Redis-cached session (not a fresh DB read),
+  // so a profile edit that only writes the DB row leaves the cached session
+  // — and every page reading `user` from it — stuck on the pre-edit values
+  // until the next login. Patch the cache in place, keeping its existing TTL.
+  async afterMainUpdateOperation() {
+    if (!this.session?.sessionId) return;
+
+    let changed = false;
+    if (this.fullname != null) {
+      this.session.fullname = this.fullname;
+      changed = true;
+    }
+    if (this.avatar != null) {
+      this.session.avatar = this.avatar;
+      changed = true;
+    }
+    if (!changed) return;
+
+    await setRedisData(
+      "hexasession:" + this.session.sessionId,
+      this.session,
+      "KEEPTTL",
+    );
   }
 
   async raiseEvent() {

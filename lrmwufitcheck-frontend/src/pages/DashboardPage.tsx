@@ -9,6 +9,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Calendar as DatePicker } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   ArrowRight,
   Calendar,
@@ -20,9 +26,16 @@ import {
 } from "lucide-react";
 import type { MealtrackerMealLog } from "@/types/api";
 
-function todayIso() {
-  const d = new Date();
+function toIsoDate(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 function formatMealDate(iso: string) {
@@ -40,7 +53,10 @@ function formatMealDate(iso: string) {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { data: userData } = useCurrentUser();
-  const today = todayIso();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const today = toIsoDate(selectedDate);
+  const isToday = isSameDay(selectedDate, new Date());
   const { data: progressData, isLoading: progressLoading } =
     useGetDailyProgress({ targetDate: today });
   const { data: mealsData, isLoading: mealsLoading } = useListMealLogs({
@@ -158,10 +174,26 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Calendar className="w-4 h-4" />
-            {t("dashboard.today")}
-          </Button>
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                {isToday ? t("dashboard.today") : formatMealDate(today)}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <DatePicker
+                mode="single"
+                selected={selectedDate}
+                onSelect={(d) => {
+                  if (d) {
+                    setSelectedDate(d);
+                    setDatePickerOpen(false);
+                  }
+                }}
+              />
+            </PopoverContent>
+          </Popover>
           <Link to="/meals/log">
             <Button size="sm" className="gap-2">
               <Plus className="w-4 h-4" />

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
-  ChevronDown,
   Lightbulb,
   Loader,
   RefreshCw,
@@ -59,7 +58,6 @@ function AdminSuggestionsPage() {
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px]">
               <SelectValue />
-              <ChevronDown className="w-3 h-3 text-muted-foreground" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="pending">

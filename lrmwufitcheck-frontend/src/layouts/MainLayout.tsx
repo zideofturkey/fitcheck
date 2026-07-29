@@ -4,12 +4,14 @@ import { useTranslation } from "react-i18next";
 import { isRouteAvailable } from "@/lib/available-routes";
 import { useAuth } from "@/context/AuthContext";
 import {
-  ArrowLeft,
   ArrowLeftCircle,
+  BarChart3,
   BookOpen,
-  Circle,
+  CirclePlus,
+  ClipboardList,
   History,
   LayoutDashboard,
+  LineChart,
   LogOut,
   MailPlus,
   Menu,
@@ -20,7 +22,6 @@ import {
   Target,
   UploadCloud,
   User,
-  UserCog,
   Users,
   UtensilsCrossed,
   X,
@@ -36,17 +37,17 @@ const MOBILE_NAV = [
 
 const SIDEBAR_MAIN = [
   { to: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard" },
-  { to: "/meals/log", icon: UtensilsCrossed, labelKey: "nav.logMeal" },
+  { to: "/meals/log", icon: CirclePlus, labelKey: "nav.logMeal" },
   { to: "/meals", icon: History, labelKey: "nav.mealHistory" },
   { to: "/food-library", icon: BookOpen, labelKey: "nav.foodLibrary" },
   { to: "/dishes", icon: UtensilsCrossed, labelKey: "nav.dishes" },
-  { to: "/preset-meals", icon: Circle, labelKey: "nav.presetMeals" },
+  { to: "/preset-meals", icon: ClipboardList, labelKey: "nav.presetMeals" },
 ];
 
 const SIDEBAR_INSIGHTS = [
-  { to: "/profile", icon: Target, labelKey: "nav.targets" },
-  { to: "/analytics/weekly", icon: Circle, labelKey: "nav.weeklyAnalytics" },
-  { to: "/analytics/monthly", icon: Circle, labelKey: "nav.monthlyAnalytics" },
+  { to: "/targets", icon: Target, labelKey: "nav.targets" },
+  { to: "/analytics/weekly", icon: BarChart3, labelKey: "nav.weeklyAnalytics" },
+  { to: "/analytics/monthly", icon: LineChart, labelKey: "nav.monthlyAnalytics" },
   { to: "/ai-chat", icon: MessageCircle, labelKey: "nav.aiChat" },
 ];
 
@@ -186,50 +187,6 @@ export default function MainLayout() {
                   <Salad className="w-6 h-6 text-primary" />
                   <span>{t("common.appName")}</span>
                 </Link>
-                <nav className="hidden lg:flex items-center gap-1">
-                  <Link
-                    to="/dashboard"
-                    className="px-3 py-2 rounded-md text-sm font-medium bg-muted text-foreground"
-                  >
-                    {t("nav.dashboard")}
-                  </Link>
-                  <Link
-                    to="/meals/log"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.logMeal")}
-                  </Link>
-                  <Link
-                    to="/food-library"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.foodLibrary")}
-                  </Link>
-                  <Link
-                    to="/preset-meals"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.presets")}
-                  </Link>
-                  <Link
-                    to="/meals"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.history")}
-                  </Link>
-                  <Link
-                    to="/analytics/weekly"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.analytics")}
-                  </Link>
-                  <Link
-                    to="/ai-chat"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    {t("nav.aiChat")}
-                  </Link>
-                </nav>
               </div>
 
               <div className="flex items-center gap-4">
@@ -307,29 +264,6 @@ export default function MainLayout() {
                   </>
                 )}
             </nav>
-            <div className="p-4 border-t border-border">
-              <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-semibold text-sm">
-                  {initials(user?.fullname)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">
-                    {user?.fullname ?? t("nav.profile")}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.email ?? ""}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="p-1.5 rounded-md hover:bg-muted transition-colors"
-                  aria-label={t("nav.signOut")}
-                >
-                  <LogOut className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
-            </div>
           </aside>
 
           <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-10">

@@ -60,7 +60,13 @@ function SelectTrigger({
 function SelectContent({
   className,
   children,
-  position = "item-aligned",
+  // "item-aligned" (Radix's default) computes its position by manually
+  // measuring the trigger/viewport and can end up with no top/left at all
+  // in some layouts (sticky headers, flex containers) — the content then
+  // renders in normal flow at the bottom of the page instead of floating
+  // near the trigger. "popper" uses the same floating-ui-style positioning
+  // as Popover/DropdownMenu and doesn't have that failure mode.
+  position = "popper",
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {

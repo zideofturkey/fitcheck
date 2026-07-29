@@ -14,6 +14,7 @@ export const AVAILABLE_ROUTES = new Set<string>([
   "/admin/users/:userId",
   "/admin/users/create",
   "/ai-candidate-meals/:id/confirm",
+  "/ai-chat",
   "/ai-guidance-notes/:id",
   "/ai-sessions",
   "/ai-sessions/:id",

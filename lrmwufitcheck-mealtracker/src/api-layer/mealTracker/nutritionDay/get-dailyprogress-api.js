@@ -194,8 +194,16 @@ class GetDailyProgressManager extends NutritionDayManager {
         runMScript(() => !this.nutritionDay, {
           path: "services[3].businessLogic[9].actions.functionCallActions[0].condition",
         })
-      )
+      ) {
         this.nutritionDay = await this.initNutritionDayIfMissing();
+        // executeMainOperation() ran before this hook and found no row, so
+        // this.dbResult (and its alias this.data) are still null. buildOutput()
+        // reads this.dbResult._source unconditionally, so without this the
+        // freshly auto-created row would still crash the response with a
+        // null-dereference on every first-ever call for a user+date.
+        this.dbResult = this.nutritionDay;
+        this.data = this.nutritionDay;
+      }
     } catch (err) {
       console.log("initNutritionDayIfMissing Action Error:", err.message);
       //**errorLog

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   Apple,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Info,
@@ -44,19 +44,7 @@ import {
 import { useGroupedFoodItems } from "@/hooks/api/use-food-item-groups";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
-
-const CATEGORIES = [
-  "Meat",
-  "Dairy",
-  "Bakery",
-  "Vegetable",
-  "Fruit",
-  "Grain",
-  "Tahıllar ve Karbonhidratlar",
-  "Snack",
-  "Beverage",
-  "Other",
-];
+import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Meat: Apple,
@@ -111,6 +99,108 @@ function itemToForm(item: NutritionlibraryFoodItem): FormState {
   };
 }
 
+function BrandField({
+  value,
+  onChange,
+  options,
+  onAddBrand,
+  t,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  onAddBrand: (v: string) => void;
+  t: TFunction;
+}) {
+  const [adding, setAdding] = useState(false);
+  const [draft, setDraft] = useState("");
+
+  const handleSave = () => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    onAddBrand(trimmed);
+    onChange(trimmed);
+    setDraft("");
+    setAdding(false);
+  };
+
+  const handleCancel = () => {
+    setDraft("");
+    setAdding(false);
+  };
+
+  // The item's own current brand might not be in `options` yet (e.g. it's
+  // the only foodItem with that brand and the options query hasn't caught
+  // up) — always keep the active value selectable.
+  const fullOptions =
+    value && !options.includes(value) ? [value, ...options] : options;
+
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-foreground">
+        {t("foodLibrary.brand")}
+      </label>
+      {adding ? (
+        <div className="flex items-center gap-2">
+          <Input
+            autoFocus
+            placeholder={t("foodLibrary.newBrandPlaceholder")}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSave();
+              }
+              if (e.key === "Escape") {
+                handleCancel();
+              }
+            }}
+          />
+          <Button type="button" size="sm" onClick={handleSave}>
+            {t("common.save")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={handleCancel}
+          >
+            {t("common.cancel")}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <Select
+            value={value || "none"}
+            onValueChange={(v) => onChange(v === "none" ? "" : v)}
+          >
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("foodLibrary.noBrand")}</SelectItem>
+              {fullOptions.map((b) => (
+                <SelectItem key={b} value={b}>
+                  {b}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-input hover:bg-muted transition-colors"
+            aria-label={t("foodLibrary.addBrand")}
+          >
+            <Plus className="size-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FoodLibraryPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -141,6 +231,22 @@ export default function FoodLibraryPage() {
   });
   const { data: groupedData, isLoading: groupedLoading } =
     useGroupedFoodItems(groupedView);
+
+  // Separate, unfiltered, large-page fetch just to derive the full set of
+  // brand names the user has ever used — the main list above is paginated
+  // 10 at a time and would only ever surface the current page's brands.
+  const { data: brandSourceData } = useListFoodItems({ pageRowCount: 500 });
+  const [extraBrands, setExtraBrands] = useState<string[]>([]);
+  const brandOptions = useMemo(() => {
+    const set = new Set<string>(extraBrands);
+    for (const f of brandSourceData?.foodItems ?? []) {
+      if (f.brandName) set.add(f.brandName);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "tr"));
+  }, [brandSourceData, extraBrands]);
+  const handleAddBrand = (brand: string) => {
+    setExtraBrands((prev) => (prev.includes(brand) ? prev : [...prev, brand]));
+  };
 
   const items = data?.foodItems ?? [];
   const totalCount = data?.rowCount ?? items.length;
@@ -336,7 +442,7 @@ export default function FoodLibraryPage() {
                         variant="secondary"
                         className="text-[10px] px-2 py-0.5"
                       >
-                        {food.foodCategory}
+                        {categoryLabel(t, food.foodCategory)}
                       </Badge>
                     )}
                     {food.creationSource === "aiAssistant" && (
@@ -549,8 +655,7 @@ export default function FoodLibraryPage() {
             <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
               {categoryFilter === "all"
                 ? t("foodLibrary.allCategories")
-                : categoryFilter}{" "}
-              <ChevronDown className="size-3 text-muted-foreground" />
+                : categoryLabel(t, categoryFilter)}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">
@@ -558,7 +663,7 @@ export default function FoodLibraryPage() {
               </SelectItem>
               {CATEGORIES.map((c) => (
                 <SelectItem key={c} value={c}>
-                  {c}
+                  {categoryLabel(t, c)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -575,8 +680,7 @@ export default function FoodLibraryPage() {
                 ? t("foodLibrary.allSources")
                 : sourceFilter === "manualEntry"
                   ? t("foodLibrary.manual")
-                  : t("foodLibrary.ai")}{" "}
-              <ChevronDown className="size-3 text-muted-foreground" />
+                  : t("foodLibrary.ai")}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("foodLibrary.allSources")}</SelectItem>
@@ -683,19 +787,16 @@ export default function FoodLibraryPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">
-                      {t("foodLibrary.brand")}
-                    </label>
-                    <Input
-                      placeholder={t("foodLibrary.brandPlaceholder")}
-                      value={createForm.brand}
-                      onChange={(e) =>
-                        setCreateForm((f) => ({ ...f, brand: e.target.value }))
-                      }
-                    />
-                  </div>
+                <div className="grid grid-cols-[1fr_1.5fr] gap-4">
+                  <BrandField
+                    value={createForm.brand}
+                    onChange={(v) =>
+                      setCreateForm((f) => ({ ...f, brand: v }))
+                    }
+                    options={brandOptions}
+                    onAddBrand={handleAddBrand}
+                    t={t}
+                  />
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-foreground">
                       {t("foodLibrary.category")}
@@ -706,13 +807,13 @@ export default function FoodLibraryPage() {
                         setCreateForm((f) => ({ ...f, category: v }))
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
                       </SelectTrigger>
                       <SelectContent>
                         {CATEGORIES.map((c) => (
                           <SelectItem key={c} value={c}>
-                            {c}
+                            {categoryLabel(t, c)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -840,18 +941,14 @@ export default function FoodLibraryPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">
-                      {t("foodLibrary.brand")}
-                    </label>
-                    <Input
-                      value={editForm.brand}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, brand: e.target.value }))
-                      }
-                    />
-                  </div>
+                <div className="grid grid-cols-[1fr_1.5fr] gap-4">
+                  <BrandField
+                    value={editForm.brand}
+                    onChange={(v) => setEditForm((f) => ({ ...f, brand: v }))}
+                    options={brandOptions}
+                    onAddBrand={handleAddBrand}
+                    t={t}
+                  />
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-foreground">
                       {t("foodLibrary.category")}
@@ -862,13 +959,13 @@ export default function FoodLibraryPage() {
                         setEditForm((f) => ({ ...f, category: v }))
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {CATEGORIES.map((c) => (
                           <SelectItem key={c} value={c}>
-                            {c}
+                            {categoryLabel(t, c)}
                           </SelectItem>
                         ))}
                       </SelectContent>
