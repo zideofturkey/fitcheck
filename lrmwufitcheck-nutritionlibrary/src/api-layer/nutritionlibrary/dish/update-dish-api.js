@@ -41,6 +41,7 @@ class UpdateDishManager extends DishManager {
     jsonObj.dishId = this.dishId;
     jsonObj.dishName = this.dishName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.dishCategory = this.dishCategory;
     jsonObj.isGlobal = this.isGlobal;
   }
 
@@ -52,6 +53,7 @@ class UpdateDishManager extends DishManager {
     this.dishId = request.params?.["dishId"];
     this.dishName = request.body?.["dishName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.dishCategory = request.body?.["dishCategory"];
     this.isGlobal = request.body?.["isGlobal"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
@@ -66,6 +68,7 @@ class UpdateDishManager extends DishManager {
     this.dishId = request.mcpParams?.["dishId"];
     this.dishName = request.mcpParams?.["dishName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.dishCategory = request.mcpParams?.["dishCategory"];
     this.isGlobal = request.mcpParams?.["isGlobal"];
     this.requestData = request.mcpParams;
 
@@ -98,6 +101,10 @@ class UpdateDishManager extends DishManager {
       dishName: this.dishName,
       descriptionText: this.descriptionText,
     };
+
+    if (this.dishCategory !== undefined) {
+      dataClause.dishCategory = this.dishCategory;
+    }
 
     // isGlobal is admin-gated (see checkParameter_isGlobal) - only include
     // it when the client actually sent it, so omitting the field never
@@ -201,6 +208,16 @@ class UpdateDishManager extends DishManager {
     // Parameter Type: String
   }
 
+  checkParameter_dishCategory() {
+    if (this.dishCategory == null) return;
+
+    if (Array.isArray(this.dishCategory)) {
+      throw new BadRequestError("errMsg_dishCategoryMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_isGlobal() {
     if (this.isGlobal == null) return;
 
@@ -226,6 +243,8 @@ class UpdateDishManager extends DishManager {
     this.checkParameter_isGlobal();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_dishCategory();
 
     // filter parameters
   }

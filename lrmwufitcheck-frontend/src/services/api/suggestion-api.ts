@@ -9,6 +9,43 @@ import { nutritionlibraryApi } from "@/lib/service-client";
 export type SuggestionEntityType = "foodItem" | "dish" | "presetMeal";
 export type SuggestionStatus = "pending" | "approved" | "rejected";
 
+export interface SuggestionLineDetail {
+  lineFoodName: string;
+  gramAmount: number;
+  lineCalories: number;
+  lineProtein: number;
+  lineCarbohydrates: number;
+  lineFat: number;
+  lineSugar: number;
+  lineFiber: number;
+}
+
+export interface SuggestionSourceDetail {
+  // foodItem
+  foodName?: string;
+  caloriePer100g?: number;
+  proteinPer100g?: number;
+  carbohydratePer100g?: number;
+  fatPer100g?: number;
+  sugarPer100g?: number;
+  fiberPer100g?: number;
+  brandName?: string | null;
+  // dish
+  dishName?: string;
+  totalGramWeight?: number;
+  // presetMeal
+  templateName?: string;
+  // shared (dish/presetMeal)
+  descriptionText?: string | null;
+  totalCalories?: number;
+  totalProtein?: number;
+  totalCarbohydrates?: number;
+  totalFat?: number;
+  totalSugar?: number;
+  totalFiber?: number;
+  lines?: SuggestionLineDetail[];
+}
+
 export interface Suggestion {
   id: string;
   userId: string;
@@ -20,6 +57,10 @@ export interface Suggestion {
   reviewedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** Enriched detail of the actual foodItem/dish/presetMeal being suggested,
+   * fetched server-side so the admin panel can show what it's approving
+   * instead of just a bare record id. Null if the source record was deleted. */
+  sourceDetail?: SuggestionSourceDetail | null;
 }
 
 export interface CreateSuggestionInput {

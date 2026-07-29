@@ -5,7 +5,7 @@ import {
   Search,
   X,
   BookOpen,
-  Layers,
+  ClipboardList,
   PencilLine,
   UtensilsCrossed,
 } from "lucide-react";
@@ -218,22 +218,6 @@ export default function FoodPickerModal({
           <button
             type="button"
             onClick={() => {
-              setTab("presets");
-              setSelectedFood(null);
-              setSelectedDish(null);
-            }}
-            className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              tab === "presets"
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            {t("foodPickerModal.presetMealsTab")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
               setTab("dishes");
               setSelectedFood(null);
               setSelectedPreset(null);
@@ -246,6 +230,22 @@ export default function FoodPickerModal({
           >
             <UtensilsCrossed className="w-4 h-4" />
             {t("foodPickerModal.dishesTab")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("presets");
+              setSelectedFood(null);
+              setSelectedDish(null);
+            }}
+            className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              tab === "presets"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <ClipboardList className="w-4 h-4" />
+            {t("foodPickerModal.presetMealsTab")}
           </button>
         </div>
 

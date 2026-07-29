@@ -70,6 +70,95 @@ async function createSuggestion(req, res, next) {
   }
 }
 
+// Fetches the real foodItem/dish/presetMeal record a suggestion points at,
+// so the admin panel can show what it's actually approving instead of a
+// bare id. Dish/presetMeal also include their active lines (same pattern
+// as copyChildLines below, but reading rather than copying).
+async function fetchSourceDetail(entityType, sourceRecordId) {
+  const { entityModels, DishLine, PresetLine } = getModels();
+  const Model = entityModels[entityType];
+  const record = await Model.findOne({
+    where: { id: sourceRecordId, isActive: true },
+  });
+  if (!record) return null;
+
+  const plain = record.get({ plain: true });
+
+  if (entityType === "foodItem") {
+    return {
+      foodName: plain.foodName,
+      caloriePer100g: plain.caloriePer100g,
+      proteinPer100g: plain.proteinPer100g,
+      carbohydratePer100g: plain.carbohydratePer100g,
+      fatPer100g: plain.fatPer100g,
+      sugarPer100g: plain.sugarPer100g,
+      fiberPer100g: plain.fiberPer100g,
+      brandName: plain.brandName,
+    };
+  }
+
+  if (entityType === "dish") {
+    const lines = await DishLine.findAll({
+      where: { dishId: sourceRecordId, isActive: true },
+    });
+    return {
+      dishName: plain.dishName,
+      descriptionText: plain.descriptionText,
+      totalCalories: plain.totalCalories,
+      totalProtein: plain.totalProtein,
+      totalCarbohydrates: plain.totalCarbohydrates,
+      totalFat: plain.totalFat,
+      totalSugar: plain.totalSugar,
+      totalFiber: plain.totalFiber,
+      totalGramWeight: plain.totalGramWeight,
+      lines: lines.map((l) => {
+        const lp = l.get({ plain: true });
+        return {
+          lineFoodName: lp.lineFoodName,
+          gramAmount: lp.gramAmount,
+          lineCalories: lp.lineCalories,
+          lineProtein: lp.lineProtein,
+          lineCarbohydrates: lp.lineCarbohydrates,
+          lineFat: lp.lineFat,
+          lineSugar: lp.lineSugar,
+          lineFiber: lp.lineFiber,
+        };
+      }),
+    };
+  }
+
+  if (entityType === "presetMeal") {
+    const lines = await PresetLine.findAll({
+      where: { presetMealId: sourceRecordId, isActive: true },
+    });
+    return {
+      templateName: plain.templateName,
+      descriptionText: plain.descriptionText,
+      totalCalories: plain.totalCalories,
+      totalProtein: plain.totalProtein,
+      totalCarbohydrates: plain.totalCarbohydrates,
+      totalFat: plain.totalFat,
+      totalSugar: plain.totalSugar,
+      totalFiber: plain.totalFiber,
+      lines: lines.map((l) => {
+        const lp = l.get({ plain: true });
+        return {
+          lineFoodName: lp.lineFoodName,
+          gramAmount: lp.gramAmount,
+          lineCalories: lp.lineCalories,
+          lineProtein: lp.lineProtein,
+          lineCarbohydrates: lp.lineCarbohydrates,
+          lineFat: lp.lineFat,
+          lineSugar: lp.lineSugar,
+          lineFiber: lp.lineFiber,
+        };
+      }),
+    };
+  }
+
+  return null;
+}
+
 // GET /v1/suggestions - admins see everyone's (default: pending only, ?status=all for everything);
 // regular users see only their own (all statuses unless ?status= given)
 async function listSuggestions(req, res, next) {
@@ -97,10 +186,21 @@ async function listSuggestions(req, res, next) {
       order: [["createdAt", "DESC"]],
     });
 
+    const enriched = await Promise.all(
+      suggestions.map(async (s) => {
+        const plain = s.get({ plain: true });
+        plain.sourceDetail = await fetchSourceDetail(
+          plain.entityType,
+          plain.sourceRecordId,
+        );
+        return plain;
+      }),
+    );
+
     res.json({
       status: "OK",
-      count: suggestions.length,
-      suggestions: suggestions.map((s) => s.get({ plain: true })),
+      count: enriched.length,
+      suggestions: enriched,
     });
   } catch (err) {
     next(err);

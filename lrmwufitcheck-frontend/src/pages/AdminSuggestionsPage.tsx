@@ -138,9 +138,54 @@ function AdminSuggestionsPage() {
                     {s.status}
                   </Badge>
                 </div>
-                <p className="text-sm font-mono text-muted-foreground truncate">
-                  {t("adminSuggestions.recordId")}: {s.sourceRecordId}
-                </p>
+
+                {s.sourceDetail ? (
+                  <div className="mt-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {s.sourceDetail.foodName ??
+                        s.sourceDetail.dishName ??
+                        s.sourceDetail.templateName}
+                    </p>
+                    {s.entityType === "foodItem" ? (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t("adminSuggestions.per100g")}: {s.sourceDetail.caloriePer100g}{" "}
+                        {t("common.kcal")} · P {s.sourceDetail.proteinPer100g}g · K{" "}
+                        {s.sourceDetail.carbohydratePer100g}g · Y{" "}
+                        {s.sourceDetail.fatPer100g}g · Ş {s.sourceDetail.sugarPer100g}g ·
+                        L {s.sourceDetail.fiberPer100g}g
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {t("adminSuggestions.totals")}: {s.sourceDetail.totalCalories}{" "}
+                          {t("common.kcal")} · P {s.sourceDetail.totalProtein}g · K{" "}
+                          {s.sourceDetail.totalCarbohydrates}g · Y{" "}
+                          {s.sourceDetail.totalFat}g
+                          {s.sourceDetail.totalGramWeight != null &&
+                            ` · ${s.sourceDetail.totalGramWeight}g`}
+                        </p>
+                        {s.sourceDetail.lines && s.sourceDetail.lines.length > 0 && (
+                          <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+                            {s.sourceDetail.lines.map((line, idx) => (
+                              <li key={idx} className="truncate">
+                                • {line.lineFoodName} ({line.gramAmount}g) —{" "}
+                                {line.lineCalories} {t("common.kcal")}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm font-mono text-muted-foreground truncate mt-1">
+                    {t("adminSuggestions.recordId")}: {s.sourceRecordId}{" "}
+                    <span className="italic">
+                      ({t("adminSuggestions.recordDeleted")})
+                    </span>
+                  </p>
+                )}
+
                 <p className="text-xs text-muted-foreground mt-1">
                   {t("adminSuggestions.suggestedBy")} {s.userId}
                   {s.createdAt &&

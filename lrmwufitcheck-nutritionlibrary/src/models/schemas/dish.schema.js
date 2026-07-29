@@ -31,6 +31,10 @@ const schemaDef = {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    dishCategory: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     totalCalories: {
       type: DataTypes.DOUBLE,
       allowNull: false,
@@ -94,6 +98,12 @@ const schemaDef = {
       name: "dishes_dish_name",
       unique: false,
       fields: ["dishName"],
+      where: { isActive: true },
+    },
+    {
+      name: "dishes_dish_category",
+      unique: false,
+      fields: ["dishCategory"],
       where: { isActive: true },
     },
   ],

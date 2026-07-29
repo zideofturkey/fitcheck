@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ChevronRight,
@@ -17,9 +18,12 @@ import {
   useGetPresetMeal,
   useListPresetLines,
   useDeletePresetLine,
-  useListFoodItems,
-  useAddPresetLine,
+  nutritionlibraryKeys,
 } from "@/hooks/api/use-nutritionlibrary";
+import { useListDishes } from "@/hooks/api/use-dish";
+import { addPresetLineDish } from "@/services/api/preset-line-helpers";
+import type { Dish } from "@/services/api/dish-api";
+import CategoryAccordionDishPicker from "@/components/CategoryAccordionDishPicker";
 
 function NutritionTile({
   label,
@@ -47,13 +51,25 @@ export default function PresetMealDetailPage() {
   const { data: linesData } = useListPresetLines(presetMealId ?? "", {});
   const deleteMutation = useDeletePresetMeal();
   const deleteLineMutation = useDeletePresetLine();
-  const addLineMutation = useAddPresetLine();
+  const queryClient = useQueryClient();
+  const addLineMutation = useMutation({
+    mutationFn: ({
+      presetMealId,
+      data,
+    }: {
+      presetMealId: string;
+      data: { dishId: string; gramAmount: number };
+    }) => addPresetLineDish(presetMealId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: nutritionlibraryKeys.all() });
+    },
+  });
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedFoodId, setSelectedFoodId] = useState<string | null>(null);
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [gramAmount, setGramAmount] = useState<number>(100);
-  const { data: foodData } = useListFoodItems({
-    searchTerm: search || undefined,
+  const { data: dishData } = useListDishes({
+    dishName: search || undefined,
     pageRowCount: 8,
   });
 
@@ -99,34 +115,38 @@ export default function PresetMealDetailPage() {
     });
   };
 
-  const handleAddFood = (foodItemId: string) => {
+  const handleAddDish = (dishId: string) => {
     addLineMutation.mutate(
       {
         presetMealId: preset.id,
-        data: { foodItemId, gramAmount: gramAmount || 100 },
+        data: { dishId, gramAmount: gramAmount || 100 },
       },
       {
         onSuccess: () => {
           setAddOpen(false);
-          setSelectedFoodId(null);
+          setSelectedDish(null);
           setGramAmount(100);
         },
       },
     );
   };
 
-  const selectedFood = (foodData?.foodItems ?? []).find(
-    (f) => f.id === selectedFoodId,
-  );
   const grams = gramAmount > 0 ? gramAmount : 100;
-  const preview = selectedFood
+  // Dishes aren't per-100g like a foodItem — scale against the dish's own
+  // recipe weight (totalGramWeight), mirroring the backend's dishFactor math
+  // in add-presetline-api.js exactly, so the preview matches what gets saved.
+  const dishBase =
+    selectedDish && selectedDish.totalGramWeight > 0
+      ? selectedDish.totalGramWeight
+      : 0;
+  const preview = selectedDish && dishBase > 0
     ? {
-        calories: Math.round((selectedFood.caloriePer100g / 100) * grams),
-        protein: +((selectedFood.proteinPer100g / 100) * grams).toFixed(1),
-        carbs: +((selectedFood.carbohydratePer100g / 100) * grams).toFixed(1),
-        fat: +((selectedFood.fatPer100g / 100) * grams).toFixed(1),
-        sugar: +((selectedFood.sugarPer100g / 100) * grams).toFixed(1),
-        fiber: +((selectedFood.fiberPer100g / 100) * grams).toFixed(1),
+        calories: Math.round((selectedDish.totalCalories / dishBase) * grams),
+        protein: +((selectedDish.totalProtein / dishBase) * grams).toFixed(1),
+        carbs: +((selectedDish.totalCarbohydrates / dishBase) * grams).toFixed(1),
+        fat: +((selectedDish.totalFat / dishBase) * grams).toFixed(1),
+        sugar: +((selectedDish.totalSugar / dishBase) * grams).toFixed(1),
+        fiber: +((selectedDish.totalFiber / dishBase) * grams).toFixed(1),
       }
     : null;
 
@@ -322,8 +342,9 @@ export default function PresetMealDetailPage() {
           <button
             type="button"
             onClick={() => {
-              setSelectedFoodId(null);
+              setSelectedDish(null);
               setGramAmount(100);
+              setSearch("");
               setAddOpen(true);
             }}
             className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
@@ -341,7 +362,7 @@ export default function PresetMealDetailPage() {
         </section>
       </main>
 
-      {/* Add food item drawer */}
+      {/* Add dish drawer */}
       {addOpen && (
         <>
           <div
@@ -373,37 +394,54 @@ export default function PresetMealDetailPage() {
               />
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {(foodData?.foodItems ?? []).map((food) => {
-                const isSelected = selectedFoodId === food.id;
-                return (
-                  <button
-                    key={food.id}
-                    type="button"
-                    onClick={() => setSelectedFoodId(food.id)}
-                    className={`w-full text-left rounded-md border p-3 transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted"
-                    }`}
-                    disabled={addLineMutation.isPending}
-                  >
-                    <p className="text-sm font-medium">{food.foodName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {food.caloriePer100g} kcal · {food.proteinPer100g}g{" "}
-                      {t("presetMealDetail.protein").toLowerCase()} / 100g
+              {search ? (
+                <>
+                  {(dishData?.dishes ?? []).map((dish) => {
+                    const isSelected = selectedDish?.id === dish.id;
+                    return (
+                      <button
+                        key={dish.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDish(dish);
+                          setGramAmount(dish.totalGramWeight || 100);
+                        }}
+                        className={`w-full text-left rounded-md border p-3 transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted"
+                        }`}
+                        disabled={addLineMutation.isPending}
+                      >
+                        <p className="text-sm font-medium">{dish.dishName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {dish.totalCalories} kcal · {dish.totalProtein}g{" "}
+                          {t("presetMealDetail.protein").toLowerCase()} /{" "}
+                          {dish.totalGramWeight}g
+                        </p>
+                      </button>
+                    );
+                  })}
+                  {(dishData?.dishes ?? []).length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      {t("presetMealDetail.noFoodsFound")}
                     </p>
-                  </button>
-                );
-              })}
-              {(foodData?.foodItems ?? []).length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-6">
-                  {t("presetMealDetail.noFoodsFound")}
-                </p>
+                  )}
+                </>
+              ) : (
+                <CategoryAccordionDishPicker
+                  selectedId={selectedDish?.id ?? null}
+                  onSelect={(dish) => {
+                    setSelectedDish(dish);
+                    setGramAmount(dish.totalGramWeight || 100);
+                  }}
+                  emptyLabel={t("presetMealDetail.noFoodsFound")}
+                />
               )}
             </div>
 
-            {/* Gram amount + live preview for the selected food */}
-            {selectedFood && preview && (
+            {/* Gram amount + live preview for the selected dish */}
+            {selectedDish && preview && (
               <div className="border-t border-border p-4 space-y-3 bg-muted/30">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -478,7 +516,7 @@ export default function PresetMealDetailPage() {
                   type="button"
                   className="w-full"
                   disabled={addLineMutation.isPending || gramAmount <= 0}
-                  onClick={() => handleAddFood(selectedFood.id)}
+                  onClick={() => handleAddDish(selectedDish.id)}
                 >
                   {addLineMutation.isPending
                     ? t("presetMealDetail.adding")

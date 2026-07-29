@@ -1,4 +1,7 @@
 {
+  "stepIndicator": {
+    "label": "Step {{current}} / {{total}}"
+  },
   "common": {
     "appName": "FitCheck",
     "loading": "Loading...",
@@ -51,7 +54,7 @@
     "closeAria": "Close",
     "foodLibraryTab": "Food Library",
     "presetMealsTab": "Preset Meals",
-    "dishesTab": "Dishes",
+    "dishesTab": "Dish Library",
     "searchFoods": "Search foods...",
     "searchDishes": "Search dishes...",
     "searchPresets": "Search meals...",
@@ -426,14 +429,14 @@
     "item_one": "{{count}} item",
     "item_other": "{{count}} items",
     "removeAria": "Remove {{name}}",
-    "removeConfirm": "Remove this food from the preset?",
+    "removeConfirm": "Remove this dish from the preset meal?",
     "noItems": "No items in this preset yet.",
-    "addFoodItem": "Add Food Item",
-    "addFoodHint": "Search your food library to add more items",
-    "addFood": "Add Food",
+    "addFoodItem": "Add Dish",
+    "addFoodHint": "Search your dish library to add more dishes",
+    "addFood": "Add Dish",
     "closeAria": "Close",
-    "searchFoods": "Search foods...",
-    "noFoodsFound": "No foods found.",
+    "searchFoods": "Search dishes...",
+    "noFoodsFound": "No dishes found.",
     "gramAmount": "Gram amount",
     "adding": "Adding…",
     "addGrams": "Add {{grams}}g"
@@ -544,7 +547,6 @@
       "vegetable": "Vegetable",
       "fruit": "Fruit",
       "grain": "Grain",
-      "grainCarbs": "Grains & Carbs",
       "snack": "Snack",
       "beverage": "Beverage",
       "other": "Other"
@@ -761,7 +763,9 @@
     "sourcePreset": "Preset",
     "sourceManual": "Manual",
     "sourceAi": "AI",
-    "sourceDish": "Dish"
+    "sourceDish": "Dish",
+    "remainingKcal": "{{amount}} kcal left",
+    "overTarget": "{{amount}} kcal over"
   },
   "twoFactor": {
     "title": "Two-Factor Authentication",
@@ -1000,6 +1004,9 @@
     "entityDish": "Dish",
     "entityPresetMeal": "Preset Meal",
     "recordId": "Record ID",
+    "recordDeleted": "record no longer exists",
+    "per100g": "Per 100g",
+    "totals": "Totals",
     "suggestedBy": "Suggested by user",
     "approve": "Approve",
     "reject": "Reject"
@@ -1056,7 +1063,8 @@
     "sectionAdmin": "Admin",
     "signOut": "Sign out",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "brandManagement": "Brand Management"
   },
   "footer": {
     "tagline": "Your private, invite-only nutrition tracker. Log meals, track macros, and get AI-powered guidance.",
@@ -1142,9 +1150,23 @@
     "pageOf": "Page {{page}} of {{totalPages}}",
     "nameLabel": "Dish Name",
     "descriptionLabel": "Description",
-    "createHint": "You can add ingredients to this dish from the detail page after creation.",
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "Select a category",
+    "allCategories": "All Categories",
+    "categories": {
+      "breakfast": "Breakfast",
+      "soup": "Soup",
+      "mainCourse": "Main Course",
+      "salad": "Salad",
+      "snack": "Snack",
+      "dessert": "Dessert",
+      "beverage": "Beverage",
+      "other": "Other"
+    },
+    "createHint": "You'll be able to add ingredients to this dish in the next step.",
     "saving": "Saving…",
     "saveDish": "Save Dish",
+    "nextStep": "Next Step",
     "notFound": "Dish not found.",
     "backToDishes": "Back to dishes",
     "back": "Back",
@@ -1168,6 +1190,34 @@
     "suggestSuccess": "Your suggestion was submitted. An admin will review it.",
     "suggestError": "Could not submit suggestion."
   },
+  "manualEntry": {
+    "libraryTab": "Choose from Library",
+    "dishLibraryTab": "Choose from Dish Library",
+    "manualTab": "Add Manually",
+    "ingredientNameLabel": "Ingredient Name",
+    "dishNameLabel": "Dish Name",
+    "addIngredient": "Add Ingredient",
+    "addDish": "Add Dish",
+    "per100gHint": "Enter values per 100g — they'll be scaled by the gram amount automatically.",
+    "calories": "Calories",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "sugar": "Sugar",
+    "fiber": "Fiber",
+    "gramAmount": "Gram Amount",
+    "adding": "Adding…",
+    "finish": "Finish",
+    "dismissAria": "Close, don't submit a suggestion",
+    "promptTitle": "Suggest this for the global library?",
+    "promptDescriptionIngredient": "Would you like to suggest adding \"{{name}}\" to the global ingredient library?",
+    "promptDescriptionDish": "Would you like to suggest adding \"{{name}}\" to the global dish library?",
+    "keepPrivate": "No, keep it in my library only",
+    "suggest": "Yes, suggest it",
+    "suggestedSuccess": "Saved and suggested. An admin will review it.",
+    "savedToLibrary": "Saved to your library.",
+    "persistError": "Something went wrong saving this to your library."
+  },
   "targets": {
     "title": "Targets",
     "subtitle": "Set your daily calorie and macro targets.",
@@ -1183,5 +1233,23 @@
     "saving": "Saving...",
     "saveTargets": "Save Targets",
     "loadError": "Failed to load targets"
+  },
+  "adminBrands": {
+    "title": "Brand Management",
+    "subtitle": "Rename or remove brands used across the food library.",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "loadError": "Failed to load brands.",
+    "emptyTitle": "No brands yet",
+    "emptyDesc": "Brands will appear here once users add them while creating food items.",
+    "itemCount": "{{count}} items",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete brand",
+    "deleteConfirmDesc": "\"{{name}}\" will be removed from {{count}} food items. The food items themselves will not be deleted, only the brand field will be cleared. This cannot be undone.",
+    "renameSuccess": "{{count}} food items updated to \"{{name}}\".",
+    "renameError": "Failed to rename brand.",
+    "deleteSuccess": "Brand removed from {{count}} food items.",
+    "deleteError": "Failed to delete brand."
   }
 }

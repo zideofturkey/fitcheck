@@ -20,6 +20,8 @@ import {
   useAddDishLine,
 } from "@/hooks/api/use-dish";
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
+import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
+import type { NutritionlibraryFoodItem } from "@/types/api";
 
 function NutritionTile({
   label,
@@ -50,7 +52,8 @@ export default function DishDetailPage() {
   const addLineMutation = useAddDishLine();
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedFoodId, setSelectedFoodId] = useState<string | null>(null);
+  const [selectedFood, setSelectedFood] =
+    useState<NutritionlibraryFoodItem | null>(null);
   const [gramAmount, setGramAmount] = useState<number>(100);
   const { data: foodData } = useListFoodItems({
     searchTerm: search || undefined,
@@ -103,16 +106,13 @@ export default function DishDetailPage() {
       {
         onSuccess: () => {
           setAddOpen(false);
-          setSelectedFoodId(null);
+          setSelectedFood(null);
           setGramAmount(100);
         },
       },
     );
   };
 
-  const selectedFood = (foodData?.foodItems ?? []).find(
-    (f) => f.id === selectedFoodId,
-  );
   const grams = gramAmount > 0 ? gramAmount : 100;
   const preview = selectedFood
     ? {
@@ -313,8 +313,9 @@ export default function DishDetailPage() {
           <button
             type="button"
             onClick={() => {
-              setSelectedFoodId(null);
+              setSelectedFood(null);
               setGramAmount(100);
+              setSearch("");
               setAddOpen(true);
             }}
             className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
@@ -363,32 +364,42 @@ export default function DishDetailPage() {
               />
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {(foodData?.foodItems ?? []).map((food) => {
-                const isSelected = selectedFoodId === food.id;
-                return (
-                  <button
-                    key={food.id}
-                    type="button"
-                    onClick={() => setSelectedFoodId(food.id)}
-                    className={`w-full text-left rounded-md border p-3 transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted"
-                    }`}
-                    disabled={addLineMutation.isPending}
-                  >
-                    <p className="text-sm font-medium">{food.foodName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {food.caloriePer100g} {t("common.kcal")} · {food.proteinPer100g}
-                      g {t("aiCandidateMeal.protein").toLowerCase()} / 100g
+              {search ? (
+                <>
+                  {(foodData?.foodItems ?? []).map((food) => {
+                    const isSelected = selectedFood?.id === food.id;
+                    return (
+                      <button
+                        key={food.id}
+                        type="button"
+                        onClick={() => setSelectedFood(food)}
+                        className={`w-full text-left rounded-md border p-3 transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted"
+                        }`}
+                        disabled={addLineMutation.isPending}
+                      >
+                        <p className="text-sm font-medium">{food.foodName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {food.caloriePer100g} {t("common.kcal")} · {food.proteinPer100g}
+                          g {t("aiCandidateMeal.protein").toLowerCase()} / 100g
+                        </p>
+                      </button>
+                    );
+                  })}
+                  {(foodData?.foodItems ?? []).length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      {t("dishes.noFoodsFound")}
                     </p>
-                  </button>
-                );
-              })}
-              {(foodData?.foodItems ?? []).length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-6">
-                  {t("dishes.noFoodsFound")}
-                </p>
+                  )}
+                </>
+              ) : (
+                <CategoryAccordionFoodPicker
+                  selectedId={selectedFood?.id ?? null}
+                  onSelect={(food) => setSelectedFood(food)}
+                  emptyLabel={t("dishes.noFoodsFound")}
+                />
               )}
             </div>
 

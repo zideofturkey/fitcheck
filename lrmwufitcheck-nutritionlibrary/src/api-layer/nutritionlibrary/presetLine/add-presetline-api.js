@@ -48,6 +48,13 @@ class AddPresetLineManager extends PresetLineManager {
     jsonObj.dishId = this.dishId;
     jsonObj.gramAmount = this.gramAmount;
     jsonObj.presetMealId = this.presetMealId;
+    jsonObj.manualFoodName = this.manualFoodName;
+    jsonObj.manualCaloriePer100g = this.manualCaloriePer100g;
+    jsonObj.manualProteinPer100g = this.manualProteinPer100g;
+    jsonObj.manualCarbohydratePer100g = this.manualCarbohydratePer100g;
+    jsonObj.manualFatPer100g = this.manualFatPer100g;
+    jsonObj.manualSugarPer100g = this.manualSugarPer100g;
+    jsonObj.manualFiberPer100g = this.manualFiberPer100g;
   }
 
   async checkBasicAuth() {
@@ -60,6 +67,14 @@ class AddPresetLineManager extends PresetLineManager {
     this.dishId = request.body?.["dishId"];
     this.gramAmount = request.body?.["gramAmount"];
     this.presetMealId = request.params?.["presetMealId"];
+    this.manualFoodName = request.body?.["manualFoodName"];
+    this.manualCaloriePer100g = request.body?.["manualCaloriePer100g"];
+    this.manualProteinPer100g = request.body?.["manualProteinPer100g"];
+    this.manualCarbohydratePer100g =
+      request.body?.["manualCarbohydratePer100g"];
+    this.manualFatPer100g = request.body?.["manualFatPer100g"];
+    this.manualSugarPer100g = request.body?.["manualSugarPer100g"];
+    this.manualFiberPer100g = request.body?.["manualFiberPer100g"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
     this.requestData = request.body;
     this.queryData = request.query ?? {};
@@ -76,6 +91,14 @@ class AddPresetLineManager extends PresetLineManager {
     this.dishId = request.mcpParams?.["dishId"];
     this.gramAmount = request.mcpParams?.["gramAmount"];
     this.presetMealId = request.mcpParams?.["presetMealId"];
+    this.manualFoodName = request.mcpParams?.["manualFoodName"];
+    this.manualCaloriePer100g = request.mcpParams?.["manualCaloriePer100g"];
+    this.manualProteinPer100g = request.mcpParams?.["manualProteinPer100g"];
+    this.manualCarbohydratePer100g =
+      request.mcpParams?.["manualCarbohydratePer100g"];
+    this.manualFatPer100g = request.mcpParams?.["manualFatPer100g"];
+    this.manualSugarPer100g = request.mcpParams?.["manualSugarPer100g"];
+    this.manualFiberPer100g = request.mcpParams?.["manualFiberPer100g"];
     this.id = request.mcpParams?.id;
     this.requestData = request.mcpParams;
 
@@ -96,21 +119,37 @@ class AddPresetLineManager extends PresetLineManager {
     if (!this.presetLineId) this.presetLineId = newUUID(false);
     this.id = this.presetLineId;
 
-    // Either/or nutrition source: exactly one of foodItemId/dishId is set
-    // by this point (enforced in validateExactlyOneSource()). A foodItem
-    // line scales per-100g values by gramAmount, exactly as before. A dish
-    // line scales the dish's own totals against the dish's totalGramWeight
-    // (its base recipe weight - sum of its own dishLine gram amounts),
-    // mirroring the per-100g approach but using the dish's own weight as
-    // the base instead of a fixed 100g.
+    // Three-way nutrition source: exactly one of foodItemId/dishId/manual
+    // is set by this point (enforced in validateExactlyOneSource()). A
+    // foodItem line scales per-100g values by gramAmount. A dish line
+    // scales the dish's own totals against the dish's totalGramWeight
+    // (its base recipe weight), mirroring the per-100g approach but using
+    // the dish's own weight as the base instead of a fixed 100g. A manual
+    // line is a fully embedded, library-independent entry (foodItemId and
+    // dishId both null) whose own per-100g values were supplied directly
+    // in the request, scaled the same way as a foodItem line.
     const isFoodSource = this.foodItemId != null;
-    const dishFactor = isFoodSource
-      ? null
-      : this.resolvedDish.totalGramWeight > 0
-        ? this.gramAmount / this.resolvedDish.totalGramWeight
-        : 0;
+    const isManual = !isFoodSource && this.dishId == null;
+    const dishFactor =
+      !isFoodSource && !isManual
+        ? this.resolvedDish.totalGramWeight > 0
+          ? this.gramAmount / this.resolvedDish.totalGramWeight
+          : 0
+        : null;
 
     const round2 = (v) => Math.round(v * 100) / 100;
+
+    const manualSource = isManual
+      ? {
+          foodName: this.manualFoodName,
+          caloriePer100g: this.manualCaloriePer100g,
+          proteinPer100g: this.manualProteinPer100g,
+          carbohydratePer100g: this.manualCarbohydratePer100g,
+          fatPer100g: this.manualFatPer100g,
+          sugarPer100g: this.manualSugarPer100g,
+          fiberPer100g: this.manualFiberPer100g,
+        }
+      : null;
 
     const dataClause = {
       id: this.presetLineId,
@@ -119,37 +158,51 @@ class AddPresetLineManager extends PresetLineManager {
       dishId: this.dishId ?? null,
       lineFoodName: isFoodSource
         ? this.resolvedFood.foodName
-        : this.resolvedDish.dishName,
+        : isManual
+          ? manualSource.foodName
+          : this.resolvedDish.dishName,
       gramAmount: this.gramAmount,
       lineCalories: round2(
         isFoodSource
           ? (this.resolvedFood.caloriePer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalCalories * dishFactor,
+          : isManual
+            ? (manualSource.caloriePer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalCalories * dishFactor,
       ),
       lineProtein: round2(
         isFoodSource
           ? (this.resolvedFood.proteinPer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalProtein * dishFactor,
+          : isManual
+            ? (manualSource.proteinPer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalProtein * dishFactor,
       ),
       lineCarbohydrates: round2(
         isFoodSource
           ? (this.resolvedFood.carbohydratePer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalCarbohydrates * dishFactor,
+          : isManual
+            ? (manualSource.carbohydratePer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalCarbohydrates * dishFactor,
       ),
       lineFat: round2(
         isFoodSource
           ? (this.resolvedFood.fatPer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalFat * dishFactor,
+          : isManual
+            ? (manualSource.fatPer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalFat * dishFactor,
       ),
       lineSugar: round2(
         isFoodSource
           ? (this.resolvedFood.sugarPer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalSugar * dishFactor,
+          : isManual
+            ? (manualSource.sugarPer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalSugar * dishFactor,
       ),
       lineFiber: round2(
         isFoodSource
           ? (this.resolvedFood.fiberPer100g * this.gramAmount) / 100
-          : this.resolvedDish.totalFiber * dishFactor,
+          : isManual
+            ? (manualSource.fiberPer100g * this.gramAmount) / 100
+            : this.resolvedDish.totalFiber * dishFactor,
       ),
       isActive: true,
       _archivedAt: null,
@@ -304,6 +357,30 @@ class AddPresetLineManager extends PresetLineManager {
     // Parameter Type: String
   }
 
+  checkParameter_manualFoodName() {
+    if (this.manualFoodName == null) return;
+    if (typeof this.manualFoodName !== "string" || !this.manualFoodName.trim()) {
+      throw new BadRequestError("errMsg_manualFoodNameTypeIsNotValid");
+    }
+  }
+
+  checkParameter_manualNutritionValues() {
+    const fields = [
+      "manualCaloriePer100g",
+      "manualProteinPer100g",
+      "manualCarbohydratePer100g",
+      "manualFatPer100g",
+      "manualSugarPer100g",
+      "manualFiberPer100g",
+    ];
+    for (const field of fields) {
+      if (this[field] == null) continue;
+      if (isNaN(this[field])) {
+        throw new BadRequestError(`errMsg_${field}TypeIsNotValid`);
+      }
+    }
+  }
+
   checkParameters() {
     if (this.presetLineId === "") this.presetLineId = null;
     this.checkParameter_presetLineId();
@@ -313,6 +390,10 @@ class AddPresetLineManager extends PresetLineManager {
 
     if (this.dishId === "") this.dishId = null;
     this.checkParameter_dishId();
+
+    if (this.manualFoodName === "") this.manualFoodName = null;
+    this.checkParameter_manualFoodName();
+    this.checkParameter_manualNutritionValues();
 
     this.checkParameter_gramAmount();
 
@@ -385,7 +466,7 @@ class AddPresetLineManager extends PresetLineManager {
         //**errorLog
         throw err;
       }
-    } else {
+    } else if (this.dishId != null) {
       try {
         this.resolvedDish = await this.fetchDish();
       } catch (err) {
@@ -401,6 +482,8 @@ class AddPresetLineManager extends PresetLineManager {
         throw err;
       }
     }
+    // else: manual/embedded entry - no library record to fetch or validate,
+    // validateExactlyOneSource() already confirmed the manual fields.
   }
 
   async afterMainCreateOperation() {
@@ -468,17 +551,35 @@ class AddPresetLineManager extends PresetLineManager {
   }
 
   /***********************************************************************
-   ** Ensure exactly one of foodItemId / dishId was provided - a preset
-   ** line references either an ingredient or a dish, never both/neither
+   ** Ensure exactly one nutrition source was provided: a foodItemId, a
+   ** dishId, or a fully embedded manual entry (name + per-100g values)
+   ** with no library reference at all - never more than one, never none.
    ***********************************************************************/
 
   async validateExactlyOneSource() {
     const hasFood = this.foodItemId != null;
     const hasDish = this.dishId != null;
-    if (hasFood === hasDish) {
+    const hasManual = this.manualFoodName != null;
+    const sourceCount = [hasFood, hasDish, hasManual].filter(Boolean).length;
+    if (sourceCount !== 1) {
       throw new BadRequestError(
-        "errMsg_ExactlyOneOfFoodItemIdOrDishIdMustBeProvided",
+        "errMsg_ExactlyOneOfFoodItemIdOrDishIdOrManualEntryMustBeProvided",
       );
+    }
+    if (hasManual) {
+      const fields = [
+        "manualCaloriePer100g",
+        "manualProteinPer100g",
+        "manualCarbohydratePer100g",
+        "manualFatPer100g",
+        "manualSugarPer100g",
+        "manualFiberPer100g",
+      ];
+      for (const field of fields) {
+        if (this[field] == null) {
+          throw new BadRequestError(`errMsg_${field}isRequired`);
+        }
+      }
     }
     return true;
   }

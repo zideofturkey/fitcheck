@@ -12,6 +12,7 @@ export interface Dish {
   userId: string;
   dishName: string;
   descriptionText?: string;
+  dishCategory?: string | null;
   totalCalories: number;
   totalProtein: number;
   totalCarbohydrates: number;
@@ -60,17 +61,30 @@ export interface DishLineListResponse extends MindbricksResponse {
 export interface CreateDishInput {
   dishName: string;
   descriptionText?: string;
+  dishCategory?: string;
   isGlobal?: boolean;
 }
 
 export interface AddDishLineInput {
-  foodItemId: string;
+  foodItemId?: string;
   gramAmount: number;
+  // Manual/embedded entry (foodItemId omitted): a fully one-off ingredient
+  // whose own per-100g values are supplied directly, with no foodItem
+  // library record created. Exactly one of foodItemId or manualFoodName
+  // must be provided.
+  manualFoodName?: string;
+  manualCaloriePer100g?: number;
+  manualProteinPer100g?: number;
+  manualCarbohydratePer100g?: number;
+  manualFatPer100g?: number;
+  manualSugarPer100g?: number;
+  manualFiberPer100g?: number;
 }
 
 export interface ListDishesParams {
   [key: string]: string | number | boolean | undefined;
   dishName?: string;
+  dishCategory?: string;
   isGlobal?: boolean;
   pageNumber?: number;
   pageRowCount?: number;

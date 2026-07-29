@@ -1,4 +1,7 @@
 {
+  "stepIndicator": {
+    "label": "Adım {{current}} / {{total}}"
+  },
   "common": {
     "appName": "FitCheck",
     "loading": "Yükleniyor...",
@@ -49,9 +52,9 @@
   "foodPickerModal": {
     "title": "Besin Ekle",
     "closeAria": "Kapat",
-    "foodLibraryTab": "Yiyecek Kütüphanesi",
+    "foodLibraryTab": "Besin Kütüphanesi",
     "presetMealsTab": "Hazır Öğünler",
-    "dishesTab": "Yemekler",
+    "dishesTab": "Yemek Kütüphanesi",
     "searchFoods": "Besin ara...",
     "searchDishes": "Yemek ara...",
     "searchPresets": "Öğün ara...",
@@ -426,14 +429,14 @@
     "item_one": "{{count}} öğe",
     "item_other": "{{count}} öğe",
     "removeAria": "{{name}} kaldır",
-    "removeConfirm": "Bu besini hazır öğünden kaldır?",
+    "removeConfirm": "Bu yemeği hazır öğünden kaldır?",
     "noItems": "Bu hazır öğünde henüz öğe yok.",
-    "addFoodItem": "Besin Öğesi Ekle",
-    "addFoodHint": "Daha fazla öğe eklemek için besin kütüphanenizde arayın",
-    "addFood": "Besin Ekle",
+    "addFoodItem": "Yemek Ekle",
+    "addFoodHint": "Daha fazla yemek eklemek için yemek kütüphanenizde arayın",
+    "addFood": "Yemek Ekle",
     "closeAria": "Kapat",
-    "searchFoods": "Besin ara...",
-    "noFoodsFound": "Besin bulunamadı.",
+    "searchFoods": "Yemek ara...",
+    "noFoodsFound": "Yemek bulunamadı.",
     "gramAmount": "Gram miktarı",
     "adding": "Ekleniyor…",
     "addGrams": "{{grams}}g Ekle"
@@ -544,7 +547,6 @@
       "vegetable": "Sebze",
       "fruit": "Meyve",
       "grain": "Tahıl",
-      "grainCarbs": "Tahıllar ve Karbonhidratlar",
       "snack": "Atıştırmalık",
       "beverage": "İçecek",
       "other": "Diğer"
@@ -761,7 +763,9 @@
     "sourcePreset": "Preset",
     "sourceManual": "Manuel",
     "sourceAi": "AI",
-    "sourceDish": "Yemek"
+    "sourceDish": "Yemek",
+    "remainingKcal": "{{amount}} kcal kaldı",
+    "overTarget": "{{amount}} kcal aşıldı"
   },
   "twoFactor": {
     "title": "İki Faktörlü Doğrulama",
@@ -1000,6 +1004,9 @@
     "entityDish": "Yemek",
     "entityPresetMeal": "Hazır Öğün",
     "recordId": "Kayıt ID",
+    "recordDeleted": "kayıt artık mevcut değil",
+    "per100g": "100g başına",
+    "totals": "Toplam",
     "suggestedBy": "Öneren kullanıcı",
     "approve": "Onayla",
     "reject": "Reddet"
@@ -1056,7 +1063,8 @@
     "sectionAdmin": "Yönetici",
     "signOut": "Çıkış Yap",
     "openMenu": "Menüyü Aç",
-    "closeMenu": "Menüyü Kapat"
+    "closeMenu": "Menüyü Kapat",
+    "brandManagement": "Marka Yönetimi"
   },
   "footer": {
     "tagline": "Özel, sadece davetle katılınan beslenme takip uygulamanız. Öğünlerinizi kaydedin, makrolarınızı takip edin ve yapay zeka destekli rehberlik alın.",
@@ -1142,9 +1150,23 @@
     "pageOf": "Sayfa {{page}} / {{totalPages}}",
     "nameLabel": "Yemek Adı",
     "descriptionLabel": "Açıklama",
-    "createHint": "Oluşturduktan sonra detay sayfasından yemeğe malzeme ekleyebilirsiniz.",
+    "categoryLabel": "Kategori",
+    "categoryPlaceholder": "Kategori seçin",
+    "allCategories": "Tüm Kategoriler",
+    "categories": {
+      "breakfast": "Kahvaltılık",
+      "soup": "Çorba",
+      "mainCourse": "Ana Yemek",
+      "salad": "Salata",
+      "snack": "Ara Öğün/Snack",
+      "dessert": "Tatlı",
+      "beverage": "İçecek",
+      "other": "Diğer"
+    },
+    "createHint": "Sonraki adımda bu yemeğe malzeme ekleyebileceksiniz.",
     "saving": "Kaydediliyor…",
     "saveDish": "Yemeği Kaydet",
+    "nextStep": "Sonraki Adım",
     "notFound": "Yemek bulunamadı.",
     "backToDishes": "Yemek listesine dön",
     "back": "Geri",
@@ -1168,6 +1190,34 @@
     "suggestSuccess": "Öneriniz gönderildi. Bir yönetici inceleyecek.",
     "suggestError": "Öneri gönderilemedi."
   },
+  "manualEntry": {
+    "libraryTab": "Kütüphaneden Seç",
+    "dishLibraryTab": "Yemek Kütüphanesinden Seç",
+    "manualTab": "Manuel Ekle",
+    "ingredientNameLabel": "Malzeme Adı",
+    "dishNameLabel": "Yemek Adı",
+    "addIngredient": "Malzemeyi Ekle",
+    "addDish": "Yemeği Ekle",
+    "per100gHint": "Değerleri 100g için girin, gramaja göre otomatik hesaplanır.",
+    "calories": "Kalori",
+    "protein": "Protein",
+    "carbs": "Karbonhidrat",
+    "fat": "Yağ",
+    "sugar": "Şeker",
+    "fiber": "Lif",
+    "gramAmount": "Gram Miktarı",
+    "adding": "Ekleniyor…",
+    "finish": "Bitir",
+    "dismissAria": "Kapat, öneri gönderme",
+    "promptTitle": "Global kütüphaneye önerelim mi?",
+    "promptDescriptionIngredient": "\"{{name}}\" malzemesini global kütüphaneye ekleme önerisinde bulunmak ister misiniz?",
+    "promptDescriptionDish": "\"{{name}}\" yemeğini global kütüphaneye ekleme önerisinde bulunmak ister misiniz?",
+    "keepPrivate": "Hayır, sadece benim kütüphaneme ekle",
+    "suggest": "Evet, öneride bulun",
+    "suggestedSuccess": "Kaydedildi ve öneri gönderildi. Bir yönetici inceleyecek.",
+    "savedToLibrary": "Kütüphanenize kaydedildi.",
+    "persistError": "Kütüphaneye kaydedilirken bir hata oluştu."
+  },
   "targets": {
     "title": "Hedefler",
     "subtitle": "Günlük kalori ve makro hedeflerinizi belirleyin.",
@@ -1183,5 +1233,23 @@
     "saving": "Kaydediliyor...",
     "saveTargets": "Hedefleri Kaydet",
     "loadError": "Hedefler yüklenemedi"
+  },
+  "adminBrands": {
+    "title": "Marka Yönetimi",
+    "subtitle": "Besin kütüphanesindeki markaları yeniden adlandırın veya kaldırın.",
+    "refresh": "Yenile",
+    "loading": "Yükleniyor...",
+    "loadError": "Markalar yüklenemedi.",
+    "emptyTitle": "Henüz marka yok",
+    "emptyDesc": "Kullanıcılar besin eklerken marka belirttiğinde burada listelenecek.",
+    "itemCount": "{{count}} besin",
+    "rename": "Yeniden Adlandır",
+    "delete": "Sil",
+    "deleteConfirmTitle": "Markayı sil",
+    "deleteConfirmDesc": "\"{{name}}\" markası {{count}} besinden kaldırılacak. Besinlerin kendisi silinmeyecek, sadece marka bilgisi temizlenecek. Bu işlem geri alınamaz.",
+    "renameSuccess": "{{count}} besin \"{{name}}\" markasına güncellendi.",
+    "renameError": "Marka yeniden adlandırılamadı.",
+    "deleteSuccess": "{{count}} besinden marka kaldırıldı.",
+    "deleteError": "Marka silinemedi."
   }
 }

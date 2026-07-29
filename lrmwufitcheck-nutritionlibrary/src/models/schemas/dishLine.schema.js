@@ -7,7 +7,7 @@ const { DataTypes, Op } = require("sequelize");
 const schemaDef = {
   objectName: "dishLine",
   modelName: "DishLine",
-  description: `A single food item entry within a dish. Stores a gram amount and snapshot nutrition values calculated at line creation. Lines are created or deleted to modify a dish; individual lines are not edited (replace pattern). A dishLine may only reference a foodItem - dishes cannot be nested inside other dishes.`,
+  description: `A single food item entry within a dish. Stores a gram amount and snapshot nutrition values calculated at line creation. Lines are created or deleted to modify a dish; individual lines are not edited (replace pattern). A dishLine may reference a foodItem, or carry fully embedded/manual nutrition data with foodItemId left null (one-off ingredient, not backed by a library record) - dishes cannot be nested inside other dishes.`,
   dbType: "postgresql",
   useSoftDelete: true,
 
@@ -24,8 +24,7 @@ const schemaDef = {
     },
     foodItemId: {
       type: DataTypes.UUID,
-      allowNull: false,
-      defaultValue: "00000000-0000-0000-0000-000000000000",
+      allowNull: true,
     },
     lineFoodName: {
       type: DataTypes.STRING,

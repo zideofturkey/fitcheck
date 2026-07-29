@@ -41,6 +41,7 @@ class CreateDishManager extends DishManager {
     jsonObj.dishId = this.dishId;
     jsonObj.dishName = this.dishName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.dishCategory = this.dishCategory;
     jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
@@ -53,6 +54,7 @@ class CreateDishManager extends DishManager {
     this.dishId = request.body?.["dishId"];
     this.dishName = request.body?.["dishName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.dishCategory = request.body?.["dishCategory"];
     this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
@@ -69,6 +71,7 @@ class CreateDishManager extends DishManager {
     this.dishId = request.mcpParams?.["dishId"];
     this.dishName = request.mcpParams?.["dishName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.dishCategory = request.mcpParams?.["dishCategory"];
     this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.mcpParams?.id;
@@ -94,6 +97,7 @@ class CreateDishManager extends DishManager {
       userId: this.userId,
       dishName: this.dishName,
       descriptionText: this.descriptionText || null,
+      dishCategory: this.dishCategory || null,
       totalCalories: 0,
       totalProtein: 0,
       totalCarbohydrates: 0,
@@ -189,6 +193,16 @@ class CreateDishManager extends DishManager {
     // Parameter Type: String
   }
 
+  checkParameter_dishCategory() {
+    if (this.dishCategory == null) return;
+
+    if (Array.isArray(this.dishCategory)) {
+      throw new BadRequestError("errMsg_dishCategoryMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_isGlobal() {
     if (this.isGlobal == null) return;
 
@@ -236,6 +250,8 @@ class CreateDishManager extends DishManager {
     this.checkParameter_dishName();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_dishCategory();
 
     this.checkParameter_isGlobal();
 
