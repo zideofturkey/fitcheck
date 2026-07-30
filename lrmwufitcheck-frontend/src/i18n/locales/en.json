@@ -703,6 +703,7 @@
     "whenDidYouEat": "When did you eat?",
     "date": "Date",
     "time": "Time",
+    "futurePlanningHint": "By setting the date to a future time, you can plan your upcoming meals.",
     "nextMealSlot": "Next: Meal Slot",
     "whichMeal": "Which meal is this?",
     "breakfast": "Breakfast",
@@ -1236,6 +1237,11 @@
     "saving": "Saving...",
     "saveTargets": "Save Targets",
     "loadError": "Failed to load targets"
+  },
+  "onboarding": {
+    "title": "Set your daily targets",
+    "description": "Enter your calorie and macro targets now to start tracking your progress.",
+    "skipNote": "You can skip this step if you'd like — you can always create or change your targets later from the \"Targets\" tab."
   },
   "adminBrands": {
     "title": "Brand Management",

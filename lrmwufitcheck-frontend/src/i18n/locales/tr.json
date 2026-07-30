@@ -703,6 +703,7 @@
     "whenDidYouEat": "Ne zaman yediniz?",
     "date": "Tarih",
     "time": "Saat",
+    "futurePlanningHint": "Tarihi sonraki zamanlara ayarlayarak gelecek öğünlerinizi planlayabilirsiniz.",
     "nextMealSlot": "İleri: Öğün Zamanı",
     "whichMeal": "Bu hangi öğün?",
     "breakfast": "Kahvaltı",
@@ -1236,6 +1237,11 @@
     "saving": "Kaydediliyor...",
     "saveTargets": "Hedefleri Kaydet",
     "loadError": "Hedefler yüklenemedi"
+  },
+  "onboarding": {
+    "title": "Günlük hedeflerinizi belirleyin",
+    "description": "Kalori ve makro hedeflerinizi şimdi girerek ilerlemenizi takip etmeye başlayabilirsiniz.",
+    "skipNote": "İsterseniz bu adımı atlayabilirsiniz — hedeflerinizi istediğiniz zaman \"Hedefler\" sekmesinden oluşturabilir veya değiştirebilirsiniz."
   },
   "adminBrands": {
     "title": "Marka Yönetimi",

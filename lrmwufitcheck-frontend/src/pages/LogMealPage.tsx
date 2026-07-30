@@ -290,8 +290,11 @@ function LogMealPage() {
                 />
               </div>
             </div>
-            <div className="flex justify-end">
-              <Button type="submit">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-xs text-muted-foreground text-left">
+                {t("logMeal.futurePlanningHint")}
+              </p>
+              <Button type="submit" className="flex-shrink-0">
                 {t("logMeal.nextMealSlot")} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>

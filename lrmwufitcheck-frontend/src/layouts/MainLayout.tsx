@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isRouteAvailable } from "@/lib/available-routes";
 import { useAuth } from "@/context/AuthContext";
+import OnboardingMacroTargetDialog from "@/components/OnboardingMacroTargetDialog";
 import {
   ArrowLeftCircle,
   BarChart3,
@@ -114,6 +115,8 @@ export default function MainLayout() {
 
   return (
     <>
+      <OnboardingMacroTargetDialog />
+
       {/* ========== MOBILE NATIVE APP LAYOUT ========== */}
       <div className="md:hidden flex flex-col min-h-screen">
         <header className="sticky top-0 z-30 bg-card border-b border-border h-14 flex items-center justify-between px-4 safe-top">
