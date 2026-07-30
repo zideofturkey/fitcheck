@@ -61,12 +61,11 @@ class ListPresetMealsManager extends PresetMealManager {
   // where clause methods
 
   async getRouteQuery() {
-    // Admins/superAdmins see every record; regular users see their own
-    // plus anything marked isGlobal. isGlobal visibility is a separate
-    // admin-or-superAdmin rule from checkAbsolute() (which is superAdmin-only).
-    if (this.userHasRole("admin") || this.userHasRole("superAdmin")) {
-      return { isActive: true };
-    }
+    // Everyone, including admin/superAdmin, sees only their own records plus
+    // anything marked isGlobal on this normal browsing endpoint - admin's
+    // "see every user's private records" capability lives exclusively in
+    // the dedicated admin-user-library route (src/routes/admin-user-library.js),
+    // not here.
     return runMScript(
       () => ({
         $and: [
@@ -76,8 +75,6 @@ class ListPresetMealsManager extends PresetMealManager {
       }),
       { path: "services[2].businessLogic[9].whereClause.fullWhereClause" },
     );
-
-    // handle permission filter later
   }
 
   async buildWhereClause() {

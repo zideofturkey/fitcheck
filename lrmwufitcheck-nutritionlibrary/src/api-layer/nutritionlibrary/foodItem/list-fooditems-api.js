@@ -71,24 +71,22 @@ class ListFoodItemsManager extends FoodItemManager {
 
   async getRouteQuery() {
     const conditionalClauses = [];
-    // Admins/superAdmins see every record; regular users see their own
-    // plus anything marked isGlobal. isGlobal visibility is a separate
-    // admin-or-superAdmin rule from checkAbsolute() (which is superAdmin-only).
-    if (this.userHasRole("admin") || this.userHasRole("superAdmin")) {
-      conditionalClauses.push({ isActive: true });
-    } else {
-      conditionalClauses.push(
-        runMScript(
-          () => ({
-            $and: [
-              { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
-              { isActive: true },
-            ],
-          }),
-          { path: "services[2].businessLogic[4].whereClause.fullWhereClause" },
-        ),
-      );
-    }
+    // Everyone, including admin/superAdmin, sees only their own records plus
+    // anything marked isGlobal on this normal browsing endpoint - admin's
+    // "see every user's private records" capability lives exclusively in
+    // the dedicated admin-user-library route (src/routes/admin-user-library.js),
+    // not here.
+    conditionalClauses.push(
+      runMScript(
+        () => ({
+          $and: [
+            { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
+            { isActive: true },
+          ],
+        }),
+        { path: "services[2].businessLogic[4].whereClause.fullWhereClause" },
+      ),
+    );
 
     if (
       runMScript(() => this.searchTerm, {

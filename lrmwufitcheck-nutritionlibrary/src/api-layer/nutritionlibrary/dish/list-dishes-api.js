@@ -69,20 +69,17 @@ class ListDishesManager extends DishManager {
 
   async getRouteQuery() {
     const conditionalClauses = [];
-    // Admins/superAdmins see every record; regular users see their own
-    // plus anything marked isGlobal. Note: checkAbsolute() only covers
-    // superAdmin - isGlobal visibility is a separate admin-or-superAdmin
-    // rule, so it's checked directly here rather than reusing checkAbsolute().
-    if (this.userHasRole("admin") || this.userHasRole("superAdmin")) {
-      conditionalClauses.push({ isActive: true });
-    } else {
-      conditionalClauses.push({
-        $and: [
-          { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
-          { isActive: true },
-        ],
-      });
-    }
+    // Everyone, including admin/superAdmin, sees only their own records plus
+    // anything marked isGlobal on this normal browsing endpoint - admin's
+    // "see every user's private records" capability lives exclusively in
+    // the dedicated admin-user-library route (src/routes/admin-user-library.js),
+    // not here.
+    conditionalClauses.push({
+      $and: [
+        { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
+        { isActive: true },
+      ],
+    });
 
     if (this.searchTerm) {
       conditionalClauses.push({
