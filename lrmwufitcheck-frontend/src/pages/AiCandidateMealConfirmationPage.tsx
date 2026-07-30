@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   CircleCheck,
   CircleX,
+  ChevronDown,
   Loader,
   Sparkles,
   BookmarkPlus,
@@ -20,11 +22,92 @@ import {
 } from "@/hooks/api/use-nutritionai";
 import { useListAiCandidateLines } from "@/hooks/api/use-nutritionai-helpers";
 
+type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+
+const MACRO_KEYS = [
+  "estimatedCalories",
+  "estimatedProtein",
+  "estimatedCarbohydrates",
+  "estimatedFat",
+  "estimatedSugar",
+  "estimatedFiber",
+] as const;
+type MacroKey = (typeof MACRO_KEYS)[number];
+
 interface LineEdit {
   aiCandidateLineId: string;
   detectedFoodName: string;
   estimatedGrams: number;
   saveAsFood: boolean;
+  macros: Record<MacroKey, number>;
+  // Per-gram density used to scale macros when grams change. Starts from
+  // the AI's original values; re-derived from the current macro value
+  // whenever the user edits that macro field directly, so a later gram
+  // change scales from the user's correction instead of the AI's.
+  density: Record<MacroKey, number>;
+}
+
+interface Totals {
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbohydrates: number;
+  totalFat: number;
+  totalSugar: number;
+  totalFiber: number;
+}
+
+function sumTotals(lines: LineEdit[]): Totals {
+  return lines.reduce(
+    (acc, l) => ({
+      totalCalories: acc.totalCalories + (l.macros.estimatedCalories || 0),
+      totalProtein: acc.totalProtein + (l.macros.estimatedProtein || 0),
+      totalCarbohydrates:
+        acc.totalCarbohydrates + (l.macros.estimatedCarbohydrates || 0),
+      totalFat: acc.totalFat + (l.macros.estimatedFat || 0),
+      totalSugar: acc.totalSugar + (l.macros.estimatedSugar || 0),
+      totalFiber: acc.totalFiber + (l.macros.estimatedFiber || 0),
+    }),
+    {
+      totalCalories: 0,
+      totalProtein: 0,
+      totalCarbohydrates: 0,
+      totalFat: 0,
+      totalSugar: 0,
+      totalFiber: 0,
+    },
+  );
+}
+
+function round1(n: number) {
+  return Math.round(n * 10) / 10;
+}
+
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function nowTime() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+// Same four slots (and same custom-name-for-snack pattern) as the manual
+// "Öğün Ekle" flow, so AI-confirmed meals use identical slot options.
+const SLOT_OPTIONS: { value: MealSlot; label: string }[] = [
+  { value: "breakfast", label: "Kahvaltı" },
+  { value: "lunch", label: "Öğle Yemeği" },
+  { value: "dinner", label: "Akşam Yemeği" },
+  { value: "snack", label: "Atıştırmalık" },
+];
+
+function guessMealSlot(proposedSlotName: string | null | undefined): {
+  slot: MealSlot;
+  customName: string;
+} {
+  const match = SLOT_OPTIONS.find((o) => o.label === proposedSlotName);
+  if (match) return { slot: match.value, customName: "" };
+  return { slot: "snack", customName: proposedSlotName || "" };
 }
 
 export default function AiCandidateMealConfirmationPage() {
@@ -41,9 +124,18 @@ export default function AiCandidateMealConfirmationPage() {
   const lines = linesData?.aiCandidateLines ?? [];
 
   const [lineEdits, setLineEdits] = useState<LineEdit[]>([]);
+  const [totals, setTotals] = useState<Totals>({
+    totalCalories: 0,
+    totalProtein: 0,
+    totalCarbohydrates: 0,
+    totalFat: 0,
+    totalSugar: 0,
+    totalFiber: 0,
+  });
   const [mealDate, setMealDate] = useState("");
   const [mealTime, setMealTime] = useState("");
-  const [slotName, setSlotName] = useState("");
+  const [mealSlot, setMealSlot] = useState<MealSlot>("snack");
+  const [customSlotName, setCustomSlotName] = useState("");
 
   // Seed editable state from the fetched data exactly once, via an effect
   // (not during render) so it can't clobber an in-progress edit.
@@ -51,17 +143,39 @@ export default function AiCandidateMealConfirmationPage() {
   useEffect(() => {
     if (seededRef.current) return;
     if (!candidate || linesLoading) return;
-    setLineEdits(
-      lines.map((line) => ({
+    const seeded: LineEdit[] = lines.map((line) => {
+      const macros: Record<MacroKey, number> = {
+        estimatedCalories: line.estimatedCalories ?? 0,
+        estimatedProtein: line.estimatedProtein ?? 0,
+        estimatedCarbohydrates: line.estimatedCarbohydrates ?? 0,
+        estimatedFat: line.estimatedFat ?? 0,
+        estimatedSugar: line.estimatedSugar ?? 0,
+        estimatedFiber: line.estimatedFiber ?? 0,
+      };
+      const grams = line.estimatedGrams || 1;
+      const density = MACRO_KEYS.reduce(
+        (acc, key) => ({ ...acc, [key]: macros[key] / grams }),
+        {} as Record<MacroKey, number>,
+      );
+      return {
         aiCandidateLineId: line.id,
         detectedFoodName: line.detectedFoodName,
         estimatedGrams: line.estimatedGrams,
         saveAsFood: line.saveAsFood,
-      })),
-    );
-    setMealDate(candidate.proposedMealDate ?? "");
-    setMealTime(candidate.proposedMealTime ?? "");
-    setSlotName(candidate.proposedSlotName ?? "");
+        macros,
+        density,
+      };
+    });
+    setLineEdits(seeded);
+    setTotals(sumTotals(seeded));
+    // The AI often doesn't propose a date/time at all (it only fills these
+    // in when the user's wording references one) — default to now so
+    // confirming never sends mealtracker a blank, rejected mealDate.
+    setMealDate(candidate.proposedMealDate || todayIso());
+    setMealTime(candidate.proposedMealTime || nowTime());
+    const { slot, customName } = guessMealSlot(candidate.proposedSlotName);
+    setMealSlot(slot);
+    setCustomSlotName(customName);
     seededRef.current = true;
   }, [candidate, lines, linesLoading]);
 
@@ -90,36 +204,77 @@ export default function AiCandidateMealConfirmationPage() {
     );
   }
 
-  const updateLine = (lineId: string, patch: Partial<LineEdit>) => {
+  const updateLineField = (
+    lineId: string,
+    patch: Partial<Pick<LineEdit, "detectedFoodName" | "saveAsFood">>,
+  ) => {
     setLineEdits((prev) =>
-      prev.map((l) =>
-        l.aiCandidateLineId === lineId ? { ...l, ...patch } : l,
-      ),
+      prev.map((l) => (l.aiCandidateLineId === lineId ? { ...l, ...patch } : l)),
     );
   };
 
+  const updateLineGrams = (lineId: string, newGrams: number) => {
+    setLineEdits((prev) => {
+      const next = prev.map((l) => {
+        if (l.aiCandidateLineId !== lineId) return l;
+        const macros = MACRO_KEYS.reduce(
+          (acc, key) => ({ ...acc, [key]: round1(l.density[key] * newGrams) }),
+          {} as Record<MacroKey, number>,
+        );
+        return { ...l, estimatedGrams: newGrams, macros };
+      });
+      setTotals(sumTotals(next));
+      return next;
+    });
+  };
+
+  const updateLineMacro = (lineId: string, macroKey: MacroKey, value: number) => {
+    setLineEdits((prev) => {
+      const next = prev.map((l) => {
+        if (l.aiCandidateLineId !== lineId) return l;
+        const grams = l.estimatedGrams || 1;
+        return {
+          ...l,
+          macros: { ...l.macros, [macroKey]: value },
+          // Re-derive this macro's density from the user's correction so a
+          // future gram change scales from the corrected value, not AI's.
+          density: { ...l.density, [macroKey]: value / grams },
+        };
+      });
+      setTotals(sumTotals(next));
+      return next;
+    });
+  };
+
+  const updateTotal = (key: keyof Totals, value: number) => {
+    setTotals((prev) => ({ ...prev, [key]: value }));
+  };
+
   const handleConfirm = () => {
+    const finalSlotName = customSlotName.trim() || mealSlot;
     confirmMutation.mutate(
       {
         aiCandidateMealId: candidate.id,
         data: {
           proposedMealDate: mealDate || undefined,
           proposedMealTime: mealTime || undefined,
-          proposedSlotName: slotName || undefined,
+          proposedSlotName: finalSlotName || undefined,
           lineAdjustments: lineEdits.map((l) => ({
             aiCandidateLineId: l.aiCandidateLineId,
             estimatedGrams: l.estimatedGrams,
             saveAsFood: l.saveAsFood,
+            ...l.macros,
           })),
         },
       },
       {
-        onSuccess: () =>
-          navigate(
-            candidate.committedMealLogId
-              ? `/meals/${candidate.committedMealLogId}`
-              : "/meals",
-          ),
+        onSuccess: () => {
+          // Land back on the AI meal analysis page, ready for the next
+          // entry, instead of meal detail/history — the user can still
+          // reach history via its own nav link if they want to see it.
+          toast.success(t("aiCandidateMeal.confirmSuccess"));
+          navigate("/ai-chat", { replace: true });
+        },
       },
     );
   };
@@ -165,32 +320,50 @@ export default function AiCandidateMealConfirmationPage() {
         </div>
 
         {!candidate.isCommitted && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <Label className="mb-1.5">{t("aiCandidateMeal.date")}</Label>
-              <Input
-                type="date"
-                value={mealDate}
-                onChange={(e) => setMealDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5">{t("aiCandidateMeal.time")}</Label>
-              <Input
-                type="time"
-                value={mealTime}
-                onChange={(e) => setMealTime(e.target.value)}
-              />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5">{t("aiCandidateMeal.date")}</Label>
+                <Input
+                  type="date"
+                  value={mealDate}
+                  onChange={(e) => setMealDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label className="mb-1.5">{t("aiCandidateMeal.time")}</Label>
+                <Input
+                  type="time"
+                  value={mealTime}
+                  onChange={(e) => setMealTime(e.target.value)}
+                />
+              </div>
             </div>
             <div>
               <Label className="mb-1.5">{t("aiCandidateMeal.slot")}</Label>
-              <Input
-                type="text"
-                value={slotName}
-                onChange={(e) => setSlotName(e.target.value)}
-              />
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg w-fit">
+                {SLOT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setMealSlot(opt.value)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${mealSlot === opt.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {mealSlot === "snack" && (
+                <Input
+                  type="text"
+                  value={customSlotName}
+                  onChange={(e) => setCustomSlotName(e.target.value)}
+                  placeholder={t("logMeal.customSlotPlaceholder")}
+                  className="mt-2"
+                />
+              )}
             </div>
-          </div>
+          </>
         )}
 
         {candidate.warningText && (
@@ -200,19 +373,33 @@ export default function AiCandidateMealConfirmationPage() {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 border-t border-border">
-          {[
-            [t("aiCandidateMeal.calories"), candidate.totalCalories, t("common.kcal")],
-            [t("aiCandidateMeal.protein"), candidate.totalProtein, "g"],
-            [t("aiCandidateMeal.carbs"), candidate.totalCarbohydrates, "g"],
-            [t("aiCandidateMeal.fat"), candidate.totalFat, "g"],
-            [t("aiCandidateMeal.sugar"), candidate.totalSugar, "g"],
-            [t("aiCandidateMeal.fiber"), candidate.totalFiber, "g"],
-          ].map(([label, value, unit]) => (
-            <div key={label as string}>
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="text-sm font-semibold">
-                {(value as number | undefined) ?? "—"} {unit}
-              </p>
+          {(
+            [
+              ["totalCalories", t("aiCandidateMeal.calories"), t("common.kcal")],
+              ["totalProtein", t("aiCandidateMeal.protein"), "g"],
+              ["totalCarbohydrates", t("aiCandidateMeal.carbs"), "g"],
+              ["totalFat", t("aiCandidateMeal.fat"), "g"],
+              ["totalSugar", t("aiCandidateMeal.sugar"), "g"],
+              ["totalFiber", t("aiCandidateMeal.fiber"), "g"],
+            ] as [keyof Totals, string, string][]
+          ).map(([key, label, unit]) => (
+            <div key={key}>
+              <Label className="mb-1 text-xs text-muted-foreground">
+                {label}
+              </Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  step="any"
+                  value={totals[key]}
+                  disabled={candidate.isCommitted}
+                  onChange={(e) => updateTotal(key, Number(e.target.value) || 0)}
+                  className="pr-8 text-sm font-semibold"
+                />
+                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                  {unit}
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -238,7 +425,7 @@ export default function AiCandidateMealConfirmationPage() {
                       type="text"
                       value={line.detectedFoodName}
                       onChange={(e) =>
-                        updateLine(line.aiCandidateLineId, {
+                        updateLineField(line.aiCandidateLineId, {
                           detectedFoodName: e.target.value,
                         })
                       }
@@ -253,9 +440,10 @@ export default function AiCandidateMealConfirmationPage() {
                       min={0}
                       value={line.estimatedGrams}
                       onChange={(e) =>
-                        updateLine(line.aiCandidateLineId, {
-                          estimatedGrams: Number(e.target.value) || 0,
-                        })
+                        updateLineGrams(
+                          line.aiCandidateLineId,
+                          Number(e.target.value) || 0,
+                        )
                       }
                     />
                   </div>
@@ -265,7 +453,7 @@ export default function AiCandidateMealConfirmationPage() {
                     type="checkbox"
                     checked={line.saveAsFood}
                     onChange={(e) =>
-                      updateLine(line.aiCandidateLineId, {
+                      updateLineField(line.aiCandidateLineId, {
                         saveAsFood: e.target.checked,
                       })
                     }
@@ -274,6 +462,45 @@ export default function AiCandidateMealConfirmationPage() {
                   <BookmarkPlus className="w-4 h-4" />
                   {t("aiCandidateMeal.saveAsFood")}
                 </label>
+                <details className="group">
+                  <summary className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors list-none">
+                    <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
+                    {t("aiCandidateMeal.editMacros")}
+                  </summary>
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {(
+                      [
+                        ["estimatedCalories", t("aiCandidateMeal.calories")],
+                        ["estimatedProtein", t("aiCandidateMeal.protein")],
+                        [
+                          "estimatedCarbohydrates",
+                          t("aiCandidateMeal.carbs"),
+                        ],
+                        ["estimatedFat", t("aiCandidateMeal.fat")],
+                        ["estimatedSugar", t("aiCandidateMeal.sugar")],
+                        ["estimatedFiber", t("aiCandidateMeal.fiber")],
+                      ] as [MacroKey, string][]
+                    ).map(([macroKey, label]) => (
+                      <div key={macroKey} className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          {label}
+                        </Label>
+                        <Input
+                          type="number"
+                          step="any"
+                          value={line.macros[macroKey]}
+                          onChange={(e) =>
+                            updateLineMacro(
+                              line.aiCandidateLineId,
+                              macroKey,
+                              Number(e.target.value) || 0,
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </details>
               </div>
             ))}
             {lineEdits.length === 0 && (

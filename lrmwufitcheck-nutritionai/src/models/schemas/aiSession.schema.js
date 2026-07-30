@@ -49,6 +49,10 @@ const schemaDef = {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    sessionName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
 
   // Indexes definition - used directly in sequelize.define() options

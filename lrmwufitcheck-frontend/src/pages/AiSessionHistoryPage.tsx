@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Layers,
@@ -15,6 +16,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useListAiSessions } from "@/hooks/api/use-nutritionai";
 import type { NutritionaiAiSession } from "@/types/api";
+
+// sessionName isn't on the generated NutritionaiAiSession type yet (backend
+// field added after last codegen) — extend locally rather than hand-edit
+// the auto-generated types/api.ts.
+type SessionWithName = NutritionaiAiSession & { sessionName?: string | null };
 
 type SessionType = NutritionaiAiSession["sessionType"];
 type SessionStatus = NutritionaiAiSession["sessionState"];
@@ -123,6 +129,13 @@ export default function AiSessionHistoryPage() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 space-y-1">
+        <Link
+          to="/ai-chat"
+          className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {t("aiSessionHistory.backToAiChat")}
+        </Link>
         <h1 className="text-2xl font-semibold tracking-tight">
           {t("aiSessionHistory.title")}
         </h1>
@@ -194,7 +207,7 @@ export default function AiSessionHistoryPage() {
       )}
 
       <div className="space-y-3">
-        {sessions.map((session) => {
+        {sessions.map((session: SessionWithName) => {
           const Icon = TYPE_ICON[session.sessionType];
           const badge = STATUS_BADGE[session.sessionState];
           return (
@@ -225,6 +238,11 @@ export default function AiSessionHistoryPage() {
                       {relativeTime(session.createdAt, t)}
                     </span>
                   </div>
+                  {session.sessionName && (
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {session.sessionName}
+                    </p>
+                  )}
                   <p className="truncate text-sm text-muted-foreground">
                     {session.inputText}
                   </p>

@@ -497,6 +497,9 @@ class ParseMealManager extends AiSessionManager {
           path: "services[4].businessLogic[0].actions.updateCrudActions[0].dataClause[3].dataValue",
         },
       ),
+      // Short AI-generated distinguishing title for this session, so the
+      // history list doesn't just show identical raw input previews.
+      sessionName: this.parsedMealResult.sessionName ?? null,
     };
     const userQuery = runMScript(() => ({ id: this.aiSession.id }), {
       path: "services[4].businessLogic[0].actions.updateCrudActions[0].whereClause",

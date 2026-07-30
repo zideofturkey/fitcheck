@@ -12,11 +12,11 @@ import {
   ClipboardList,
   History,
   LayoutDashboard,
+  Lightbulb,
   LineChart,
   LogOut,
   MailPlus,
   Menu,
-  MessageCircle,
   Salad,
   Shield,
   Sparkles,
@@ -50,13 +50,13 @@ const SIDEBAR_INSIGHTS = [
   { to: "/targets", icon: Target, labelKey: "nav.targets" },
   { to: "/analytics/weekly", icon: BarChart3, labelKey: "nav.weeklyAnalytics" },
   { to: "/analytics/monthly", icon: LineChart, labelKey: "nav.monthlyAnalytics" },
-  { to: "/ai-chat", icon: MessageCircle, labelKey: "nav.aiChat" },
+  { to: "/ai-chat", icon: Sparkles, labelKey: "nav.aiChat", highlight: true },
 ];
 
 const SIDEBAR_ADMIN = [
   { to: "/admin/invites", icon: MailPlus, labelKey: "nav.inviteLinks" },
   { to: "/admin/users", icon: Users, labelKey: "nav.userManagement" },
-  { to: "/admin/suggestions", icon: Sparkles, labelKey: "nav.suggestions" },
+  { to: "/admin/suggestions", icon: Lightbulb, labelKey: "nav.suggestions" },
   { to: "/admin/bulk-import", icon: UploadCloud, labelKey: "nav.bulkImport" },
   { to: "/admin/brands", icon: Tag, labelKey: "nav.brandManagement" },
 ];
@@ -86,10 +86,12 @@ export default function MainLayout() {
     to,
     Icon,
     label,
+    highlight,
   }: {
     to: string;
     Icon: React.ComponentType<{ className?: string }>;
     label: string;
+    highlight?: boolean;
   }) => {
     if (!isRouteAvailable(to)) {
       return (
@@ -100,6 +102,17 @@ export default function MainLayout() {
           <Icon className="w-5 h-5" />
           {label}
         </span>
+      );
+    }
+    if (highlight) {
+      return (
+        <Link
+          to={to}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-primary bg-gradient-to-r from-primary/15 via-primary/10 to-transparent hover:from-primary/25 hover:via-primary/15 transition-colors shadow-[0_0_16px_-4px] shadow-primary/30"
+        >
+          <Icon className="w-5 h-5" />
+          {label}
+        </Link>
       );
     }
     return (
@@ -260,6 +273,7 @@ export default function MainLayout() {
                   to={item.to}
                   Icon={item.icon}
                   label={t(item.labelKey)}
+                  highlight={item.highlight}
                 />
               ))}
               {(user?.roleId === "superAdmin" || user?.roleId === "admin") &&
@@ -419,6 +433,7 @@ export default function MainLayout() {
                   to={item.to}
                   Icon={item.icon}
                   label={t(item.labelKey)}
+                  highlight={item.highlight}
                 />
               ))}
               {(user?.roleId === "superAdmin" || user?.roleId === "admin") &&

@@ -337,9 +337,26 @@
     "statusPending": "Pending",
     "statusNeedsConfirmation": "Needs Confirmation",
     "statusCompleted": "Completed",
-    "statusFailed": "Failed"
+    "statusFailed": "Failed",
+    "logAgain": "Log Again",
+    "loggingAgain": "Logging…",
+    "logAgainSuccess": "Meal logged again.",
+    "logAgainError": "An error occurred while logging the meal.",
+    "saveToLibrary": "Save to Library",
+    "savingLibrary": "Saving…",
+    "savedToLibrarySuccess": "Saved to your library.",
+    "savedToLibraryError": "An error occurred while saving to the library.",
+    "saveToLibraryHint": "Save each item individually as an ingredient or a dish, or combine everything into one Preset Meal.",
+    "saveAsBulkPreset": "Save everything as one Preset Meal",
+    "presetMealName": "Preset Meal Name",
+    "presetMealNamePlaceholder": "e.g. Breakfast Plate",
+    "presetNameRequired": "Please enter a preset meal name.",
+    "targetFood": "Ingredient",
+    "targetDish": "Dish",
+    "targetSkip": "Skip"
   },
   "aiSessionHistory": {
+    "backToAiChat": "Back to AI Meal Analysis",
     "title": "AI Session History",
     "subtitle": "Review your AI meal parsing and nutrition guidance interactions.",
     "all": "All",
@@ -363,11 +380,11 @@
   },
   "aiChat": {
     "title": "AI Meal Analysis",
-    "subtitle": "Describe what you ate in plain language, AI will calculate the nutrition values.",
+    "subtitle": "Write what you ate, and I'll calculate your macros and log it in seconds.",
     "history": "History",
     "whatDidYouEat": "What did you eat?",
     "placeholder": "For example: 'I ate 2 eggs and 40g of sausage'",
-    "hint": "Specify quantities (e.g. 100g, 2 pieces) for accurate AI analysis.",
+    "hint": "Specifying quantities (g, pieces, cups) gives more accurate results.",
     "analyzing": "Analyzing…",
     "analyze": "Analyze",
     "analyzingLong": "AI is analyzing... This may take a few seconds.",
@@ -377,7 +394,11 @@
     "tip": "Tip",
     "tipText": "Specifying quantities (g, pieces, cups) gives more accurate results.",
     "sessionCreateFailed": "Could not create AI session.",
-    "analysisError": "An error occurred during AI analysis."
+    "analysisError": "An error occurred during AI analysis.",
+    "suggestion1": "2 eggs and a slice of bread for breakfast",
+    "suggestion2": "200g chicken breast, rice",
+    "suggestion3": "How much protein did I get today?",
+    "suggestion4": "1 bowl of yogurt and banana"
   },
   "monthlyAnalytics": {
     "dashboard": "Dashboard",
@@ -1078,7 +1099,7 @@
     "weeklyAnalytics": "Weekly Analytics",
     "monthlyAnalytics": "Monthly Analytics",
     "analytics": "Analytics",
-    "aiChat": "AI Chat",
+    "aiChat": "AI Meal Analysis",
     "inviteLinks": "Invite Links",
     "userManagement": "User Management",
     "suggestions": "Suggestions",
@@ -1159,9 +1180,11 @@
     "foodName": "Food Name",
     "grams": "Grams",
     "saveAsFood": "Save as a permanent food item in the library",
+    "editMacros": "Edit macros",
     "noItems": "No detected food items for this meal.",
     "committing": "Committing…",
-    "confirmAndLog": "Confirm & Log"
+    "confirmAndLog": "Confirm & Log",
+    "confirmSuccess": "Meal logged successfully."
   },
   "dishes": {
     "title": "Dish Library",

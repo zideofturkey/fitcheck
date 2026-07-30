@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { History, Loader, Sparkles, Send, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useParseMeal } from "@/hooks/api/use-nutritionai";
 import { nutritionaiService } from "@/services/api/nutritionai-api";
 
@@ -13,6 +11,19 @@ export default function AiChatPage() {
   const navigate = useNavigate();
   const parseMeal = useParseMeal();
   const [inputText, setInputText] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const suggestions = [
+    t("aiChat.suggestion1"),
+    t("aiChat.suggestion2"),
+    t("aiChat.suggestion3"),
+    t("aiChat.suggestion4"),
+  ];
+
+  const applySuggestion = (text: string) => {
+    setInputText(text);
+    inputRef.current?.focus();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,64 +71,92 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-foreground">
-            <Sparkles className="w-6 h-6 text-primary" />
+    <div className="relative">
+      {/* Page-scoped glowy green gradient background — bleeds up toward the
+          shared header without touching it, per design direction. */}
+      <div
+        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
+        aria-hidden="true"
+      >
+        <div className="absolute left-1/2 -top-32 -translate-x-1/2 w-[720px] h-[720px] rounded-full bg-primary/25 blur-3xl" />
+        <div className="absolute left-[10%] top-16 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl" />
+        <div className="absolute right-[10%] top-16 w-80 h-80 rounded-full bg-primary/20 blur-3xl" />
+      </div>
+
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 lg:py-12">
+        <div className="mb-6 flex justify-end">
+          <Link
+            to="/ai-sessions"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            title={t("aiChat.history")}
+          >
+            <History className="w-4 h-4" />
+            {t("aiChat.history")}
+          </Link>
+        </div>
+
+        <div className="flex flex-col items-center text-center mb-8">
+          <h1 className="flex items-center justify-center gap-2.5 text-3xl font-semibold tracking-tight text-foreground">
+            <Sparkles className="w-7 h-7 text-primary" aria-hidden />
             {t("aiChat.title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
             {t("aiChat.subtitle")}
           </p>
         </div>
-        <Link
-          to="/ai-sessions"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        >
-          <History className="w-4 h-4" />
-          {t("aiChat.history")}
-        </Link>
-      </header>
 
-      <Card className="p-6 shadow-sm">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label
-            htmlFor="ai-meal-input"
-            className="block text-sm font-medium text-foreground"
-          >
-            {t("aiChat.whatDidYouEat")}
-          </label>
-          <textarea
-            id="ai-meal-input"
-            rows={5}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder={t("aiChat.placeholder")}
-            disabled={parseMeal.isPending}
-            className="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow resize-none disabled:opacity-60"
-          />
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">{t("aiChat.hint")}</p>
-            <Button
-              type="submit"
-              disabled={parseMeal.isPending || !inputText.trim()}
-              className="gap-2"
+        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => applySuggestion(s)}
+              disabled={parseMeal.isPending}
+              className="rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-semibold text-foreground hover:border-primary/50 hover:bg-primary/10 hover:shadow-sm transition-all disabled:opacity-60"
             >
-              {parseMeal.isPending ? (
-                <>
-                  <Loader className="w-4 h-4 animate-spin" />
-                  {t("aiChat.analyzing")}
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  {t("aiChat.analyze")}
-                </>
-              )}
-            </Button>
+              {s}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative">
+          <div
+            className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none"
+            aria-hidden="true"
+          >
+            <div className="w-[110%] h-24 rounded-full bg-primary/25 blur-2xl" />
           </div>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-2 rounded-full border border-border bg-card p-1.5 pl-5 shadow-sm focus-within:ring-2 focus-within:ring-ring focus-within:border-ring transition-shadow">
+              <input
+                ref={inputRef}
+                id="ai-meal-input"
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder={t("aiChat.placeholder")}
+                disabled={parseMeal.isPending}
+                className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={parseMeal.isPending || !inputText.trim()}
+                aria-label={t("aiChat.analyze")}
+                title={t("aiChat.analyze")}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-emerald-400 text-primary-foreground shadow-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:pointer-events-none"
+              >
+                {parseMeal.isPending ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          {t("aiChat.hint")}
+        </p>
 
         {parseMeal.isPending && (
           <div className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
@@ -134,21 +173,6 @@ export default function AiChatPage() {
             <p className="text-sm text-destructive">{t("aiChat.failed")}</p>
           </div>
         )}
-      </Card>
-
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-            {t("aiChat.example")}
-          </p>
-          <p className="text-sm text-foreground">{t("aiChat.exampleText")}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-            {t("aiChat.tip")}
-          </p>
-          <p className="text-sm text-foreground">{t("aiChat.tipText")}</p>
-        </div>
       </div>
     </div>
   );

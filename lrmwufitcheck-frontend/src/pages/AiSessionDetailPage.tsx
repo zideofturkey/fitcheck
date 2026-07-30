@@ -1,19 +1,31 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Activity,
   ArrowLeft,
+  BookmarkPlus,
   Clock,
   Loader,
   MessageSquare,
+  RotateCcw,
   Sparkles,
   Target,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   useGetAiSession,
   useListAiCandidateMeals,
 } from "@/hooks/api/use-nutritionai";
+import LogMealAgainDialog from "@/components/LogMealAgainDialog";
+import SaveCandidateToLibraryDialog from "@/components/SaveCandidateToLibraryDialog";
+import type { NutritionaiAiCandidateMeal, NutritionaiAiSession } from "@/types/api";
+
+// sessionName isn't on the generated NutritionaiAiSession type yet (backend
+// field added after last codegen) — extend locally rather than hand-edit
+// the auto-generated types/api.ts.
+type SessionWithName = NutritionaiAiSession & { sessionName?: string | null };
 
 function formatDateTime(iso?: string) {
   if (!iso) return "";
@@ -30,6 +42,57 @@ function formatDateTime(iso?: string) {
   }
 }
 
+/** "Log again" + "Save ingredients to library" actions for an already-
+ * committed candidate meal — the session detail page used to be pure
+ * read-only info once a meal was logged, with no way to reuse it. Both
+ * actions open a review dialog rather than saving immediately, since the
+ * target (which meal slot, which library entity per ingredient) needs the
+ * user's input first. */
+function CommittedCandidateActions({
+  candidate,
+}: {
+  candidate: NutritionaiAiCandidateMeal;
+}) {
+  const { t } = useTranslation();
+  const [logAgainOpen, setLogAgainOpen] = useState(false);
+  const [saveToLibraryOpen, setSaveToLibraryOpen] = useState(false);
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5"
+          onClick={() => setLogAgainOpen(true)}
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          {t("aiSessionDetail.logAgain")}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5"
+          onClick={() => setSaveToLibraryOpen(true)}
+        >
+          <BookmarkPlus className="w-3.5 h-3.5" />
+          {t("aiSessionDetail.saveToLibrary")}
+        </Button>
+      </div>
+      <LogMealAgainDialog
+        candidate={candidate}
+        open={logAgainOpen}
+        onOpenChange={setLogAgainOpen}
+      />
+      <SaveCandidateToLibraryDialog
+        candidate={candidate}
+        open={saveToLibraryOpen}
+        onOpenChange={setSaveToLibraryOpen}
+      />
+    </>
+  );
+}
+
 export default function AiSessionDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -38,7 +101,7 @@ export default function AiSessionDetailPage() {
     id ? { aiSessionId: id } : undefined,
   );
 
-  const session = sessionData?.aiSession;
+  const session = sessionData?.aiSession as SessionWithName | undefined;
   const candidates = candidatesData?.aiCandidateMeals ?? [];
 
   const STATUS_LABEL: Record<string, string> = {
@@ -89,7 +152,7 @@ export default function AiSessionDetailPage() {
           </Link>
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">
-              {t("aiSessionDetail.title")}
+              {session.sessionName || t("aiSessionDetail.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
               {formatDateTime(session.createdAt)}
@@ -181,7 +244,7 @@ export default function AiSessionDetailPage() {
           ) : (
             candidates.map((c) => (
               <Card key={c.id} className="p-5 shadow-sm space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground">
                       {t("aiSessionDetail.date")}
@@ -206,14 +269,23 @@ export default function AiSessionDetailPage() {
                       {c.proposedSlotName ?? "—"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      {t("aiSessionDetail.calories")}
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {c.totalCalories ?? "—"} kcal
-                    </p>
-                  </div>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 pt-2 border-t border-border">
+                  {[
+                    [t("aiSessionDetail.calories"), c.totalCalories, t("common.kcal")],
+                    [t("dashboard.protein"), c.totalProtein, "g"],
+                    [t("dashboard.carbs"), c.totalCarbohydrates, "g"],
+                    [t("dashboard.fat"), c.totalFat, "g"],
+                    [t("dashboard.sugar"), c.totalSugar, "g"],
+                    [t("dashboard.fiber"), c.totalFiber, "g"],
+                  ].map(([label, value, unit]) => (
+                    <div key={label as string}>
+                      <p className="text-xs text-muted-foreground">{label}</p>
+                      <p className="text-sm font-semibold">
+                        {(value as number | undefined) ?? "—"} {unit}
+                      </p>
+                    </div>
+                  ))}
                 </div>
                 {c.warningText && (
                   <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
@@ -222,9 +294,12 @@ export default function AiSessionDetailPage() {
                 )}
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
                   {c.isCommitted ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                      {t("aiSessionDetail.committed")}
-                    </span>
+                    <>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                        {t("aiSessionDetail.committed")}
+                      </span>
+                      <CommittedCandidateActions candidate={c} />
+                    </>
                   ) : c.confirmationRequired && !c.isConfirmed ? (
                     <Link
                       to={`/ai-candidate-meals/${c.id}/confirm`}

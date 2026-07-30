@@ -337,9 +337,26 @@
     "statusPending": "Bekliyor",
     "statusNeedsConfirmation": "Onay Bekliyor",
     "statusCompleted": "Tamamlandı",
-    "statusFailed": "Başarısız"
+    "statusFailed": "Başarısız",
+    "logAgain": "Tekrar Öğün Olarak Ekle",
+    "loggingAgain": "Ekleniyor…",
+    "logAgainSuccess": "Öğün tekrar günlüğe eklendi.",
+    "logAgainError": "Öğün eklenirken bir hata oluştu.",
+    "saveToLibrary": "Kütüphaneye Kaydet",
+    "savingLibrary": "Kaydediliyor…",
+    "savedToLibrarySuccess": "Kütüphanenize kaydedildi.",
+    "savedToLibraryError": "Kütüphaneye kaydedilirken bir hata oluştu.",
+    "saveToLibraryHint": "Her besin öğesini malzeme veya yemek olarak ayrı ayrı kaydedebilir, ya da tümünü tek bir hazır öğün olarak birleştirebilirsiniz.",
+    "saveAsBulkPreset": "Tümünü tek bir Hazır Öğün olarak kaydet",
+    "presetMealName": "Hazır Öğün Adı",
+    "presetMealNamePlaceholder": "örn. Kahvaltı Tabağı",
+    "presetNameRequired": "Lütfen bir hazır öğün adı girin.",
+    "targetFood": "Malzeme",
+    "targetDish": "Yemek",
+    "targetSkip": "Atla"
   },
   "aiSessionHistory": {
+    "backToAiChat": "AI Öğün Analizi'ne dön",
     "title": "AI Oturum Geçmişi",
     "subtitle": "AI öğün analizi ve beslenme rehberliği etkileşimlerinizi inceleyin.",
     "all": "Tümü",
@@ -363,11 +380,11 @@
   },
   "aiChat": {
     "title": "AI Öğün Analizi",
-    "subtitle": "Yediğinizi doğal dilde tarif edin, AI besin değerlerini hesaplasın.",
+    "subtitle": "Ne yediğini yaz, saniyeler içinde makrolarını hesaplayıp günlüğüne kaydedeyim.",
     "history": "Geçmiş",
     "whatDidYouEat": "Ne yediniz?",
     "placeholder": "Örneğin: '2 yumurta ve 40g sucuk yedim'",
-    "hint": "AI analizinin doğru çalışması için miktarları belirtin (örn. 100g, 2 adet).",
+    "hint": "Miktar belirtmek (g, adet, bardak) daha doğru sonuç verir.",
     "analyzing": "Analiz Ediliyor…",
     "analyze": "Analiz Et",
     "analyzingLong": "AI analiz ediyor... Bu birkaç saniye sürebilir.",
@@ -377,7 +394,11 @@
     "tip": "İpucu",
     "tipText": "Miktar belirtmek (g, adet, bardak) daha doğru sonuç verir.",
     "sessionCreateFailed": "AI oturumu oluşturulamadı.",
-    "analysisError": "AI analizi sırasında bir hata oluştu."
+    "analysisError": "AI analizi sırasında bir hata oluştu.",
+    "suggestion1": "Kahvaltıda 2 omlet ve 1 dilim ekmek",
+    "suggestion2": "200g tavuk göğsü, pilav",
+    "suggestion3": "Bugün ne kadar protein aldım?",
+    "suggestion4": "1 kase yoğurt ve muz"
   },
   "monthlyAnalytics": {
     "dashboard": "Panel",
@@ -1078,7 +1099,7 @@
     "weeklyAnalytics": "Haftalık Analiz",
     "monthlyAnalytics": "Aylık Analiz",
     "analytics": "Analiz",
-    "aiChat": "AI Sohbet",
+    "aiChat": "AI Öğün Analizi",
     "inviteLinks": "Davet Linkleri",
     "userManagement": "Kullanıcı Yönetimi",
     "suggestions": "Öneriler",
@@ -1159,9 +1180,11 @@
     "foodName": "Besin Adı",
     "grams": "Gram",
     "saveAsFood": "Kütüphaneye kalıcı besin olarak ekle",
+    "editMacros": "Makroları düzenle",
     "noItems": "Bu öğün için tespit edilen besin bulunamadı.",
     "committing": "Kaydediliyor…",
-    "confirmAndLog": "Onayla ve Kaydet"
+    "confirmAndLog": "Onayla ve Kaydet",
+    "confirmSuccess": "Öğün başarıyla kaydedildi."
   },
   "dishes": {
     "title": "Yemek Kütüphanesi",
