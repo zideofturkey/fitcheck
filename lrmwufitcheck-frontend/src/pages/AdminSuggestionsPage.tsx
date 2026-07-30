@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
   Lightbulb,
   Loader,
   RefreshCw,
+  X,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,11 +23,18 @@ import {
   useListSuggestions,
   useRejectSuggestion,
 } from "@/hooks/api/use-suggestion";
+import { useUser } from "@/hooks/api/use-auth";
 
 function AdminSuggestionsPage() {
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState("pending");
-  const { data, isLoading, error, refetch } = useListSuggestions(statusFilter);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userIdFilter = searchParams.get("userId") ?? undefined;
+  const { data: filteredUser } = useUser(userIdFilter);
+  const { data, isLoading, error, refetch } = useListSuggestions(
+    statusFilter,
+    userIdFilter,
+  );
   const approveMutation = useApproveSuggestion();
   const rejectMutation = useRejectSuggestion();
 
@@ -83,6 +92,30 @@ function AdminSuggestionsPage() {
           </Button>
         </div>
       </header>
+
+      {userIdFilter && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">
+            {t("adminSuggestions.filteredByUser")}
+          </span>
+          <span className="font-semibold text-foreground">
+            {filteredUser?.fullname ?? userIdFilter}
+          </span>
+          <button
+            type="button"
+            title={t("adminSuggestions.clearFilter")}
+            aria-label={t("adminSuggestions.clearFilter")}
+            className="ml-auto inline-flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted transition-colors"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete("userId");
+              setSearchParams(next);
+            }}
+          >
+            <X className="w-4 h-4 text-muted-foreground" aria-hidden />
+          </button>
+        </div>
+      )}
 
       {isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground">

@@ -6,13 +6,18 @@ import {
 
 export const suggestionKeys = {
   all: () => ["suggestion"] as const,
-  list: (status?: string) => [...suggestionKeys.all(), "list", status] as const,
+  list: (status?: string, userId?: string) =>
+    [...suggestionKeys.all(), "list", status, userId] as const,
 };
 
-export const useListSuggestions = (status?: string, enabled = true) => {
+export const useListSuggestions = (
+  status?: string,
+  userId?: string,
+  enabled = true,
+) => {
   return useQuery({
-    queryKey: suggestionKeys.list(status),
-    queryFn: () => suggestionService.list(status),
+    queryKey: suggestionKeys.list(status, userId),
+    queryFn: () => suggestionService.list(status, userId),
     enabled,
   });
 };

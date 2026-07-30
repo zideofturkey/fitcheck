@@ -81,6 +81,7 @@ export default function AuthLayout() {
         <button
           type="button"
           aria-label={t("system.goBack")}
+          title={t("system.goBack")}
           onClick={() => window.history.back()}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-1"
         >
@@ -93,6 +94,7 @@ export default function AuthLayout() {
           to="/welcome"
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
           aria-label={t("authLayout.home")}
+          title={t("authLayout.home")}
         >
           <Icons.Home className="w-5 h-5 text-muted-foreground" />
         </Link>

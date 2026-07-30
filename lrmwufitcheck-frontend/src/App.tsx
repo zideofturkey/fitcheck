@@ -72,6 +72,9 @@ const AdminCreateInvitePage = lazy(
 );
 const AdminUserListPage = lazy(() => import("@/pages/AdminUserListPage"));
 const AdminUserDetailPage = lazy(() => import("@/pages/AdminUserDetailPage"));
+const AdminUserLibraryPage = lazy(
+  () => import("@/pages/AdminUserLibraryPage"),
+);
 const AdminCreateUserPage = lazy(() => import("@/pages/AdminCreateUserPage"));
 const AdminSuggestionsPage = lazy(
   () => import("@/pages/AdminSuggestionsPage"),
@@ -241,6 +244,14 @@ export default function App() {
                 element={
                   <RoleProtectedRoute roles={["superAdmin", "admin"]}>
                     <AdminUserDetailPage />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users/:userId/library"
+                element={
+                  <RoleProtectedRoute roles={["superAdmin", "admin"]}>
+                    <AdminUserLibraryPage />
                   </RoleProtectedRoute>
                 }
               />

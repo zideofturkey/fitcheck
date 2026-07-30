@@ -249,6 +249,7 @@ export default function ProfilePage() {
                 type="button"
                 className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait"
                 aria-label={t("profile.changeAvatar")}
+                title={t("profile.changeAvatar")}
                 disabled={uploadAvatar.isPending || updateProfile.isPending}
                 onClick={() => avatarInputRef.current?.click()}
               >
@@ -373,6 +374,7 @@ export default function ProfilePage() {
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={t("profile.toggleVisibility")}
+                title={t("profile.toggleVisibility")}
                 onClick={() => setShowCurrentPassword((v) => !v)}
               >
                 {showCurrentPassword ? (
@@ -397,6 +399,7 @@ export default function ProfilePage() {
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={t("profile.toggleVisibility")}
+                title={t("profile.toggleVisibility")}
                 onClick={() => setShowNewPassword((v) => !v)}
               >
                 {showNewPassword ? (
@@ -438,6 +441,7 @@ export default function ProfilePage() {
                 type="button"
                 className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={t("profile.toggleVisibility")}
+                title={t("profile.toggleVisibility")}
                 onClick={() => setShowConfirmPassword((v) => !v)}
               >
                 {showConfirmPassword ? (

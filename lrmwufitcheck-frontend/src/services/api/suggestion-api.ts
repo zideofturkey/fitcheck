@@ -90,10 +90,16 @@ export const suggestionService = {
     );
   },
 
-  /** GET /v1/suggestions?status=... */
-  list: async (status?: string): Promise<SuggestionListResponse> => {
+  /** GET /v1/suggestions?status=...&userId=... (userId is admin-only) */
+  list: async (
+    status?: string,
+    userId?: string,
+  ): Promise<SuggestionListResponse> => {
+    const params: Record<string, string> = {};
+    if (status) params.status = status;
+    if (userId) params.userId = userId;
     return nutritionlibraryApi.get<SuggestionListResponse>("v1/suggestions", {
-      params: status ? { status } : undefined,
+      params: Object.keys(params).length ? params : undefined,
     });
   },
 

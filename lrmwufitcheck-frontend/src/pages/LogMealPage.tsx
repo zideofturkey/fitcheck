@@ -421,6 +421,7 @@ function LogMealPage() {
                       onClick={() => removeFoodItem(item.id)}
                       className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                       aria-label={t("logMeal.removeItemAria")}
+                      title={t("logMeal.removeItemAria")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

@@ -29,7 +29,10 @@
     "page": "Page",
     "of": "of",
     "viewDetails": "View Details",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "remove": "Remove",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "errorBoundary": {
     "title": "Something went wrong",
@@ -180,6 +183,8 @@
     "userActions": "User actions",
     "viewDetails": "View Details",
     "changeRole": "Change Role",
+    "viewLibrary": "View Library",
+    "viewSuggestions": "Suggestions",
     "delete": "Delete",
     "viewUserDetails": "View user details",
     "showing": "Showing",
@@ -1013,7 +1018,23 @@
     "totals": "Totals",
     "suggestedBy": "Suggested by user",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "filteredByUser": "Filtered by user:",
+    "clearFilter": "Clear filter"
+  },
+  "adminUserLibrary": {
+    "title": "User Library",
+    "backToUser": "Back to user",
+    "all": "All",
+    "foodItems": "Ingredients",
+    "dishes": "Dishes",
+    "presetMeals": "Preset Meals",
+    "loading": "Loading…",
+    "loadError": "Failed to load library.",
+    "emptyTitle": "No records in this category",
+    "alreadyGlobal": "Already Global",
+    "promoteAction": "Add to Global Library",
+    "promoting": "Adding…"
   },
   "adminBulkImport": {
     "title": "Bulk Import",

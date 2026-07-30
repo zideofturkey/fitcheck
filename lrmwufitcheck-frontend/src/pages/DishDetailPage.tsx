@@ -296,6 +296,7 @@ export default function DishDetailPage() {
                   onClick={() => handleRemoveLine(line.id)}
                   className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9 flex-shrink-0"
                   aria-label={t("dishes.removeAria", { name: line.lineFoodName })}
+                  title={t("common.remove")}
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -350,6 +351,7 @@ export default function DishDetailPage() {
                 onClick={() => setAddOpen(false)}
                 className="rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("common.close")}
+                title={t("common.close")}
               >
                 <X className="size-5" />
               </button>

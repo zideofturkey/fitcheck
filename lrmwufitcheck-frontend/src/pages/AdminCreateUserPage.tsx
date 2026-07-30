@@ -164,6 +164,7 @@ export default function AdminCreateUserPage() {
                 type="button"
                 className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
                 aria-label={t("adminCreateUser.uploadAvatarAria")}
+                title={t("adminCreateUser.uploadAvatarAria")}
                 onClick={handleAvatarClick}
               >
                 <Camera className="w-4 h-4" />
@@ -227,6 +228,7 @@ export default function AdminCreateUserPage() {
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted transition-colors"
                 aria-label={t("adminCreateUser.toggleVisibility")}
+                title={t("adminCreateUser.toggleVisibility")}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (

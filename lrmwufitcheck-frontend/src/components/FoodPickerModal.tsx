@@ -193,6 +193,7 @@ export default function FoodPickerModal({
             onClick={close}
             className="rounded-full p-1.5 hover:bg-muted"
             aria-label={t("foodPickerModal.closeAria")}
+            title={t("foodPickerModal.closeAria")}
           >
             <X className="size-5" />
           </button>

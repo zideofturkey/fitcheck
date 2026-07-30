@@ -410,6 +410,7 @@ function AdminUserListPage() {
                         <button
                           className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors"
                           aria-label={t("adminUsers.userActions")}
+                          title={t("adminUsers.userActions")}
                         >
                           <MoveHorizontal
                             className="w-4 h-4 text-muted-foreground"
@@ -438,6 +439,22 @@ function AdminUserListPage() {
                         >
                           {t("adminUsers.changeRole")}
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to={`/admin/users/${user.id}/library`}
+                            className="cursor-pointer"
+                          >
+                            {t("adminUsers.viewLibrary")}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to={`/admin/suggestions?userId=${user.id}`}
+                            className="cursor-pointer"
+                          >
+                            {t("adminUsers.viewSuggestions")}
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onClick={() =>
@@ -455,6 +472,7 @@ function AdminUserListPage() {
                       to={`/admin/users/${user.id}`}
                       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors"
                       aria-label={t("adminUsers.viewUserDetails")}
+                      title={t("adminUsers.viewUserDetails")}
                     >
                       <ChevronRight
                         className="w-4 h-4 text-muted-foreground"
@@ -486,6 +504,7 @@ function AdminUserListPage() {
                 disabled={pageNumber <= 1}
                 onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
                 aria-label={t("adminUsers.previousPage")}
+                title={t("adminUsers.previousPage")}
               >
                 <ChevronLeft className="w-4 h-4" aria-hidden />
               </button>
@@ -519,6 +538,7 @@ function AdminUserListPage() {
                 }
                 disabled={pageNumber >= totalPages}
                 aria-label={t("adminUsers.nextPage")}
+                title={t("adminUsers.nextPage")}
               >
                 <ChevronRight className="w-4 h-4" aria-hidden />
               </button>

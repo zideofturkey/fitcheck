@@ -24,6 +24,7 @@ export default function CopyableCodeBadge({ code }: Props) {
         className="h-6 w-6"
         onClick={handleCopy}
         aria-label={copied ? "Copied" : "Copy to clipboard"}
+        title={copied ? "Copied" : "Copy"}
       >
         {copied ? (
           <Check className="h-3.5 w-3.5 text-green-500" />

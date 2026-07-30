@@ -223,6 +223,7 @@ export default function MealHistoryPage() {
             }}
             className="bg-transparent text-sm text-foreground outline-none w-32"
             aria-label={t("mealHistory.fromDate")}
+            title={t("mealHistory.fromDate")}
           />
           <span className="text-sm text-muted-foreground">–</span>
           <input
@@ -234,6 +235,7 @@ export default function MealHistoryPage() {
             }}
             className="bg-transparent text-sm text-foreground outline-none w-32"
             aria-label={t("mealHistory.toDate")}
+            title={t("mealHistory.toDate")}
           />
         </div>
         <select
@@ -243,6 +245,7 @@ export default function MealHistoryPage() {
             setPage(1);
           }}
           aria-label={t("mealHistory.filterBySource")}
+          title={t("mealHistory.filterBySource")}
           className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring transition-shadow"
         >
           <option value="">{t("mealHistory.allSources")}</option>
@@ -407,6 +410,7 @@ export default function MealHistoryPage() {
                         onClick={() => handleDelete(meal.id)}
                         className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         aria-label={t("mealHistory.deleteAria")}
+                        title={t("mealHistory.deleteAria")}
                       >
                         <Trash2 className="size-3.5" /> {t("mealHistory.delete")}
                       </button>
@@ -423,6 +427,7 @@ export default function MealHistoryPage() {
       <nav
         className="mt-8 flex items-center justify-between gap-4 border-t border-border pt-4"
         aria-label={t("mealHistory.pagination")}
+        title={t("mealHistory.pagination")}
       >
         <span className="text-sm text-muted-foreground">
           {t("mealHistory.pageOf", { page, totalPages })}
@@ -434,6 +439,7 @@ export default function MealHistoryPage() {
             onClick={() => setPage((p) => p - 1)}
             className="inline-flex items-center justify-center size-9 rounded-lg border border-border bg-muted/50 text-muted-foreground disabled:opacity-50 hover:bg-muted transition-colors"
             aria-label={t("mealHistory.previousPage")}
+            title={t("mealHistory.previousPage")}
           >
             <ChevronLeft className="size-4" />
           </button>
@@ -443,6 +449,7 @@ export default function MealHistoryPage() {
             onClick={() => setPage((p) => p + 1)}
             className="inline-flex items-center justify-center size-9 rounded-lg border border-border bg-muted/50 text-muted-foreground disabled:opacity-50 hover:bg-muted transition-colors"
             aria-label={t("mealHistory.nextPage")}
+            title={t("mealHistory.nextPage")}
           >
             <ChevronRight className="size-4" />
           </button>

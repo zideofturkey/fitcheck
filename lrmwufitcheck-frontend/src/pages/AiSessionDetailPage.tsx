@@ -83,6 +83,7 @@ export default function AiSessionDetailPage() {
             to="/ai-sessions"
             className="rounded-full p-2 hover:bg-muted transition-colors"
             aria-label={t("aiSessionDetail.backAria")}
+            title={t("aiSessionDetail.backAria")}
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </Link>

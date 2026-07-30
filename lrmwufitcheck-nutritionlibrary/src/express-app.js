@@ -221,6 +221,8 @@ const bulkImportRouter = require("./routes/bulk-import");
 app.use("", bulkImportRouter);
 const brandAdminRouter = require("./routes/brand-admin");
 app.use("", brandAdminRouter);
+const adminUserLibraryRouter = require("./routes/admin-user-library");
+app.use("", adminUserLibraryRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);

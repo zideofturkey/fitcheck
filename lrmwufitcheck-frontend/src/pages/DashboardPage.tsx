@@ -508,6 +508,7 @@ export default function DashboardPage() {
               to="/meals/log"
               className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               aria-label={t("dashboard.addMealAria")}
+              title={t("dashboard.addMealAria")}
             >
               <Plus className="w-6 h-6" />
             </Link>

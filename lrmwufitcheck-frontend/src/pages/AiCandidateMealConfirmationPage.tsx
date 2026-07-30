@@ -137,6 +137,7 @@ export default function AiCandidateMealConfirmationPage() {
           to="/ai-sessions"
           className="rounded-full p-2 hover:bg-muted transition-colors"
           aria-label={t("common.back")}
+          title={t("common.back")}
         >
           <ArrowLeft className="w-5 h-5 text-muted-foreground" />
         </Link>

@@ -312,6 +312,7 @@ export default function DishesPage() {
                       onClick={() => handleDelete(dish.id)}
                       className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       aria-label={t("dishes.deleteAria")}
+                      title={t("dishes.deleteAria")}
                     >
                       <Trash2 className="size-3.5" aria-hidden="true" />
                     </button>
@@ -389,6 +390,7 @@ export default function DishesPage() {
                 onClick={() => setPage((p) => p - 1)}
                 className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
                 aria-label={t("common.back")}
+                title={t("common.back")}
               >
                 <ChevronLeft className="size-4" aria-hidden="true" />
               </button>
@@ -401,6 +403,7 @@ export default function DishesPage() {
                 onClick={() => setPage((p) => p + 1)}
                 className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
                 aria-label={t("common.next")}
+                title={t("common.next")}
               >
                 <ChevronRight className="size-4" aria-hidden="true" />
               </button>
@@ -431,6 +434,7 @@ export default function DishesPage() {
                 onClick={handleCloseCreate}
                 className="rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("common.close")}
+                title={t("common.close")}
               >
                 <X className="size-5" />
               </button>
@@ -537,6 +541,7 @@ export default function DishesPage() {
                           aria-label={t("dishes.removeAria", {
                             name: line.lineFoodName,
                           })}
+                          title={t("common.remove")}
                         >
                           <X className="size-3.5" />
                         </button>

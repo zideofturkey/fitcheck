@@ -29,7 +29,10 @@
     "page": "Sayfa",
     "of": "/",
     "viewDetails": "Detayları Gör",
-    "notAvailable": "Mevcut değil"
+    "notAvailable": "Mevcut değil",
+    "remove": "Kaldır",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı"
   },
   "errorBoundary": {
     "title": "Bir şeyler ters gitti",
@@ -180,6 +183,8 @@
     "userActions": "Kullanıcı işlemleri",
     "viewDetails": "Detayları Gör",
     "changeRole": "Rolü Değiştir",
+    "viewLibrary": "Kütüphaneyi Gör",
+    "viewSuggestions": "Öneriler",
     "delete": "Sil",
     "viewUserDetails": "Kullanıcı detaylarını görüntüle",
     "showing": "Gösterilen",
@@ -1013,7 +1018,23 @@
     "totals": "Toplam",
     "suggestedBy": "Öneren kullanıcı",
     "approve": "Onayla",
-    "reject": "Reddet"
+    "reject": "Reddet",
+    "filteredByUser": "Kullanıcıya göre filtrelendi:",
+    "clearFilter": "Filtreyi temizle"
+  },
+  "adminUserLibrary": {
+    "title": "Kullanıcı Kütüphanesi",
+    "backToUser": "Kullanıcıya dön",
+    "all": "Tümü",
+    "foodItems": "Malzemeler",
+    "dishes": "Yemekler",
+    "presetMeals": "Hazır Öğünler",
+    "loading": "Yükleniyor…",
+    "loadError": "Kütüphane yüklenemedi.",
+    "emptyTitle": "Bu kategoride kayıt yok",
+    "alreadyGlobal": "Zaten Global",
+    "promoteAction": "Global Kütüphaneye Ekle",
+    "promoting": "Ekleniyor…"
   },
   "adminBulkImport": {
     "title": "Toplu İçe Aktarma",

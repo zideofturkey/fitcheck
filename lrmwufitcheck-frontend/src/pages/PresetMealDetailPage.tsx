@@ -325,6 +325,7 @@ export default function PresetMealDetailPage() {
                   aria-label={t("presetMealDetail.removeAria", {
                     name: line.lineFoodName,
                   })}
+                  title={t("common.remove")}
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -380,6 +381,7 @@ export default function PresetMealDetailPage() {
                 onClick={() => setAddOpen(false)}
                 className="rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("presetMealDetail.closeAria")}
+                title={t("presetMealDetail.closeAria")}
               >
                 <X className="size-5" />
               </button>

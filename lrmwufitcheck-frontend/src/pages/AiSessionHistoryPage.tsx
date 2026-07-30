@@ -246,6 +246,7 @@ export default function AiSessionHistoryPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             className="inline-flex items-center justify-center rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted disabled:opacity-50"
             aria-label={t("aiSessionHistory.previousPage")}
+            title={t("aiSessionHistory.previousPage")}
           >
             <ChevronLeft className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -255,6 +256,7 @@ export default function AiSessionHistoryPage() {
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             className="inline-flex items-center justify-center rounded-lg border border-border bg-card p-2 transition-colors hover:bg-muted disabled:opacity-50"
             aria-label={t("aiSessionHistory.nextPage")}
+            title={t("aiSessionHistory.nextPage")}
           >
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>

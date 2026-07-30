@@ -165,6 +165,7 @@ export default function AdminInviteListPage() {
             }}
             className="flex-1 sm:max-w-[180px] rounded-md border border-input bg-background text-sm px-3 py-2 min-h-[44px] text-foreground"
             aria-label={t("adminInvites.filterByState")}
+            title={t("adminInvites.filterByState")}
           >
             <option value="">{t("adminInvites.allStates")}</option>
             {STATES.map((s) => (
@@ -184,6 +185,7 @@ export default function AdminInviteListPage() {
             }}
             className="flex-1 sm:max-w-[180px] rounded-md border border-input bg-background text-sm px-3 py-2 min-h-[44px] text-foreground"
             aria-label={t("adminInvites.filterByMode")}
+            title={t("adminInvites.filterByMode")}
           >
             <option value="">{t("adminInvites.allModes")}</option>
             {MODES.map((m) => (
@@ -299,6 +301,7 @@ export default function AdminInviteListPage() {
                           to={`/admin/invites/${invite.id}`}
                           className="p-2 rounded-md hover:bg-accent transition-colors"
                           aria-label={t("adminInvites.viewDetails")}
+                          title={t("adminInvites.viewDetails")}
                         >
                           <Eye className="w-4 h-4 text-muted-foreground" />
                         </Link>
@@ -309,6 +312,7 @@ export default function AdminInviteListPage() {
                               onClick={() => handleDeliver(invite.id)}
                               className="p-2 rounded-md hover:bg-accent transition-colors"
                               aria-label={t("adminInvites.sendEmail")}
+                              title={t("adminInvites.sendEmail")}
                             >
                               <Mail className="w-4 h-4 text-muted-foreground" />
                             </button>
@@ -317,6 +321,7 @@ export default function AdminInviteListPage() {
                               onClick={() => handleRevoke(invite.id)}
                               className="p-2 rounded-md hover:bg-accent transition-colors"
                               aria-label={t("adminInvites.revoke")}
+                              title={t("adminInvites.revoke")}
                             >
                               <Ban className="w-4 h-4 text-muted-foreground" />
                             </button>
@@ -328,6 +333,7 @@ export default function AdminInviteListPage() {
                             onClick={() => handleActivate(invite.id)}
                             className="p-2 rounded-md hover:bg-accent transition-colors"
                             aria-label={t("adminInvites.activate")}
+                            title={t("adminInvites.activate")}
                           >
                             <Play className="w-4 h-4 text-chart-1" />
                           </button>
@@ -352,6 +358,7 @@ export default function AdminInviteListPage() {
               className="p-2 rounded-md border border-border hover:bg-muted transition-colors disabled:opacity-40"
               disabled={page <= 1}
               aria-label={t("adminInvites.previousPage")}
+              title={t("adminInvites.previousPage")}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               <ChevronLeft className="w-4 h-4" />
@@ -361,6 +368,7 @@ export default function AdminInviteListPage() {
               className="p-2 rounded-md border border-border hover:bg-muted transition-colors disabled:opacity-40"
               disabled={page >= totalPages}
               aria-label={t("adminInvites.nextPage")}
+              title={t("adminInvites.nextPage")}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
               <ChevronRight className="w-4 h-4" />
@@ -439,6 +447,7 @@ export default function AdminInviteListPage() {
                   to={`/admin/invites/${invite.id}`}
                   className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
                   aria-label={t("adminInvites.viewDetails")}
+                  title={t("adminInvites.viewDetails")}
                 >
                   <Eye className="w-4 h-4" /> {t("adminInvites.view")}
                 </Link>
@@ -449,6 +458,7 @@ export default function AdminInviteListPage() {
                       onClick={() => handleDeliver(invite.id)}
                       className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
                       aria-label={t("adminInvites.sendEmail")}
+                      title={t("adminInvites.sendEmail")}
                     >
                       <Mail className="w-4 h-4" /> {t("adminInvites.send")}
                     </button>
@@ -457,6 +467,7 @@ export default function AdminInviteListPage() {
                       onClick={() => handleRevoke(invite.id)}
                       className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px]"
                       aria-label={t("adminInvites.revoke")}
+                      title={t("adminInvites.revoke")}
                     >
                       <Ban className="w-4 h-4" /> {t("adminInvites.revoke")}
                     </button>
@@ -468,6 +479,7 @@ export default function AdminInviteListPage() {
                     onClick={() => handleActivate(invite.id)}
                     className="flex-1 p-2 rounded-md hover:bg-muted transition-colors flex items-center justify-center gap-1.5 text-xs font-medium min-h-[44px] text-chart-1"
                     aria-label={t("adminInvites.activate")}
+                    title={t("adminInvites.activate")}
                   >
                     <Play className="w-4 h-4" /> {t("adminInvites.activate")}
                   </button>

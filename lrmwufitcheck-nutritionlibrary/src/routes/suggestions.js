@@ -6,6 +6,7 @@ const express = require("express");
 const { newUUID } = require("common");
 const requireAuth = require("./middleware/require-auth");
 const requireAdmin = require("./middleware/require-admin");
+const { createGlobalCopy } = require("./lib/promote-to-global");
 
 const router = express.Router();
 
@@ -179,6 +180,7 @@ async function listSuggestions(req, res, next) {
         where.status = "pending";
       }
       // ?status=all -> no status filter
+      if (req.query.userId) where.userId = req.query.userId;
     }
 
     const suggestions = await Suggestion.findAll({
@@ -205,23 +207,6 @@ async function listSuggestions(req, res, next) {
   } catch (err) {
     next(err);
   }
-}
-
-// Copies all active dishLine/presetLine rows from oldParentId to newParentId
-// under the given foreign key column name.
-async function copyChildLines(ChildModel, fkColumn, oldParentId, newParentId) {
-  const lines = await ChildModel.findAll({
-    where: { [fkColumn]: oldParentId, isActive: true },
-  });
-  for (const line of lines) {
-    const plain = { ...line.get({ plain: true }) };
-    delete plain.id;
-    delete plain.createdAt;
-    delete plain.updatedAt;
-    plain[fkColumn] = newParentId;
-    await ChildModel.create({ ...plain, id: newUUID(false) });
-  }
-  return lines.length;
 }
 
 // POST /v1/suggestions/:id/approve - creates an independent global copy of the source record
@@ -251,33 +236,11 @@ async function approveSuggestion(req, res, next) {
         .json({ error: "Source record is already global" });
     }
 
-    // Capture the source id up front: source.get({plain:true}) returns the
-    // SAME underlying dataValues object (not a clone) in this Sequelize
-    // version, so mutating copyData.id below would otherwise also mutate
-    // source.id out from under us.
-    const sourceId = source.id;
-
-    const copyData = { ...source.get({ plain: true }) };
-    delete copyData.id;
-    delete copyData.createdAt;
-    delete copyData.updatedAt;
-    copyData.id = newUUID(false);
-    copyData.isGlobal = true;
-    // userId stays the original owner - ownership doesn't move to the admin
-
-    const copy = await Model.create(copyData);
-
-    let copiedLineCount = 0;
-    if (suggestion.entityType === "dish") {
-      copiedLineCount = await copyChildLines(DishLine, "dishId", sourceId, copy.id);
-    } else if (suggestion.entityType === "presetMeal") {
-      copiedLineCount = await copyChildLines(
-        PresetLine,
-        "presetMealId",
-        sourceId,
-        copy.id,
-      );
-    }
+    const { copy, copiedLineCount } = await createGlobalCopy(
+      suggestion.entityType,
+      source,
+      { DishLine, PresetLine },
+    );
 
     await suggestion.update({
       status: "approved",

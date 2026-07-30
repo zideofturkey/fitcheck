@@ -267,6 +267,7 @@ export default function MealLoggingWizard({
                   onClick={() => onRemoveLine(idx)}
                   type="button"
                   aria-label={`${line.itemName || "satır"} kaldır`}
+                  title="Kaldır"
                 >
                   <Icons.X size={14} />
                 </Button>

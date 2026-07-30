@@ -192,6 +192,7 @@ function BrandField({
             onClick={() => setAdding(true)}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-input hover:bg-muted transition-colors"
             aria-label={t("foodLibrary.addBrand")}
+            title={t("foodLibrary.addBrand")}
           >
             <Plus className="size-4" />
           </button>
@@ -501,6 +502,7 @@ export default function FoodLibraryPage() {
                     aria-label={t("foodLibrary.editAria", {
                       name: food.foodName,
                     })}
+                    title={t("common.edit")}
                   >
                     <Pencil
                       className="size-4 text-muted-foreground"
@@ -514,6 +516,7 @@ export default function FoodLibraryPage() {
                     aria-label={t("foodLibrary.deleteAria", {
                       name: food.foodName,
                     })}
+                    title={t("common.delete")}
                   >
                     <Trash2
                       className="size-4 text-muted-foreground"
@@ -722,6 +725,7 @@ export default function FoodLibraryPage() {
             onClick={() => setPage((p) => p - 1)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
             aria-label={t("foodLibrary.previousPage")}
+            title={t("foodLibrary.previousPage")}
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
           </button>
@@ -734,6 +738,7 @@ export default function FoodLibraryPage() {
             onClick={() => setPage((p) => p + 1)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
             aria-label={t("foodLibrary.nextPage")}
+            title={t("foodLibrary.nextPage")}
           >
             <ChevronRight className="size-4" aria-hidden="true" />
           </button>
@@ -765,6 +770,7 @@ export default function FoodLibraryPage() {
                   onClick={() => setCreateOpen(false)}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
                   aria-label={t("foodLibrary.closeAria")}
+                  title={t("foodLibrary.closeAria")}
                 >
                   <X
                     className="size-5 text-muted-foreground"
@@ -920,6 +926,7 @@ export default function FoodLibraryPage() {
                   onClick={() => setEditOpen(false)}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
                   aria-label={t("foodLibrary.closeAria")}
+                  title={t("foodLibrary.closeAria")}
                 >
                   <X
                     className="size-5 text-muted-foreground"
@@ -1073,6 +1080,7 @@ export default function FoodLibraryPage() {
                 onClick={() => setAiOpen(false)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
                 aria-label={t("foodLibrary.closeAria")}
+                title={t("foodLibrary.closeAria")}
               >
                 <X className="size-5 text-muted-foreground" aria-hidden="true" />
               </button>

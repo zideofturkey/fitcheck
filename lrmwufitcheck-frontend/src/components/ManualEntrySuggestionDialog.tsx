@@ -44,6 +44,7 @@ export default function ManualEntrySuggestionDialog({
           onClick={onDismiss}
           disabled={isPending}
           aria-label={t("manualEntry.dismissAria")}
+          title={t("manualEntry.dismissAria")}
           className="absolute top-2 right-2 rounded-full p-1.5 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-colors"
         >
           <X className="size-4" aria-hidden="true" />

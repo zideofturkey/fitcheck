@@ -24,6 +24,7 @@ export default function MinimalLayout() {
           onClick={() => window.history.back()}
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
           aria-label={t("system.goBack")}
+          title={t("system.goBack")}
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
@@ -34,6 +35,7 @@ export default function MinimalLayout() {
           to="/profile"
           className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
           aria-label={t("minimalLayout.profileAria")}
+          title={t("minimalLayout.profileAria")}
         >
           <Bell className="w-5 h-5 text-muted-foreground" />
         </Link>

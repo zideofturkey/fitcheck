@@ -375,6 +375,7 @@ const RegisterWithInvitePage = () => {
                 <button
                   type="button"
                   aria-label={t("register.copyCodeAria")}
+                  title={t("register.copyCodeAria")}
                   className="w-9 h-9 flex items-center justify-center rounded-lg border border-border hover:bg-muted transition-colors shrink-0"
                   onClick={handleCopyCode}
                 >
@@ -460,6 +461,11 @@ const RegisterWithInvitePage = () => {
               <button
                 type="button"
                 aria-label={
+                  showPassword
+                    ? t("register.hidePassword")
+                    : t("register.showPassword")
+                }
+                title={
                   showPassword
                     ? t("register.hidePassword")
                     : t("register.showPassword")

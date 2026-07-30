@@ -93,6 +93,7 @@ export default function FoodItemDetailPage() {
               to="/food-library"
               className="rounded-full p-2 hover:bg-muted transition-colors"
               aria-label={t("foodItemDetail.back")}
+              title={t("foodItemDetail.back")}
             >
               <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </Link>

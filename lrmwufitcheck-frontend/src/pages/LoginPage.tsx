@@ -112,6 +112,7 @@ const LoginPage = () => {
               <button
                 type="button"
                 aria-label={t("login.toggleVisibility")}
+                title={t("login.toggleVisibility")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
                 onClick={togglePasswordVisibility}
               >

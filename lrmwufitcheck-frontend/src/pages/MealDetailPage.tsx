@@ -234,6 +234,7 @@ export default function MealDetailPage() {
                       onClick={() => handleDeleteLine(item.id)}
                       className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
                       aria-label={t("mealDetail.deleteLineAria")}
+                      title={t("mealDetail.deleteLineAria")}
                     >
                       <Trash2 className="w-3.5 h-3.5 text-destructive" />
                     </button>
@@ -288,6 +289,7 @@ export default function MealDetailPage() {
                   onClick={() => handleDeleteLine(item.id)}
                   className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
                   aria-label={t("mealDetail.delete")}
+                  title={t("mealDetail.delete")}
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </button>

@@ -125,6 +125,7 @@ export default function MainLayout() {
             onClick={() => setMobileSidebarOpen(true)}
             className="w-11 h-11 flex items-center justify-center -ml-2 rounded-full hover:bg-muted transition-colors"
             aria-label={t("nav.openMenu")}
+            title={t("nav.openMenu")}
           >
             <Menu className="w-5 h-5 text-foreground" />
           </button>
@@ -138,6 +139,7 @@ export default function MainLayout() {
             to="/profile"
             className="w-11 h-11 flex items-center justify-center -mr-2 rounded-full hover:bg-muted transition-colors relative"
             aria-label={t("nav.profile")}
+            title={t("nav.profile")}
           >
             <User className="w-5 h-5 text-foreground" />
           </Link>
@@ -391,6 +393,7 @@ export default function MainLayout() {
                 onClick={() => setMobileSidebarOpen(false)}
                 className="p-1.5 rounded-md hover:bg-muted transition-colors"
                 aria-label={t("nav.closeMenu")}
+                title={t("nav.closeMenu")}
               >
                 <X className="w-5 h-5" />
               </button>

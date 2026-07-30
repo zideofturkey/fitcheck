@@ -280,6 +280,7 @@ export default function PresetMealsPage() {
                     onClick={() => handleDelete(preset.id)}
                     className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                     aria-label={t("presetMeals.deleteAria")}
+                    title={t("presetMeals.deleteAria")}
                   >
                     <Trash2 className="size-3.5" aria-hidden="true" />
                   </button>
@@ -356,6 +357,7 @@ export default function PresetMealsPage() {
               onClick={() => setPage((p) => p - 1)}
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               aria-label={t("presetMeals.previousPage")}
+              title={t("presetMeals.previousPage")}
             >
               <ChevronLeft className="size-4" aria-hidden="true" />
               <span className="hidden sm:ml-1 sm:inline">
@@ -371,6 +373,7 @@ export default function PresetMealsPage() {
               onClick={() => setPage((p) => p + 1)}
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
               aria-label={t("presetMeals.nextPage")}
+              title={t("presetMeals.nextPage")}
             >
               <span className="hidden sm:mr-1 sm:inline">
                 {t("presetMeals.next")}
@@ -404,6 +407,7 @@ export default function PresetMealsPage() {
                 onClick={handleCloseCreate}
                 className="rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("presetMeals.closeAria")}
+                title={t("presetMeals.closeAria")}
               >
                 <X className="size-5" />
               </button>
@@ -490,6 +494,7 @@ export default function PresetMealsPage() {
                           aria-label={t("presetMealDetail.removeAria", {
                             name: line.lineFoodName,
                           })}
+                          title={t("common.remove")}
                         >
                           <X className="size-3.5" />
                         </button>
