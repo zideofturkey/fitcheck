@@ -26,6 +26,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import type { MealtrackerMealLog } from "@/types/api";
+import MealLogTitle from "@/components/MealLogTitle";
 
 function toIsoDate(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -37,6 +38,12 @@ function isSameDay(a: Date, b: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   );
+}
+
+function addDays(d: Date, n: number) {
+  const copy = new Date(d);
+  copy.setDate(copy.getDate() + n);
+  return copy;
 }
 
 function formatMealDate(iso: string) {
@@ -57,7 +64,20 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const today = toIsoDate(selectedDate);
-  const isToday = isSameDay(selectedDate, new Date());
+  const now = new Date();
+  const isToday = isSameDay(selectedDate, now);
+  const isYesterday = isSameDay(selectedDate, addDays(now, -1));
+  const isDayBeforeYesterday = isSameDay(selectedDate, addDays(now, -2));
+  const isTomorrow = isSameDay(selectedDate, addDays(now, 1));
+  const relativeDateLabel = isToday
+    ? t("dashboard.today")
+    : isYesterday
+      ? t("dashboard.yesterday")
+      : isDayBeforeYesterday
+        ? t("dashboard.dayBeforeYesterday")
+        : isTomorrow
+          ? t("dashboard.tomorrow")
+          : formatMealDate(today);
   const { data: progressData, isLoading: progressLoading } =
     useGetDailyProgress({ targetDate: today });
   const { data: mealsData, isLoading: mealsLoading } = useListMealLogs({
@@ -181,7 +201,7 @@ export default function DashboardPage() {
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <Calendar className="w-4 h-4" />
-                {isToday ? t("dashboard.today") : formatMealDate(today)}
+                {relativeDateLabel}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end">
@@ -449,6 +469,10 @@ export default function DashboardPage() {
                           {SOURCE_LABEL[meal.logSource] ?? meal.logSource}
                         </span>
                       </div>
+                      <MealLogTitle
+                        mealLogId={meal.id}
+                        className="mt-1 text-sm font-medium text-foreground truncate"
+                      />
                       <div className="mt-1 flex items-center gap-3">
                         <span className="text-sm font-semibold">
                           {meal.totalCalories} kcal

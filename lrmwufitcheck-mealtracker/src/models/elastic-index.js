@@ -27,6 +27,7 @@ const mealLineMapping = {
   mealLogId: { type: "keyword", index: true },
   sourceFoodItemId: { type: "keyword", index: false },
   sourcePresetMealId: { type: "keyword", index: false },
+  sourceDishId: { type: "keyword", index: false },
   itemName: { type: "keyword", index: false },
   consumedGrams: { type: "double", index: false },
   itemCalories: { type: "double", index: false },

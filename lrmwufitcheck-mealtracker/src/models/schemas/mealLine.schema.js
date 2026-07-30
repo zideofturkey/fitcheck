@@ -35,6 +35,10 @@ const schemaDef = {
       type: DataTypes.UUID,
       allowNull: true,
     },
+    sourceDishId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     itemName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -93,6 +97,11 @@ const schemaDef = {
       name: "meal_lines_meal_log_id",
       unique: false,
       fields: ["mealLogId"],
+    },
+    {
+      name: "meal_lines_source_dish_id",
+      unique: false,
+      fields: ["sourceDishId"],
     },
   ],
 };

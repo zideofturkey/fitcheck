@@ -92,7 +92,12 @@ class ListMealLogsManager extends MealLogManager {
       })
     ) {
       conditionalClauses.push(
-        runMScript(() => ({ mealDate: { $gte: this.fromDate } }), {
+        // Pass an actual Date instance, not the raw "YYYY-MM-DD" string:
+        // Sequelize's DATE serializer re-parses plain strings using local-
+        // timezone semantics, which silently shifts the value by the host's
+        // UTC offset and misses rows stored at true UTC midnight (native
+        // `new Date()` parses ISO date-only strings as UTC, per spec).
+        runMScript(() => ({ mealDate: { $gte: new Date(this.fromDate) } }), {
           path: "services[3].businessLogic[2].whereClause.additionalClauses[0].whereClause",
         }),
       );
@@ -103,7 +108,7 @@ class ListMealLogsManager extends MealLogManager {
       })
     ) {
       conditionalClauses.push(
-        runMScript(() => ({ mealDate: { $lte: this.toDate } }), {
+        runMScript(() => ({ mealDate: { $lte: new Date(this.toDate) } }), {
           path: "services[3].businessLogic[2].whereClause.additionalClauses[1].whereClause",
         }),
       );

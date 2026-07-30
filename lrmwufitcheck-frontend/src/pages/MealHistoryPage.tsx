@@ -23,6 +23,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { useDeleteMealLog, useListMealLogs } from "@/hooks/api/use-mealtracker";
 import type { MealtrackerMealLog } from "@/types/api";
+import MealLogTitle from "@/components/MealLogTitle";
 
 type MealSource = MealtrackerMealLog["logSource"];
 
@@ -344,6 +345,10 @@ export default function MealHistoryPage() {
                           {meal.totalCalories} kcal
                         </span>
                       </div>
+                      <MealLogTitle
+                        mealLogId={meal.id}
+                        className="mt-2 text-sm font-medium text-foreground truncate"
+                      />
                       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                         <span>
                           <span className="font-medium text-foreground">

@@ -710,6 +710,11 @@ class CreateMealLogManager extends MealLogManager {
           path: "services[3].businessLogic[0].actions.createCrudActions[0].dataClause[12].dataValue",
         },
       ),
+      // Not part of the original generated dataClause (no matching
+      // businessLogic path) - the frontend's dishTemplate confirm flow
+      // already sends this, but it was previously silently dropped since
+      // no column existed to persist it into.
+      sourceDishId: lineItem.sourceDishId || null,
     };
 
     return await createMealLine(params, this);
