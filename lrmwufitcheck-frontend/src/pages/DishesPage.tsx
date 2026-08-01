@@ -42,9 +42,12 @@ import StepIndicator from "@/components/StepIndicator";
 import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type { NutritionlibraryFoodItem } from "@/types/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DishesPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const [page, setPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -84,6 +87,7 @@ export default function DishesPage() {
     description: "",
     category: "",
   });
+  const [createIsGlobal, setCreateIsGlobal] = useState(false);
   const [createdDishId, setCreatedDishId] = useState<string | null>(null);
   const [pickerTab, setPickerTab] = useState<"library" | "manual">("library");
   const [librarySearch, setLibrarySearch] = useState("");
@@ -116,6 +120,7 @@ export default function DishesPage() {
   const resetCreateState = () => {
     setCreateStep(1);
     setCreateForm({ name: "", description: "", category: "" });
+    setCreateIsGlobal(false);
     setCreatedDishId(null);
     setPickerTab("library");
     setLibrarySearch("");
@@ -140,6 +145,7 @@ export default function DishesPage() {
         dishName: createForm.name,
         descriptionText: createForm.description || undefined,
         dishCategory: createForm.category || undefined,
+        isGlobal: isAdmin && createIsGlobal ? true : undefined,
       },
       {
         onSuccess: (res) => {
@@ -534,6 +540,19 @@ export default function DishesPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                {isAdmin && (
+                  <label className="flex items-center gap-2.5 rounded-xl border border-border p-3 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={createIsGlobal}
+                      onChange={(e) => setCreateIsGlobal(e.target.checked)}
+                    />
+                    <span className="font-medium text-foreground">
+                      {t("dishes.addAsGlobal")}
+                    </span>
+                  </label>
+                )}
                 <p className="text-xs text-muted-foreground">
                   {t("dishes.createHint")}
                 </p>

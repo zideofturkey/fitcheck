@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { useParseMeal } from "@/hooks/api/use-nutritionai";
 import { nutritionaiHelpers } from "@/services/api/nutritionai-helpers";
 import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +45,7 @@ import {
 import { useGroupedFoodItems } from "@/hooks/api/use-food-item-groups";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
+import type { CreateFoodItemInputWithGlobal } from "@/types/admin-create-extensions";
 import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -204,6 +206,8 @@ function BrandField({
 
 export default function FoodLibraryPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
@@ -220,6 +224,7 @@ export default function FoodLibraryPage() {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiInput, setAiInput] = useState("");
   const [createIsAi, setCreateIsAi] = useState(false);
+  const [createIsGlobal, setCreateIsGlobal] = useState(false);
   const [groupedView, setGroupedView] = useState(false);
   const parseMeal = useParseMeal();
 
@@ -302,16 +307,19 @@ export default function FoodLibraryPage() {
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createForm.name || !createForm.calories) return;
+    const payload: CreateFoodItemInputWithGlobal = {
+      ...buildPayload(createForm),
+      creationSource: createIsAi ? "aiAssistant" : "manualEntry",
+      isGlobal: isAdmin && createIsGlobal ? true : undefined,
+    };
     createMutation.mutate(
-      {
-        ...buildPayload(createForm),
-        creationSource: createIsAi ? "aiAssistant" : "manualEntry",
-      },
+      payload,
       {
         onSuccess: () => {
           setCreateOpen(false);
           setCreateForm(EMPTY_FORM);
           setCreateIsAi(false);
+          setCreateIsGlobal(false);
         },
       },
     );
@@ -872,6 +880,19 @@ export default function FoodLibraryPage() {
                     {t("foodLibrary.baseNameHint")}
                   </p>
                 </div>
+                {isAdmin && (
+                  <label className="flex items-center gap-2.5 rounded-xl border border-border p-3 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={createIsGlobal}
+                      onChange={(e) => setCreateIsGlobal(e.target.checked)}
+                    />
+                    <span className="font-medium text-foreground">
+                      {t("foodLibrary.addAsGlobal")}
+                    </span>
+                  </label>
+                )}
                 <fieldset className="space-y-4 rounded-xl border border-border p-4">
                   <legend className="text-sm font-semibold text-foreground px-1">
                     {t("foodLibrary.per100gNutrition")}

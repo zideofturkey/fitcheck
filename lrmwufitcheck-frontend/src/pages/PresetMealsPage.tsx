@@ -44,9 +44,13 @@ import ManualNutritionForm, {
 import ManualEntrySuggestionDialog from "@/components/ManualEntrySuggestionDialog";
 import { persistManualDish } from "@/services/api/manual-entry-helpers";
 import StepIndicator from "@/components/StepIndicator";
+import { useAuth } from "@/context/AuthContext";
+import type { CreatePresetMealInputWithGlobal } from "@/types/admin-create-extensions";
 
 export default function PresetMealsPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [ownershipFilter, setOwnershipFilter] = useState<
@@ -66,6 +70,7 @@ export default function PresetMealsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [createStep, setCreateStep] = useState<1 | 2>(1);
   const [createForm, setCreateForm] = useState({ name: "", description: "" });
+  const [createIsGlobal, setCreateIsGlobal] = useState(false);
   const [createdPresetId, setCreatedPresetId] = useState<string | null>(null);
   const [pickerTab, setPickerTab] = useState<"library" | "manual">("library");
   const [librarySearch, setLibrarySearch] = useState("");
@@ -113,6 +118,7 @@ export default function PresetMealsPage() {
   const resetCreateState = () => {
     setCreateStep(1);
     setCreateForm({ name: "", description: "" });
+    setCreateIsGlobal(false);
     setCreatedPresetId(null);
     setPickerTab("library");
     setLibrarySearch("");
@@ -132,11 +138,13 @@ export default function PresetMealsPage() {
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     if (!createForm.name) return;
+    const payload: CreatePresetMealInputWithGlobal = {
+      templateName: createForm.name,
+      descriptionText: createForm.description || undefined,
+      isGlobal: isAdmin && createIsGlobal ? true : undefined,
+    };
     createMutation.mutate(
-      {
-        templateName: createForm.name,
-        descriptionText: createForm.description || undefined,
-      },
+      payload,
       {
         onSuccess: (res) => {
           setCreatedPresetId(res.presetMeal.id);
@@ -494,6 +502,19 @@ export default function PresetMealsPage() {
                     }
                   />
                 </div>
+                {isAdmin && (
+                  <label className="flex items-center gap-2.5 rounded-xl border border-border p-3 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={createIsGlobal}
+                      onChange={(e) => setCreateIsGlobal(e.target.checked)}
+                    />
+                    <span className="font-medium text-foreground">
+                      {t("presetMeals.addAsGlobal")}
+                    </span>
+                  </label>
+                )}
                 <p className="text-xs text-muted-foreground">
                   {t("presetMeals.createHint")}
                 </p>

@@ -6,6 +6,7 @@ export const AVAILABLE_ROUTES = new Set<string>([
   "/2fa",
   "/500",
   "/admin/brands",
+  "/admin/library",
   "/admin/bulk-import",
   "/admin/invites",
   "/admin/invites/:inviteLinkId",

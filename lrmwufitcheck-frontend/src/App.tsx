@@ -82,7 +82,7 @@ const AdminSuggestionsPage = lazy(
 const AdminBulkImportPage = lazy(
   () => import("@/pages/AdminBulkImportPage"),
 );
-const AdminBrandsPage = lazy(() => import("@/pages/AdminBrandsPage"));
+const AdminLibraryPage = lazy(() => import("@/pages/AdminLibraryPage"));
 
 // Public / system
 const WelcomePage = lazy(() => import("@/pages/WelcomePage"));
@@ -272,12 +272,17 @@ export default function App() {
                 }
               />
               <Route
-                path="/admin/brands"
+                path="/admin/library"
                 element={
                   <RoleProtectedRoute roles={["superAdmin", "admin"]}>
-                    <AdminBrandsPage />
+                    <AdminLibraryPage />
                   </RoleProtectedRoute>
                 }
+              />
+              {/* Old name, kept as a redirect so existing bookmarks/links still work */}
+              <Route
+                path="/admin/brands"
+                element={<Navigate to="/admin/library" replace />}
               />
             </Route>
 

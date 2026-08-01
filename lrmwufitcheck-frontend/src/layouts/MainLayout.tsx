@@ -56,7 +56,7 @@ const SIDEBAR_ADMIN = [
   { to: "/admin/users", icon: Users, labelKey: "nav.userManagement" },
   { to: "/admin/suggestions", icon: Lightbulb, labelKey: "nav.suggestions" },
   { to: "/admin/bulk-import", icon: UploadCloud, labelKey: "nav.bulkImport" },
-  { to: "/admin/brands", icon: Tag, labelKey: "nav.brandManagement" },
+  { to: "/admin/library", icon: Tag, labelKey: "nav.libraryManagement" },
 ];
 
 function initials(name?: string) {

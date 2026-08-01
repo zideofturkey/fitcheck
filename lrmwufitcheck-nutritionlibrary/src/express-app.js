@@ -223,6 +223,8 @@ const brandAdminRouter = require("./routes/brand-admin");
 app.use("", brandAdminRouter);
 const adminUserLibraryRouter = require("./routes/admin-user-library");
 app.use("", adminUserLibraryRouter);
+const adminGlobalTrashRouter = require("./routes/admin-global-trash");
+app.use("", adminGlobalTrashRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);
