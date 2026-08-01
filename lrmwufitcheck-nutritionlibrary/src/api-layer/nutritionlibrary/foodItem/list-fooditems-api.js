@@ -42,6 +42,7 @@ class ListFoodItemsManager extends FoodItemManager {
     jsonObj.searchTerm = this.searchTerm;
     jsonObj.foodCategory = this.foodCategory;
     jsonObj.creationSource = this.creationSource;
+    jsonObj.ownershipFilter = this.ownershipFilter;
   }
 
   async checkBasicAuth() {
@@ -52,6 +53,7 @@ class ListFoodItemsManager extends FoodItemManager {
     this.searchTerm = request.query?.["searchTerm"];
     this.foodCategory = request.query?.["foodCategory"];
     this.creationSource = request.query?.["creationSource"];
+    this.ownershipFilter = request.query?.["ownershipFilter"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
     const url = request.url;
@@ -62,6 +64,7 @@ class ListFoodItemsManager extends FoodItemManager {
     this.searchTerm = request.mcpParams?.["searchTerm"];
     this.foodCategory = request.mcpParams?.["foodCategory"];
     this.creationSource = request.mcpParams?.["creationSource"];
+    this.ownershipFilter = request.mcpParams?.["ownershipFilter"];
     this.requestData = request.mcpParams;
   }
 
@@ -122,6 +125,14 @@ class ListFoodItemsManager extends FoodItemManager {
     }
     if (this.creationSource != null) {
       conditionalClauses.push({ creationSource: this.creationSource });
+    }
+    // Layered on top of the role-based visibility clause above (not a
+    // replacement for it) - "mine"/"global" narrow down within whatever the
+    // caller is already allowed to see.
+    if (this.ownershipFilter === "mine") {
+      conditionalClauses.push({ userId: this.session.userId });
+    } else if (this.ownershipFilter === "global") {
+      conditionalClauses.push({ isGlobal: true });
     }
 
     return conditionalClauses.length > 1
@@ -207,6 +218,21 @@ class ListFoodItemsManager extends FoodItemManager {
     }
   }
 
+  checkFilterParameter_ownershipFilter() {
+    const paramValue = this.ownershipFilter;
+
+    if (paramValue === null || paramValue === undefined) return;
+
+    if (Array.isArray(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterMustNotBeAnArray");
+    }
+
+    const enumOptions = ["all", "mine", "global"];
+    if (!enumOptions.includes(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterIsNotAValidEnumValue");
+    }
+  }
+
   checkParameters() {
     this.checkParameter_searchTerm();
 
@@ -217,6 +243,9 @@ class ListFoodItemsManager extends FoodItemManager {
 
     if (this.creationSource !== undefined)
       this.checkFilterParameter_creationSource();
+
+    if (this.ownershipFilter !== undefined)
+      this.checkFilterParameter_ownershipFilter();
   }
 
   checkAbsolute() {

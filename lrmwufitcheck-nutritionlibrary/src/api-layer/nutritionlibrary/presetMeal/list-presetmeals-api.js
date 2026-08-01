@@ -39,6 +39,8 @@ class ListPresetMealsManager extends PresetMealManager {
 
   parametersToJson(jsonObj) {
     super.parametersToJson(jsonObj);
+    jsonObj.searchTerm = this.searchTerm;
+    jsonObj.ownershipFilter = this.ownershipFilter;
   }
 
   async checkBasicAuth() {
@@ -46,6 +48,9 @@ class ListPresetMealsManager extends PresetMealManager {
   }
 
   readRestParameters(request) {
+    this.searchTerm =
+      request.query?.["searchTerm"] ?? request.query?.["templateName"];
+    this.ownershipFilter = request.query?.["ownershipFilter"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
     const url = request.url;
@@ -53,6 +58,9 @@ class ListPresetMealsManager extends PresetMealManager {
   }
 
   readMcpParameters(request) {
+    this.searchTerm =
+      request.mcpParams?.["searchTerm"] ?? request.mcpParams?.["templateName"];
+    this.ownershipFilter = request.mcpParams?.["ownershipFilter"];
     this.requestData = request.mcpParams;
   }
 
@@ -61,20 +69,41 @@ class ListPresetMealsManager extends PresetMealManager {
   // where clause methods
 
   async getRouteQuery() {
+    const conditionalClauses = [];
     // Everyone, including admin/superAdmin, sees only their own records plus
     // anything marked isGlobal on this normal browsing endpoint - admin's
     // "see every user's private records" capability lives exclusively in
     // the dedicated admin-user-library route (src/routes/admin-user-library.js),
     // not here.
-    return runMScript(
-      () => ({
-        $and: [
-          { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
-          { isActive: true },
-        ],
-      }),
-      { path: "services[2].businessLogic[9].whereClause.fullWhereClause" },
+    conditionalClauses.push(
+      runMScript(
+        () => ({
+          $and: [
+            { $or: [{ userId: this.session.userId }, { isGlobal: true }] },
+            { isActive: true },
+          ],
+        }),
+        { path: "services[2].businessLogic[9].whereClause.fullWhereClause" },
+      ),
     );
+
+    if (this.searchTerm) {
+      conditionalClauses.push({
+        templateName: { $ilike: "%" + this.searchTerm + "%" },
+      });
+    }
+    // Layered on top of the base visibility clause above (not a replacement
+    // for it) - "mine"/"global" narrow down within whatever the caller is
+    // already allowed to see.
+    if (this.ownershipFilter === "mine") {
+      conditionalClauses.push({ userId: this.session.userId });
+    } else if (this.ownershipFilter === "global") {
+      conditionalClauses.push({ isGlobal: true });
+    }
+
+    return conditionalClauses.length > 1
+      ? { $and: conditionalClauses }
+      : conditionalClauses[0];
   }
 
   async buildWhereClause() {
@@ -83,7 +112,37 @@ class ListPresetMealsManager extends PresetMealManager {
     return convertUserQueryToSequelizeQuery(routeQuery);
   }
 
+  checkParameter_searchTerm() {
+    if (this.searchTerm == null) return;
+
+    if (Array.isArray(this.searchTerm)) {
+      throw new BadRequestError("errMsg_searchTermMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
+  checkFilterParameter_ownershipFilter() {
+    const paramValue = this.ownershipFilter;
+
+    if (paramValue === null || paramValue === undefined) return;
+
+    if (Array.isArray(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterMustNotBeAnArray");
+    }
+
+    const enumOptions = ["all", "mine", "global"];
+    if (!enumOptions.includes(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterIsNotAValidEnumValue");
+    }
+  }
+
   checkParameters() {
+    this.checkParameter_searchTerm();
+
+    if (this.ownershipFilter !== undefined)
+      this.checkFilterParameter_ownershipFilter();
+
     // filter parameters
   }
 
