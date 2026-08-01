@@ -775,8 +775,6 @@
     "logMealBtn": "Öğünü Kaydet"
   },
   "dashboard": {
-    "home": "Ana Sayfa",
-    "breadcrumb": "Panel",
     "title": "Günlük İlerleme",
     "welcome": "Hoş geldin {{name}}, bugünkü besin alımın ve hedeflerin",
     "today": "Bugün",
