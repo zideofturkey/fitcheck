@@ -34,8 +34,14 @@ async function fetchDays(userId, startIso, endIso) {
       { summaryDate: { $lt: new Date(endExclusive + "T00:00:00.000Z") } },
     ],
   });
+  // A nutritionDay row gets created/upserted with mealCount 0 the moment the
+  // user merely opens the dashboard that day (getDailyProgress always
+  // upserts), not just when they log food. Left in, such a zero-consumption
+  // row is mathematically "100% under target" and wins every best-day /
+  // streak / hit-rate computation despite representing zero real adherence -
+  // exclude anything the user didn't actually log.
   return days
-    .slice()
+    .filter((d) => (d.mealCount || 0) > 0)
     .sort((a, b) => (a.summaryDate < b.summaryDate ? -1 : 1));
 }
 
