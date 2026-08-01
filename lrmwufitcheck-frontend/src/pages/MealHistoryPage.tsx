@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ChevronLeft,
@@ -62,10 +62,16 @@ export default function MealHistoryPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   void queryClient;
+  const [searchParams] = useSearchParams();
+  const urlFrom = searchParams.get("from");
+  const urlTo = searchParams.get("to");
+
   const [page, setPage] = useState(1);
-  const [mobileDateFilter, setMobileDateFilter] = useState<string>("last7");
-  const [fromDate, setFromDate] = useState(isoDaysAgo(7));
-  const [toDate, setToDate] = useState(isoToday());
+  const [mobileDateFilter, setMobileDateFilter] = useState<string>(
+    urlFrom ? "custom" : "last7",
+  );
+  const [fromDate, setFromDate] = useState(urlFrom || isoDaysAgo(7));
+  const [toDate, setToDate] = useState(urlTo || urlFrom || isoToday());
   const [sourceFilter, setSourceFilter] = useState<string>("");
 
   const SOURCE_STYLE: Record<

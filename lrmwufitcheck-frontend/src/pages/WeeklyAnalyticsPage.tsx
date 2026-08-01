@@ -1,9 +1,37 @@
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Loader } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 import { useGetWeeklyAnalytics } from "@/hooks/api/use-mealtracker";
-import type { MealtrackerNutritionDay } from "@/types/api";
+import type { WeeklyAnalyticsResponse } from "@/types/period-analytics";
+import PeriodNavigator from "@/components/analytics/PeriodNavigator";
+import AnalyticsBadgeRow from "@/components/analytics/AnalyticsBadgeRow";
+import SlotBreakdownChart from "@/components/analytics/SlotBreakdownChart";
+import EmptyPeriodState from "@/components/analytics/EmptyPeriodState";
+import TrendDeltaPill from "@/components/analytics/TrendDeltaPill";
+
+function isoToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function addDaysIso(iso: string, n: number) {
+  const d = new Date(iso + "T00:00:00.000Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
 
 function formatDay(iso: string) {
   try {
@@ -13,82 +41,118 @@ function formatDay(iso: string) {
   }
 }
 
+function formatPeriodLabel(start: string, end: string) {
+  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  try {
+    const s = new Date(start + "T00:00:00.000Z").toLocaleDateString(
+      "tr-TR",
+      opts,
+    );
+    const e = new Date(end + "T00:00:00.000Z").toLocaleDateString(
+      "tr-TR",
+      opts,
+    );
+    return `${s} - ${e}`;
+  } catch {
+    return `${start} - ${end}`;
+  }
+}
+
 export default function WeeklyAnalyticsPage() {
   const { t } = useTranslation();
-  const { data, isLoading } = useGetWeeklyAnalytics();
-  const days = data?.nutritionDays ?? [];
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const maxCalories = Math.max(1, ...days.map((d) => d.consumedCalories || 0));
-  const targetCalories =
-    days.find((d) => d.targetCalories)?.targetCalories || 2000;
+  const today = isoToday();
+  const referenceDate = searchParams.get("ref") || today;
 
-  const averages = days.reduce(
-    (acc, d) => {
-      acc.cal += d.consumedCalories;
-      acc.pro += d.consumedProtein;
-      acc.car += d.consumedCarbohydrates;
-      acc.fat += d.consumedFat;
-      acc.sug += d.consumedSugar;
-      acc.fib += d.consumedFiber;
-      acc.tPro += d.targetProtein;
-      acc.tCar += d.targetCarbohydrates;
-      acc.tFat += d.targetFat;
-      acc.tSug += d.targetSugar;
-      acc.tFib += d.targetFiber;
-      return acc;
-    },
-    {
-      cal: 0,
-      pro: 0,
-      car: 0,
-      fat: 0,
-      sug: 0,
-      fib: 0,
-      tPro: 0,
-      tCar: 0,
-      tFat: 0,
-      tSug: 0,
-      tFib: 0,
-    },
+  const { data, isLoading } = useGetWeeklyAnalytics({ referenceDate });
+  const w = (data as WeeklyAnalyticsResponse | undefined)?.weeklyAnalytics;
+
+  const goToDay = (dateIso: string) => {
+    const day = dateIso.slice(0, 10);
+    navigate(`/meals?from=${day}&to=${day}`);
+  };
+
+  const setReferenceDate = (iso: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (iso === today) {
+      next.delete("ref");
+    } else {
+      next.set("ref", iso);
+    }
+    setSearchParams(next);
+  };
+
+  const chartData = useMemo(
+    () =>
+      (w?.caloriesTrend ?? []).map((d) => ({
+        ...d,
+        day: formatDay(d.date),
+        exceeded: (d.target ?? 0) > 0 && d.consumed > (d.target ?? 0),
+      })),
+    [w?.caloriesTrend],
   );
-  const n = Math.max(1, days.length);
 
-  const macroBars = [
-    {
-      name: t("weeklyAnalytics.protein"),
-      avg: averages.pro / n,
-      target: averages.tPro / n,
-      color: "bg-chart-1",
-    },
-    {
-      name: t("weeklyAnalytics.carbs"),
-      avg: averages.car / n,
-      target: averages.tCar / n,
-      color: "bg-chart-2",
-    },
-    {
-      name: t("weeklyAnalytics.fat"),
-      avg: averages.fat / n,
-      target: averages.tFat / n,
-      color: "bg-chart-3",
-    },
-    {
-      name: t("weeklyAnalytics.sugar"),
-      avg: averages.sug / n,
-      target: averages.tSug / n,
-      color: "bg-destructive",
-    },
-    {
-      name: t("weeklyAnalytics.fiber"),
-      avg: averages.fib / n,
-      target: averages.tFib / n,
-      color: "bg-chart-4",
-    },
-  ];
+  const avgTarget =
+    chartData.length > 0
+      ? chartData.reduce((s, d) => s + (d.target ?? 0), 0) / chartData.length
+      : 0;
 
-  const onTrack = days.filter(
-    (d) => d.targetCalories > 0 && d.consumedCalories <= d.targetCalories,
-  ).length;
+  const macroBars = w
+    ? [
+        {
+          name: t("weeklyAnalytics.protein"),
+          avg: w.avgDailyProtein,
+          hitRate: w.proteinHitRate,
+          deltaPct: w.deltaPct.proteinDeltaPct,
+          color: "bg-chart-1",
+          higherIsWorse: false,
+        },
+        {
+          name: t("weeklyAnalytics.carbs"),
+          avg: w.avgDailyCarbohydrates,
+          hitRate: w.carbohydratesHitRate,
+          deltaPct: w.deltaPct.carbohydratesDeltaPct,
+          color: "bg-chart-2",
+          higherIsWorse: false,
+        },
+        {
+          name: t("weeklyAnalytics.fat"),
+          avg: w.avgDailyFat,
+          hitRate: w.fatHitRate,
+          deltaPct: w.deltaPct.fatDeltaPct,
+          color: "bg-chart-3",
+          higherIsWorse: false,
+        },
+        {
+          name: t("weeklyAnalytics.sugar"),
+          avg: w.avgDailySugar,
+          hitRate: w.sugarHitRate,
+          deltaPct: w.deltaPct.sugarDeltaPct,
+          color: "bg-destructive",
+          higherIsWorse: true,
+        },
+        {
+          name: t("weeklyAnalytics.fiber"),
+          avg: w.avgDailyFiber,
+          hitRate: w.fiberHitRate,
+          deltaPct: w.deltaPct.fiberDeltaPct,
+          color: "bg-chart-4",
+          higherIsWorse: false,
+        },
+      ]
+    : [];
+
+  const slotLabels = {
+    breakfast: t("weeklyAnalytics.breakfast"),
+    lunch: t("weeklyAnalytics.lunch"),
+    dinner: t("weeklyAnalytics.dinner"),
+    snack: t("weeklyAnalytics.snack"),
+    other: t("weeklyAnalytics.other"),
+  };
+
+  const showEmptyState = !isLoading && w && w.dayCount < 3;
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10 space-y-6">
@@ -115,62 +179,123 @@ export default function WeeklyAnalyticsPage() {
         </Link>
       </header>
 
-      {isLoading && days.length === 0 && (
+      {w && (
+        <PeriodNavigator
+          label={formatPeriodLabel(w.periodStart, w.periodEnd)}
+          onPrev={() => setReferenceDate(addDaysIso(referenceDate, -7))}
+          onNext={() => setReferenceDate(addDaysIso(referenceDate, 7))}
+          nextDisabled={referenceDate >= today}
+        />
+      )}
+
+      {isLoading && !data && (
         <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
           <Loader className="w-4 h-4 animate-spin mr-2" />
           {t("weeklyAnalytics.loading")}
         </Card>
       )}
 
-      {!isLoading && days.length === 0 && (
+      {!isLoading && !w?.dayCount && (
         <Card className="p-8 text-center text-sm text-muted-foreground">
           {t("weeklyAnalytics.noData")}
         </Card>
       )}
 
-      {days.length > 0 && (
+      {showEmptyState && (
+        <EmptyPeriodState
+          title={t("weeklyAnalytics.emptyTitle")}
+          body={t("weeklyAnalytics.emptyBody")}
+          cta={t("weeklyAnalytics.emptyCta")}
+        />
+      )}
+
+      {w && w.dayCount > 0 && (
         <>
+          <AnalyticsBadgeRow
+            bestDay={w.bestDay}
+            worstDay={w.worstDay}
+            streak={w.streak}
+            bestLabel={t("weeklyAnalytics.bestDay")}
+            worstLabel={t("weeklyAnalytics.worstDay")}
+            streakLabel={t("weeklyAnalytics.streak")}
+            streakZeroLabel={t("weeklyAnalytics.streakZero")}
+            onDayClick={goToDay}
+          />
+
           {/* Calorie trend */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-1">
               <h2 className="text-lg font-semibold">
                 {t("weeklyAnalytics.calories")}
               </h2>
-              <span className="text-xs text-muted-foreground">
-                {t("weeklyAnalytics.target")}: {targetCalories} kcal ·{" "}
-                {onTrack}/{days.length} {t("weeklyAnalytics.onTrack")}
-              </span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {t("weeklyAnalytics.target")}: {Math.round(avgTarget)} kcal
+                <TrendDeltaPill
+                  deltaPct={w.deltaPct.caloriesDeltaPct}
+                  noBaselineLabel={t("weeklyAnalytics.noBaseline")}
+                />
+              </div>
             </div>
-            <div className="flex items-end justify-between gap-2 h-44">
-              {days.map((d: MealtrackerNutritionDay) => {
-                const h = Math.round((d.consumedCalories / maxCalories) * 100);
-                const exceeded =
-                  d.targetCalories > 0 && d.consumedCalories > d.targetCalories;
-                return (
-                  <div
-                    key={d.id}
-                    className="flex-1 flex flex-col items-center gap-2"
+            <p className="mb-3 text-xs text-muted-foreground">
+              {t("weeklyAnalytics.clickHint")}
+            </p>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  onClick={(e) => {
+                    const point = e?.activePayload?.[0]?.payload;
+                    if (point?.date) goToDay(point.date);
+                  }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--color-border)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis hide />
+                  {avgTarget > 0 && (
+                    <ReferenceLine
+                      y={avgTarget}
+                      stroke="var(--color-muted-foreground)"
+                      strokeDasharray="4 4"
+                    />
+                  )}
+                  <Tooltip
+                    cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+                    contentStyle={{
+                      background: "var(--color-card)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(value: number) => [`${value} kcal`, ""]}
+                  />
+                  <Bar
+                    dataKey="consumed"
+                    radius={[4, 4, 0, 0]}
+                    cursor="pointer"
+                    isAnimationActive={false}
                   >
-                    <div
-                      className="w-full bg-muted rounded-t-md relative"
-                      style={{ height: "100%" }}
-                    >
-                      <div
-                        className={`absolute bottom-0 inset-x-0 rounded-t-md ${
-                          exceeded ? "bg-destructive" : "bg-chart-1"
-                        }`}
-                        style={{ height: `${h}%` }}
+                    {chartData.map((entry) => (
+                      <Cell
+                        key={entry.date}
+                        fill={
+                          entry.exceeded
+                            ? "var(--color-destructive)"
+                            : "var(--color-chart-1)"
+                        }
                       />
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDay(d.summaryDate)}
-                    </span>
-                    <span className="text-xs font-medium">
-                      {d.consumedCalories}
-                    </span>
-                  </div>
-                );
-              })}
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </Card>
 
@@ -180,29 +305,39 @@ export default function WeeklyAnalyticsPage() {
               {t("weeklyAnalytics.macroAverages")}
             </h2>
             <div className="space-y-3">
-              {macroBars.map((m) => {
-                const pct =
-                  m.target > 0 ? Math.round((m.avg / m.target) * 100) : 0;
-                const exceeded = m.target > 0 && m.avg > m.target;
-                return (
-                  <div key={m.name}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium">{m.name}</span>
-                      <span className="text-muted-foreground">
-                        {Math.round(m.avg)} / {Math.round(m.target)} g ({pct}%)
-                      </span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${exceeded ? "bg-destructive" : m.color}`}
-                        style={{ width: `${Math.min(100, pct)}%` }}
+              {macroBars.map((m) => (
+                <div key={m.name}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium">{m.name}</span>
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      {Math.round(m.avg)} g
+                      <TrendDeltaPill
+                        deltaPct={m.deltaPct}
+                        higherIsWorse={m.higherIsWorse}
+                        noBaselineLabel={t("weeklyAnalytics.noBaseline")}
                       />
-                    </div>
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${m.color}`}
+                      style={{ width: `${Math.round(m.hitRate)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
+
+          {/* Slot breakdown */}
+          {w.slotBreakdown.length > 0 && (
+            <Card className="p-6">
+              <h2 className="text-lg font-semibold mb-4">
+                {t("weeklyAnalytics.slotBreakdown")}
+              </h2>
+              <SlotBreakdownChart data={w.slotBreakdown} labels={slotLabels} />
+            </Card>
+          )}
         </>
       )}
     </div>

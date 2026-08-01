@@ -38,6 +38,7 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
 
   parametersToJson(jsonObj) {
     super.parametersToJson(jsonObj);
+    jsonObj.referenceDate = this.referenceDate;
   }
 
   async checkBasicAuth() {
@@ -45,6 +46,7 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
   }
 
   readRestParameters(request) {
+    this.referenceDate = request.query?.["referenceDate"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
     const url = request.url;
@@ -52,6 +54,7 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
   }
 
   readMcpParameters(request) {
+    this.referenceDate = request.mcpParams?.["referenceDate"];
     this.requestData = request.mcpParams;
   }
 
@@ -60,12 +63,26 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
   // where clause methods
 
   async getRouteQuery() {
+    // The nutritionDays list output only needs to cover the current 7-day
+    // window shown on the page; the previous-period comparison data is
+    // fetched separately inside buildWeeklyAnalyticsData() below. Pass
+    // actual Date instances (and an exclusive upper bound) rather than raw
+    // "YYYY-MM-DD" strings: Sequelize's DATE serializer re-parses plain
+    // date strings using local-timezone semantics, which silently shifts
+    // the value by the host's UTC offset and can drop the row stored at
+    // true UTC midnight for the reference date itself.
+    const refDate = this.referenceDate || LIB.todayDate();
+    const start = LIB.daysAgo(6, refDate);
+    const endExclusive = LIB.daysAgo(-1, refDate);
     return runMScript(
       () => ({
         $and: [
           {
             userId: this.session.userId,
-            summaryDate: { $gte: LIB.daysAgo(7) },
+            summaryDate: {
+              $gte: new Date(start + "T00:00:00.000Z"),
+              $lt: new Date(endExclusive + "T00:00:00.000Z"),
+            },
           },
           { userId: this.session?.userId },
         ],
@@ -82,7 +99,18 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
     return convertUserQueryToSequelizeQuery(routeQuery);
   }
 
+  checkParameter_referenceDate() {
+    if (this.referenceDate == null) return;
+    if (Array.isArray(this.referenceDate)) {
+      throw new BadRequestError("errMsg_referenceDateMustNotBeAnArray");
+    }
+    if (new Date(this.referenceDate).getTime() !== new Date(this.referenceDate).getTime()) {
+      throw new BadRequestError("errMsg_referenceDateTypeIsNotValid");
+    }
+  }
+
   checkParameters() {
+    this.checkParameter_referenceDate();
     // filter parameters
   }
 
@@ -136,9 +164,13 @@ class GetWeeklyAnalyticsManager extends NutritionDayManager {
 
   async buildWeeklyAnalyticsData() {
     try {
-      return runMScript(() => LIB.buildWeeklyAnalytics(this.session.userId), {
-        path: "services[3].businessLogic[12].actions.functionCallActions[0].callScript",
-      });
+      return runMScript(
+        () =>
+          LIB.buildWeeklyAnalytics(this.session.userId, this.referenceDate),
+        {
+          path: "services[3].businessLogic[12].actions.functionCallActions[0].callScript",
+        },
+      );
     } catch (err) {
       console.error(
         "Error in FunctionCallAction buildWeeklyAnalyticsData:",

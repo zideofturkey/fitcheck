@@ -13,7 +13,6 @@ import {
   History,
   LayoutDashboard,
   Lightbulb,
-  LineChart,
   LogOut,
   MailPlus,
   Menu,
@@ -48,8 +47,7 @@ const SIDEBAR_MAIN = [
 
 const SIDEBAR_INSIGHTS = [
   { to: "/targets", icon: Target, labelKey: "nav.targets" },
-  { to: "/analytics/weekly", icon: BarChart3, labelKey: "nav.weeklyAnalytics" },
-  { to: "/analytics/monthly", icon: LineChart, labelKey: "nav.monthlyAnalytics" },
+  { to: "/analytics/weekly", icon: BarChart3, labelKey: "nav.analytics" },
   { to: "/ai-chat", icon: Sparkles, labelKey: "nav.aiChat", highlight: true },
 ];
 
