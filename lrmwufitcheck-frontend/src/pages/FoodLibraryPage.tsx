@@ -207,6 +207,9 @@ export default function FoodLibraryPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [ownershipFilter, setOwnershipFilter] = useState<
+    "all" | "mine" | "global"
+  >("all");
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -227,6 +230,7 @@ export default function FoodLibraryPage() {
       sourceFilter === "all"
         ? undefined
         : (sourceFilter as "manualEntry" | "aiAssistant"),
+    ownershipFilter,
     pageNumber: page,
     pageRowCount: 10,
   });
@@ -691,6 +695,30 @@ export default function FoodLibraryPage() {
                 {t("foodLibrary.manual")}
               </SelectItem>
               <SelectItem value="aiAssistant">{t("foodLibrary.ai")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={ownershipFilter}
+            onValueChange={(v) => {
+              setOwnershipFilter(v as "all" | "mine" | "global");
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+              {ownershipFilter === "mine"
+                ? t("foodLibrary.ownershipMine")
+                : ownershipFilter === "global"
+                  ? t("foodLibrary.ownershipGlobal")
+                  : t("foodLibrary.ownershipAll")}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("foodLibrary.ownershipAll")}</SelectItem>
+              <SelectItem value="mine">
+                {t("foodLibrary.ownershipMine")}
+              </SelectItem>
+              <SelectItem value="global">
+                {t("foodLibrary.ownershipGlobal")}
+              </SelectItem>
             </SelectContent>
           </Select>
           <button

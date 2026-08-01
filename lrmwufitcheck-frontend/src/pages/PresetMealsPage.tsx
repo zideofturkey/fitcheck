@@ -17,6 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import {
   useCreatePresetMeal,
   useDeletePresetMeal,
   useDeletePresetLine,
@@ -42,9 +48,15 @@ import StepIndicator from "@/components/StepIndicator";
 export default function PresetMealsPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [ownershipFilter, setOwnershipFilter] = useState<
+    "all" | "mine" | "global"
+  >("all");
   const { data, isLoading } = useListPresetMeals({
     pageNumber: page,
     pageRowCount: 12,
+    searchTerm: search || undefined,
+    ownershipFilter,
   });
   const deleteMutation = useDeletePresetMeal();
   const createMutation = useCreatePresetMeal();
@@ -244,6 +256,44 @@ export default function PresetMealsPage() {
             {t("presetMeals.newPreset")}
           </Button>
         </header>
+
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:max-w-sm">
+            <Input
+              type="search"
+              placeholder={t("presetMeals.searchPlaceholder")}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <Select
+            value={ownershipFilter}
+            onValueChange={(v) => {
+              setOwnershipFilter(v as "all" | "mine" | "global");
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+              {ownershipFilter === "mine"
+                ? t("presetMeals.ownershipMine")
+                : ownershipFilter === "global"
+                  ? t("presetMeals.ownershipGlobal")
+                  : t("presetMeals.ownershipAll")}
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("presetMeals.ownershipAll")}</SelectItem>
+              <SelectItem value="mine">
+                {t("presetMeals.ownershipMine")}
+              </SelectItem>
+              <SelectItem value="global">
+                {t("presetMeals.ownershipGlobal")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {isLoading && presets.length === 0 ? (
           <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">

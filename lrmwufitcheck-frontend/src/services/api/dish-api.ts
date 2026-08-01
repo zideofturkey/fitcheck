@@ -84,8 +84,10 @@ export interface AddDishLineInput {
 export interface ListDishesParams {
   [key: string]: string | number | boolean | undefined;
   dishName?: string;
+  searchTerm?: string;
   dishCategory?: string;
   isGlobal?: boolean;
+  ownershipFilter?: "all" | "mine" | "global";
   pageNumber?: number;
   pageRowCount?: number;
 }

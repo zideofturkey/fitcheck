@@ -494,7 +494,11 @@
     "createHint": "You can add food items to this preset from the detail page after creation.",
     "cancel": "Cancel",
     "saving": "Saving…",
-    "savePreset": "Save Preset"
+    "savePreset": "Save Preset",
+    "searchPlaceholder": "Search preset meals...",
+    "ownershipAll": "All",
+    "ownershipMine": "My Items",
+    "ownershipGlobal": "Global Library"
   },
   "foodLibrary": {
     "title": "Food Library",
@@ -504,6 +508,9 @@
     "searchPlaceholder": "Search foods...",
     "allCategories": "All Categories",
     "allSources": "All Sources",
+    "ownershipAll": "All",
+    "ownershipMine": "My Items",
+    "ownershipGlobal": "Global Library",
     "manual": "Manual",
     "ai": "AI",
     "groupByBrand": "Group by brand",
@@ -1201,6 +1208,10 @@
     "categoryLabel": "Category",
     "categoryPlaceholder": "Select a category",
     "allCategories": "All Categories",
+    "searchPlaceholder": "Search dishes...",
+    "ownershipAll": "All",
+    "ownershipMine": "My Items",
+    "ownershipGlobal": "Global Library",
     "categories": {
       "breakfast": "Breakfast",
       "soup": "Soup",

@@ -41,6 +41,7 @@ class ListDishesManager extends DishManager {
     super.parametersToJson(jsonObj);
     jsonObj.searchTerm = this.searchTerm;
     jsonObj.dishCategory = this.dishCategory;
+    jsonObj.ownershipFilter = this.ownershipFilter;
   }
 
   async checkBasicAuth() {
@@ -50,6 +51,7 @@ class ListDishesManager extends DishManager {
   readRestParameters(request) {
     this.searchTerm = request.query?.["searchTerm"] ?? request.query?.["dishName"];
     this.dishCategory = request.query?.["dishCategory"];
+    this.ownershipFilter = request.query?.["ownershipFilter"];
     this.requestData = request.body;
     this.queryData = request.query ?? {};
     const url = request.url;
@@ -60,6 +62,7 @@ class ListDishesManager extends DishManager {
     this.searchTerm =
       request.mcpParams?.["searchTerm"] ?? request.mcpParams?.["dishName"];
     this.dishCategory = request.mcpParams?.["dishCategory"];
+    this.ownershipFilter = request.mcpParams?.["ownershipFilter"];
     this.requestData = request.mcpParams;
   }
 
@@ -100,6 +103,14 @@ class ListDishesManager extends DishManager {
           dishCategory: { $ilike: "%" + val + "%" },
         })),
       });
+    }
+    // Layered on top of the base visibility clause above (not a replacement
+    // for it) - "mine"/"global" narrow down within whatever the caller is
+    // already allowed to see.
+    if (this.ownershipFilter === "mine") {
+      conditionalClauses.push({ userId: this.session.userId });
+    } else if (this.ownershipFilter === "global") {
+      conditionalClauses.push({ isGlobal: true });
     }
 
     return conditionalClauses.length > 1
@@ -144,10 +155,28 @@ class ListDishesManager extends DishManager {
     }
   }
 
+  checkFilterParameter_ownershipFilter() {
+    const paramValue = this.ownershipFilter;
+
+    if (paramValue === null || paramValue === undefined) return;
+
+    if (Array.isArray(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterMustNotBeAnArray");
+    }
+
+    const enumOptions = ["all", "mine", "global"];
+    if (!enumOptions.includes(paramValue)) {
+      throw new BadRequestError("errMsg_ownershipFilterIsNotAValidEnumValue");
+    }
+  }
+
   checkParameters() {
     this.checkParameter_searchTerm();
 
     if (this.dishCategory !== undefined) this.checkFilterParameter_dishCategory();
+
+    if (this.ownershipFilter !== undefined)
+      this.checkFilterParameter_ownershipFilter();
 
     // filter parameters
   }

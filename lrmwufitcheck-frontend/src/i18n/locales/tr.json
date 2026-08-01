@@ -494,7 +494,11 @@
     "createHint": "Oluşturduktan sonra bu hazır öğüne detay sayfasından besin öğesi ekleyebilirsiniz.",
     "cancel": "İptal",
     "saving": "Kaydediliyor…",
-    "savePreset": "Hazır Öğünü Kaydet"
+    "savePreset": "Hazır Öğünü Kaydet",
+    "searchPlaceholder": "Hazır öğün ara...",
+    "ownershipAll": "Tümü",
+    "ownershipMine": "Benim Eklediklerim",
+    "ownershipGlobal": "Global Kütüphane"
   },
   "foodLibrary": {
     "title": "Besin Kütüphanesi",
@@ -504,6 +508,9 @@
     "searchPlaceholder": "Besin ara...",
     "allCategories": "Tüm Kategoriler",
     "allSources": "Tüm Kaynaklar",
+    "ownershipAll": "Tümü",
+    "ownershipMine": "Benim Eklediklerim",
+    "ownershipGlobal": "Global Kütüphane",
     "manual": "Manuel",
     "ai": "AI",
     "groupByBrand": "Markaya göre grupla",
@@ -1201,6 +1208,10 @@
     "categoryLabel": "Kategori",
     "categoryPlaceholder": "Kategori seçin",
     "allCategories": "Tüm Kategoriler",
+    "searchPlaceholder": "Yemek ara...",
+    "ownershipAll": "Tümü",
+    "ownershipMine": "Benim Eklediklerim",
+    "ownershipGlobal": "Global Kütüphane",
     "categories": {
       "breakfast": "Kahvaltılık",
       "soup": "Çorba",

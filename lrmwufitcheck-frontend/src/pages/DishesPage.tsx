@@ -47,10 +47,16 @@ export default function DishesPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [ownershipFilter, setOwnershipFilter] = useState<
+    "all" | "mine" | "global"
+  >("all");
   const { data, isLoading } = useListDishes({
     pageNumber: page,
     pageRowCount: 12,
     dishCategory: categoryFilter === "all" ? undefined : categoryFilter,
+    searchTerm: search || undefined,
+    ownershipFilter,
   });
   const deleteMutation = useDeleteDish();
   const createMutation = useCreateDish();
@@ -243,28 +249,63 @@ export default function DishesPage() {
           </Button>
         </header>
 
-        <div className="mb-6">
-          <Select
-            value={categoryFilter}
-            onValueChange={(v) => {
-              setCategoryFilter(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-              {categoryFilter === "all"
-                ? t("dishes.allCategories")
-                : dishCategoryLabel(t, categoryFilter)}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("dishes.allCategories")}</SelectItem>
-              {DISH_CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {dishCategoryLabel(t, c)}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:max-w-sm">
+            <Input
+              type="search"
+              placeholder={t("dishes.searchPlaceholder")}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Select
+              value={categoryFilter}
+              onValueChange={(v) => {
+                setCategoryFilter(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+                {categoryFilter === "all"
+                  ? t("dishes.allCategories")
+                  : dishCategoryLabel(t, categoryFilter)}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("dishes.allCategories")}</SelectItem>
+                {DISH_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {dishCategoryLabel(t, c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={ownershipFilter}
+              onValueChange={(v) => {
+                setOwnershipFilter(v as "all" | "mine" | "global");
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+                {ownershipFilter === "mine"
+                  ? t("dishes.ownershipMine")
+                  : ownershipFilter === "global"
+                    ? t("dishes.ownershipGlobal")
+                    : t("dishes.ownershipAll")}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("dishes.ownershipAll")}</SelectItem>
+                <SelectItem value="mine">{t("dishes.ownershipMine")}</SelectItem>
+                <SelectItem value="global">
+                  {t("dishes.ownershipGlobal")}
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {isLoading && dishes.length === 0 ? (
