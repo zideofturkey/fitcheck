@@ -34,14 +34,8 @@ async function fetchDays(userId, startIso, endIso) {
       { summaryDate: { $lt: new Date(endExclusive + "T00:00:00.000Z") } },
     ],
   });
-  // A nutritionDay row gets created/upserted with mealCount 0 the moment the
-  // user merely opens the dashboard that day (getDailyProgress always
-  // upserts), not just when they log food. Left in, such a zero-consumption
-  // row is mathematically "100% under target" and wins every best-day /
-  // streak / hit-rate computation despite representing zero real adherence -
-  // exclude anything the user didn't actually log.
   return days
-    .filter((d) => (d.mealCount || 0) > 0)
+    .slice()
     .sort((a, b) => (a.summaryDate < b.summaryDate ? -1 : 1));
 }
 
@@ -64,18 +58,30 @@ function computeAveragesAndHitRates(days) {
 }
 
 function computeBestWorstDay(days) {
+  // "Best" means closest to the target either way, not "most under" - eating
+  // far less than target is not an achievement. "Worst" is the largest
+  // deviation in either direction (over OR under), so an unlogged/near-zero
+  // day correctly reads as the worst day rather than sneaking in as the best.
   const eligible = days
     .filter((d) => (d.targetCalories || 0) > 0)
-    .map((d) => ({
-      date: d.summaryDate,
-      consumedCalories: d.consumedCalories || 0,
-      targetCalories: d.targetCalories || 0,
-      diffPct:
-        ((d.consumedCalories || 0) - d.targetCalories) / d.targetCalories,
-    }));
+    .map((d) => {
+      const diffPct =
+        ((d.consumedCalories || 0) - d.targetCalories) / d.targetCalories;
+      return {
+        date: d.summaryDate,
+        consumedCalories: d.consumedCalories || 0,
+        targetCalories: d.targetCalories || 0,
+        diffPct,
+        absDiffPct: Math.abs(diffPct),
+      };
+    });
   if (eligible.length === 0) return { bestDay: null, worstDay: null };
-  const bestDay = eligible.reduce((a, b) => (b.diffPct < a.diffPct ? b : a));
-  const worstDay = eligible.reduce((a, b) => (b.diffPct > a.diffPct ? b : a));
+  const bestDay = eligible.reduce((a, b) =>
+    b.absDiffPct < a.absDiffPct ? b : a,
+  );
+  const worstDay = eligible.reduce((a, b) =>
+    b.absDiffPct > a.absDiffPct ? b : a,
+  );
   return { bestDay, worstDay };
 }
 
