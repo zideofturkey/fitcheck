@@ -39,6 +39,7 @@ class UpdateMealLogManager extends MealLogManager {
   parametersToJson(jsonObj) {
     super.parametersToJson(jsonObj);
     jsonObj.mealLogId = this.mealLogId;
+    jsonObj.mealDate = this.mealDate;
     jsonObj.mealTime = this.mealTime;
     jsonObj.slotName = this.slotName;
     jsonObj.noteText = this.noteText;
@@ -57,6 +58,7 @@ class UpdateMealLogManager extends MealLogManager {
 
   readRestParameters(request) {
     this.mealLogId = request.params?.["mealLogId"];
+    this.mealDate = request.body?.["mealDate"];
     this.mealTime = request.body?.["mealTime"];
     this.slotName = request.body?.["slotName"];
     this.noteText = request.body?.["noteText"];
@@ -78,6 +80,7 @@ class UpdateMealLogManager extends MealLogManager {
 
   readMcpParameters(request) {
     this.mealLogId = request.mcpParams?.["mealLogId"];
+    this.mealDate = request.mcpParams?.["mealDate"];
     this.mealTime = request.mcpParams?.["mealTime"];
     this.slotName = request.mcpParams?.["slotName"];
     this.noteText = request.mcpParams?.["noteText"];
@@ -119,6 +122,12 @@ class UpdateMealLogManager extends MealLogManager {
     const { hashString } = require("common");
 
     const dataClause = {
+      // Pass an actual Date instance, not the raw "YYYY-MM-DD" string:
+      // Sequelize's DATE serializer re-parses plain strings using local-
+      // timezone semantics, which silently shifts the value by the host's
+      // UTC offset (see the identical fix in mealTracker's getdailyprogress
+      // and upsertNutritionDay).
+      mealDate: this.mealDate != null ? new Date(this.mealDate) : this.mealDate,
       mealTime: runMScript(() => this.mealTime, {
         path: "services[3].businessLogic[3].dataClauseItems[0].value",
       }),
@@ -248,6 +257,29 @@ class UpdateMealLogManager extends MealLogManager {
 
     if (!this.checkParameterType_mealLogId(this.mealLogId)) {
       throw new BadRequestError("errMsg_mealLogIdTypeIsNotValid");
+    }
+  }
+
+  checkParameterType_mealDate(paramValue) {
+    const isDate = (timestamp) => new Date(timestamp).getTime() > 0;
+    if (!isDate(paramValue)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  checkParameter_mealDate() {
+    if (this.mealDate == null) return;
+
+    if (Array.isArray(this.mealDate)) {
+      throw new BadRequestError("errMsg_mealDateMustNotBeAnArray");
+    }
+
+    // Parameter Type: Date
+
+    if (!this.checkParameterType_mealDate(this.mealDate)) {
+      throw new BadRequestError("errMsg_mealDateTypeIsNotValid");
     }
   }
 
@@ -439,6 +471,8 @@ class UpdateMealLogManager extends MealLogManager {
     if (this.mealLogId === "") this.mealLogId = null;
     this.checkParameter_mealLogId();
 
+    this.checkParameter_mealDate();
+
     this.checkParameter_mealTime();
 
     this.checkParameter_slotName();
@@ -551,16 +585,24 @@ class UpdateMealLogManager extends MealLogManager {
 
   async upsertNutritionDayAfterUpdate() {
     try {
-      return runMScript(
-        () =>
-          LIB.upsertNutritionDay(
-            this.session.userId,
-            this.existingMealLog.mealDate,
-          ),
-        {
-          path: "services[3].businessLogic[3].actions.functionCallActions[0].callScript",
-        },
-      );
+      const oldDate = this.existingMealLog?.mealDate;
+      const newDate = this.mealLog?.mealDate ?? oldDate;
+
+      const result = await LIB.upsertNutritionDay(this.session.userId, newDate);
+
+      // mealDate is now editable (see checkParameter_mealDate): if it
+      // changed, the *old* day's cached totals are stale too - they still
+      // include this meal's calories even though the row moved away from
+      // that date. Recompute it as well so neither day's aggregate drifts.
+      if (
+        oldDate &&
+        newDate &&
+        new Date(oldDate).getTime() !== new Date(newDate).getTime()
+      ) {
+        await LIB.upsertNutritionDay(this.session.userId, oldDate);
+      }
+
+      return result;
     } catch (err) {
       console.error(
         "Error in FunctionCallAction upsertNutritionDayAfterUpdate:",

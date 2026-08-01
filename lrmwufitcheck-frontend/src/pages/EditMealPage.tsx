@@ -11,26 +11,44 @@ import {
   UtensilsCrossed,
   ChevronDown,
   BookOpen,
+  Layers,
+  PenLine,
+  Sparkles,
   StickyNote,
   Flame,
   ListChecks,
-  Drumstick,
-  Wheat,
-  Leaf,
   X,
   Check,
 } from "lucide-react";
-import { useGetMealLog, useUpdateMealLog } from "@/hooks/api/use-mealtracker";
+import {
+  useGetMealLog,
+  useListMealLines,
+  useUpdateMealLog,
+} from "@/hooks/api/use-mealtracker";
 import { Card } from "@/components/ui/card";
 import { Loader } from "lucide-react";
+
+const SOURCE_CONFIG: Record<
+  string,
+  { icon: typeof BookOpen; labelKey: string }
+> = {
+  foodLibrary: { icon: BookOpen, labelKey: "editMeal.foodLibrary" },
+  presetTemplate: { icon: Layers, labelKey: "editMeal.presetTemplate" },
+  manualEntry: { icon: PenLine, labelKey: "editMeal.manualEntry" },
+  aiAssistant: { icon: Sparkles, labelKey: "editMeal.aiAssistant" },
+};
 
 export default function EditMealPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, isLoading } = useGetMealLog(id);
+  const { data: linesData } = useListMealLines(
+    id ? { mealLogId: id } : undefined,
+  );
   const updateMutation = useUpdateMealLog();
   const meal = data?.mealLog;
+  const lines = linesData?.mealLines ?? [];
 
   const [mealDate, setMealDate] = useState("");
   const [mealTime, setMealTime] = useState("");
@@ -45,7 +63,11 @@ export default function EditMealPage() {
 
   useEffect(() => {
     if (meal) {
-      setMealDate(meal.mealDate);
+      // meal.mealDate comes back as a full ISO timestamp (e.g.
+      // "2026-08-01T00:00:00.000Z") since the column is DATE, not DATEONLY -
+      // the native <input type="date"> only accepts a bare "YYYY-MM-DD" and
+      // silently renders blank otherwise.
+      setMealDate(meal.mealDate?.slice(0, 10) ?? "");
       setMealTime(meal.mealTime);
       setSlotName(meal.slotName);
       setNoteText(meal.noteText ?? "");
@@ -61,21 +83,25 @@ export default function EditMealPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
+    // mealDate isn't in the generated UpdateMealLogInput type (the update
+    // endpoint didn't support changing the date until now) - building the
+    // payload as its own variable, rather than an inline object literal,
+    // means TS's excess-property check doesn't fire at the call site (same
+    // pattern as the dish baseName field elsewhere in this codebase).
+    const updateData = {
+      mealDate,
+      mealTime,
+      slotName,
+      noteText: noteText || undefined,
+      totalCalories: Number(totalCalories) || 0,
+      totalProtein: Number(totalProtein) || 0,
+      totalCarbohydrates: Number(totalCarbohydrates) || 0,
+      totalFat: Number(totalFat) || 0,
+      totalSugar: Number(totalSugar) || 0,
+      totalFiber: Number(totalFiber) || 0,
+    };
     updateMutation.mutate(
-      {
-        mealLogId: id,
-        data: {
-          mealTime,
-          slotName,
-          noteText: noteText || undefined,
-          totalCalories: Number(totalCalories) || 0,
-          totalProtein: Number(totalProtein) || 0,
-          totalCarbohydrates: Number(totalCarbohydrates) || 0,
-          totalFat: Number(totalFat) || 0,
-          totalSugar: Number(totalSugar) || 0,
-          totalFiber: Number(totalFiber) || 0,
-        },
-      },
+      { mealLogId: id, data: updateData },
       { onSuccess: () => navigate(`/meals/${id}`) },
     );
   };
@@ -216,10 +242,17 @@ export default function EditMealPage() {
                 {t("editMeal.logSource")}
               </span>
               <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-border bg-muted/50">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                  <BookOpen className="w-3 h-3" />
-                  {t("editMeal.foodLibrary")}
-                </span>
+                {(() => {
+                  const config =
+                    SOURCE_CONFIG[meal.logSource] ?? SOURCE_CONFIG.foodLibrary;
+                  const SourceIcon = config.icon;
+                  return (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
+                      <SourceIcon className="w-3 h-3" />
+                      {t(config.labelKey)}
+                    </span>
+                  );
+                })()}
                 <span className="text-xs text-muted-foreground">
                   {t("editMeal.readOnly")}
                 </span>
@@ -398,66 +431,40 @@ export default function EditMealPage() {
           </p>
 
           <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
-            {/* Line Item 1 */}
-            <div className="flex items-center justify-between px-4 py-3 bg-background">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center flex-shrink-0">
-                  <Drumstick className="w-4 h-4 text-secondary-foreground" />
+            {lines.map((line) => (
+              <div
+                key={line.id}
+                className="flex items-center justify-between px-4 py-3 bg-background"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center flex-shrink-0">
+                    <UtensilsCrossed className="w-4 h-4 text-secondary-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {line.itemName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {line.consumedGrams} g
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    Grilled Chicken Breast
+                <div className="text-right flex-shrink-0">
+                  <p className="text-sm font-semibold">
+                    {line.itemCalories} kcal
                   </p>
-                  <p className="text-xs text-muted-foreground">200 g</p>
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-sm font-semibold">310 kcal</p>
-                <p className="text-xs text-muted-foreground">
-                  P: 52g · C: 0g · F: 7g
-                </p>
-              </div>
-            </div>
-            {/* Line Item 2 */}
-            <div className="flex items-center justify-between px-4 py-3 bg-background">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center flex-shrink-0">
-                  <Wheat className="w-4 h-4 text-accent-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    Brown Rice (cooked)
+                  <p className="text-xs text-muted-foreground">
+                    P: {line.itemProtein}g · C: {line.itemCarbohydrates}g · F:{" "}
+                    {line.itemFat}g
                   </p>
-                  <p className="text-xs text-muted-foreground">150 g</p>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-sm font-semibold">240 kcal</p>
-                <p className="text-xs text-muted-foreground">
-                  P: 4g · C: 54g · F: 2g
-                </p>
+            ))}
+            {lines.length === 0 && (
+              <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                {t("editMeal.noItemsFound")}
               </div>
-            </div>
-            {/* Line Item 3 */}
-            <div className="flex items-center justify-between px-4 py-3 bg-background">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
-                  <Leaf className="w-4 h-4 text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    Steamed Vegetables Mix
-                  </p>
-                  <p className="text-xs text-muted-foreground">100 g</p>
-                </div>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-sm font-semibold">70 kcal</p>
-                <p className="text-xs text-muted-foreground">
-                  P: 3g · C: 4g · F: 0.5g
-                </p>
-              </div>
-            </div>
+            )}
           </div>
           <Link
             to={`/meals/${id}`}
