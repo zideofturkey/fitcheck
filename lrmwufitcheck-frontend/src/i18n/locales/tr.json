@@ -1386,6 +1386,8 @@
     "restoreError": "Geri yükleme başarısız.",
     "trashTitle": "Çöp Kutusu",
     "trashHint": "Son 14 gün içinde silinen kayıtlar burada listelenir.",
+    "brandTrashHint": "Bu oturumda sildiğiniz markalar burada listelenir (marka kaydı olmadığı için 14 gün kalıcı değildir).",
+    "searchBrands": "Marka ara...",
     "trashEmpty": "Çöp kutusu boş.",
     "deletedAt": "{{date}} tarihinde silindi",
     "editFoodItem": "Malzemeyi Düzenle",

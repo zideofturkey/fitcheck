@@ -1386,6 +1386,8 @@
     "restoreError": "Restore failed.",
     "trashTitle": "Trash",
     "trashHint": "Records deleted within the last 14 days are listed here.",
+    "brandTrashHint": "Brands you cleared this session are listed here (not persisted for 14 days since there's no brand record).",
+    "searchBrands": "Search brands...",
     "trashEmpty": "Trash is empty.",
     "deletedAt": "Deleted on {{date}}",
     "editFoodItem": "Edit Food Item",

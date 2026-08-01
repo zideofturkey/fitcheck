@@ -32,6 +32,18 @@ export interface DeleteBrandResponse {
   status: string;
   brandName: string;
   clearedCount: number;
+  clearedIds: string[];
+}
+
+export interface RestoreBrandInput {
+  brandName: string;
+  ids: string[];
+}
+
+export interface RestoreBrandResponse {
+  status: string;
+  brandName: string;
+  restoredCount: number;
 }
 
 export const brandAdminService = {
@@ -52,6 +64,14 @@ export const brandAdminService = {
   remove: async (brandName: string): Promise<DeleteBrandResponse> => {
     return nutritionlibraryApi.delete<DeleteBrandResponse>(
       `v1/admin/brands/${encodeURIComponent(brandName)}`,
+    );
+  },
+
+  /** POST /v1/admin/brands/restore */
+  restore: async (data: RestoreBrandInput): Promise<RestoreBrandResponse> => {
+    return nutritionlibraryApi.post<RestoreBrandResponse>(
+      "v1/admin/brands/restore",
+      data,
     );
   },
 };

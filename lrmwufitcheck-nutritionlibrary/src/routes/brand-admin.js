@@ -120,6 +120,34 @@ async function deleteBrand(req, res, next) {
       status: "OK",
       brandName,
       clearedCount: updatedIds.length,
+      // Returned so the admin UI can offer an undo: brand deletion doesn't
+      // soft-delete a record (there is no brand row), it just clears a
+      // field on N foodItems - restoring means writing brandName back onto
+      // exactly these ids, so the caller needs to hold onto them.
+      clearedIds: updatedIds,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// POST /v1/admin/brands/restore - { brandName, ids } writes brandName back onto the given foodItems (undo for deleteBrand)
+async function restoreBrand(req, res, next) {
+  try {
+    const { brandName, ids } = req.body || {};
+    if (!brandName || !Array.isArray(ids) || ids.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "brandName and ids (non-empty array) are required" });
+    }
+
+    const { updateFoodItemByIdList } = getDb();
+    const updatedIds = await updateFoodItemByIdList(ids, { brandName });
+
+    res.json({
+      status: "OK",
+      brandName,
+      restoredCount: updatedIds.length,
     });
   } catch (err) {
     next(err);
@@ -129,5 +157,6 @@ async function deleteBrand(req, res, next) {
 router.get("/v1/admin/brands", requireAuth, requireAdmin, listBrands);
 router.patch("/v1/admin/brands/rename", requireAuth, requireAdmin, renameBrand);
 router.delete("/v1/admin/brands/:name", requireAuth, requireAdmin, deleteBrand);
+router.post("/v1/admin/brands/restore", requireAuth, requireAdmin, restoreBrand);
 
 module.exports = router;

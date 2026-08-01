@@ -6,6 +6,7 @@ import {
   Loader,
   Pencil,
   RefreshCw,
+  RotateCcw,
   Search,
   Tag,
   Trash2,
@@ -38,15 +39,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   useDeleteBrand,
   useListBrands,
   useRenameBrand,
+  useRestoreBrand,
 } from "@/hooks/api/use-brand-admin";
 import {
   useDeleteFoodItem,
@@ -742,17 +744,36 @@ function PresetMealsTab() {
 // Brands tab (existing rename/delete logic + added bulk-select/bulk-delete)
 // ---------------------------------------------------------------------------
 
+interface DeletedBrandEntry {
+  brandName: string;
+  ids: string[];
+  deletedAt: string;
+}
+
 function BrandsTab() {
   const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useListBrands();
   const renameMutation = useRenameBrand();
   const deleteMutation = useDeleteBrand();
+  const restoreMutation = useRestoreBrand();
 
   const [editingBrand, setEditingBrand] = useState<string | null>(null);
   const [draftName, setDraftName] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [trashOpen, setTrashOpen] = useState(false);
+  // Session-only "trash": brand deletion doesn't soft-delete a record (there
+  // is no brand row, just a field cleared on N foodItems), so there is no
+  // 14-day _archivedAt to list from the server like the other three tabs -
+  // this just remembers what THIS session cleared so it can be undone.
+  const [deletedBrands, setDeletedBrands] = useState<DeletedBrandEntry[]>([]);
 
-  const brands = data?.brands ?? [];
+  const allBrands = data?.brands ?? [];
+  const brands = search
+    ? allBrands.filter((b) =>
+        b.brandName.toLowerCase().includes(search.toLowerCase()),
+      )
+    : allBrands;
 
   const toggle = (name: string) => {
     setSelected((prev) => {
@@ -789,9 +810,45 @@ function BrandsTab() {
     );
   };
 
+  const recordDeleted = (entry: DeletedBrandEntry) => {
+    setDeletedBrands((prev) => [entry, ...prev]);
+  };
+
+  const restoreBrand = (entry: DeletedBrandEntry) => {
+    restoreMutation.mutate(
+      { brandName: entry.brandName, ids: entry.ids },
+      {
+        onSuccess: (res) => {
+          toast.success(
+            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount }),
+          );
+          setDeletedBrands((prev) =>
+            prev.filter(
+              (d) =>
+                !(d.brandName === entry.brandName && d.deletedAt === entry.deletedAt),
+            ),
+          );
+        },
+        onError: (err) => toast.error(extractError(err, t("adminLibrary.restoreError"))),
+      },
+    );
+  };
+
   const handleDelete = (brandName: string) => {
     deleteMutation.mutate(brandName, {
-      onSuccess: (res) => toast.success(t("adminBrands.deleteSuccess", { count: res.clearedCount })),
+      onSuccess: (res) => {
+        toast.success(t("adminBrands.deleteSuccess", { count: res.clearedCount }));
+        const entry: DeletedBrandEntry = {
+          brandName,
+          ids: res.clearedIds,
+          deletedAt: new Date().toISOString(),
+        };
+        recordDeleted(entry);
+        toast(t("adminLibrary.deletedToast", { count: 1 }), {
+          position: "bottom-left",
+          action: { label: t("adminLibrary.undo"), onClick: () => restoreBrand(entry) },
+        });
+      },
       onError: (err) => toast.error(extractError(err, t("adminBrands.deleteError"))),
     });
   };
@@ -802,11 +859,25 @@ function BrandsTab() {
     const results = await Promise.allSettled(
       names.map((n) => deleteMutation.mutateAsync(n)),
     );
-    const okCount = results.filter((r) => r.status === "fulfilled").length;
-    if (okCount > 0) {
-      toast.success(t("adminLibrary.brandsBulkDeleteSuccess", { count: okCount }));
+    const newEntries: DeletedBrandEntry[] = [];
+    const deletedAt = new Date().toISOString();
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") {
+        newEntries.push({ brandName: names[i], ids: r.value.clearedIds, deletedAt });
+      }
+    });
+    if (newEntries.length > 0) {
+      setDeletedBrands((prev) => [...newEntries, ...prev]);
+      toast.success(t("adminLibrary.brandsBulkDeleteSuccess", { count: newEntries.length }));
+      toast(t("adminLibrary.deletedToast", { count: newEntries.length }), {
+        position: "bottom-left",
+        action: {
+          label: t("adminLibrary.undo"),
+          onClick: () => newEntries.forEach((entry) => restoreBrand(entry)),
+        },
+      });
     }
-    const failCount = names.length - okCount;
+    const failCount = names.length - newEntries.length;
     if (failCount > 0) {
       toast.error(t("adminLibrary.deleteFailedToast", { count: failCount }));
     }
@@ -814,10 +885,27 @@ function BrandsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button variant="outline" size="sm" className="gap-2" onClick={() => refetch()}>
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder={t("adminLibrary.searchBrands")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => refetch()}>
           <RefreshCw className="w-3.5 h-3.5" aria-hidden />
-          {t("adminBrands.refresh")}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setTrashOpen(true)}
+          title={t("adminLibrary.trashTitle")}
+        >
+          <Trash className="w-3.5 h-3.5" />
         </Button>
       </div>
 
@@ -921,6 +1009,57 @@ function BrandsTab() {
           ))}
         </div>
       )}
+
+      <Sheet open={trashOpen} onOpenChange={setTrashOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              {t("adminLibrary.trashTitle")}
+            </SheetTitle>
+          </SheetHeader>
+          <p className="px-4 text-xs text-muted-foreground">
+            {t("adminLibrary.brandTrashHint")}
+          </p>
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+            {deletedBrands.length === 0 && (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {t("adminLibrary.trashEmpty")}
+              </p>
+            )}
+            {deletedBrands.map((entry) => (
+              <div
+                key={`${entry.brandName}-${entry.deletedAt}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {entry.brandName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("adminLibrary.deletedAt", {
+                      date: new Date(entry.deletedAt).toLocaleTimeString("tr-TR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }),
+                    })}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 shrink-0"
+                  disabled={restoreMutation.isPending}
+                  onClick={() => restoreBrand(entry)}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  {t("adminLibrary.restore")}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -929,36 +1068,47 @@ function BrandsTab() {
 // Page
 // ---------------------------------------------------------------------------
 
+type LibraryTabKey = "fooditem" | "dish" | "presetmeal" | "brand";
+
 export default function AdminLibraryPage() {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<LibraryTabKey>("fooditem");
+
+  const tabs: { key: LibraryTabKey; label: string }[] = [
+    { key: "fooditem", label: t("adminLibrary.tabFoodItems") },
+    { key: "dish", label: t("adminLibrary.tabDishes") },
+    { key: "presetmeal", label: t("adminLibrary.tabPresetMeals") },
+    { key: "brand", label: t("adminLibrary.tabBrands") },
+  ];
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-8 space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">{t("adminLibrary.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("adminLibrary.subtitle")}</p>
       </header>
 
-      <Tabs defaultValue="fooditem">
-        <TabsList className="mb-6">
-          <TabsTrigger value="fooditem">{t("adminLibrary.tabFoodItems")}</TabsTrigger>
-          <TabsTrigger value="dish">{t("adminLibrary.tabDishes")}</TabsTrigger>
-          <TabsTrigger value="presetmeal">{t("adminLibrary.tabPresetMeals")}</TabsTrigger>
-          <TabsTrigger value="brand">{t("adminLibrary.tabBrands")}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="fooditem">
-          <FoodItemsTab />
-        </TabsContent>
-        <TabsContent value="dish">
-          <DishesTab />
-        </TabsContent>
-        <TabsContent value="presetmeal">
-          <PresetMealsTab />
-        </TabsContent>
-        <TabsContent value="brand">
-          <BrandsTab />
-        </TabsContent>
-      </Tabs>
+      <div className="mb-6 flex gap-1 border-b border-border overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key)}
+            className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === tab.key
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "fooditem" && <FoodItemsTab />}
+      {activeTab === "dish" && <DishesTab />}
+      {activeTab === "presetmeal" && <PresetMealsTab />}
+      {activeTab === "brand" && <BrandsTab />}
     </div>
   );
 }

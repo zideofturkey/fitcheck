@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   brandAdminService,
   type RenameBrandInput,
+  type RestoreBrandInput,
 } from "@/services/api/brand-admin-api";
 
 export const brandAdminKeys = {
@@ -32,6 +33,17 @@ export const useDeleteBrand = () => {
     mutationFn: (brandName: string) => brandAdminService.remove(brandName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: brandAdminKeys.all() });
+    },
+  });
+};
+
+export const useRestoreBrand = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: RestoreBrandInput) => brandAdminService.restore(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: brandAdminKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["nutritionlibrary"] });
     },
   });
 };
