@@ -18,11 +18,10 @@ import {
 import {
   ArrowRight,
   Calendar,
-  ChevronRight,
-  Circle,
   Flame,
   Loader,
   Plus,
+  TrendingUp,
   UtensilsCrossed,
 } from "lucide-react";
 import type { MealtrackerMealLog } from "@/types/api";
@@ -177,18 +176,6 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="space-y-1">
-          <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Link
-              to="/dashboard"
-              className="hover:text-foreground transition-colors"
-            >
-              {t("dashboard.home")}
-            </Link>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-foreground font-medium">
-              {t("dashboard.breadcrumb")}
-            </span>
-          </nav>
           <h1 className="text-2xl font-bold text-foreground">
             {t("dashboard.title")}
           </h1>
@@ -391,34 +378,36 @@ export default function DashboardPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 gap-4 mb-8">
-            <Card className="p-5 flex items-center gap-4">
-              <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <UtensilsCrossed className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">
-                  {mealCount}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("dashboard.todaysMeals")}
-                </p>
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-2xl font-bold text-foreground">
+                    {mealCount}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {t("dashboard.todaysMeals")}
+                  </p>
+                </div>
               </div>
             </Card>
             <Card
-              className={`p-5 flex items-center gap-4 ${
-                exceededCount > 0 ? "border-destructive/20" : ""
-              }`}
+              className={`p-4 ${exceededCount > 0 ? "border-destructive/20" : ""}`}
             >
-              <div className="w-11 h-11 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                <Circle className="w-5 h-5 text-destructive" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-destructive">
-                  {exceededCount}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("dashboard.exceededTarget")}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-2xl font-bold text-destructive">
+                    {exceededCount}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {t("dashboard.exceededTarget")}
+                  </p>
+                </div>
               </div>
             </Card>
           </div>
