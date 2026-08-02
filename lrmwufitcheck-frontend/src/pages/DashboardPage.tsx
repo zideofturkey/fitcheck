@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useCurrentUser } from "@/hooks/api/use-auth";
@@ -44,6 +44,20 @@ function addDays(d: Date, n: number) {
   copy.setDate(copy.getDate() + n);
   return copy;
 }
+
+const CALORIE_PARTICLE_COUNT = 10;
+const CALORIE_PARTICLES = Array.from(
+  { length: CALORIE_PARTICLE_COUNT },
+  (_, i) => {
+    const angle = (i / CALORIE_PARTICLE_COUNT) * Math.PI * 2;
+    return {
+      top: `${50 + Math.sin(angle) * 44}%`,
+      left: `${50 + Math.cos(angle) * 44}%`,
+      dx: Math.cos(angle) * 26,
+      dy: Math.sin(angle) * 26,
+    };
+  },
+);
 
 function formatMealDate(iso: string) {
   try {
@@ -132,30 +146,35 @@ export default function DashboardPage() {
       consumed: progress?.consumedProtein ?? 0,
       target: progress?.targetProtein ?? 0,
       color: "bg-primary",
+      glow: "#059669",
     },
     {
       key: t("dashboard.carbs"),
       consumed: progress?.consumedCarbohydrates ?? 0,
       target: progress?.targetCarbohydrates ?? 0,
       color: "bg-blue-500",
+      glow: "#3b82f6",
     },
     {
       key: t("dashboard.fat"),
       consumed: progress?.consumedFat ?? 0,
       target: progress?.targetFat ?? 0,
       color: "bg-amber-500",
+      glow: "#f59e0b",
     },
     {
       key: t("dashboard.sugar"),
       consumed: progress?.consumedSugar ?? 0,
       target: progress?.targetSugar ?? 0,
       color: "bg-red-500",
+      glow: "#ef4444",
     },
     {
       key: t("dashboard.fiber"),
       consumed: progress?.consumedFiber ?? 0,
       target: progress?.targetFiber ?? 0,
       color: "bg-green-500",
+      glow: "#22c55e",
     },
   ];
 
@@ -252,7 +271,7 @@ export default function DashboardPage() {
                 )}
               </div>
               <div className="relative flex items-center justify-center mb-6">
-                <div className="relative w-48 h-48 sm:w-60 sm:h-60">
+                <div className="calorie-ring-group relative w-48 h-48 sm:w-60 sm:h-60">
                   <svg
                     className="w-full h-full -rotate-90 drop-shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
                     viewBox="0 0 100 100"
@@ -302,6 +321,26 @@ export default function DashboardPage() {
                       %{caloriePct}
                     </span>
                   </div>
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    aria-hidden="true"
+                  >
+                    {CALORIE_PARTICLES.map((p, i) => (
+                      <span
+                        key={i}
+                        className="particle-dot absolute w-1.5 h-1.5 -ml-0.75 -mt-0.75 rounded-full bg-primary"
+                        style={
+                          {
+                            top: p.top,
+                            left: p.left,
+                            transitionDelay: `${i * 25}ms`,
+                            "--particle-x": `${p.dx}px`,
+                            "--particle-y": `${p.dy}px`,
+                          } as CSSProperties
+                        }
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="relative flex flex-wrap items-center justify-center gap-2">
@@ -338,7 +377,8 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={m.key}
-                    className="flex flex-col gap-1 rounded-lg border p-3"
+                    className="hover-lift-glow flex flex-col gap-1 rounded-lg border p-3"
+                    style={{ "--glow-color": m.glow } as CSSProperties}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{m.key}</span>
@@ -495,7 +535,7 @@ export default function DashboardPage() {
           <div className="fixed bottom-24 right-5 md:hidden z-30">
             <Link
               to="/meals/log"
-              className="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+              className="hover-zoom flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               aria-label={t("dashboard.addMealAria")}
               title={t("dashboard.addMealAria")}
             >

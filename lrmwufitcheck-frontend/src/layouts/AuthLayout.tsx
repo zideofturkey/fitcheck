@@ -2,6 +2,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import * as Icons from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
+import PageTransition from "@/components/PageTransition";
 
 export default function AuthLayout() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -102,7 +103,9 @@ export default function AuthLayout() {
 
       {/* ========== MAIN CONTENT AREA ========== */}
       <main className="flex-1 flex flex-col w-full max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8 pb-24 md:pb-12">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
 
       {/* ========== DESKTOP FOOTER ========== */}

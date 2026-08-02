@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
+import PageTransition from "@/components/PageTransition";
 
 export default function MinimalLayout() {
   const { user, isAuthenticated } = useAuth();
@@ -100,7 +101,9 @@ export default function MinimalLayout() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 mt-14 md:mt-0">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10 pb-24 md:pb-10">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </div>
       </main>
 
