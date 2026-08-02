@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { isRouteAvailable } from "@/lib/available-routes";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 import OnboardingMacroTargetDialog from "@/components/OnboardingMacroTargetDialog";
 import NotificationBell from "@/components/NotificationBell";
+import PageTransition from "@/components/PageTransition";
 import {
   ArrowLeftCircle,
   BarChart3,
@@ -95,7 +97,7 @@ export default function MainLayout() {
     if (!isRouteAvailable(to)) {
       return (
         <span
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed text-sm"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed text-sm border-l-2 border-transparent"
           title={t("common.comingSoon")}
         >
           <Icon className="w-5 h-5" />
@@ -103,25 +105,23 @@ export default function MainLayout() {
         </span>
       );
     }
-    if (highlight) {
-      return (
-        <Link
-          to={to}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-primary bg-gradient-to-r from-primary/15 via-primary/10 to-transparent hover:from-primary/25 hover:via-primary/15 transition-colors shadow-[0_0_16px_-4px] shadow-primary/30"
-        >
-          <Icon className="w-5 h-5" />
-          {label}
-        </Link>
-      );
-    }
     return (
-      <Link
+      <NavLink
         to={to}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-sm"
+        className={({ isActive }) =>
+          cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors border-l-2",
+            isActive
+              ? "bg-primary/10 text-primary font-semibold border-primary"
+              : highlight
+                ? "text-primary font-medium bg-gradient-to-r from-primary/15 via-primary/10 to-transparent hover:from-primary/25 hover:via-primary/15 shadow-[0_0_16px_-4px] shadow-primary/30 border-transparent"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground border-transparent",
+          )
+        }
       >
         <Icon className="w-5 h-5" />
         {label}
-      </Link>
+      </NavLink>
     );
   };
 
@@ -161,24 +161,33 @@ export default function MainLayout() {
         </header>
 
         <main className="flex-1 overflow-y-auto native-scroll pb-24 safe-bottom">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
 
         <nav className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border safe-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
             {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) =>
               isRouteAvailable(to) ? (
-                <Link
+                <NavLink
                   key={to}
                   to={to}
-                  className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+                  className={({ isActive }) =>
+                    cn(
+                      "flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors",
+                      isActive
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground",
+                    )
+                  }
                   aria-label={t(labelKey)}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-[10px] font-medium leading-none">
                     {t(labelKey)}
                   </span>
-                </Link>
+                </NavLink>
               ) : (
                 <span
                   key={to}
@@ -300,7 +309,9 @@ export default function MainLayout() {
 
           <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-10">
             <div className="max-w-5xl mx-auto">
-              <Outlet />
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
             </div>
           </main>
         </div>
