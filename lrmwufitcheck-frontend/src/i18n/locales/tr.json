@@ -1128,6 +1128,10 @@
     "detail": "Detay",
     "created": "Oluşturuldu"
   },
+  "notifications": {
+    "title": "Bildirimler",
+    "empty": "Henüz bildiriminiz yok."
+  },
   "nav": {
     "dashboard": "Panel",
     "logMeal": "Öğün Ekle",

@@ -226,8 +226,11 @@ export default function PresetMealsPage() {
       } else {
         toast.success(t("manualEntry.savedToLibrary"));
       }
-    } catch {
-      toast.error(t("manualEntry.persistError"));
+    } catch (err) {
+      const msg =
+        (err as { message?: string })?.message ??
+        t("manualEntry.persistError");
+      toast.error(msg);
     } finally {
       setIsPersisting(false);
       setPendingSuggestion(null);

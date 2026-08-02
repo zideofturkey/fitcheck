@@ -72,8 +72,7 @@ export default function DishesPage() {
         onSuccess: () => toast.success(t("dishes.suggestSuccess")),
         onError: (err: unknown) => {
           const msg =
-            (err as { response?: { data?: { error?: string } } })?.response
-              ?.data?.error ?? t("dishes.suggestError");
+            (err as { message?: string })?.message ?? t("dishes.suggestError");
           toast.error(msg);
         },
       },
@@ -224,8 +223,11 @@ export default function DishesPage() {
       } else {
         toast.success(t("manualEntry.savedToLibrary"));
       }
-    } catch {
-      toast.error(t("manualEntry.persistError"));
+    } catch (err) {
+      const msg =
+        (err as { message?: string })?.message ??
+        t("manualEntry.persistError");
+      toast.error(msg);
     } finally {
       setIsPersisting(false);
       setPendingSuggestion(null);

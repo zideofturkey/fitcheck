@@ -108,6 +108,10 @@ class ApiClient {
     if (!response.ok || dataObj?.result === "ERR") {
       const errMsg =
         (typeof dataObj?.message === "string" ? dataObj.message : undefined) ??
+        // Plain Express routes (suggestions.js, admin-user-library.js, etc. -
+        // not Mindbricks-generated Managers) respond with { error: "..." }
+        // instead of { message: "..." } on failure.
+        (typeof dataObj?.error === "string" ? dataObj.error : undefined) ??
         (rawText && !dataObj ? rawText : undefined) ??
         response.statusText ??
         `HTTP ${response.status}`;

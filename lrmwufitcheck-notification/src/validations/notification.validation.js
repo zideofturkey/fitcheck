@@ -20,11 +20,14 @@ const sendNotification = {
     email: Joi.string()
       .email()
       .when("types", {
-        is: Joi.array().items(Joi.string().valid("email")),
+        // .items(...) alone also matches an empty array (vacuously true),
+        // which made email required even when types:[] - .has(...) requires
+        // an actual "email" entry to be present.
+        is: Joi.array().has(Joi.string().valid("email")),
         then: Joi.required(),
       }),
     phoneNumber: Joi.string().when("types", {
-      is: Joi.array().items(Joi.string().valid("sms")),
+      is: Joi.array().has(Joi.string().valid("sms")),
       then: Joi.required(),
     }),
     title: Joi.string().required(),

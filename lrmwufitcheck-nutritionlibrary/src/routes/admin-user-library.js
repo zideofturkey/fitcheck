@@ -5,7 +5,9 @@
 const express = require("express");
 const requireAuth = require("./middleware/require-auth");
 const requireAdmin = require("./middleware/require-admin");
-const { createGlobalCopy } = require("./lib/promote-to-global");
+const { convertToGlobal } = require("./lib/promote-to-global");
+const { notifyUser } = require("./lib/notify-user");
+const { entityDisplayName } = require("./lib/entity-display-name");
 
 const router = express.Router();
 
@@ -20,17 +22,23 @@ function getModels() {
   };
 }
 
-// GET /v1/admin/users/:userId/library - all of a user's active foodItem/dish/
-// presetMeal records, each tagged with entityType, newest first
+// GET /v1/admin/users/:userId/library - all of a user's active, non-global
+// foodItem/dish/presetMeal records, each tagged with entityType, newest first.
+// isGlobal:false is important here: once a record is promoted (whether via
+// this route's own promote endpoint or an approved suggestion), it's a
+// global item now, not part of "this user's private library" anymore - the
+// record's userId is left unchanged (original creator stays the owner) so
+// without this filter it would look like the exact same item was still
+// sitting in their private library right next to itself, globally visible.
 async function getUserLibrary(req, res, next) {
   try {
     const { entityModels } = getModels();
     const { userId } = req.params;
 
     const [foodItems, dishes, presetMeals] = await Promise.all([
-      entityModels.foodItem.findAll({ where: { userId, isActive: true } }),
-      entityModels.dish.findAll({ where: { userId, isActive: true } }),
-      entityModels.presetMeal.findAll({ where: { userId, isActive: true } }),
+      entityModels.foodItem.findAll({ where: { userId, isActive: true, isGlobal: false } }),
+      entityModels.dish.findAll({ where: { userId, isActive: true, isGlobal: false } }),
+      entityModels.presetMeal.findAll({ where: { userId, isActive: true, isGlobal: false } }),
     ]);
 
     const items = [
@@ -45,8 +53,8 @@ async function getUserLibrary(req, res, next) {
   }
 }
 
-// POST /v1/admin/users/:userId/library/:entityType/:id/promote - direct
-// global copy, admin-authorized, no suggestion record created
+// POST /v1/admin/users/:userId/library/:entityType/:id/promote - flips the
+// record to global in place, admin-authorized, no suggestion record created
 async function promoteToGlobal(req, res, next) {
   try {
     const { entityType, id, userId } = req.params;
@@ -56,7 +64,7 @@ async function promoteToGlobal(req, res, next) {
       });
     }
 
-    const { entityModels, DishLine, PresetLine } = getModels();
+    const { entityModels } = getModels();
     const Model = entityModels[entityType];
     const source = await Model.findOne({
       where: { id, userId, isActive: true },
@@ -68,15 +76,19 @@ async function promoteToGlobal(req, res, next) {
       return res.status(400).json({ error: "Source record is already global" });
     }
 
-    const { copy, copiedLineCount } = await createGlobalCopy(entityType, source, {
-      DishLine,
-      PresetLine,
+    const { updated } = await convertToGlobal(entityType, source);
+    const plain = updated.get({ plain: true });
+
+    notifyUser(req, {
+      userId,
+      title: "Kütüphaneniz güncellendi",
+      body: `Kütüphanenizdeki ${entityDisplayName(entityType, plain)} global kütüphaneye eklenmiştir. Teşekkür ederiz.`,
     });
 
     res.json({
       status: "OK",
-      globalCopy: copy.get({ plain: true }),
-      copiedLineCount,
+      globalCopy: plain,
+      copiedLineCount: 0,
     });
   } catch (err) {
     next(err);

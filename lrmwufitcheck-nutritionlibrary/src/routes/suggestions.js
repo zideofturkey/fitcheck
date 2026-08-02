@@ -6,7 +6,9 @@ const express = require("express");
 const { newUUID } = require("common");
 const requireAuth = require("./middleware/require-auth");
 const requireAdmin = require("./middleware/require-admin");
-const { createGlobalCopy } = require("./lib/promote-to-global");
+const { convertToGlobal } = require("./lib/promote-to-global");
+const { notifyUser } = require("./lib/notify-user");
+const { entityLabel, entityDisplayName } = require("./lib/entity-display-name");
 
 const router = express.Router();
 
@@ -51,6 +53,27 @@ async function createSuggestion(req, res, next) {
         .status(403)
         .json({ error: "You can only suggest your own records" });
     }
+
+    // A user can only ever have one suggestion per source record, regardless
+    // of its status - resubmitting a pending one just duplicates the review
+    // queue entry, and resubmitting an approved one is what was producing
+    // two live global copies of the same item before promote-to-global
+    // switched to converting in place. Checked before the isGlobal check
+    // below so an already-approved suggestion gets its specific Turkish
+    // message instead of the generic "already global" one - once approved,
+    // record.isGlobal is true too, and that check would otherwise win first.
+    const existing = await Suggestion.findOne({
+      where: { userId: req.session.userId, entityType, sourceRecordId },
+    });
+    if (existing) {
+      const label = entityLabel(entityType);
+      const message =
+        existing.status === "approved"
+          ? `Bu ${label} zaten global kütüphaneye eklenmiştir.`
+          : `Bu ${label} için daha önce bir öneride bulundunuz.`;
+      return res.status(409).json({ error: message, existingStatus: existing.status });
+    }
+
     if (record.isGlobal) {
       return res
         .status(400)
@@ -209,10 +232,10 @@ async function listSuggestions(req, res, next) {
   }
 }
 
-// POST /v1/suggestions/:id/approve - creates an independent global copy of the source record
+// POST /v1/suggestions/:id/approve - flips the source record to global in place
 async function approveSuggestion(req, res, next) {
   try {
-    const { Suggestion, entityModels, DishLine, PresetLine } = getModels();
+    const { Suggestion, entityModels } = getModels();
     const suggestion = await Suggestion.findByPk(req.params.id);
     if (!suggestion) {
       return res.status(404).json({ error: "Suggestion not found" });
@@ -236,11 +259,8 @@ async function approveSuggestion(req, res, next) {
         .json({ error: "Source record is already global" });
     }
 
-    const { copy, copiedLineCount } = await createGlobalCopy(
-      suggestion.entityType,
-      source,
-      { DishLine, PresetLine },
-    );
+    const { updated } = await convertToGlobal(suggestion.entityType, source);
+    const plain = updated.get({ plain: true });
 
     await suggestion.update({
       status: "approved",
@@ -249,11 +269,17 @@ async function approveSuggestion(req, res, next) {
       reviewedAt: new Date(),
     });
 
+    notifyUser(req, {
+      userId: suggestion.userId,
+      title: "Öneriniz onaylandı",
+      body: `Önerdiğiniz ${entityDisplayName(suggestion.entityType, plain)} global kütüphaneye eklenmiştir. Teşekkür ederiz.`,
+    });
+
     res.json({
       status: "OK",
       suggestion: suggestion.get({ plain: true }),
-      globalCopy: copy.get({ plain: true }),
-      copiedLineCount,
+      globalCopy: plain,
+      copiedLineCount: 0,
     });
   } catch (err) {
     next(err);
@@ -274,11 +300,29 @@ async function rejectSuggestion(req, res, next) {
         .json({ error: `Suggestion already ${suggestion.status}` });
     }
 
+    const reviewNote = req.body?.reviewNote ?? null;
+
     await suggestion.update({
       status: "rejected",
-      reviewNote: req.body?.reviewNote ?? null,
+      reviewNote,
       reviewedBy: req.session.userId,
       reviewedAt: new Date(),
+    });
+
+    const sourceDetail = await fetchSourceDetail(
+      suggestion.entityType,
+      suggestion.sourceRecordId,
+    );
+    const itemName = sourceDetail
+      ? entityDisplayName(suggestion.entityType, sourceDetail)
+      : entityLabel(suggestion.entityType);
+
+    notifyUser(req, {
+      userId: suggestion.userId,
+      title: "Öneriniz reddedildi",
+      body:
+        `Önerdiğiniz ${itemName} için global kütüphane talebiniz reddedilmiştir.` +
+        (reviewNote ? ` Not: ${reviewNote}` : ""),
     });
 
     res.json({ status: "OK", suggestion: suggestion.get({ plain: true }) });

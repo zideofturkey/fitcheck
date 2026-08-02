@@ -1,67 +1,28 @@
-// Shared copy-to-global logic used by both the suggestion-approve flow
+// Shared promote-to-global logic used by both the suggestion-approve flow
 // (routes/suggestions.js) and the direct admin promote endpoint
-// (routes/admin-user-library.js) - one independent global copy, source
-// record and its ownership untouched.
-const { newUUID } = require("common");
-
-// Copies all active dishLine/presetLine rows from oldParentId to newParentId
-// under the given foreign key column name.
-async function copyChildLines(ChildModel, fkColumn, oldParentId, newParentId) {
-  const lines = await ChildModel.findAll({
-    where: { [fkColumn]: oldParentId, isActive: true },
-  });
-  for (const line of lines) {
-    const plain = { ...line.get({ plain: true }) };
-    delete plain.id;
-    delete plain.createdAt;
-    delete plain.updatedAt;
-    plain[fkColumn] = newParentId;
-    await ChildModel.create({ ...plain, id: newUUID(false) });
-  }
-  return lines.length;
-}
-
-// Creates an independent isGlobal:true copy of `source` (a foodItem/dish/
-// presetMeal instance). userId is left as the original owner - ownership
-// doesn't move. Returns { copy, copiedLineCount }.
-async function createGlobalCopy(entityType, source, { DishLine, PresetLine }) {
+// (routes/admin-user-library.js).
+//
+// Converts the record IN PLACE (source.update({isGlobal:true})) rather than
+// creating an independent copy. An earlier version copied the record (new id,
+// isGlobal:true, DishLine/PresetLine rows duplicated onto the copy) and left
+// the original untouched - that produced two live records with the same
+// content (the private original stayed visible in the owner's library
+// alongside the new global one) and needed a whole child-line-copying
+// mechanism. Converting in place has none of that: the id never changes, so
+// mealLog/mealLine snapshots and any other reference to this record keep
+// working exactly as before, DishLine/PresetLine rows stay attached to the
+// same parent id (nothing to copy), and there is only ever one record.
+// Ownership (userId) is intentionally left unchanged - the original creator
+// stays the record's owner, it's just visible to everyone now.
+async function convertToGlobal(entityType, source) {
   if (source.isGlobal) {
     const err = new Error("Source record is already global");
     err.httpStatus = 400;
     throw err;
   }
 
-  const Model = source.constructor;
-
-  // Capture the source id up front: source.get({plain:true}) returns the
-  // SAME underlying dataValues object (not a clone) in this Sequelize
-  // version, so mutating copyData.id below would otherwise also mutate
-  // source.id out from under us.
-  const sourceId = source.id;
-
-  const copyData = { ...source.get({ plain: true }) };
-  delete copyData.id;
-  delete copyData.createdAt;
-  delete copyData.updatedAt;
-  copyData.id = newUUID(false);
-  copyData.isGlobal = true;
-  // userId stays the original owner - ownership doesn't move to the admin
-
-  const copy = await Model.create(copyData);
-
-  let copiedLineCount = 0;
-  if (entityType === "dish") {
-    copiedLineCount = await copyChildLines(DishLine, "dishId", sourceId, copy.id);
-  } else if (entityType === "presetMeal") {
-    copiedLineCount = await copyChildLines(
-      PresetLine,
-      "presetMealId",
-      sourceId,
-      copy.id,
-    );
-  }
-
-  return { copy, copiedLineCount };
+  await source.update({ isGlobal: true });
+  return { updated: source };
 }
 
-module.exports = { createGlobalCopy, copyChildLines };
+module.exports = { convertToGlobal };

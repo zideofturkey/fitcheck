@@ -274,8 +274,8 @@ export default function FoodLibraryPage() {
         onSuccess: () => toast.success(t("foodLibrary.suggestionSent")),
         onError: (err: unknown) => {
           const msg =
-            (err as { response?: { data?: { error?: string } } })?.response
-              ?.data?.error ?? t("foodLibrary.suggestionFailed");
+            (err as { message?: string })?.message ??
+            t("foodLibrary.suggestionFailed");
           toast.error(msg);
         },
       },

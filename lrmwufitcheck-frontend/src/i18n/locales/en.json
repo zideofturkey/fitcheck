@@ -1128,6 +1128,10 @@
     "detail": "Detail",
     "created": "Created"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet."
+  },
   "nav": {
     "dashboard": "Dashboard",
     "logMeal": "Log Meal",

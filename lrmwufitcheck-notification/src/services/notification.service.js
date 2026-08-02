@@ -102,7 +102,7 @@ const seenNotifications = async (userId, notificationIds) => {
   }
 
   return await Notification.update(
-    { seen: true },
+    { isSeen: true },
     { where: { userId, id: notificationIds } },
   );
 };

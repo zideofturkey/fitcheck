@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { isRouteAvailable } from "@/lib/available-routes";
 import { useAuth } from "@/context/AuthContext";
 import OnboardingMacroTargetDialog from "@/components/OnboardingMacroTargetDialog";
+import NotificationBell from "@/components/NotificationBell";
 import {
   ArrowLeftCircle,
   BarChart3,
@@ -146,14 +147,17 @@ export default function MainLayout() {
               {t("common.appName")}
             </h1>
           </Link>
-          <Link
-            to="/profile"
-            className="w-11 h-11 flex items-center justify-center -mr-2 rounded-full hover:bg-muted transition-colors relative"
-            aria-label={t("nav.profile")}
-            title={t("nav.profile")}
-          >
-            <User className="w-5 h-5 text-foreground" />
-          </Link>
+          <div className="flex items-center -mr-2">
+            <NotificationBell />
+            <Link
+              to="/profile"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors relative"
+              aria-label={t("nav.profile")}
+              title={t("nav.profile")}
+            >
+              <User className="w-5 h-5 text-foreground" />
+            </Link>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto native-scroll pb-24 safe-bottom">
@@ -208,6 +212,7 @@ export default function MainLayout() {
               </div>
 
               <div className="flex items-center gap-4">
+                <NotificationBell />
                 <Link
                   to="/profile"
                   className="flex items-center gap-3 pl-2 border-l border-border"
