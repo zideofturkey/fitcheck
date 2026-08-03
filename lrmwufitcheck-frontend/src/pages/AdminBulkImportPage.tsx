@@ -29,10 +29,29 @@ const SAMPLE = `[
   {
     "type": "dish",
     "dishName": "Chicken Rice Bowl",
+    "dishCategory": "MainCourse",
     "descriptionText": "A simple bowl",
     "ingredients": [
       { "foodName": "Chicken Breast", "gramAmount": 150 },
       { "foodName": "White Rice", "gramAmount": 200 }
+    ]
+  },
+  {
+    "type": "dish",
+    "dishName": "Homemade Iced Tea",
+    "dishCategory": "Beverage",
+    "descriptionText": "A one-off homemade drink - manual ingredient, no FoodItem created",
+    "ingredients": [
+      {
+        "manualFoodName": "Homemade Iced Tea",
+        "gramAmount": 300,
+        "manualCaloriePer100g": 15,
+        "manualProteinPer100g": 0,
+        "manualCarbohydratePer100g": 3.8,
+        "manualFatPer100g": 0,
+        "manualSugarPer100g": 3.5,
+        "manualFiberPer100g": 0
+      }
     ]
   },
   {
