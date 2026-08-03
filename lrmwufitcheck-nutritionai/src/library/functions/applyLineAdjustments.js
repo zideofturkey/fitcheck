@@ -62,6 +62,24 @@ module.exports = function applyLineAdjustments(
     if (adj.saveAsFood !== undefined && adj.saveAsFood !== null) {
       updated.saveAsFood = adj.saveAsFood;
     }
+    // "Malzeme veya Yemek?" save-as-what choice + its category/brand
+    // fields - not columns on the aiCandidateLine record, just passed
+    // through onto the merged line so loopSaveFoodItems can read them.
+    if (adj.saveAsType !== undefined && adj.saveAsType !== null) {
+      updated.saveAsType = adj.saveAsType;
+    }
+    if (adj.foodCategory !== undefined && adj.foodCategory !== null) {
+      updated.foodCategory = adj.foodCategory;
+    }
+    if (adj.dishCategory !== undefined && adj.dishCategory !== null) {
+      updated.dishCategory = adj.dishCategory;
+    }
+    if (adj.brandName !== undefined && adj.brandName !== null) {
+      updated.brandName = adj.brandName;
+    }
+    if (adj.baseName !== undefined && adj.baseName !== null) {
+      updated.baseName = adj.baseName;
+    }
 
     const hasExplicitMacros = MACRO_FIELDS.some(
       (field) => adj[field] !== undefined && adj[field] !== null,
