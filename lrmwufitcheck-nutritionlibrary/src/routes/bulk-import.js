@@ -62,6 +62,28 @@ async function processIngredient(row, index, adminUserId) {
       return { row: index, type: "ingredient", status: "error", message: "foodName is required" };
     }
 
+    // Idempotency guard: re-running the same import batch (e.g. after a
+    // partial failure) must not create duplicate global FoodItems. Matched
+    // on foodName+brandName since that's the pair that visually
+    // distinguishes brand variants of the same baseName in the UI.
+    const existing = await FoodItem.findOne({
+      where: {
+        foodName: { [Op.iLike]: foodName },
+        brandName: brand || null,
+        isGlobal: true,
+        isActive: true,
+      },
+    });
+    if (existing) {
+      return {
+        row: index,
+        type: "ingredient",
+        status: "skipped",
+        createdId: existing.id,
+        message: "Already exists in global library (matched by foodName+brand)",
+      };
+    }
+
     // Same brand-variant chaining as create-fooditem-api.js, scoped to the
     // global library (isGlobal:true) instead of a single user's records.
     let parentIngredientId = null;
@@ -101,7 +123,7 @@ async function processIngredient(row, index, adminUserId) {
 
 async function processDish(row, index, adminUserId) {
   const { Dish, DishLine, FoodItem } = getModels();
-  const { dishName, descriptionText, ingredients } = row;
+  const { dishName, descriptionText, dishCategory, ingredients } = row;
 
   if (!dishName) {
     return { row: index, type: "dish", status: "error", message: "dishName is required" };
@@ -117,6 +139,7 @@ async function processDish(row, index, adminUserId) {
       userId: adminUserId,
       dishName,
       descriptionText: descriptionText || null,
+      dishCategory: dishCategory || null,
       totalCalories: 0,
       totalProtein: 0,
       totalCarbohydrates: 0,
@@ -131,16 +154,53 @@ async function processDish(row, index, adminUserId) {
     return { row: index, type: "dish", status: "error", message: `Failed to create dish: ${err.message}` };
   }
 
+  const MANUAL_MACRO_FIELDS = [
+    "manualCaloriePer100g",
+    "manualProteinPer100g",
+    "manualCarbohydratePer100g",
+    "manualFatPer100g",
+    "manualSugarPer100g",
+    "manualFiberPer100g",
+  ];
+
   const unresolved = [];
   let resolvedCount = 0;
   for (const ing of ingredients) {
+    const label = ing.foodName || ing.foodItemId || ing.manualFoodName || "(ingredient)";
     try {
       const gramAmount = ing.gramAmount;
-      const label = ing.foodName || ing.foodItemId || "(ingredient)";
       if (gramAmount == null) {
         unresolved.push(`${label}: gramAmount missing`);
         continue;
       }
+
+      // Manual/embedded ingredient - not backed by any FoodItem row (e.g. a
+      // one-off recipe component not worth cataloguing as a standalone
+      // global ingredient). Mirrors add-dishline-api.js's manual-entry path.
+      if (!ing.foodItemId && !ing.foodName && ing.manualFoodName) {
+        const missing = MANUAL_MACRO_FIELDS.filter((f) => ing[f] == null);
+        if (missing.length > 0) {
+          unresolved.push(`${label}: missing manual macro field(s): ${missing.join(", ")}`);
+          continue;
+        }
+        await DishLine.create({
+          id: newUUID(false),
+          dishId: dish.id,
+          foodItemId: null,
+          lineFoodName: ing.manualFoodName,
+          gramAmount,
+          lineCalories: round2((ing.manualCaloriePer100g * gramAmount) / 100),
+          lineProtein: round2((ing.manualProteinPer100g * gramAmount) / 100),
+          lineCarbohydrates: round2((ing.manualCarbohydratePer100g * gramAmount) / 100),
+          lineFat: round2((ing.manualFatPer100g * gramAmount) / 100),
+          lineSugar: round2((ing.manualSugarPer100g * gramAmount) / 100),
+          lineFiber: round2((ing.manualFiberPer100g * gramAmount) / 100),
+          isActive: true,
+        });
+        resolvedCount++;
+        continue;
+      }
+
       const foodItem = await resolveFoodItem(FoodItem, ing);
       if (!foodItem) {
         unresolved.push(`${label}: not found in global library`);
@@ -163,7 +223,7 @@ async function processDish(row, index, adminUserId) {
       });
       resolvedCount++;
     } catch (err) {
-      unresolved.push(`${ing.foodName || ing.foodItemId}: ${err.message}`);
+      unresolved.push(`${label}: ${err.message}`);
     }
   }
 
@@ -371,10 +431,16 @@ router.get("/v1/bulk-import/template", requireAuth, requireAdmin, (req, res) => 
   // array for POST /v1/bulk-import from data shaped like this, not by
   // posting the raw CSV.
   const lines = [
-    "type,foodName,baseName,brand,caloriePer100g,proteinPer100g,carbohydratePer100g,fatPer100g,sugarPer100g,fiberPer100g,foodCategory,dishName,descriptionText,ingredients,presetName,items",
-    'ingredient,Yogurt - Brand A,Yogurt,Brand A,61,3.5,4.7,3.3,4.7,0,Dairy,,,,,',
-    'dish,,,,,,,,,,,Chicken Rice Bowl,A simple bowl,"[{""foodName"":""Chicken Breast"",""gramAmount"":150},{""foodName"":""White Rice"",""gramAmount"":200}]",,',
-    'meal_template,,,,,,,,,,,,,,Breakfast Combo,"[{""dishName"":""Chicken Rice Bowl"",""gramAmount"":250},{""foodName"":""Egg"",""gramAmount"":100}]"',
+    "type,foodName,baseName,brand,caloriePer100g,proteinPer100g,carbohydratePer100g,fatPer100g,sugarPer100g,fiberPer100g,foodCategory,dishName,dishCategory,descriptionText,ingredients,presetName,items",
+    'ingredient,Yogurt - Brand A,Yogurt,Brand A,61,3.5,4.7,3.3,4.7,0,Dairy,,,,,,',
+    // ingredients[] entries may reference an existing global FoodItem via
+    // foodName/foodItemId, OR embed a one-off manual ingredient via
+    // manualFoodName + manualCaloriePer100g/manualProteinPer100g/
+    // manualCarbohydratePer100g/manualFatPer100g/manualSugarPer100g/manualFiberPer100g
+    // (no FoodItem row created for it) - see the second example row below.
+    'dish,,,,,,,,,,,Chicken Rice Bowl,MainCourse,A simple bowl,"[{""foodName"":""Chicken Breast"",""gramAmount"":150},{""foodName"":""White Rice"",""gramAmount"":200}]",,',
+    'dish,,,,,,,,,,,Homemade Iced Tea,Beverage,A one-off homemade drink,"[{""manualFoodName"":""Homemade Iced Tea"",""gramAmount"":300,""manualCaloriePer100g"":15,""manualProteinPer100g"":0,""manualCarbohydratePer100g"":3.8,""manualFatPer100g"":0,""manualSugarPer100g"":3.5,""manualFiberPer100g"":0}]",,',
+    'meal_template,,,,,,,,,,,,,,,Breakfast Combo,"[{""dishName"":""Chicken Rice Bowl"",""gramAmount"":250},{""foodName"":""Egg"",""gramAmount"":100}]"',
   ];
 
   res.setHeader("Content-Type", "text/csv");
