@@ -526,12 +526,18 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
    ***********************************************************************/
 
   async runStep_loopSaveFoodItems(saveFoodItem, stepIndex, stepResults) {
-    const stepResult_saveFoodToLibrary = await this.saveFoodToLibrary(
-      saveFoodItem,
-      stepIndex,
-      stepResults,
-      saveFoodItem,
-    );
+    // "Malzeme veya Yemek?" choice from the confirmation screen - defaults
+    // to "food" so older clients (no saveAsType sent) keep the original
+    // FoodItem-only behavior.
+    const stepResult_saveFoodToLibrary =
+      saveFoodItem.saveAsType === "dish"
+        ? await this.saveDishToLibrary(saveFoodItem, stepIndex, stepResults)
+        : await this.saveFoodToLibrary(
+            saveFoodItem,
+            stepIndex,
+            stepResults,
+            saveFoodItem,
+          );
     stepResults[`saveFoodToLibrary_${stepIndex}`] =
       stepResult_saveFoodToLibrary;
   }
@@ -996,6 +1002,20 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
 
     bodyParams["creationSource"] = "aiAssistant";
 
+    // "Malzeme" branch of the save-as-what choice: category + optional
+    // brand/baseName from the confirmation screen (previously this call
+    // never set foodCategory at all, leaving every AI-saved food
+    // uncategorized).
+    if (saveFoodItem.foodCategory) {
+      bodyParams["foodCategory"] = saveFoodItem.foodCategory;
+    }
+    if (saveFoodItem.brandName) {
+      bodyParams["brandName"] = saveFoodItem.brandName;
+    }
+    if (saveFoodItem.baseName) {
+      bodyParams["baseName"] = saveFoodItem.baseName;
+    }
+
     const pathParams = {};
 
     // forwardCallerToken: capture the inbound caller's bearer token and
@@ -1017,6 +1037,76 @@ class ConfirmCandidateMealManager extends AiCandidateMealManager {
     );
 
     return resp?.foodItem ?? resp?.content ?? resp;
+  }
+
+  /***********************************************************************
+   ** "Yemek" branch of the save-as-what choice: create a Dish (with the
+   ** chosen dishCategory) then add a single manual/embedded DishLine
+   ** carrying the line's gram-based nutrition converted to per-100g -
+   ** mirrors the frontend's persistManualDish() helper, just server-side.
+   ***********************************************************************/
+
+  async saveDishToLibrary(saveFoodItem, stepIndex, stepResults) {
+    const { InterService } = require("serviceCommon");
+    const _callerBearer = this.request?.sessionToken || null;
+    const callOptions = _callerBearer ? { userBearer: _callerBearer } : {};
+
+    const dishResp = await InterService.callNutritionLibraryCreateDish(
+      {
+        body: {
+          dishName: saveFoodItem.detectedFoodName,
+          dishCategory: saveFoodItem.dishCategory || null,
+        },
+        pathParams: {},
+      },
+      callOptions,
+    );
+    const dish = dishResp?.dish ?? dishResp?.content ?? dishResp;
+    if (!dish?.id) {
+      throw new Error(
+        `Failed to create dish for line "${saveFoodItem.detectedFoodName}"`,
+      );
+    }
+
+    const lineResp = await InterService.callNutritionLibraryAddDishLine(
+      {
+        body: {
+          gramAmount: saveFoodItem.estimatedGrams,
+          manualFoodName: saveFoodItem.detectedFoodName,
+          manualCaloriePer100g: LIB.per100g(
+            saveFoodItem.estimatedCalories,
+            saveFoodItem.estimatedGrams,
+          ),
+          manualProteinPer100g: LIB.per100g(
+            saveFoodItem.estimatedProtein,
+            saveFoodItem.estimatedGrams,
+          ),
+          manualCarbohydratePer100g: LIB.per100g(
+            saveFoodItem.estimatedCarbohydrates,
+            saveFoodItem.estimatedGrams,
+          ),
+          manualFatPer100g: LIB.per100g(
+            saveFoodItem.estimatedFat,
+            saveFoodItem.estimatedGrams,
+          ),
+          manualSugarPer100g: LIB.per100g(
+            saveFoodItem.estimatedSugar,
+            saveFoodItem.estimatedGrams,
+          ),
+          manualFiberPer100g: LIB.per100g(
+            saveFoodItem.estimatedFiber,
+            saveFoodItem.estimatedGrams,
+          ),
+        },
+        pathParams: { dishId: dish.id },
+      },
+      callOptions,
+    );
+
+    return {
+      dish,
+      dishLine: lineResp?.dishLine ?? lineResp?.content ?? lineResp,
+    };
   }
 }
 

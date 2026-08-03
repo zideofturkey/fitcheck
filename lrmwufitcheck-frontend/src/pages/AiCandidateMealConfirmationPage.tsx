@@ -21,6 +21,10 @@ import {
   useRejectCandidateMeal,
 } from "@/hooks/api/use-nutritionai";
 import { useListAiCandidateLines } from "@/hooks/api/use-nutritionai-helpers";
+import { CATEGORIES, categoryLabel } from "@/lib/food-category";
+import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
+
+type SaveAsType = "food" | "dish";
 
 type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -39,6 +43,11 @@ interface LineEdit {
   detectedFoodName: string;
   estimatedGrams: number;
   saveAsFood: boolean;
+  saveAsType: SaveAsType;
+  foodCategory: string;
+  dishCategory: string;
+  brandName: string;
+  baseName: string;
   macros: Record<MacroKey, number>;
   // Per-gram density used to scale macros when grams change. Starts from
   // the AI's original values; re-derived from the current macro value
@@ -162,6 +171,11 @@ export default function AiCandidateMealConfirmationPage() {
         detectedFoodName: line.detectedFoodName,
         estimatedGrams: line.estimatedGrams,
         saveAsFood: line.saveAsFood,
+        saveAsType: "food",
+        foodCategory: "",
+        dishCategory: "",
+        brandName: "",
+        baseName: "",
         macros,
         density,
       };
@@ -206,7 +220,18 @@ export default function AiCandidateMealConfirmationPage() {
 
   const updateLineField = (
     lineId: string,
-    patch: Partial<Pick<LineEdit, "detectedFoodName" | "saveAsFood">>,
+    patch: Partial<
+      Pick<
+        LineEdit,
+        | "detectedFoodName"
+        | "saveAsFood"
+        | "saveAsType"
+        | "foodCategory"
+        | "dishCategory"
+        | "brandName"
+        | "baseName"
+      >
+    >,
   ) => {
     setLineEdits((prev) =>
       prev.map((l) => (l.aiCandidateLineId === lineId ? { ...l, ...patch } : l)),
@@ -263,6 +288,18 @@ export default function AiCandidateMealConfirmationPage() {
             aiCandidateLineId: l.aiCandidateLineId,
             estimatedGrams: l.estimatedGrams,
             saveAsFood: l.saveAsFood,
+            ...(l.saveAsFood
+              ? {
+                  saveAsType: l.saveAsType,
+                  ...(l.saveAsType === "food"
+                    ? {
+                        foodCategory: l.foodCategory || undefined,
+                        brandName: l.brandName || undefined,
+                        baseName: l.baseName || undefined,
+                      }
+                    : { dishCategory: l.dishCategory || undefined }),
+                }
+              : {}),
             ...l.macros,
           })),
         },
@@ -462,6 +499,130 @@ export default function AiCandidateMealConfirmationPage() {
                   <BookmarkPlus className="w-4 h-4" />
                   {t("aiCandidateMeal.saveAsFood")}
                 </label>
+
+                {line.saveAsFood && (
+                  <div className="ml-6 space-y-3 rounded-md border border-border bg-muted/30 p-3">
+                    <div>
+                      <Label className="mb-1.5 text-xs">
+                        {t("aiCandidateMeal.saveAsWhat")}
+                      </Label>
+                      <div className="flex items-center gap-1 p-1 bg-muted rounded-lg w-fit">
+                        {(
+                          [
+                            ["food", t("aiCandidateMeal.saveAsFoodOption")],
+                            ["dish", t("aiCandidateMeal.saveAsDishOption")],
+                          ] as [SaveAsType, string][]
+                        ).map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() =>
+                              updateLineField(line.aiCandidateLineId, {
+                                saveAsType: value,
+                              })
+                            }
+                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                              line.saveAsType === value
+                                ? "bg-card text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {line.saveAsType === "food" ? (
+                      <>
+                        <div>
+                          <Label className="mb-1.5 text-xs">
+                            {t("aiCandidateMeal.categoryLabel")}
+                          </Label>
+                          <select
+                            value={line.foodCategory}
+                            onChange={(e) =>
+                              updateLineField(line.aiCandidateLineId, {
+                                foodCategory: e.target.value,
+                              })
+                            }
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          >
+                            <option value="">
+                              {t("aiCandidateMeal.categoryPlaceholder")}
+                            </option>
+                            {CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {categoryLabel(t, cat)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <Label className="mb-1.5 text-xs">
+                              {t("aiCandidateMeal.brandLabel")}
+                            </Label>
+                            <Input
+                              type="text"
+                              value={line.brandName}
+                              placeholder={t(
+                                "aiCandidateMeal.brandPlaceholder",
+                              )}
+                              onChange={(e) =>
+                                updateLineField(line.aiCandidateLineId, {
+                                  brandName: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div>
+                            <Label className="mb-1.5 text-xs">
+                              {t("aiCandidateMeal.baseNameLabel")}
+                            </Label>
+                            <Input
+                              type="text"
+                              value={line.baseName}
+                              placeholder={t(
+                                "aiCandidateMeal.baseNamePlaceholder",
+                              )}
+                              onChange={(e) =>
+                                updateLineField(line.aiCandidateLineId, {
+                                  baseName: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <Label className="mb-1.5 text-xs">
+                          {t("aiCandidateMeal.categoryLabel")}
+                        </Label>
+                        <select
+                          value={line.dishCategory}
+                          onChange={(e) =>
+                            updateLineField(line.aiCandidateLineId, {
+                              dishCategory: e.target.value,
+                            })
+                          }
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="">
+                            {t("aiCandidateMeal.categoryPlaceholder")}
+                          </option>
+                          {DISH_CATEGORIES.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {dishCategoryLabel(t, cat)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <details className="group">
                   <summary className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors list-none">
                     <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />

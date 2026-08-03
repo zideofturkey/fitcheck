@@ -4197,6 +4197,119 @@ const InterService = {
   },
 
   /**
+   * Call nutritionLibrary service - createDish API
+   * Hand-written to mirror callNutritionLibraryCreateFoodItem's pattern -
+   * needed so an AI-parsed candidate line can be saved as a Dish (with a
+   * manual DishLine) instead of only a FoodItem.
+   * @param {Object} params - Request parameters (body, query, path params)
+   * @param {Object} options - Additional options (headers, cookies, serializer)
+   * @returns {Promise<Object>} Response data
+   */
+  async callNutritionLibraryCreateDish(params = {}, options = {}) {
+    const serviceUrl = process.env.NUTRITIONLIBRARY_SERVICE_URL;
+    if (!serviceUrl) {
+      throw new Error(
+        `Service URL not found for nutritionLibrary. Please set NUTRITIONLIBRARY_SERVICE_URL environment variable.`,
+      );
+    }
+
+    let fullUrl = serviceUrl.replace(/\/$/, "") + "/v1/dishes";
+
+    if (params.pathParams) {
+      for (const [key, value] of Object.entries(params.pathParams)) {
+        fullUrl = fullUrl.replace(`:${key}`, encodeURIComponent(value));
+        fullUrl = fullUrl.replace(`{${key}}`, encodeURIComponent(value));
+      }
+    }
+
+    const requestPayload = {
+      url: fullUrl,
+      method: "POST",
+      body: params.body || null,
+      query: params.query || null,
+    };
+    const requestHash = md5(JSON.stringify(requestPayload));
+
+    const m2mToken = await createM2MToken(
+      { sender: `${process.env.SERVICE_SHORT_NAME || "service"}-service` },
+      { requestPayloadHash: requestHash, expiresIn: "15m" },
+    );
+
+    const headers = {
+      ...(m2mToken ? { "x-m2m-token": m2mToken } : {}),
+      ...(options.userBearer
+        ? { authorization: `Bearer ${options.userBearer}` }
+        : {}),
+      ...(options.headers || {}),
+    };
+
+    return await sendRestRequest(
+      fullUrl,
+      null,
+      headers,
+      options.cookies || null,
+      params.body || null,
+      params.query || null,
+      "POST",
+      options.serializer || null,
+    );
+  },
+
+  /**
+   * Call nutritionLibrary service - addDishLine API
+   * Hand-written companion to callNutritionLibraryCreateDish - adds a single
+   * (typically manual/embedded) DishLine to a just-created Dish.
+   * @param {Object} params - Request parameters (body, query, path params - expects pathParams.dishId)
+   * @param {Object} options - Additional options (headers, cookies, serializer)
+   * @returns {Promise<Object>} Response data
+   */
+  async callNutritionLibraryAddDishLine(params = {}, options = {}) {
+    const serviceUrl = process.env.NUTRITIONLIBRARY_SERVICE_URL;
+    if (!serviceUrl) {
+      throw new Error(
+        `Service URL not found for nutritionLibrary. Please set NUTRITIONLIBRARY_SERVICE_URL environment variable.`,
+      );
+    }
+
+    const dishId = params.pathParams?.dishId;
+    let fullUrl =
+      serviceUrl.replace(/\/$/, "") +
+      `/v1/dishes/${encodeURIComponent(dishId)}/lines`;
+
+    const requestPayload = {
+      url: fullUrl,
+      method: "POST",
+      body: params.body || null,
+      query: params.query || null,
+    };
+    const requestHash = md5(JSON.stringify(requestPayload));
+
+    const m2mToken = await createM2MToken(
+      { sender: `${process.env.SERVICE_SHORT_NAME || "service"}-service` },
+      { requestPayloadHash: requestHash, expiresIn: "15m" },
+    );
+
+    const headers = {
+      ...(m2mToken ? { "x-m2m-token": m2mToken } : {}),
+      ...(options.userBearer
+        ? { authorization: `Bearer ${options.userBearer}` }
+        : {}),
+      ...(options.headers || {}),
+    };
+
+    return await sendRestRequest(
+      fullUrl,
+      null,
+      headers,
+      options.cookies || null,
+      params.body || null,
+      params.query || null,
+      "POST",
+      options.serializer || null,
+    );
+  },
+
+  /**
    * Call nutritionLibrary service - getFoodItem API
    * @param {Object} params - Request parameters (body, query, path params)
    * @param {Object} options - Additional options (headers, cookies, serializer)
