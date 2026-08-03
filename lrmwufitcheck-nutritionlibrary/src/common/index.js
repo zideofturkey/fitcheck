@@ -21,6 +21,8 @@ const { QueryCache, QueryCacheInvalidator } = require("./query-cache");
 
 const boolQueryParser = require("./bool-queryparser");
 
+const { foldTurkish, turkishInsensitiveCondition } = require("./turkish-search");
+
 const KafkaPublisher = require("./kafka-publisher");
 const KafkaListener = require("./kafka-listener");
 
@@ -295,4 +297,6 @@ module.exports = {
   isArrayMutationObject,
   hasArrayMutations,
   resolveArrayMutationsInClause,
+  foldTurkish,
+  turkishInsensitiveCondition,
 };

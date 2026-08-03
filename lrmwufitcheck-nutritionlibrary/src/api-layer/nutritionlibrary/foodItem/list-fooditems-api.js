@@ -91,20 +91,10 @@ class ListFoodItemsManager extends FoodItemManager {
       ),
     );
 
-    if (
-      runMScript(() => this.searchTerm, {
-        path: "services[2].businessLogic[4].whereClause.additionalClauses[0].condition",
-      })
-    ) {
-      conditionalClauses.push(
-        runMScript(
-          () => ({ foodName: { $ilike: "%" + this.searchTerm + "%" } }),
-          {
-            path: "services[2].businessLogic[4].whereClause.additionalClauses[0].whereClause",
-          },
-        ),
-      );
-    }
+    // searchTerm is handled separately in buildWhereClause() via
+    // turkishInsensitiveCondition(), so Turkish diacritics (ş/ğ/ü/ö/ç/ı)
+    // are folded on both sides of the comparison - plain $ilike can't do
+    // that, it's only case-insensitive, not diacritic-insensitive.
     if (this.foodCategory === null) {
       conditionalClauses.push({ foodCategory: { $isnull: true } });
     }
@@ -145,9 +135,23 @@ class ListFoodItemsManager extends FoodItemManager {
   }
 
   async buildWhereClause() {
-    const { convertUserQueryToSequelizeQuery } = require("common");
+    const {
+      convertUserQueryToSequelizeQuery,
+      turkishInsensitiveCondition,
+    } = require("common");
+    const { Op } = require("sequelize");
     const routeQuery = await this.getRouteQuery();
-    return convertUserQueryToSequelizeQuery(routeQuery);
+    const sequelizeQuery = convertUserQueryToSequelizeQuery(routeQuery);
+    if (this.searchTerm) {
+      const searchCondition = turkishInsensitiveCondition(
+        "foodName",
+        this.searchTerm,
+      );
+      return sequelizeQuery
+        ? { [Op.and]: [sequelizeQuery, searchCondition] }
+        : searchCondition;
+    }
+    return sequelizeQuery;
   }
 
   checkParameter_searchTerm() {

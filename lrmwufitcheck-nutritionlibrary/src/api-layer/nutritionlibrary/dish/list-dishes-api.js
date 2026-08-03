@@ -84,11 +84,10 @@ class ListDishesManager extends DishManager {
       ],
     });
 
-    if (this.searchTerm) {
-      conditionalClauses.push({
-        dishName: { $ilike: "%" + this.searchTerm + "%" },
-      });
-    }
+    // searchTerm is handled separately in buildWhereClause() via
+    // turkishInsensitiveCondition(), so Turkish diacritics (ş/ğ/ü/ö/ç/ı)
+    // are folded on both sides of the comparison - plain $ilike can't do
+    // that, it's only case-insensitive, not diacritic-insensitive.
     if (this.dishCategory === null) {
       conditionalClauses.push({ dishCategory: { $isnull: true } });
     }
@@ -121,9 +120,23 @@ class ListDishesManager extends DishManager {
   }
 
   async buildWhereClause() {
-    const { convertUserQueryToSequelizeQuery } = require("common");
+    const {
+      convertUserQueryToSequelizeQuery,
+      turkishInsensitiveCondition,
+    } = require("common");
+    const { Op } = require("sequelize");
     const routeQuery = await this.getRouteQuery();
-    return convertUserQueryToSequelizeQuery(routeQuery);
+    const sequelizeQuery = convertUserQueryToSequelizeQuery(routeQuery);
+    if (this.searchTerm) {
+      const searchCondition = turkishInsensitiveCondition(
+        "dishName",
+        this.searchTerm,
+      );
+      return sequelizeQuery
+        ? { [Op.and]: [sequelizeQuery, searchCondition] }
+        : searchCondition;
+    }
+    return sequelizeQuery;
   }
 
   checkParameter_searchTerm() {
