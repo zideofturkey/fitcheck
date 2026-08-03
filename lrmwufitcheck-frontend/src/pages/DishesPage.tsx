@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  AlertCircle,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   Loader,
   Megaphone,
   Plus,
+  Send,
+  Sparkles,
   Trash2,
   UtensilsCrossed,
   X,
@@ -33,6 +36,8 @@ import {
 } from "@/hooks/api/use-dish";
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
+import { useParseMeal } from "@/hooks/api/use-nutritionai";
+import { nutritionaiHelpers } from "@/services/api/nutritionai-helpers";
 import ManualNutritionForm, {
   type ManualNutritionFormValues,
 } from "@/components/ManualNutritionForm";
@@ -43,6 +48,20 @@ import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import { useAuth } from "@/context/AuthContext";
+
+interface AiDishLine {
+  name: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sugar: number;
+  fiber: number;
+}
+
+const per100g = (value: number, grams: number) =>
+  grams > 0 ? +((value / grams) * 100).toFixed(2) : 0;
 
 export default function DishesPage() {
   const { t } = useTranslation();
@@ -96,6 +115,14 @@ export default function DishesPage() {
   const [pendingSuggestion, setPendingSuggestion] = useState<
     ManualNutritionFormValues | null
   >(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiInput, setAiInput] = useState("");
+  // Ingredients parsed by AI, waiting for the dish itself to be created
+  // (Step 1) before they can be added as manual DishLines in Step 2.
+  const [pendingAiLines, setPendingAiLines] = useState<AiDishLine[] | null>(
+    null,
+  );
+  const [aiLinesLoading, setAiLinesLoading] = useState(false);
 
   const addLineMutation = useAddDishLine();
   const removeLineMutation = useDeleteDishLine();
@@ -105,6 +132,7 @@ export default function DishesPage() {
     pageRowCount: 8,
   });
   const [isPersisting, setIsPersisting] = useState(false);
+  const parseMeal = useParseMeal();
 
   const dishes = data?.dishes ?? [];
   const totalCount = dishes.length;
@@ -126,6 +154,7 @@ export default function DishesPage() {
     setSelectedFood(null);
     setGramAmount(100);
     setPendingSuggestion(null);
+    setPendingAiLines(null);
   };
 
   const handleCloseCreate = () => {
@@ -147,9 +176,98 @@ export default function DishesPage() {
         isGlobal: isAdmin && createIsGlobal ? true : undefined,
       },
       {
-        onSuccess: (res) => {
+        onSuccess: async (res) => {
           setCreatedDishId(res.dish.id);
           setCreateStep(2);
+          if (pendingAiLines && pendingAiLines.length > 0) {
+            setPickerTab("manual");
+            for (const line of pendingAiLines) {
+              try {
+                await addLineMutation.mutateAsync({
+                  dishId: res.dish.id,
+                  data: {
+                    gramAmount: line.grams || 100,
+                    manualFoodName: line.name,
+                    manualCaloriePer100g: per100g(line.calories, line.grams),
+                    manualProteinPer100g: per100g(line.protein, line.grams),
+                    manualCarbohydratePer100g: per100g(
+                      line.carbs,
+                      line.grams,
+                    ),
+                    manualFatPer100g: per100g(line.fat, line.grams),
+                    manualSugarPer100g: per100g(line.sugar, line.grams),
+                    manualFiberPer100g: per100g(line.fiber, line.grams),
+                  },
+                });
+              } catch {
+                toast.error(
+                  t("dishes.aiIngredientAddFailed", { name: line.name }),
+                );
+              }
+            }
+            setPendingAiLines(null);
+          }
+        },
+      },
+    );
+  };
+
+  const handleAiParse = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = aiInput.trim();
+    if (!text) return;
+    parseMeal.mutate(
+      { inputText: text },
+      {
+        onSuccess: async (sessionRes) => {
+          const sessionId = sessionRes.aiSession?.id;
+          if (!sessionId) {
+            toast.error(t("dishes.aiSessionFailed"));
+            return;
+          }
+          setAiLinesLoading(true);
+          try {
+            const linesRes = await nutritionaiHelpers.listAiCandidateLines({
+              aiSessionId: sessionId,
+            });
+            const lines = linesRes?.aiCandidateLines ?? [];
+            if (lines.length === 0) {
+              toast.error(
+                sessionRes.aiSession?.finalResponseText ??
+                  t("dishes.aiSuggestionFailed"),
+              );
+              return;
+            }
+            setPendingAiLines(
+              lines.map((l) => ({
+                name: l.detectedFoodName ?? "",
+                grams: l.estimatedGrams || 100,
+                calories: l.estimatedCalories ?? 0,
+                protein: l.estimatedProtein ?? 0,
+                carbs: l.estimatedCarbohydrates ?? 0,
+                fat: l.estimatedFat ?? 0,
+                sugar: l.estimatedSugar ?? 0,
+                fiber: l.estimatedFiber ?? 0,
+              })),
+            );
+            setAiOpen(false);
+            setAiInput("");
+            setCreateOpen(true);
+            toast.success(t("dishes.aiValuesTransferred"));
+          } catch {
+            toast.error(
+              sessionRes.aiSession?.finalResponseText ??
+                t("dishes.aiSuggestionRetrieveFailed"),
+            );
+          } finally {
+            setAiLinesLoading(false);
+          }
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { message?: string })?.message ??
+            t("dishes.aiAnalysisError");
+          toast.error(msg);
         },
       },
     );
@@ -251,10 +369,20 @@ export default function DishesPage() {
               {t("dishes.subtitle")}
             </p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} className="gap-2">
-            <Plus className="size-4" aria-hidden="true" />
-            {t("dishes.newDish")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setAiOpen(true)}
+              className="gap-2"
+            >
+              <Sparkles className="size-4" aria-hidden="true" />
+              {t("dishes.addWithAi")}
+            </Button>
+            <Button onClick={() => setCreateOpen(true)} className="gap-2">
+              <Plus className="size-4" aria-hidden="true" />
+              {t("dishes.newDish")}
+            </Button>
+          </div>
         </header>
 
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -494,6 +622,17 @@ export default function DishesPage() {
                 onSubmit={handleNextStep}
                 className="flex-1 overflow-y-auto p-6 space-y-4"
               >
+                {pendingAiLines && pendingAiLines.length > 0 && (
+                  <div className="flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5">
+                    <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
+                    <p className="text-xs text-foreground">
+                      {t("dishes.aiIngredientsDetected", {
+                        count: pendingAiLines.length,
+                        names: pendingAiLines.map((l) => l.name).join(", "),
+                      })}
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium">
                     {t("dishes.nameLabel")} *
@@ -770,6 +909,100 @@ export default function DishesPage() {
                 </div>
               </div>
             )}
+          </div>
+        </>
+      )}
+
+      {aiOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-foreground/30"
+            onClick={() => setAiOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+                <Sparkles className="size-5 text-primary" />
+                {t("dishes.addWithAi")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setAiOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
+                aria-label={t("common.close")}
+                title={t("common.close")}
+              >
+                <X className="size-5 text-muted-foreground" aria-hidden="true" />
+              </button>
+            </div>
+            <form onSubmit={handleAiParse} className="flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+                <p className="text-sm text-muted-foreground">
+                  {t("dishes.aiDescribe")}
+                </p>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">
+                    {t("dishes.aiDescriptionLabel")}
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    placeholder={t("dishes.aiPlaceholder")}
+                    disabled={parseMeal.isPending || aiLinesLoading}
+                    className="w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow resize-none disabled:opacity-60"
+                  />
+                </div>
+                {(parseMeal.isPending || aiLinesLoading) && (
+                  <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-3">
+                    <Loader className="size-4 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      {t("dishes.aiAnalyzing")}
+                    </p>
+                  </div>
+                )}
+                {parseMeal.isError && (
+                  <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                    <AlertCircle className="size-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-sm text-destructive">
+                      {t("dishes.aiFailed")}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4">
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setAiOpen(false)}
+                  >
+                    {t("dishes.aiCancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 gap-2"
+                    disabled={
+                      parseMeal.isPending || aiLinesLoading || !aiInput.trim()
+                    }
+                  >
+                    {parseMeal.isPending || aiLinesLoading ? (
+                      <>
+                        <Loader className="size-4 animate-spin" />
+                        {t("dishes.aiAnalyzingBtn")}
+                      </>
+                    ) : (
+                      <>
+                        <Send className="size-4" />
+                        {t("dishes.aiAnalyzeBtn")}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </form>
           </div>
         </>
       )}
