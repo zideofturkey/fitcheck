@@ -5,6 +5,7 @@ import {
   Search,
   X,
   BookOpen,
+  ChevronRight,
   ClipboardList,
   PencilLine,
   UtensilsCrossed,
@@ -18,12 +19,49 @@ import {
 } from "@/hooks/api/use-nutritionlibrary";
 import { useListDishes, useListDishLines } from "@/hooks/api/use-dish";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
+import CategoryAccordionDishPicker from "@/components/CategoryAccordionDishPicker";
 import type {
   NutritionlibraryFoodItem,
   NutritionlibraryPresetMeal,
   NutritionlibraryPresetLine,
 } from "@/types/api";
+import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
 import type { Dish } from "@/services/api/dish-api";
+
+/**
+ * Groups a flat, searchTerm-filtered food list by baseName (brand variants
+ * of the same ingredient) so a search for "kasar" still funnels through the
+ * same "pick the ingredient, then pick the brand" two-step flow as browsing
+ * the category accordion - rather than dumping every brand row flat with no
+ * indication of which base ingredient they belong to. Groups of size 1
+ * (no brand variants) render directly, same as before.
+ */
+function groupSearchResultsByBaseName(
+  items: FoodItemWithBaseName[],
+): { baseName: string | null; items: FoodItemWithBaseName[] }[] {
+  const baseNameCounts = new Map<string, number>();
+  for (const item of items) {
+    if (item.baseName) {
+      baseNameCounts.set(item.baseName, (baseNameCounts.get(item.baseName) ?? 0) + 1);
+    }
+  }
+  const seenBaseNames = new Set<string>();
+  const groups: { baseName: string | null; items: FoodItemWithBaseName[] }[] = [];
+  for (const item of items) {
+    const isGrouped = item.baseName && (baseNameCounts.get(item.baseName) ?? 0) > 1;
+    if (isGrouped) {
+      if (seenBaseNames.has(item.baseName!)) continue;
+      seenBaseNames.add(item.baseName!);
+      groups.push({
+        baseName: item.baseName!,
+        items: items.filter((i) => i.baseName === item.baseName),
+      });
+    } else {
+      groups.push({ baseName: null, items: [item] });
+    }
+  }
+  return groups;
+}
 
 export type PickedFoodLine = {
   itemName: string;
@@ -62,6 +100,11 @@ export default function FoodPickerModal({
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("library");
   const [search, setSearch] = useState("");
+  // Which baseName (brand-variant) group is expanded in the search-results
+  // list - mirrors CategoryAccordionFoodPicker's group expand state.
+  const [expandedSearchGroup, setExpandedSearchGroup] = useState<
+    string | null
+  >(null);
   const [selectedFood, setSelectedFood] =
     useState<NutritionlibraryFoodItem | null>(null);
   const [grams, setGrams] = useState<number>(100);
@@ -95,6 +138,7 @@ export default function FoodPickerModal({
     setSelectedDish(null);
     setGrams(100);
     setSearch("");
+    setExpandedSearchGroup(null);
     onClose();
   };
 
@@ -265,7 +309,10 @@ export default function FoodPickerModal({
                     : t("foodPickerModal.searchPresets")
               }
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setExpandedSearchGroup(null);
+              }}
               className="pl-9"
             />
           </div>
@@ -285,30 +332,69 @@ export default function FoodPickerModal({
                   {t("foodPickerModal.noFoodsFound")}
                 </p>
               ) : (
-                (foodData?.foodItems ?? []).map((food) => {
-                  const isSelected = selectedFood?.id === food.id;
+                groupSearchResultsByBaseName(
+                  (foodData?.foodItems ?? []) as FoodItemWithBaseName[],
+                ).map((group, idx) => {
+                  const renderFoodButton = (food: FoodItemWithBaseName) => {
+                    const isSelected = selectedFood?.id === food.id;
+                    return (
+                      <button
+                        key={food.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedFood(food);
+                          setGrams(100);
+                        }}
+                        className={`w-full text-left rounded-md border p-3 transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        <p className="text-sm font-medium">
+                          {food.brandName || food.foodName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {food.caloriePer100g} kcal · {food.proteinPer100g}g
+                          protein / 100g
+                        </p>
+                      </button>
+                    );
+                  };
+
+                  if (group.items.length === 1) {
+                    return renderFoodButton(group.items[0]);
+                  }
+
+                  const groupKey = group.baseName ?? String(idx);
+                  const isGroupExpanded = expandedSearchGroup === groupKey;
                   return (
-                    <button
-                      key={food.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedFood(food);
-                        setGrams(100);
-                      }}
-                      className={`w-full text-left rounded-md border p-3 transition-colors ${
-                        isSelected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:bg-muted"
-                      }`}
-                    >
-                      <p className="text-sm font-medium">
-                        {food.brandName || food.foodName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {food.caloriePer100g} kcal · {food.proteinPer100g}g
-                        protein / 100g
-                      </p>
-                    </button>
+                    <div key={groupKey} className="space-y-1.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedSearchGroup(
+                            isGroupExpanded ? null : groupKey,
+                          )
+                        }
+                        className="w-full flex items-center justify-between rounded-md border border-border p-3 transition-colors hover:bg-muted"
+                      >
+                        <span className="text-sm font-medium">
+                          {group.baseName}
+                        </span>
+                        <ChevronRight
+                          className={`size-4 text-muted-foreground shrink-0 transition-transform ${
+                            isGroupExpanded ? "rotate-90" : ""
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                      {isGroupExpanded && (
+                        <div className="space-y-1.5 pl-3">
+                          {group.items.map(renderFoodButton)}
+                        </div>
+                      )}
+                    </div>
                   );
                 })
               )
@@ -357,36 +443,45 @@ export default function FoodPickerModal({
             ))}
 
           {tab === "dishes" &&
-            (dishesLoading ? (
-              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-                <Loader className="w-4 h-4 animate-spin mr-2" />
-                {t("foodPickerModal.loading")}
-              </div>
-            ) : (dishData?.dishes ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                {t("foodPickerModal.noDishesFound")}
-              </p>
+            (search ? (
+              dishesLoading ? (
+                <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                  <Loader className="w-4 h-4 animate-spin mr-2" />
+                  {t("foodPickerModal.loading")}
+                </div>
+              ) : (dishData?.dishes ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  {t("foodPickerModal.noDishesFound")}
+                </p>
+              ) : (
+                (dishData?.dishes ?? []).map((dish) => {
+                  const isSelected = selectedDish?.id === dish.id;
+                  return (
+                    <button
+                      key={dish.id}
+                      type="button"
+                      onClick={() => setSelectedDish(dish)}
+                      className={`w-full text-left rounded-md border p-3 transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <p className="text-sm font-medium">{dish.dishName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {dish.totalCalories} kcal · {dish.totalProtein}g
+                        protein
+                      </p>
+                    </button>
+                  );
+                })
+              )
             ) : (
-              (dishData?.dishes ?? []).map((dish) => {
-                const isSelected = selectedDish?.id === dish.id;
-                return (
-                  <button
-                    key={dish.id}
-                    type="button"
-                    onClick={() => setSelectedDish(dish)}
-                    className={`w-full text-left rounded-md border p-3 transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted"
-                    }`}
-                  >
-                    <p className="text-sm font-medium">{dish.dishName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {dish.totalCalories} kcal · {dish.totalProtein}g protein
-                    </p>
-                  </button>
-                );
-              })
+              <CategoryAccordionDishPicker
+                selectedId={selectedDish?.id ?? null}
+                onSelect={(dish) => setSelectedDish(dish)}
+                emptyLabel={t("foodPickerModal.noDishesFound")}
+              />
             ))}
         </div>
 

@@ -87,11 +87,10 @@ class ListPresetMealsManager extends PresetMealManager {
       ),
     );
 
-    if (this.searchTerm) {
-      conditionalClauses.push({
-        templateName: { $ilike: "%" + this.searchTerm + "%" },
-      });
-    }
+    // searchTerm is handled separately in buildWhereClause() via
+    // turkishInsensitiveCondition(), so Turkish diacritics (ş/ğ/ü/ö/ç/ı)
+    // are folded on both sides of the comparison - plain $ilike can't do
+    // that, it's only case-insensitive, not diacritic-insensitive.
     // Layered on top of the base visibility clause above (not a replacement
     // for it) - "mine"/"global" narrow down within whatever the caller is
     // already allowed to see.
@@ -107,9 +106,23 @@ class ListPresetMealsManager extends PresetMealManager {
   }
 
   async buildWhereClause() {
-    const { convertUserQueryToSequelizeQuery } = require("common");
+    const {
+      convertUserQueryToSequelizeQuery,
+      turkishInsensitiveCondition,
+    } = require("common");
+    const { Op } = require("sequelize");
     const routeQuery = await this.getRouteQuery();
-    return convertUserQueryToSequelizeQuery(routeQuery);
+    const sequelizeQuery = convertUserQueryToSequelizeQuery(routeQuery);
+    if (this.searchTerm) {
+      const searchCondition = turkishInsensitiveCondition(
+        "templateName",
+        this.searchTerm,
+      );
+      return sequelizeQuery
+        ? { [Op.and]: [sequelizeQuery, searchCondition] }
+        : searchCondition;
+    }
+    return sequelizeQuery;
   }
 
   checkParameter_searchTerm() {
