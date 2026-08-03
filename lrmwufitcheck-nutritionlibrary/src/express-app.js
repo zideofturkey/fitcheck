@@ -225,6 +225,8 @@ const adminUserLibraryRouter = require("./routes/admin-user-library");
 app.use("", adminUserLibraryRouter);
 const adminGlobalTrashRouter = require("./routes/admin-global-trash");
 app.use("", adminGlobalTrashRouter);
+const broadcastNotifyRouter = require("./routes/broadcast-notify");
+app.use("", broadcastNotifyRouter);
 
 app.use("", macroTargetRouter);
 app.use("", foodItemRouter);
