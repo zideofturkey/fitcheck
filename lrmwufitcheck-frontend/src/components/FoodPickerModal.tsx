@@ -17,6 +17,7 @@ import {
   useListPresetLines,
 } from "@/hooks/api/use-nutritionlibrary";
 import { useListDishes, useListDishLines } from "@/hooks/api/use-dish";
+import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type {
   NutritionlibraryFoodItem,
   NutritionlibraryPresetMeal,
@@ -273,40 +274,53 @@ export default function FoodPickerModal({
         {/* List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {tab === "library" &&
-            (foodLoading ? (
-              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-                <Loader className="w-4 h-4 animate-spin mr-2" />
-                {t("foodPickerModal.loading")}
-              </div>
-            ) : (foodData?.foodItems ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                {t("foodPickerModal.noFoodsFound")}
-              </p>
+            (search ? (
+              foodLoading ? (
+                <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                  <Loader className="w-4 h-4 animate-spin mr-2" />
+                  {t("foodPickerModal.loading")}
+                </div>
+              ) : (foodData?.foodItems ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  {t("foodPickerModal.noFoodsFound")}
+                </p>
+              ) : (
+                (foodData?.foodItems ?? []).map((food) => {
+                  const isSelected = selectedFood?.id === food.id;
+                  return (
+                    <button
+                      key={food.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedFood(food);
+                        setGrams(100);
+                      }}
+                      className={`w-full text-left rounded-md border p-3 transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <p className="text-sm font-medium">
+                        {food.brandName || food.foodName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {food.caloriePer100g} kcal · {food.proteinPer100g}g
+                        protein / 100g
+                      </p>
+                    </button>
+                  );
+                })
+              )
             ) : (
-              (foodData?.foodItems ?? []).map((food) => {
-                const isSelected = selectedFood?.id === food.id;
-                return (
-                  <button
-                    key={food.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedFood(food);
-                      setGrams(100);
-                    }}
-                    className={`w-full text-left rounded-md border p-3 transition-colors ${
-                      isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted"
-                    }`}
-                  >
-                    <p className="text-sm font-medium">{food.foodName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {food.caloriePer100g} kcal · {food.proteinPer100g}g protein
-                      / 100g
-                    </p>
-                  </button>
-                );
-              })
+              <CategoryAccordionFoodPicker
+                selectedId={selectedFood?.id ?? null}
+                onSelect={(food) => {
+                  setSelectedFood(food);
+                  setGrams(100);
+                }}
+                emptyLabel={t("foodPickerModal.noFoodsFound")}
+              />
             ))}
 
           {tab === "presets" &&
