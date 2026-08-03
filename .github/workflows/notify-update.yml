@@ -1,0 +1,46 @@
+name: Notify update by email
+
+# Sends a short "there's a new update" email to a fixed recipient list on
+# every push to main. Intentionally simple for now (subject + last commit
+# message) - later this can be expanded to go out to all registered users
+# instead of a fixed list.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Build email body from recent commits
+        id: body
+        run: |
+          {
+            echo "body<<EOF"
+            echo "FitCheck'e yeni bir güncelleme yapıldı."
+            echo ""
+            echo "Son değişiklikler:"
+            git log -5 --pretty=format:"- %s"
+            echo ""
+            echo ""
+            echo "Detaylar: https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "FitCheck'e şu özellik eklendi!"
+          to: yusufbuber38@gmail.com,azraturidi1632@gmail.com,yildizsevvalyardimci@gmail.com,ediz.kacmaz19@gmail.com
+          from: FitCheck
+          body: ${{ steps.body.outputs.body }}
