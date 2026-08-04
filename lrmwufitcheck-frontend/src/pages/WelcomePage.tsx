@@ -1,3 +1,4 @@
+import { type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -7,7 +8,6 @@ import {
   LogIn,
   Mail,
   Sparkles,
-  Flame,
   Layers,
   Target,
   Circle,
@@ -17,8 +17,34 @@ import {
   User,
 } from "lucide-react";
 
+// Self-registration via invite isn't live yet — the entry points stay in the
+// code (and the invite-validation flow underneath keeps working) so this can
+// be flipped back on later without rebuilding anything.
+const INVITE_SELF_SERVICE_ENABLED = false;
+
+const DEMO_CALORIE_TARGET = 2200;
+const DEMO_CALORIE_CONSUMED = 1847;
+const DEMO_MACROS = [
+  { key: "protein", label: "Protein", consumed: 118, target: 140, color: "bg-primary", glow: "#059669" },
+  { key: "carbs", label: "Karbonhidrat", consumed: 187, target: 260, color: "bg-blue-500", glow: "#3b82f6" },
+  { key: "fat", label: "Yağ", consumed: 54, target: 70, color: "bg-amber-500", glow: "#f59e0b" },
+];
+const DEMO_PARTICLE_COUNT = 10;
+const DEMO_PARTICLES = Array.from({ length: DEMO_PARTICLE_COUNT }, (_, i) => {
+  const angle = (i / DEMO_PARTICLE_COUNT) * Math.PI * 2;
+  return {
+    top: `${50 + Math.sin(angle) * 44}%`,
+    left: `${50 + Math.cos(angle) * 44}%`,
+    dx: Math.cos(angle) * 26,
+    dy: Math.sin(angle) * 26,
+  };
+});
+
 export default function WelcomePage() {
   const { t } = useTranslation();
+  const caloriePct = Math.min(100, (DEMO_CALORIE_CONSUMED / DEMO_CALORIE_TARGET) * 100);
+  const circumference = 2 * Math.PI * 42;
+  const dashOffset = circumference * (1 - caloriePct / 100);
   return (
     <>
       {/* MOBILE TOP HEADER */}
@@ -62,18 +88,6 @@ export default function WelcomePage() {
               >
                 {t("system.home")}
               </Link>
-              <Link
-                to="/features"
-                className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-medium"
-              >
-                Features
-              </Link>
-              <Link
-                to="/privacy"
-                className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-medium"
-              >
-                Privacy
-              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-3">
@@ -84,13 +98,15 @@ export default function WelcomePage() {
               <LogIn className="w-4 h-4" />
               {t("system.signIn")}
             </Link>
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              {t("system.haveInvite")}
-            </Link>
+            {INVITE_SELF_SERVICE_ENABLED && (
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                {t("system.haveInvite")}
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -123,58 +139,93 @@ export default function WelcomePage() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
-                  to="/register"
-                  className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  {t("welcome.getStarted")}
-                </Link>
-                <Link
                   to="/login"
-                  className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg border border-border bg-background text-foreground hover:bg-muted transition-colors"
+                  className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
                   <LogIn className="w-4 h-4" />
                   {t("system.signIn")}
                 </Link>
               </div>
 
-              {/* Hero visual — asymmetric layout hint */}
-              <div className="mt-16 md:mt-20 max-w-5xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="hidden md:block" />
-                  <div className="bg-card border border-border rounded-2xl shadow-lg p-5 text-start relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-bl-3xl" />
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Flame className="w-4 h-4 text-primary" />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          {t("welcome.today")}
+              {/* Hero visual — sample dashboard preview, same visual language as the real dashboard */}
+              <div className="mt-16 md:mt-20 max-w-3xl mx-auto">
+                <div className="bg-card border border-border rounded-2xl shadow-lg p-6 md:p-8 text-start">
+                  <div className="flex flex-col md:flex-row items-center gap-8">
+                    <div
+                      className="calorie-ring-group relative w-40 h-40 shrink-0"
+                      aria-hidden="true"
+                    >
+                      {DEMO_PARTICLES.map((p, i) => (
+                        <span
+                          key={i}
+                          className="particle-dot absolute w-1.5 h-1.5 rounded-full bg-primary"
+                          style={
+                            {
+                              top: p.top,
+                              left: p.left,
+                              "--particle-x": `${p.dx}px`,
+                              "--particle-y": `${p.dy}px`,
+                            } as CSSProperties
+                          }
+                        />
+                      ))}
+                      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                        <defs>
+                          <linearGradient id="welcomeRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
+                            <stop offset="100%" stopColor="var(--primary)" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--muted)" strokeWidth="8" />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="42"
+                          fill="none"
+                          stroke="url(#welcomeRingGradient)"
+                          strokeWidth="8"
+                          strokeLinecap="round"
+                          strokeDasharray={circumference}
+                          strokeDashoffset={dashOffset}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl font-bold text-foreground tracking-tight">
+                          {DEMO_CALORIE_CONSUMED.toLocaleString()}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {t("welcome.consumedOf", { total: DEMO_CALORIE_TARGET.toLocaleString() })}
                         </span>
                       </div>
-                      <p className="text-3xl font-bold text-foreground tracking-tight">
-                        1,847
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {t("welcome.consumedOf", { total: "2,200" })}
-                      </p>
-                      <div className="mt-3 w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full w-[84%] bg-primary rounded-full" />
-                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 flex-1 w-full">
+                      {DEMO_MACROS.map((m) => (
+                        <div
+                          key={m.key}
+                          className="hover-lift-glow bg-muted/40 border border-border/60 rounded-xl p-3 text-center"
+                          style={{ "--glow-color": m.glow } as CSSProperties}
+                        >
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            {m.label}
+                          </p>
+                          <p className="text-lg font-bold text-foreground mt-1 tracking-tight">
+                            {m.consumed}g
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            / {m.target}g
+                          </p>
+                          <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${m.color} rounded-full`}
+                              style={{ width: `${Math.min(100, (m.consumed / m.target) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="bg-card border border-border rounded-2xl shadow-lg p-5 text-start">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      {t("welcome.proteinLabel")}
-                    </p>
-                    <p className="text-2xl font-bold text-foreground mt-1 tracking-tight">
-                      118 g
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {t("welcome.proteinOf", { target: 140 })}
-                    </p>
-                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4 italic">
+                <p className="text-xs text-muted-foreground mt-4 italic text-center">
                   {t("welcome.dashboardPreview")}
                 </p>
               </div>
@@ -268,8 +319,8 @@ export default function WelcomePage() {
             </section>
 
             {/* CLOSING CTA */}
-            <section className="pb-20 md:pb-32">
-              <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-primary/5 via-background to-accent/10 border border-border/50 rounded-3xl p-10 md:p-16 shadow-md">
+            <section className="pb-20 md:pb-28">
+              <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-primary/10 via-background to-accent/20 border border-border/50 rounded-3xl p-10 md:p-16 shadow-md">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-4">
                   {t("welcome.closingTitle")}
                 </h2>
@@ -277,34 +328,21 @@ export default function WelcomePage() {
                   {t("welcome.closingSubtitle")}
                 </p>
                 <Link
-                  to="/register"
+                  to="/login"
                   className="inline-flex items-center gap-2 h-12 px-8 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-md"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  {t("welcome.getStarted")}
+                  <LogIn className="w-4 h-4" />
+                  {t("system.signIn")}
                 </Link>
               </div>
             </section>
-
-            {/* MINIMAL FOOTER */}
-            <div className="border-t border-border pt-8 pb-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-              <p>{t("system.copyright")}</p>
-              <div className="flex items-center gap-6">
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Privacy
-                </a>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Terms
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </main>
 
       {/* DESKTOP FOOTER (hidden on mobile) */}
       <footer className="hidden md:block w-full bg-card border-t border-border mt-auto">
-        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
@@ -313,121 +351,27 @@ export default function WelcomePage() {
               <span className="font-bold text-lg">FitCheck</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Private, invite‑only nutrition tracking. Your data stays yours.
+              {t("welcome.tagline")}
             </p>
           </div>
-          <div>
+          <div className="md:text-end">
             <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Product
+              {t("minimalLayout.account")}
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/login"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Features
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Privacy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Company
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  About
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Blog
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Contact
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm mb-4 text-foreground">
-              Legal
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Terms
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Privacy Policy
-                </a>
+                  {t("system.signIn")}
+                </Link>
               </li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2025 FitCheck. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <a
-              href="#"
-              aria-label="Twitter"
-              className="hover:text-foreground transition-colors"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-            <a
-              href="#"
-              aria-label="GitHub"
-              className="hover:text-foreground transition-colors"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  fillRule="evenodd"
-                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </a>
-          </div>
+        <div className="border-t border-border max-w-7xl mx-auto px-6 py-6 flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <p>{t("system.copyright")}</p>
         </div>
       </footer>
 

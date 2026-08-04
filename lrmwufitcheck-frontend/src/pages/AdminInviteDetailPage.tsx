@@ -40,6 +40,7 @@ export default function AdminInviteDetailPage() {
   const { t } = useTranslation();
   const { inviteLinkId } = useParams<{ inviteLinkId: string }>();
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const { data, isLoading, error } = useGetInviteLink(inviteLinkId);
   const { data: auditsData } = useListInviteAudits(
@@ -80,6 +81,14 @@ export default function AdminInviteDetailPage() {
     navigator.clipboard.writeText(invite.inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const registrationLink = `${window.location.origin}/register?code=${invite.inviteCode}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(registrationLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const handleRevoke = () => {
@@ -159,6 +168,28 @@ export default function AdminInviteDetailPage() {
                     <Copy className="h-3.5 w-3.5" />
                   )}
                 </Button>
+              </div>
+              <div className="space-y-1 pt-1">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("adminInviteDetail.registrationLink")}
+                </p>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted font-mono text-xs max-w-full">
+                  <span className="truncate max-w-[220px] sm:max-w-xs">
+                    {registrationLink}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0"
+                    onClick={handleCopyLink}
+                  >
+                    {linkCopied ? (
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">

@@ -8,7 +8,6 @@ import {
   EyeOff,
   Eye,
   LogIn,
-  ShieldCheck,
   Loader,
 } from "lucide-react";
 import { useLogin } from "@/hooks/api/use-auth";
@@ -17,13 +16,18 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
+// Self-registration via invite isn't live yet — kept in sync with
+// WelcomePage's INVITE_SELF_SERVICE_ENABLED flag so both entry points to the
+// (working) invite-register flow hide/show together.
+const INVITE_SELF_SERVICE_ENABLED = false;
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const loginMutation = useLogin();
   const { t } = useTranslation();
 
-  const [email, setEmail] = useState("admin@fitcheck.com");
-  const [password, setPassword] = useState("superadmin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -39,11 +43,6 @@ const LoginPage = () => {
     );
   };
 
-  const fillSuperAdmin = () => {
-    setEmail("admin@fitcheck.com");
-    setPassword("superadmin");
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -51,10 +50,13 @@ const LoginPage = () => {
   return (
     <div className="w-full max-w-md mx-auto py-8 md:py-12">
       <div className="bg-card border border-border rounded-2xl shadow-md p-6 md:p-8">
-        {/* Logo + header */}
+        {/* Logo + header — same visual language as the WelcomePage brand mark */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Salad className="w-7 h-7 text-primary" />
+          <div className="inline-flex items-center gap-2.5 font-bold text-xl tracking-tight text-foreground mb-4">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <Salad className="w-6 h-6 text-primary-foreground" />
+            </div>
+            FitCheck
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
             {t("login.welcomeBack")}
@@ -76,7 +78,7 @@ const LoginPage = () => {
                 type="email"
                 id="email"
                 name="email"
-                placeholder="admin@fitcheck.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -161,41 +163,20 @@ const LoginPage = () => {
           </Button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground font-medium">
-            {t("login.or")}
-          </span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-
-        {/* Quick-fill SuperAdmin */}
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground mb-3">
-            {t("login.demoCredentials")}
-          </p>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
-            onClick={fillSuperAdmin}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            {t("login.useSuperAdmin")}
-          </button>
-        </div>
       </div>
 
-      {/* Bottom link */}
-      <p className="text-center text-sm text-muted-foreground mt-6">
-        {t("login.noAccount")}&nbsp;
-        <Link
-          to="/register"
-          className="font-medium text-primary hover:underline underline-offset-4"
-        >
-          {t("login.registerViaInvite")}
-        </Link>
-      </p>
+      {/* Bottom link — invite self-registration isn't live yet, see INVITE_SELF_SERVICE_ENABLED above */}
+      {INVITE_SELF_SERVICE_ENABLED && (
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          {t("login.noAccount")}&nbsp;
+          <Link
+            to="/register"
+            className="font-medium text-primary hover:underline underline-offset-4"
+          >
+            {t("login.registerViaInvite")}
+          </Link>
+        </p>
+      )}
     </div>
   );
 };

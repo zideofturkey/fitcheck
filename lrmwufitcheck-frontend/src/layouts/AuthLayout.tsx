@@ -4,6 +4,11 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/PageTransition";
 
+// Kept in sync with WelcomePage/LoginPage's own flag — invite self-registration
+// isn't live yet, so the promotional links to /register are hidden here too
+// (the route itself, and the invite-code validation flow underneath, stay intact).
+const INVITE_SELF_SERVICE_ENABLED = false;
+
 export default function AuthLayout() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -23,8 +28,8 @@ export default function AuthLayout() {
               to="/welcome"
               className="flex items-center gap-2.5 font-bold text-lg tracking-tight text-foreground no-underline"
             >
-              <span className="bg-primary text-primary-foreground w-9 h-9 rounded-md flex items-center justify-center text-sm font-extrabold">
-                FC
+              <span className="w-9 h-9 bg-primary rounded-md flex items-center justify-center">
+                <Icons.Salad className="w-5 h-5 text-primary-foreground" />
               </span>
               <span>FitCheck</span>
             </Link>
@@ -64,13 +69,15 @@ export default function AuthLayout() {
                   <Icons.LogIn className="w-4 h-4" />
                   {t("system.signIn")}
                 </Link>
-                <Link
-                  to="/register"
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
-                >
-                  <Icons.MailPlus className="w-4 h-4" />
-                  {t("authLayout.register")}
-                </Link>
+                {INVITE_SELF_SERVICE_ENABLED && (
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+                  >
+                    <Icons.MailPlus className="w-4 h-4" />
+                    {t("authLayout.register")}
+                  </Link>
+                )}
               </>
             )}
           </div>
@@ -113,8 +120,8 @@ export default function AuthLayout() {
         <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
           <div>
             <div className="flex items-center gap-2 font-bold text-base mb-3">
-              <span className="bg-primary text-primary-foreground w-8 h-8 rounded-md flex items-center justify-center text-xs font-extrabold">
-                FC
+              <span className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+                <Icons.Salad className="w-4 h-4 text-primary-foreground" />
               </span>
               FitCheck
             </div>
@@ -135,14 +142,16 @@ export default function AuthLayout() {
                   {t("system.signIn")}
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/register"
-                  className="hover:text-foreground transition-colors"
-                >
-                  {t("authLayout.register")}
-                </Link>
-              </li>
+              {INVITE_SELF_SERVICE_ENABLED && (
+                <li>
+                  <Link
+                    to="/register"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {t("authLayout.register")}
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link
                   to="/forgot-password"
@@ -206,15 +215,17 @@ export default function AuthLayout() {
               {t("system.signIn")}
             </span>
           </Link>
-          <Link
-            to="/register"
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
-          >
-            <Icons.MailPlus className="w-5 h-5" />
-            <span className="text-[10px] font-medium tracking-tight">
-              {t("authLayout.register")}
-            </span>
-          </Link>
+          {INVITE_SELF_SERVICE_ENABLED && (
+            <Link
+              to="/register"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
+            >
+              <Icons.MailPlus className="w-5 h-5" />
+              <span className="text-[10px] font-medium tracking-tight">
+                {t("authLayout.register")}
+              </span>
+            </Link>
+          )}
         </div>
       </nav>
     </div>
