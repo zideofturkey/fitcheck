@@ -27,6 +27,16 @@ const schemaDef = {
       allowNull: false,
       defaultValue: "default",
     },
+    // English name, kept alongside foodName only for library items that got
+    // a Turkish foodName via bulk import/translation - lets English-mode UI
+    // fall back to this instead of showing the Turkish text. Null for
+    // anything the user typed in themselves (their own name is canonical
+    // regardless of language, same as dishes/preset meals have no
+    // translation at all).
+    foodNameEn: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     caloriePer100g: {
       type: DataTypes.DOUBLE,
       allowNull: false,

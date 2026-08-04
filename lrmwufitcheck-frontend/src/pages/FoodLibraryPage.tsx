@@ -259,7 +259,7 @@ export default function FoodLibraryPage() {
   };
 
   const items = data?.foodItems ?? [];
-  const totalCount = data?.rowCount ?? items.length;
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? items.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / 10));
 
   const createMutation = useCreateFoodItem();

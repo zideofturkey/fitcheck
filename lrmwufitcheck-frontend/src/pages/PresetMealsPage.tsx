@@ -106,7 +106,7 @@ export default function PresetMealsPage() {
   });
 
   const presets = data?.presetMeals ?? [];
-  const totalCount = data?.rowCount ?? presets.length;
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? presets.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / 12));
   const createdLines = linesData?.presetLines ?? [];
 

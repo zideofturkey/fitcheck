@@ -135,7 +135,7 @@ export default function DishesPage() {
   const parseMeal = useParseMeal();
 
   const dishes = data?.dishes ?? [];
-  const totalCount = dishes.length;
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? dishes.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / 12));
   const createdLines = linesData?.dishLines ?? [];
 
