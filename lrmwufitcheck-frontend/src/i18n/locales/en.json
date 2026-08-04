@@ -1424,6 +1424,12 @@
     "editPresetMeal": "Edit Preset Meal",
     "saveSuccess": "Saved.",
     "saveError": "Save failed.",
-    "brandsBulkDeleteSuccess": "{{count}} brand(s) cleared."
+    "brandsBulkDeleteSuccess": "{{count}} brand(s) cleared.",
+    "selectAllVisible": "Select All ({{count}})",
+    "showingCount": "Showing {{shown}} / {{total}}",
+    "rowsPerPage": "{{count}} rows",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {{page}} / {{totalPages}}"
   }
 }

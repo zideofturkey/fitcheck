@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Check,
+  ChevronLeft,
+  ChevronRight,
   Loader,
   Pencil,
   RefreshCw,
@@ -20,6 +22,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,6 +83,115 @@ type FoodItemRow = FoodItemWithBaseName & { _archivedAt?: string };
 
 function extractError(err: unknown, fallback: string) {
   return (err as { message?: string })?.message ?? fallback;
+}
+
+// ---------------------------------------------------------------------------
+// Shared pagination: page-size selector + prev/next footer, plus a
+// "select all visible" button placed under each tab's search bar. All 4
+// tabs share this so behavior/positioning stays consistent.
+// ---------------------------------------------------------------------------
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200, 500] as const;
+
+function SelectAllRow({
+  visibleCount,
+  selectedCount,
+  onSelectAll,
+  onClear,
+}: {
+  visibleCount: number;
+  selectedCount: number;
+  onSelectAll: () => void;
+  onClear: () => void;
+}) {
+  const { t } = useTranslation();
+  if (visibleCount === 0) return null;
+  const allSelected = selectedCount === visibleCount;
+  return (
+    <div className="flex items-center">
+      <Button
+        size="sm"
+        variant="ghost"
+        className="gap-1.5 text-muted-foreground"
+        onClick={allSelected ? onClear : onSelectAll}
+      >
+        <Check className="w-3.5 h-3.5" />
+        {allSelected
+          ? t("adminLibrary.clearSelection")
+          : t("adminLibrary.selectAllVisible", { count: visibleCount })}
+      </Button>
+    </div>
+  );
+}
+
+function PaginationFooter({
+  page,
+  totalPages,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+  shownCount,
+  totalCount,
+}: {
+  page: number;
+  totalPages: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+  shownCount: number;
+  totalCount: number;
+}) {
+  const { t } = useTranslation();
+  if (totalCount === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>
+          {t("adminLibrary.showingCount", { shown: shownCount, total: totalCount })}
+        </span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => onPageSizeChange(Number(v))}
+        >
+          <SelectTrigger className="h-8 w-[110px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZE_OPTIONS.map((n) => (
+              <SelectItem key={n} value={String(n)}>
+                {t("adminLibrary.rowsPerPage", { count: n })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1"
+          disabled={page <= 1}
+          onClick={() => onPageChange(page - 1)}
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          {t("adminLibrary.prevPage")}
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          {t("adminLibrary.pageOf", { page, totalPages })}
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1"
+          disabled={page >= totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
+          {t("adminLibrary.nextPage")}
+          <ChevronRight className="w-3.5 h-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -144,6 +262,8 @@ function FoodItemsTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [trashOpen, setTrashOpen] = useState(false);
   const [editing, setEditing] = useState<FoodItemRow | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [editForm, setEditForm] = useState({
     name: "",
     calories: "",
@@ -154,16 +274,23 @@ function FoodItemsTab() {
     fiber: "",
   });
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, pageSize]);
+
   const { data, isLoading, refetch } = useListFoodItems({
     ownershipFilter: "global",
     searchTerm: search || undefined,
-    pageRowCount: 200,
+    pageNumber: page,
+    pageRowCount: pageSize,
   });
   const deleteMutation = useDeleteFoodItem();
   const updateMutation = useUpdateFoodItem();
   const { runDelete } = useBulkDeleteWithUndo("fooditem");
 
   const items = (data?.foodItems ?? []) as FoodItemRow[];
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? items.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -245,6 +372,13 @@ function FoodItemsTab() {
         </Button>
       </div>
 
+      <SelectAllRow
+        visibleCount={items.length}
+        selectedCount={selected.size}
+        onSelectAll={() => setSelected(new Set(items.map((i) => i.id)))}
+        onClear={() => setSelected(new Set())}
+      />
+
       <SelectionToolbar
         count={selected.size}
         onClear={() => setSelected(new Set())}
@@ -318,6 +452,16 @@ function FoodItemsTab() {
         ))}
       </div>
 
+      <PaginationFooter
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        shownCount={items.length}
+        totalCount={totalCount}
+      />
+
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
@@ -385,18 +529,27 @@ function DishesTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [trashOpen, setTrashOpen] = useState(false);
   const [editing, setEditing] = useState<DishWithArchive | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [editForm, setEditForm] = useState({ name: "", description: "" });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, pageSize]);
 
   const { data, isLoading, refetch } = useListDishes({
     ownershipFilter: "global",
     searchTerm: search || undefined,
-    pageRowCount: 200,
+    pageNumber: page,
+    pageRowCount: pageSize,
   });
   const deleteMutation = useDeleteDish();
   const updateMutation = useUpdateDish();
   const { runDelete } = useBulkDeleteWithUndo("dish");
 
   const items = (data?.dishes ?? []) as DishWithArchive[];
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? items.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -455,6 +608,13 @@ function DishesTab() {
           <Trash className="w-3.5 h-3.5" />
         </Button>
       </div>
+
+      <SelectAllRow
+        visibleCount={items.length}
+        selectedCount={selected.size}
+        onSelectAll={() => setSelected(new Set(items.map((i) => i.id)))}
+        onClear={() => setSelected(new Set())}
+      />
 
       <SelectionToolbar
         count={selected.size}
@@ -520,6 +680,16 @@ function DishesTab() {
         ))}
       </div>
 
+      <PaginationFooter
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        shownCount={items.length}
+        totalCount={totalCount}
+      />
+
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
@@ -569,18 +739,27 @@ function PresetMealsTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [trashOpen, setTrashOpen] = useState(false);
   const [editing, setEditing] = useState<PresetMealWithGlobal | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [editForm, setEditForm] = useState({ name: "", description: "" });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, pageSize]);
 
   const { data, isLoading, refetch } = useListPresetMeals({
     ownershipFilter: "global",
     searchTerm: search || undefined,
-    pageRowCount: 200,
+    pageNumber: page,
+    pageRowCount: pageSize,
   });
   const deleteMutation = useDeletePresetMeal();
   const updateMutation = useUpdatePresetMeal();
   const { runDelete } = useBulkDeleteWithUndo("presetmeal");
 
   const items = (data?.presetMeals ?? []) as PresetMealWithGlobal[];
+  const totalCount = data?.paging?.totalRowCount ?? data?.rowCount ?? items.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -639,6 +818,13 @@ function PresetMealsTab() {
           <Trash className="w-3.5 h-3.5" />
         </Button>
       </div>
+
+      <SelectAllRow
+        visibleCount={items.length}
+        selectedCount={selected.size}
+        onSelectAll={() => setSelected(new Set(items.map((i) => i.id)))}
+        onClear={() => setSelected(new Set())}
+      />
 
       <SelectionToolbar
         count={selected.size}
@@ -701,6 +887,16 @@ function PresetMealsTab() {
         ))}
       </div>
 
+      <PaginationFooter
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        shownCount={items.length}
+        totalCount={totalCount}
+      />
+
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
@@ -762,6 +958,8 @@ function BrandsTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [trashOpen, setTrashOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   // Session-only "trash": brand deletion doesn't soft-delete a record (there
   // is no brand row, just a field cleared on N foodItems), so there is no
   // 14-day _archivedAt to list from the server like the other three tabs -
@@ -774,6 +972,17 @@ function BrandsTab() {
         b.brandName.toLowerCase().includes(search.toLowerCase()),
       )
     : allBrands;
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, pageSize]);
+
+  const totalCount = brands.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const pagedBrands = useMemo(
+    () => brands.slice((page - 1) * pageSize, page * pageSize),
+    [brands, page, pageSize],
+  );
 
   const toggle = (name: string) => {
     setSelected((prev) => {
@@ -909,6 +1118,13 @@ function BrandsTab() {
         </Button>
       </div>
 
+      <SelectAllRow
+        visibleCount={pagedBrands.length}
+        selectedCount={selected.size}
+        onSelectAll={() => setSelected(new Set(pagedBrands.map((b) => b.brandName)))}
+        onClear={() => setSelected(new Set())}
+      />
+
       <SelectionToolbar
         count={selected.size}
         onClear={() => setSelected(new Set())}
@@ -939,7 +1155,7 @@ function BrandsTab() {
 
       {!isLoading && !error && brands.length > 0 && (
         <div className="space-y-2">
-          {brands.map((b) => (
+          {pagedBrands.map((b) => (
             <div key={b.brandName} className="rounded-xl border border-border bg-card p-4 flex items-center gap-4">
               {editingBrand === b.brandName ? (
                 <>
@@ -1009,6 +1225,16 @@ function BrandsTab() {
           ))}
         </div>
       )}
+
+      <PaginationFooter
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        shownCount={pagedBrands.length}
+        totalCount={totalCount}
+      />
 
       <Sheet open={trashOpen} onOpenChange={setTrashOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md">

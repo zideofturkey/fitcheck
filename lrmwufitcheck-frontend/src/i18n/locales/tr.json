@@ -1424,6 +1424,12 @@
     "editPresetMeal": "Hazır Öğünü Düzenle",
     "saveSuccess": "Kaydedildi.",
     "saveError": "Kaydedilemedi.",
-    "brandsBulkDeleteSuccess": "{{count}} marka temizlendi."
+    "brandsBulkDeleteSuccess": "{{count}} marka temizlendi.",
+    "selectAllVisible": "Tümünü Seç ({{count}})",
+    "showingCount": "{{shown}} / {{total}} gösteriliyor",
+    "rowsPerPage": "{{count}} satır",
+    "prevPage": "Önceki",
+    "nextPage": "Sonraki",
+    "pageOf": "Sayfa {{page}} / {{totalPages}}"
   }
 }
