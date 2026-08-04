@@ -7,12 +7,14 @@ import {
   ChevronRight,
   Layers,
   Loader,
+  Pencil,
   Plus,
   Trash2,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   useDeletePresetMeal,
   useGetPresetMeal,
@@ -21,9 +23,24 @@ import {
   nutritionlibraryKeys,
 } from "@/hooks/api/use-nutritionlibrary";
 import { useListDishes } from "@/hooks/api/use-dish";
-import { addPresetLineDish } from "@/services/api/preset-line-helpers";
+import {
+  addPresetLineDish,
+  addPresetLineManual,
+} from "@/services/api/preset-line-helpers";
 import type { Dish } from "@/services/api/dish-api";
 import CategoryAccordionDishPicker from "@/components/CategoryAccordionDishPicker";
+import { useAuth } from "@/context/AuthContext";
+
+interface EditLineForm {
+  name: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sugar: number;
+  fiber: number;
+}
 
 function NutritionTile({
   label,
@@ -47,6 +64,8 @@ export default function PresetMealDetailPage() {
   const { t } = useTranslation();
   const { presetMealId } = useParams<{ presetMealId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const { data, isLoading, error } = useGetPresetMeal(presetMealId);
   const { data: linesData } = useListPresetLines(presetMealId ?? "", {});
   const deleteMutation = useDeletePresetMeal();
@@ -64,10 +83,24 @@ export default function PresetMealDetailPage() {
       queryClient.invalidateQueries({ queryKey: nutritionlibraryKeys.all() });
     },
   });
+  const editLineMutation = useMutation({
+    mutationFn: ({
+      presetMealId,
+      data,
+    }: {
+      presetMealId: string;
+      data: Parameters<typeof addPresetLineManual>[1];
+    }) => addPresetLineManual(presetMealId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: nutritionlibraryKeys.all() });
+    },
+  });
   const [addOpen, setAddOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [gramAmount, setGramAmount] = useState<number>(100);
+  const [editingLineId, setEditingLineId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditLineForm | null>(null);
   const { data: dishData } = useListDishes({
     dishName: search || undefined,
     pageRowCount: 8,
@@ -101,6 +134,8 @@ export default function PresetMealDetailPage() {
     );
   }
 
+  const canEdit = isAdmin || !preset.isGlobal;
+
   const handleDelete = () => {
     deleteMutation.mutate(preset.id, {
       onSuccess: () => navigate("/preset-meals"),
@@ -129,6 +164,50 @@ export default function PresetMealDetailPage() {
         },
       },
     );
+  };
+
+  const handleStartEditLine = (line: (typeof lines)[number]) => {
+    setEditingLineId(line.id);
+    setEditForm({
+      name: line.lineFoodName,
+      grams: line.gramAmount,
+      calories: line.lineCalories,
+      protein: line.lineProtein,
+      carbs: line.lineCarbohydrates,
+      fat: line.lineFat,
+      sugar: line.lineSugar,
+      fiber: line.lineFiber,
+    });
+  };
+
+  const handleCancelEditLine = () => {
+    setEditingLineId(null);
+    setEditForm(null);
+  };
+
+  const handleSaveEditLine = async (lineId: string) => {
+    if (!editForm) return;
+    const grams = editForm.grams > 0 ? editForm.grams : 100;
+    const per100g = (value: number) => (grams > 0 ? +((value / grams) * 100).toFixed(2) : 0);
+    await deleteLineMutation.mutateAsync({
+      presetMealId: preset.id,
+      presetLineId: lineId,
+    });
+    await editLineMutation.mutateAsync({
+      presetMealId: preset.id,
+      data: {
+        gramAmount: grams,
+        manualFoodName: editForm.name,
+        manualCaloriePer100g: per100g(editForm.calories),
+        manualProteinPer100g: per100g(editForm.protein),
+        manualCarbohydratePer100g: per100g(editForm.carbs),
+        manualFatPer100g: per100g(editForm.fat),
+        manualSugarPer100g: per100g(editForm.sugar),
+        manualFiberPer100g: per100g(editForm.fiber),
+      },
+    });
+    setEditingLineId(null);
+    setEditForm(null);
   };
 
   const grams = gramAmount > 0 ? gramAmount : 100;
@@ -186,20 +265,22 @@ export default function PresetMealDetailPage() {
                 {preset.descriptionText || "—"}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                variant="destructive"
-                size="sm"
-                className="gap-2"
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">
-                  {t("presetMealDetail.delete")}
-                </span>
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">
+                    {t("presetMealDetail.delete")}
+                  </span>
+                </Button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -255,83 +336,184 @@ export default function PresetMealDetailPage() {
         </div>
 
         <section className="space-y-3 mb-8">
-          {lines.map((line) => (
-            <Card key={line.id} className="p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-foreground">
-                      {line.lineFoodName}
-                    </h3>
-                    <span className="text-sm text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
-                      {line.gramAmount}g
+          {lines.map((line) =>
+            editingLineId === line.id && editForm ? (
+              <Card key={line.id} className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm((f) => f && { ...f, name: e.target.value })
+                    }
+                    className="h-9 text-sm"
+                  />
+                  <div className="relative w-28 flex-shrink-0">
+                    <Input
+                      type="number"
+                      min={1}
+                      value={editForm.grams}
+                      onChange={(e) =>
+                        setEditForm(
+                          (f) => f && { ...f, grams: Number(e.target.value) || 0 },
+                        )
+                      }
+                      className="h-9 text-sm pr-6"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                      g
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.calories")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineCalories}
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {(
+                    [
+                      ["calories", "presetMealDetail.calories"],
+                      ["protein", "presetMealDetail.protein"],
+                      ["carbs", "presetMealDetail.carbs"],
+                      ["fat", "presetMealDetail.fat"],
+                      ["sugar", "presetMealDetail.sugar"],
+                      ["fiber", "presetMealDetail.fiber"],
+                    ] as const
+                  ).map(([field, labelKey]) => (
+                    <div key={field} className="space-y-0.5">
+                      <label className="block text-[10px] text-muted-foreground">
+                        {t(labelKey)}
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={editForm[field]}
+                        onChange={(e) =>
+                          setEditForm(
+                            (f) =>
+                              f && {
+                                ...f,
+                                [field]: Number(e.target.value) || 0,
+                              },
+                          )
+                        }
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="flex-1"
+                    disabled={
+                      deleteLineMutation.isPending ||
+                      editLineMutation.isPending ||
+                      editForm.grams <= 0
+                    }
+                    onClick={() => handleSaveEditLine(line.id)}
+                  >
+                    {t("common.save")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEditLine}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card key={line.id} className="p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-foreground">
+                        {line.lineFoodName}
+                      </h3>
+                      <span className="text-sm text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
+                        {line.gramAmount}g
                       </span>
                     </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.protein")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineProtein}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.carbs")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineCarbohydrates}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.fat")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineFat}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.sugar")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineSugar}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("presetMealDetail.fiber")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineFiber}g
-                      </span>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.calories")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineCalories}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.protein")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineProtein}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.carbs")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineCarbohydrates}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.fat")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineFat}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.sugar")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineSugar}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("presetMealDetail.fiber")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineFiber}g
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  {canEdit && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleStartEditLine(line)}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-muted h-9 w-9"
+                        aria-label={t("presetMealDetail.editAria", {
+                          name: line.lineFoodName,
+                        })}
+                        title={t("common.edit")}
+                      >
+                        <Pencil className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLine(line.id)}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9"
+                        aria-label={t("presetMealDetail.removeAria", {
+                          name: line.lineFoodName,
+                        })}
+                        title={t("common.remove")}
+                      >
+                        <X className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveLine(line.id)}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9 flex-shrink-0"
-                  aria-label={t("presetMealDetail.removeAria", {
-                    name: line.lineFoodName,
-                  })}
-                  title={t("common.remove")}
-                >
-                  <X className="w-4 h-4" aria-hidden="true" />
-                </button>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ),
+          )}
           {lines.length === 0 && (
             <Card className="p-6 text-center text-sm text-muted-foreground">
               {t("presetMealDetail.noItems")}
@@ -339,28 +521,30 @@ export default function PresetMealDetailPage() {
           )}
         </section>
 
-        <section className="mb-12">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedDish(null);
-              setGramAmount(100);
-              setSearch("");
-              setAddOpen(true);
-            }}
-            className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
-          >
-            <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
-              <Plus className="w-6 h-6 text-primary" aria-hidden="true" />
-            </div>
-            <p className="font-semibold text-foreground">
-              {t("presetMealDetail.addFoodItem")}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t("presetMealDetail.addFoodHint")}
-            </p>
-          </button>
-        </section>
+        {canEdit && (
+          <section className="mb-12">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDish(null);
+                setGramAmount(100);
+                setSearch("");
+                setAddOpen(true);
+              }}
+              className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
+                <Plus className="w-6 h-6 text-primary" aria-hidden="true" />
+              </div>
+              <p className="font-semibold text-foreground">
+                {t("presetMealDetail.addFoodItem")}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("presetMealDetail.addFoodHint")}
+              </p>
+            </button>
+          </section>
+        )}
       </main>
 
       {/* Add dish drawer */}
