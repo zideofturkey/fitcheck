@@ -212,6 +212,8 @@
     "title": "Davet Linki Detayı",
     "subtitle": "Davet meta verilerini ve denetim zaman çizelgesini görüntüleyin.",
     "sendEmail": "E-posta Gönder",
+    "activate": "Aktive Et",
+    "draftNotice": "Bu davet linki henüz taslak durumunda ve kullanılamaz. Kayıt linkini paylaşmadan önce \"Aktive Et\" ile etkinleştirin.",
     "revoke": "İptal Et",
     "revokeConfirm": "Bu davet linkini iptal et?",
     "inviteCode": "Davet Kodu",

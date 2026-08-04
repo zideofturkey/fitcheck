@@ -212,6 +212,8 @@
     "title": "Invite Link Detail",
     "subtitle": "View invite metadata and audit timeline.",
     "sendEmail": "Send Email",
+    "activate": "Activate",
+    "draftNotice": "This invite link is still a draft and can't be used yet. Activate it before sharing the registration link.",
     "revoke": "Revoke",
     "revokeConfirm": "Revoke this invite link?",
     "inviteCode": "Invite Code",
