@@ -618,6 +618,7 @@
       "vegetable": "Vegetable",
       "fruit": "Fruit",
       "grain": "Grain",
+      "sauce": "Sauce",
       "snack": "Snack",
       "beverage": "Beverage",
       "other": "Other"
@@ -1331,6 +1332,7 @@
     "addIngredient": "Add Ingredient",
     "addDish": "Add Dish",
     "per100gHint": "Enter values per 100g — they'll be scaled by the gram amount automatically.",
+    "computedForGrams": "Calculated values for {{grams}}g:",
     "calories": "Calories",
     "protein": "Protein",
     "carbs": "Carbs",

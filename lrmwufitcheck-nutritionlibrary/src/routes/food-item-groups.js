@@ -14,9 +14,13 @@ const router = express.Router();
 async function getGroupedFoodItems(req, res, next) {
   try {
     const { FoodItem } = require("models");
+    const { Op } = require("sequelize");
 
     const items = await FoodItem.findAll({
-      where: { userId: req.session.userId, isActive: true },
+      where: {
+        isActive: true,
+        [Op.or]: [{ userId: req.session.userId }, { isGlobal: true }],
+      },
       order: [["baseName", "ASC"], ["createdAt", "ASC"]],
     });
 

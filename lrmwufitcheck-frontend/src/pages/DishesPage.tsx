@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Loader,
   Megaphone,
+  Pencil,
   Plus,
   Send,
   Sparkles,
@@ -48,6 +49,17 @@ import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import { useAuth } from "@/context/AuthContext";
+
+interface EditCreatedLineForm {
+  name: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sugar: number;
+  fiber: number;
+}
 
 interface AiDishLine {
   name: string;
@@ -123,6 +135,11 @@ export default function DishesPage() {
     null,
   );
   const [aiLinesLoading, setAiLinesLoading] = useState(false);
+  const [editingCreatedLineId, setEditingCreatedLineId] = useState<
+    string | null
+  >(null);
+  const [editCreatedLineForm, setEditCreatedLineForm] =
+    useState<EditCreatedLineForm | null>(null);
 
   const addLineMutation = useAddDishLine();
   const removeLineMutation = useDeleteDishLine();
@@ -355,6 +372,48 @@ export default function DishesPage() {
   const handleRemoveCreatedLine = (dishLineId: string) => {
     if (!createdDishId) return;
     removeLineMutation.mutate({ dishId: createdDishId, dishLineId });
+  };
+
+  const handleStartEditCreatedLine = (line: (typeof createdLines)[number]) => {
+    setEditingCreatedLineId(line.id);
+    setEditCreatedLineForm({
+      name: line.lineFoodName,
+      grams: line.gramAmount,
+      calories: line.lineCalories,
+      protein: line.lineProtein,
+      carbs: line.lineCarbohydrates,
+      fat: line.lineFat,
+      sugar: line.lineSugar,
+      fiber: line.lineFiber,
+    });
+  };
+
+  const handleCancelEditCreatedLine = () => {
+    setEditingCreatedLineId(null);
+    setEditCreatedLineForm(null);
+  };
+
+  const handleSaveEditCreatedLine = async (dishLineId: string) => {
+    if (!editCreatedLineForm || !createdDishId) return;
+    const grams = editCreatedLineForm.grams > 0 ? editCreatedLineForm.grams : 100;
+    const per100gValue = (value: number) =>
+      grams > 0 ? +((value / grams) * 100).toFixed(2) : 0;
+    await removeLineMutation.mutateAsync({ dishId: createdDishId, dishLineId });
+    await addLineMutation.mutateAsync({
+      dishId: createdDishId,
+      data: {
+        gramAmount: grams,
+        manualFoodName: editCreatedLineForm.name,
+        manualCaloriePer100g: per100gValue(editCreatedLineForm.calories),
+        manualProteinPer100g: per100gValue(editCreatedLineForm.protein),
+        manualCarbohydratePer100g: per100gValue(editCreatedLineForm.carbs),
+        manualFatPer100g: per100gValue(editCreatedLineForm.fat),
+        manualSugarPer100g: per100gValue(editCreatedLineForm.sugar),
+        manualFiberPer100g: per100gValue(editCreatedLineForm.fiber),
+      },
+    });
+    setEditingCreatedLineId(null);
+    setEditCreatedLineForm(null);
   };
 
   const updatePendingAiLine = (
@@ -914,30 +973,142 @@ export default function DishesPage() {
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {t("dishes.itemCount", { count: createdLines.length })}
                     </p>
-                    {createdLines.map((line) => (
-                      <div
-                        key={line.id}
-                        className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
-                      >
-                        <span className="text-sm truncate">
-                          {line.lineFoodName}{" "}
-                          <span className="text-muted-foreground">
-                            ({line.gramAmount}g)
-                          </span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCreatedLine(line.id)}
-                          className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive shrink-0"
-                          aria-label={t("dishes.removeAria", {
-                            name: line.lineFoodName,
-                          })}
-                          title={t("common.remove")}
+                    {createdLines.map((line) =>
+                      editingCreatedLineId === line.id &&
+                      editCreatedLineForm ? (
+                        <div
+                          key={line.id}
+                          className="space-y-2 rounded-md border border-primary/40 bg-primary/5 p-2.5"
                         >
-                          <X className="size-3.5" />
-                        </button>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-1.5">
+                            <Input
+                              value={editCreatedLineForm.name}
+                              onChange={(e) =>
+                                setEditCreatedLineForm(
+                                  (f) => f && { ...f, name: e.target.value },
+                                )
+                              }
+                              className="h-8 text-sm"
+                            />
+                            <div className="relative w-24 shrink-0">
+                              <Input
+                                type="number"
+                                min={1}
+                                value={editCreatedLineForm.grams}
+                                onChange={(e) =>
+                                  setEditCreatedLineForm(
+                                    (f) =>
+                                      f && {
+                                        ...f,
+                                        grams: Number(e.target.value) || 0,
+                                      },
+                                  )
+                                }
+                                className="h-8 text-xs pr-5"
+                              />
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
+                                g
+                              </span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {(
+                              [
+                                ["calories", "manualEntry.calories"],
+                                ["protein", "manualEntry.protein"],
+                                ["carbs", "manualEntry.carbs"],
+                                ["fat", "manualEntry.fat"],
+                                ["sugar", "manualEntry.sugar"],
+                                ["fiber", "manualEntry.fiber"],
+                              ] as const
+                            ).map(([field, labelKey]) => (
+                              <div key={field} className="space-y-0.5">
+                                <label className="block text-[10px] text-muted-foreground">
+                                  {t(labelKey)}
+                                </label>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  value={editCreatedLineForm[field]}
+                                  onChange={(e) =>
+                                    setEditCreatedLineForm(
+                                      (f) =>
+                                        f && {
+                                          ...f,
+                                          [field]: Number(e.target.value) || 0,
+                                        },
+                                    )
+                                  }
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="h-7 flex-1 text-xs"
+                              disabled={
+                                removeLineMutation.isPending ||
+                                addLineMutation.isPending ||
+                                editCreatedLineForm.grams <= 0
+                              }
+                              onClick={() =>
+                                handleSaveEditCreatedLine(line.id)
+                              }
+                            >
+                              {t("common.save")}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={handleCancelEditCreatedLine}
+                            >
+                              {t("common.cancel")}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={line.id}
+                          className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
+                        >
+                          <span className="text-sm truncate">
+                            {line.lineFoodName}{" "}
+                            <span className="text-muted-foreground">
+                              ({line.gramAmount}g)
+                            </span>
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditCreatedLine(line)}
+                              className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                              aria-label={t("dishes.editLineAria", {
+                                name: line.lineFoodName,
+                              })}
+                              title={t("common.edit")}
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveCreatedLine(line.id)}
+                              className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                              aria-label={t("dishes.removeAria", {
+                                name: line.lineFoodName,
+                              })}
+                              title={t("common.remove")}
+                            >
+                              <X className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                    )}
                   </div>
                 )}
 

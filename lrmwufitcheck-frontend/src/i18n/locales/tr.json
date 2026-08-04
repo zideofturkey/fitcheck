@@ -618,6 +618,7 @@
       "vegetable": "Sebze",
       "fruit": "Meyve",
       "grain": "Tahıl",
+      "sauce": "Sos",
       "snack": "Atıştırmalık",
       "beverage": "İçecek",
       "other": "Diğer"
@@ -1331,6 +1332,7 @@
     "addIngredient": "Malzemeyi Ekle",
     "addDish": "Yemeği Ekle",
     "per100gHint": "Değerleri 100g için girin, gramaja göre otomatik hesaplanır.",
+    "computedForGrams": "{{grams}}g için hesaplanan değerler:",
     "calories": "Kalori",
     "protein": "Protein",
     "carbs": "Karbonhidrat",
