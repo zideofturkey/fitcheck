@@ -156,7 +156,14 @@ class CreateUserManager extends UserManager {
         path: "services[0].businessLogic[3].dataClauseItems[3].value",
       }),
       roleId: "user",
-      emailVerified: false,
+      // This manager is only reachable by an admin/tenantOwner-type role
+      // (see checkBasicAuth above) - there's no public self-registration
+      // path through here, and no invite-email/verification-link flow is
+      // wired up for admin-created accounts. Leaving this false (the
+      // Mindbricks-generated self-registration default) permanently locked
+      // every admin-created user out at login, since loginUser() hard-blocks
+      // emailVerified !== true with no way to complete verification.
+      emailVerified: true,
       isActive: true,
       _archivedAt: null,
     };
