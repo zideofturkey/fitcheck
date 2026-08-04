@@ -31,6 +31,14 @@ module.exports = async function recalculateMealTotals(
     totals.totalFiber += line.itemFiber || 0;
   }
 
+  const round = (n) => Math.round(n * 100) / 100;
+  totals.totalCalories = round(totals.totalCalories);
+  totals.totalProtein = round(totals.totalProtein);
+  totals.totalCarbohydrates = round(totals.totalCarbohydrates);
+  totals.totalFat = round(totals.totalFat);
+  totals.totalSugar = round(totals.totalSugar);
+  totals.totalFiber = round(totals.totalFiber);
+
   await updateMealLogById(mealLogId, totals, context);
   return totals;
 };

@@ -43,6 +43,17 @@ export default function ManualNutritionForm({
 
   const num = (v: string) => Number(v.replace(",", ".")) || 0;
   const isValid = form.name.trim().length > 0 && num(form.gramAmount) > 0;
+  const grams = num(form.gramAmount);
+  const scale = (per100g: number) =>
+    grams > 0 ? +((per100g / 100) * grams).toFixed(1) : 0;
+  const hasAnyValue =
+    grams > 0 &&
+    (num(form.caloriePer100g) > 0 ||
+      num(form.proteinPer100g) > 0 ||
+      num(form.carbohydratePer100g) > 0 ||
+      num(form.fatPer100g) > 0 ||
+      num(form.sugarPer100g) > 0 ||
+      num(form.fiberPer100g) > 0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,6 +197,63 @@ export default function ManualNutritionForm({
           </span>
         </div>
       </div>
+      {hasAnyValue && (
+        <div className="rounded-md border border-border bg-muted/30 p-2.5 space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("manualEntry.computedForGrams", { grams })}
+          </p>
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.calories")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.caloriePer100g))}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.protein")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.proteinPer100g))}g
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.carbs")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.carbohydratePer100g))}g
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.fat")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.fatPer100g))}g
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.sugar")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.sugarPer100g))}g
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">
+                {t("manualEntry.fiber")}
+              </span>
+              <p className="font-semibold text-foreground">
+                {scale(num(form.fiberPer100g))}g
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <Button type="submit" className="w-full" disabled={!isValid || isPending}>
         {isPending ? t("manualEntry.adding") : submitLabel}
       </Button>

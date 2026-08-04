@@ -49,6 +49,13 @@ module.exports = async function upsertNutritionDay(
     consumed.sugar += log.totalSugar || 0;
     consumed.fiber += log.totalFiber || 0;
   }
+  const round = (n) => Math.round(n * 100) / 100;
+  consumed.calories = round(consumed.calories);
+  consumed.protein = round(consumed.protein);
+  consumed.carbohydrates = round(consumed.carbohydrates);
+  consumed.fat = round(consumed.fat);
+  consumed.sugar = round(consumed.sugar);
+  consumed.fiber = round(consumed.fiber);
 
   // Fetch macro targets from nutritionLibrary service
   let targets = {
