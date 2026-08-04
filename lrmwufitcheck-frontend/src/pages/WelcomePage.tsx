@@ -112,19 +112,21 @@ export default function WelcomePage() {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 mt-14 md:mt-0">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10 pb-24 md:pb-10">
-          <div className="relative overflow-hidden">
-            {/* Gradient background blobs */}
-            <div
-              className="absolute inset-0 -z-10 overflow-hidden"
-              aria-hidden="true"
-            >
-              <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
-              <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-accent/20 blur-3xl" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,_var(--muted)_1px,_transparent_1px)] bg-[size:28px_28px] opacity-40" />
-            </div>
+      <main className="relative flex-1 mt-14 md:mt-0">
+        {/* Gradient background blobs — sized to the full-width <main>, not the
+            max-w-7xl content column below, so the wash reaches both edges of
+            the viewport instead of hard-cutting at the 1280px content edge. */}
+        <div
+          className="absolute inset-0 -z-10 overflow-hidden"
+          aria-hidden="true"
+        >
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-accent/20 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,_var(--muted)_1px,_transparent_1px)] bg-[size:28px_28px] opacity-40" />
+        </div>
 
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10 pb-24 md:pb-10">
+          <div className="relative">
             {/* HERO */}
             <section className="relative pt-16 md:pt-24 pb-20 md:pb-32 text-center">
               <p className="text-xs md:text-sm uppercase tracking-[0.2em] font-semibold text-accent-foreground mb-5">
@@ -190,11 +192,11 @@ export default function WelcomePage() {
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-bold text-foreground tracking-tight">
+                        <span className="text-3xl font-bold text-foreground tracking-tight">
                           {DEMO_CALORIE_CONSUMED.toLocaleString()}
                         </span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {t("welcome.consumedOf", { total: DEMO_CALORIE_TARGET.toLocaleString() })}
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                          kcal
                         </span>
                       </div>
                     </div>

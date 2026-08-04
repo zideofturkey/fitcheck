@@ -11,10 +11,12 @@ import {
   Plus,
   Send,
   Users,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  useActivateInviteLink,
   useDeliverInviteEmail,
   useGetInviteLink,
   useListInviteAudits,
@@ -48,6 +50,7 @@ export default function AdminInviteDetailPage() {
   );
   const deliverMutation = useDeliverInviteEmail();
   const revokeMutation = useRevokeInviteLink();
+  const activateMutation = useActivateInviteLink();
 
   const invite = data?.inviteLink;
   const audits = auditsData?.inviteAudits ?? [];
@@ -98,6 +101,10 @@ export default function AdminInviteDetailPage() {
 
   const handleDeliver = () => deliverMutation.mutate(invite.id);
 
+  const handleActivate = () => activateMutation.mutate(invite.id);
+
+  const isDraft = invite.inviteState === "draft";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -122,6 +129,19 @@ export default function AdminInviteDetailPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {isDraft && (
+            <Button
+              onClick={handleActivate}
+              disabled={activateMutation.isPending}
+            >
+              {activateMutation.isPending ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                <Zap className="w-4 h-4" />
+              )}
+              {t("adminInviteDetail.activate")}
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={handleDeliver}
@@ -140,6 +160,13 @@ export default function AdminInviteDetailPage() {
           </Button>
         </div>
       </div>
+
+      {isDraft && (
+        <div className="flex items-start gap-2 px-4 py-3 rounded-lg bg-accent/50 border border-accent text-sm text-accent-foreground">
+          <Zap className="w-4 h-4 mt-0.5 shrink-0" />
+          <p>{t("adminInviteDetail.draftNotice")}</p>
+        </div>
+      )}
 
       <Card className="shadow-sm overflow-hidden">
         <div className="p-6">
