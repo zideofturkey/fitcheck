@@ -336,15 +336,17 @@ export default function PresetMealsPage() {
                       {preset.descriptionText || "—"}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(preset.id)}
-                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label={t("presetMeals.deleteAria")}
-                    title={t("presetMeals.deleteAria")}
-                  >
-                    <Trash2 className="size-3.5" aria-hidden="true" />
-                  </button>
+                  {(!preset.isGlobal || isAdmin) && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(preset.id)}
+                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      aria-label={t("presetMeals.deleteAria")}
+                      title={t("presetMeals.deleteAria")}
+                    >
+                      <Trash2 className="size-3.5" aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="mb-4 flex items-center gap-2">
@@ -734,6 +736,7 @@ export default function PresetMealsPage() {
                   <Button
                     type="button"
                     className="w-full"
+                    disabled={createdLines.length === 0}
                     onClick={handleCloseCreate}
                   >
                     {t("manualEntry.finish")}

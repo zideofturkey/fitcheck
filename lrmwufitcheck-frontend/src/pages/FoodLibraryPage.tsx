@@ -507,34 +507,38 @@ export default function FoodLibraryPage() {
                       />
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => openEdit(food)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors"
-                    aria-label={t("foodLibrary.editAria", {
-                      name: food.foodName,
-                    })}
-                    title={t("common.edit")}
-                  >
-                    <Pencil
-                      className="size-4 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(food.id)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
-                    aria-label={t("foodLibrary.deleteAria", {
-                      name: food.foodName,
-                    })}
-                    title={t("common.delete")}
-                  >
-                    <Trash2
-                      className="size-4 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  </button>
+                  {(!(food as FoodItemWithBaseName).isGlobal || isAdmin) && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(food)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors"
+                        aria-label={t("foodLibrary.editAria", {
+                          name: food.foodName,
+                        })}
+                        title={t("common.edit")}
+                      >
+                        <Pencil
+                          className="size-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(food.id)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
+                        aria-label={t("foodLibrary.deleteAria", {
+                          name: food.foodName,
+                        })}
+                        title={t("common.delete")}
+                      >
+                        <Trash2
+                          className="size-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

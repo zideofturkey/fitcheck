@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ChevronRight,
   Loader,
+  Pencil,
   Plus,
   Trash2,
   UtensilsCrossed,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   useDeleteDish,
   useGetDish,
@@ -22,6 +24,18 @@ import {
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type { NutritionlibraryFoodItem } from "@/types/api";
+import { useAuth } from "@/context/AuthContext";
+
+interface EditLineForm {
+  name: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sugar: number;
+  fiber: number;
+}
 
 function NutritionTile({
   label,
@@ -45,6 +59,8 @@ export default function DishDetailPage() {
   const { dishId } = useParams<{ dishId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const { data, isLoading, error } = useGetDish(dishId);
   const { data: linesData } = useListDishLines(dishId);
   const deleteMutation = useDeleteDish();
@@ -55,6 +71,8 @@ export default function DishDetailPage() {
   const [selectedFood, setSelectedFood] =
     useState<NutritionlibraryFoodItem | null>(null);
   const [gramAmount, setGramAmount] = useState<number>(100);
+  const [editingLineId, setEditingLineId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditLineForm | null>(null);
   const { data: foodData } = useListFoodItems({
     searchTerm: search || undefined,
     pageRowCount: 8,
@@ -86,6 +104,8 @@ export default function DishDetailPage() {
     );
   }
 
+  const canEdit = isAdmin || !dish.isGlobal;
+
   const handleDelete = () => {
     deleteMutation.mutate(dish.id, {
       onSuccess: () => navigate("/dishes"),
@@ -111,6 +131,47 @@ export default function DishDetailPage() {
         },
       },
     );
+  };
+
+  const handleStartEditLine = (line: (typeof lines)[number]) => {
+    setEditingLineId(line.id);
+    setEditForm({
+      name: line.lineFoodName,
+      grams: line.gramAmount,
+      calories: line.lineCalories,
+      protein: line.lineProtein,
+      carbs: line.lineCarbohydrates,
+      fat: line.lineFat,
+      sugar: line.lineSugar,
+      fiber: line.lineFiber,
+    });
+  };
+
+  const handleCancelEditLine = () => {
+    setEditingLineId(null);
+    setEditForm(null);
+  };
+
+  const handleSaveEditLine = async (lineId: string) => {
+    if (!editForm) return;
+    const grams = editForm.grams > 0 ? editForm.grams : 100;
+    const per100g = (value: number) => (grams > 0 ? +((value / grams) * 100).toFixed(2) : 0);
+    await deleteLineMutation.mutateAsync({ dishId: dish.id, dishLineId: lineId });
+    await addLineMutation.mutateAsync({
+      dishId: dish.id,
+      data: {
+        gramAmount: grams,
+        manualFoodName: editForm.name,
+        manualCaloriePer100g: per100g(editForm.calories),
+        manualProteinPer100g: per100g(editForm.protein),
+        manualCarbohydratePer100g: per100g(editForm.carbs),
+        manualFatPer100g: per100g(editForm.fat),
+        manualSugarPer100g: per100g(editForm.sugar),
+        manualFiberPer100g: per100g(editForm.fiber),
+      },
+    });
+    setEditingLineId(null);
+    setEditForm(null);
   };
 
   const grams = gramAmount > 0 ? gramAmount : 100;
@@ -161,18 +222,20 @@ export default function DishDetailPage() {
                 {dish.descriptionText || "—"}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                variant="destructive"
-                size="sm"
-                className="gap-2"
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">{t("common.delete")}</span>
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">{t("common.delete")}</span>
+                </Button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -228,81 +291,180 @@ export default function DishDetailPage() {
         </div>
 
         <section className="space-y-3 mb-8">
-          {lines.map((line) => (
-            <Card key={line.id} className="p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-foreground">
-                      {line.lineFoodName}
-                    </h3>
-                    <span className="text-sm text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
-                      {line.gramAmount}g
+          {lines.map((line) =>
+            editingLineId === line.id && editForm ? (
+              <Card key={line.id} className="p-4 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm((f) => f && { ...f, name: e.target.value })
+                    }
+                    className="h-9 text-sm"
+                  />
+                  <div className="relative w-28 flex-shrink-0">
+                    <Input
+                      type="number"
+                      min={1}
+                      value={editForm.grams}
+                      onChange={(e) =>
+                        setEditForm(
+                          (f) => f && { ...f, grams: Number(e.target.value) || 0 },
+                        )
+                      }
+                      className="h-9 text-sm pr-6"
+                    />
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                      g
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.calories")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineCalories}
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {(
+                    [
+                      ["calories", "aiCandidateMeal.calories"],
+                      ["protein", "aiCandidateMeal.protein"],
+                      ["carbs", "aiCandidateMeal.carbs"],
+                      ["fat", "aiCandidateMeal.fat"],
+                      ["sugar", "aiCandidateMeal.sugar"],
+                      ["fiber", "aiCandidateMeal.fiber"],
+                    ] as const
+                  ).map(([field, labelKey]) => (
+                    <div key={field} className="space-y-0.5">
+                      <label className="block text-[10px] text-muted-foreground">
+                        {t(labelKey)}
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={editForm[field]}
+                        onChange={(e) =>
+                          setEditForm(
+                            (f) =>
+                              f && {
+                                ...f,
+                                [field]: Number(e.target.value) || 0,
+                              },
+                          )
+                        }
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="flex-1"
+                    disabled={
+                      deleteLineMutation.isPending ||
+                      addLineMutation.isPending ||
+                      editForm.grams <= 0
+                    }
+                    onClick={() => handleSaveEditLine(line.id)}
+                  >
+                    {t("common.save")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEditLine}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card key={line.id} className="p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-foreground">
+                        {line.lineFoodName}
+                      </h3>
+                      <span className="text-sm text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
+                        {line.gramAmount}g
                       </span>
                     </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.protein")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineProtein}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.carbs")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineCarbohydrates}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.fat")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineFat}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.sugar")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineSugar}g
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">
-                        {t("aiCandidateMeal.fiber")}
-                      </span>
-                      <span className="text-sm font-medium block">
-                        {line.lineFiber}g
-                      </span>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.calories")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineCalories}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.protein")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineProtein}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.carbs")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineCarbohydrates}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.fat")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineFat}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.sugar")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineSugar}g
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">
+                          {t("aiCandidateMeal.fiber")}
+                        </span>
+                        <span className="text-sm font-medium block">
+                          {line.lineFiber}g
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  {canEdit && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleStartEditLine(line)}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-muted h-9 w-9"
+                        aria-label={t("dishes.editLineAria", { name: line.lineFoodName })}
+                        title={t("common.edit")}
+                      >
+                        <Pencil className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLine(line.id)}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9"
+                        aria-label={t("dishes.removeAria", { name: line.lineFoodName })}
+                        title={t("common.remove")}
+                      >
+                        <X className="w-4 h-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveLine(line.id)}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-destructive/10 hover:text-destructive h-9 w-9 flex-shrink-0"
-                  aria-label={t("dishes.removeAria", { name: line.lineFoodName })}
-                  title={t("common.remove")}
-                >
-                  <X className="w-4 h-4" aria-hidden="true" />
-                </button>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ),
+          )}
           {lines.length === 0 && (
             <Card className="p-6 text-center text-sm text-muted-foreground">
               {t("dishes.noIngredients")}
@@ -310,28 +472,30 @@ export default function DishDetailPage() {
           )}
         </section>
 
-        <section className="mb-12">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedFood(null);
-              setGramAmount(100);
-              setSearch("");
-              setAddOpen(true);
-            }}
-            className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
-          >
-            <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
-              <Plus className="w-6 h-6 text-primary" aria-hidden="true" />
-            </div>
-            <p className="font-semibold text-foreground">
-              {t("dishes.addIngredient")}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t("dishes.addIngredientHint")}
-            </p>
-          </button>
-        </section>
+        {canEdit && (
+          <section className="mb-12">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedFood(null);
+                setGramAmount(100);
+                setSearch("");
+                setAddOpen(true);
+              }}
+              className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
+                <Plus className="w-6 h-6 text-primary" aria-hidden="true" />
+              </div>
+              <p className="font-semibold text-foreground">
+                {t("dishes.addIngredient")}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("dishes.addIngredientHint")}
+              </p>
+            </button>
+          </section>
+        )}
       </main>
 
       {addOpen && (

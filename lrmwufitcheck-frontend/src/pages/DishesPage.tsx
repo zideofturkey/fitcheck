@@ -357,6 +357,31 @@ export default function DishesPage() {
     removeLineMutation.mutate({ dishId: createdDishId, dishLineId });
   };
 
+  const updatePendingAiLine = (
+    index: number,
+    field: keyof AiDishLine,
+    value: string,
+  ) => {
+    setPendingAiLines((lines) =>
+      lines
+        ? lines.map((line, i) =>
+            i === index
+              ? {
+                  ...line,
+                  [field]: field === "name" ? value : Number(value) || 0,
+                }
+              : line,
+          )
+        : lines,
+    );
+  };
+
+  const removePendingAiLine = (index: number) => {
+    setPendingAiLines((lines) =>
+      lines ? lines.filter((_, i) => i !== index) : lines,
+    );
+  };
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <div className="relative">
@@ -484,15 +509,17 @@ export default function DishesPage() {
                         <Megaphone className="size-3.5" aria-hidden="true" />
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(dish.id)}
-                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      aria-label={t("dishes.deleteAria")}
-                      title={t("dishes.deleteAria")}
-                    >
-                      <Trash2 className="size-3.5" aria-hidden="true" />
-                    </button>
+                    {(!dish.isGlobal || isAdmin) && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(dish.id)}
+                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        aria-label={t("dishes.deleteAria")}
+                        title={t("dishes.deleteAria")}
+                      >
+                        <Trash2 className="size-3.5" aria-hidden="true" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -623,14 +650,177 @@ export default function DishesPage() {
                 className="flex-1 overflow-y-auto p-6 space-y-4"
               >
                 {pendingAiLines && pendingAiLines.length > 0 && (
-                  <div className="flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5">
-                    <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
-                    <p className="text-xs text-foreground">
-                      {t("dishes.aiIngredientsDetected", {
-                        count: pendingAiLines.length,
-                        names: pendingAiLines.map((l) => l.name).join(", "),
-                      })}
-                    </p>
+                  <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="size-4 text-primary shrink-0" />
+                      <p className="text-xs font-medium text-foreground">
+                        {t("dishes.aiIngredientsEditableHint", {
+                          count: pendingAiLines.length,
+                        })}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {pendingAiLines.map((line, index) => (
+                        <div
+                          key={index}
+                          className="space-y-1.5 rounded-md border border-border bg-background p-2.5"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <Input
+                              value={line.name}
+                              onChange={(e) =>
+                                updatePendingAiLine(
+                                  index,
+                                  "name",
+                                  e.target.value,
+                                )
+                              }
+                              className="h-8 text-sm"
+                              placeholder={t(
+                                "manualEntry.ingredientNameLabel",
+                              )}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removePendingAiLine(index)}
+                              className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                              aria-label={t("common.remove")}
+                              title={t("common.remove")}
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.gramAmount")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.grams}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "grams",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.calories")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.calories}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "calories",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.protein")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.protein}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "protein",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.carbs")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.carbs}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "carbs",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.fat")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.fat}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "fat",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.sugar")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.sugar}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "sugar",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <label className="block text-[10px] text-muted-foreground">
+                                {t("manualEntry.fiber")}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                value={line.fiber}
+                                onChange={(e) =>
+                                  updatePendingAiLine(
+                                    index,
+                                    "fiber",
+                                    e.target.value,
+                                  )
+                                }
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
                 <div className="space-y-1.5">
@@ -902,6 +1092,7 @@ export default function DishesPage() {
                   <Button
                     type="button"
                     className="w-full"
+                    disabled={createdLines.length === 0}
                     onClick={handleCloseCreate}
                   >
                     {t("manualEntry.finish")}

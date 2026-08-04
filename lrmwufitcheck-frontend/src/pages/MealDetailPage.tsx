@@ -8,6 +8,7 @@ import {
   Plus,
   Sparkles,
   Trash2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,7 +17,14 @@ import {
   useGetMealLog,
   useListMealLines,
   useDeleteMealLine,
+  useCreateMealLine,
 } from "@/hooks/api/use-mealtracker";
+import FoodPickerModal, {
+  type PickedFoodLine,
+} from "@/components/FoodPickerModal";
+import ManualNutritionForm, {
+  type ManualNutritionFormValues,
+} from "@/components/ManualNutritionForm";
 
 function formatDate(iso?: string) {
   if (!iso) return "";
@@ -41,7 +49,10 @@ export default function MealDetailPage() {
   );
   const deleteMutation = useDeleteMealLog();
   const deleteLineMutation = useDeleteMealLine();
+  const createLineMutation = useCreateMealLine();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
 
   const meal = data?.mealLog;
   const lines = linesData?.mealLines ?? [];
@@ -80,6 +91,47 @@ export default function MealDetailPage() {
   const handleDeleteLine = (lineId: string) => {
     if (!confirm(t("mealDetail.deleteLineConfirm"))) return;
     deleteLineMutation.mutate(lineId);
+  };
+
+  const handlePickLines = async (lines: PickedFoodLine[]) => {
+    for (const line of lines) {
+      await createLineMutation.mutateAsync({
+        mealLogId: meal.id,
+        itemName: line.itemName,
+        consumedGrams: line.consumedGrams,
+        itemCalories: line.itemCalories,
+        itemProtein: line.itemProtein,
+        itemCarbohydrates: line.itemCarbohydrates,
+        itemFat: line.itemFat,
+        itemSugar: line.itemSugar,
+        itemFiber: line.itemFiber,
+        lineSource: line.lineSource as
+          | "foodLibrary"
+          | "presetTemplate"
+          | "manualEntry",
+        sourceFoodItemId: line.sourceFoodItemId,
+        sourcePresetMealId: line.sourcePresetMealId,
+      });
+    }
+  };
+
+  const handleManualSubmit = (values: ManualNutritionFormValues) => {
+    createLineMutation.mutate(
+      {
+        mealLogId: meal.id,
+        itemName: values.name,
+        consumedGrams: values.gramAmount,
+        itemCalories: (values.caloriePer100g / 100) * values.gramAmount,
+        itemProtein: (values.proteinPer100g / 100) * values.gramAmount,
+        itemCarbohydrates:
+          (values.carbohydratePer100g / 100) * values.gramAmount,
+        itemFat: (values.fatPer100g / 100) * values.gramAmount,
+        itemSugar: (values.sugarPer100g / 100) * values.gramAmount,
+        itemFiber: (values.fiberPer100g / 100) * values.gramAmount,
+        lineSource: "manualEntry",
+      },
+      { onSuccess: () => setManualOpen(false) },
+    );
   };
 
   return (
@@ -163,11 +215,9 @@ export default function MealDetailPage() {
           <h2 className="text-lg font-semibold tracking-tight">
             {t("mealDetail.foodItems")}
           </h2>
-          <Link to={`/meals/${meal.id}/edit`}>
-            <Button size="sm">
-              <Plus className="w-4 h-4" /> {t("mealDetail.addItem")}
-            </Button>
-          </Link>
+          <Button size="sm" onClick={() => setPickerOpen(true)}>
+            <Plus className="w-4 h-4" /> {t("mealDetail.addItem")}
+          </Button>
         </div>
 
         {/* Desktop Table */}
@@ -345,6 +395,53 @@ export default function MealDetailPage() {
             </div>
           </Card>
         </div>
+      )}
+
+      <FoodPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onPick={(lines) => {
+          setPickerOpen(false);
+          void handlePickLines(lines);
+        }}
+        onManualEntry={() => {
+          setPickerOpen(false);
+          setManualOpen(true);
+        }}
+      />
+
+      {manualOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-foreground/30"
+            onClick={() => setManualOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="text-lg font-semibold">
+                {t("mealDetail.addItem")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setManualOpen(false)}
+                className="rounded-full p-1.5 hover:bg-muted"
+                aria-label={t("mealDetail.cancel")}
+                title={t("mealDetail.cancel")}
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <ManualNutritionForm
+                nameLabel={t("manualEntry.ingredientNameLabel")}
+                submitLabel={t("manualEntry.addIngredient")}
+                isPending={createLineMutation.isPending}
+                onSubmit={handleManualSubmit}
+              />
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
