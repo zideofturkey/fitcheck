@@ -77,12 +77,12 @@ export default function ManualNutritionForm({
     if (!isValid) return;
     onSubmit({
       name: form.name.trim(),
-      caloriePer100g: toPer100g(num(form.caloriePer100g)),
-      proteinPer100g: toPer100g(num(form.proteinPer100g)),
-      carbohydratePer100g: toPer100g(num(form.carbohydratePer100g)),
-      fatPer100g: toPer100g(num(form.fatPer100g)),
-      sugarPer100g: toPer100g(num(form.sugarPer100g)),
-      fiberPer100g: toPer100g(num(form.fiberPer100g)),
+      caloriePer100g: num(form.caloriePer100g),
+      proteinPer100g: num(form.proteinPer100g),
+      carbohydratePer100g: num(form.carbohydratePer100g),
+      fatPer100g: num(form.fatPer100g),
+      sugarPer100g: num(form.sugarPer100g),
+      fiberPer100g: num(form.fiberPer100g),
       gramAmount: num(form.gramAmount),
     });
     setForm(emptyForm);
