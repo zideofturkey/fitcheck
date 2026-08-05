@@ -33,27 +33,26 @@ import type { Dish } from "@/services/api/dish-api";
  * of the same ingredient) so a search for "kasar" still funnels through the
  * same "pick the ingredient, then pick the brand" two-step flow as browsing
  * the category accordion - rather than dumping every brand row flat with no
- * indication of which base ingredient they belong to. Groups of size 1
- * (no brand variants) render directly, same as before.
+ * indication of which base ingredient they belong to.
+ *
+ * Any item with a baseName is grouped under it, even if it's currently the
+ * only brand for that ingredient - a single-brand group still shows the
+ * generic ingredient name (e.g. "Kaşar Peyniri") as the group label instead
+ * of skipping straight to the raw brand row (e.g. "Tahsildaroğlu"), which
+ * previously made it impossible to tell what ingredient was actually being
+ * added. Only items with no baseName at all (never grouped) render directly.
  */
 function groupSearchResultsByBaseName(
   items: FoodItemWithBaseName[],
 ): { baseName: string | null; items: FoodItemWithBaseName[] }[] {
-  const baseNameCounts = new Map<string, number>();
-  for (const item of items) {
-    if (item.baseName) {
-      baseNameCounts.set(item.baseName, (baseNameCounts.get(item.baseName) ?? 0) + 1);
-    }
-  }
   const seenBaseNames = new Set<string>();
   const groups: { baseName: string | null; items: FoodItemWithBaseName[] }[] = [];
   for (const item of items) {
-    const isGrouped = item.baseName && (baseNameCounts.get(item.baseName) ?? 0) > 1;
-    if (isGrouped) {
-      if (seenBaseNames.has(item.baseName!)) continue;
-      seenBaseNames.add(item.baseName!);
+    if (item.baseName) {
+      if (seenBaseNames.has(item.baseName)) continue;
+      seenBaseNames.add(item.baseName);
       groups.push({
-        baseName: item.baseName!,
+        baseName: item.baseName,
         items: items.filter((i) => i.baseName === item.baseName),
       });
     } else {
@@ -362,7 +361,7 @@ export default function FoodPickerModal({
                     );
                   };
 
-                  if (group.items.length === 1) {
+                  if (group.items.length === 1 && !group.baseName) {
                     return renderFoodButton(group.items[0]);
                   }
 

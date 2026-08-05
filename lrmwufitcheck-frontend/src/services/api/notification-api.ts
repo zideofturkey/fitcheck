@@ -6,13 +6,15 @@
  */
 import { notificationApi } from "@/lib/service-client";
 
+export type AppNotificationType = "approved" | "rejected" | "feature";
+
 export interface AppNotification {
   id: string;
   userId: string;
   title: string;
   body: string | null;
   isSeen: boolean;
-  metadata: Record<string, unknown> | null;
+  metadata: (Record<string, unknown> & { type?: AppNotificationType }) | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,6 +45,11 @@ export const notificationService = {
   /** POST /notifications/seen */
   markSeen: async (notificationIds: string[]): Promise<void> => {
     await notificationApi.post("notifications/seen", { notificationIds });
+  },
+
+  /** DELETE /notifications/:notificationId */
+  remove: async (notificationId: string): Promise<void> => {
+    await notificationApi.delete(`notifications/${notificationId}`);
   },
 };
 

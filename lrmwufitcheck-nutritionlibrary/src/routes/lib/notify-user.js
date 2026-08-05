@@ -13,7 +13,7 @@
 // Never let a notification failure break the caller's main flow - the
 // promote/approve/reject action has already succeeded by the time this
 // runs, so we only log and swallow.
-async function notifyUser(req, { userId, title, body }) {
+async function notifyUser(req, { userId, title, body, type }) {
   try {
     const token =
       req.sessionToken ||
@@ -36,6 +36,10 @@ async function notifyUser(req, { userId, title, body }) {
         title,
         body,
         isStored: true,
+        // `type` drives which icon the bell UI shows per row (approved =
+        // green check, rejected = red X, feature = info) - optional so
+        // existing callers that don't pass one still work unchanged.
+        metadata: type ? { type } : undefined,
       }),
     });
 

@@ -21,7 +21,7 @@ const isStored = process.env.STORED_NOTICE === "true";
  * @param {*} page
  * @param {*} limit
  */
-const getNotifications = async (userId, sortBy = "title", page, limit) => {
+const getNotifications = async (userId, sortBy = "createdAt", page, limit) => {
   if (!isStored) {
     throw new ApiError(httpStatus.NOT_FOUND, "Notifications not found");
   }
@@ -31,7 +31,7 @@ const getNotifications = async (userId, sortBy = "title", page, limit) => {
     { userId },
     [],
     sortBy,
-    "ASC",
+    "DESC",
     page,
     limit,
   );
@@ -107,8 +107,28 @@ const seenNotifications = async (userId, notificationIds) => {
   );
 };
 
+/**
+ * Delete a single notification (account-scoped - userId in the where
+ * clause prevents deleting another user's notification by guessing an id).
+ * @param {*} userId
+ * @param {*} notificationId
+ */
+const deleteNotification = async (userId, notificationId) => {
+  if (!isStored) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Notifications not found");
+  }
+
+  const deletedCount = await Notification.destroy({
+    where: { userId, id: notificationId },
+  });
+  if (!deletedCount) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Notification not found");
+  }
+};
+
 module.exports = {
   getNotifications,
   sendNotification,
   seenNotifications,
+  deleteNotification,
 };

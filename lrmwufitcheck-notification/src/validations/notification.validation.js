@@ -43,8 +43,15 @@ const seenNotification = {
   }),
 };
 
+const deleteNotification = {
+  params: Joi.object().keys({
+    notificationId: Joi.string().guid().required(),
+  }),
+};
+
 module.exports = {
   getNotifications,
   sendNotification,
   seenNotification,
+  deleteNotification,
 };

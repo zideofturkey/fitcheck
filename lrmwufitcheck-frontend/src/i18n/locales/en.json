@@ -1135,7 +1135,9 @@
   },
   "notifications": {
     "title": "Notifications",
-    "empty": "No notifications yet."
+    "empty": "No notifications yet.",
+    "unseenCount": "{{count}} new",
+    "delete": "Delete notification"
   },
   "nav": {
     "dashboard": "Dashboard",

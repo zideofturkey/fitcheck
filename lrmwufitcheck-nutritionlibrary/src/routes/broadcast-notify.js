@@ -72,6 +72,7 @@ async function createNotification(token, userId, title, body) {
       title,
       body,
       isStored: true,
+      metadata: { type: "feature" },
     }),
   });
   return res.ok;

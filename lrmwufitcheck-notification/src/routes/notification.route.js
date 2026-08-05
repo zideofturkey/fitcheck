@@ -63,4 +63,23 @@ router.route("/seen").post(
   }),
 );
 
+/**
+ * @api {delete} /notifications/:notificationId Delete Notification
+ * @apiName DeleteNotification
+ * @apiDescription Delete a single notification belonging to the caller
+ * @apiGroup Notification
+ * @apiPermission authenticated (only)
+ * @apiValidation {deleteNotification}
+ */
+router.route("/:notificationId").delete(
+  validate(notificationValidation.deleteNotification),
+  catchAsync(async (req, res) => {
+    await notificationService.deleteNotification(
+      req.userId,
+      req.params.notificationId,
+    );
+    res.status(200).send();
+  }),
+);
+
 module.exports = router;

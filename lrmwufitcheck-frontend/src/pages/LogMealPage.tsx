@@ -267,7 +267,7 @@ function LogMealPage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="block text-sm font-medium text-foreground">
                   {t("logMeal.date")}
                 </label>
@@ -275,10 +275,10 @@ function LogMealPage() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
+                  className="w-full min-w-0 rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="block text-sm font-medium text-foreground">
                   {t("logMeal.time")}
                 </label>
@@ -286,7 +286,7 @@ function LogMealPage() {
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
+                  className="w-full min-w-0 rounded-lg border border-input bg-card px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                 />
               </div>
             </div>
@@ -320,13 +320,13 @@ function LogMealPage() {
                 {t("logMeal.whichMeal")}
               </h2>
             </div>
-            <div className="flex items-center gap-1 p-1 bg-muted rounded-lg w-fit">
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-muted rounded-lg w-full sm:w-fit">
               {slotOptions.map((slot) => (
                 <button
                   key={slot.value}
                   type="button"
                   onClick={() => setMealSlot(slot.value)}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${mealSlot === slot.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${mealSlot === slot.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <span className="flex items-center gap-1.5">
                     <slot.icon className="w-4 h-4" />

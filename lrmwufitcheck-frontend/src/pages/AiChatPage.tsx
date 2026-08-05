@@ -71,16 +71,19 @@ export default function AiChatPage() {
   };
 
   return (
-    <div className="relative">
-      {/* Page-scoped glowy green gradient background — bleeds up toward the
-          shared header without touching it, per design direction. */}
+    <div className="relative min-h-[80vh]">
+      {/* Page-scoped gradient wash — kept subtle (low opacity, two blobs) so
+          the off-white background still reads through instead of an overly
+          saturated green field. min-h-[80vh] (rather than min-h-full, which
+          can't resolve through the plain, non-stretched .animate-page-fade
+          wrapper) keeps the wash covering most of the visible viewport so it
+          doesn't stop abruptly wherever the (possibly short) content ends. */}
       <div
         className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
         aria-hidden="true"
       >
-        <div className="absolute left-1/2 -top-32 -translate-x-1/2 w-[720px] h-[720px] rounded-full bg-primary/25 blur-3xl" />
-        <div className="absolute left-[10%] top-16 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute right-[10%] top-16 w-80 h-80 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute left-1/2 -top-32 -translate-x-1/2 w-[720px] h-[720px] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute right-[10%] top-24 w-80 h-80 rounded-full bg-accent/15 blur-3xl" />
       </div>
 
       <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 lg:py-12">
