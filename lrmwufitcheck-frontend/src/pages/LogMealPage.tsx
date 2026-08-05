@@ -493,15 +493,17 @@ function LogMealPage() {
                           </label>
                           <input
                             type="number"
-                            value={item[field]}
+                            value={item[field] === 0 ? "" : item[field]}
+                            placeholder="0"
                             step={s}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const raw = e.target.value;
                               updateFoodItem(
                                 item.id,
                                 field,
-                                Number(e.target.value),
-                              )
-                            }
+                                raw === "" ? 0 : Number(raw),
+                              );
+                            }}
                             className="w-full rounded-md border border-input bg-muted/50 px-2.5 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                           />
                         </div>

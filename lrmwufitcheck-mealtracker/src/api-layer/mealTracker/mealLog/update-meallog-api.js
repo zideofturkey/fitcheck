@@ -169,6 +169,22 @@ class UpdateMealLogManager extends MealLogManager {
       }
     }
 
+    // Round to 2 decimals - guards against floating-point artifacts (e.g.
+    // 31.900000000002) when totals are set directly instead of via
+    // recalculateMealTotals (e.g. EditMealPage's manual totals override).
+    for (const _numKey of [
+      "totalCalories",
+      "totalProtein",
+      "totalCarbohydrates",
+      "totalFat",
+      "totalSugar",
+      "totalFiber",
+    ]) {
+      if (typeof dataClause[_numKey] === "number") {
+        dataClause[_numKey] = Math.round(dataClause[_numKey] * 100) / 100;
+      }
+    }
+
     // ID-typed dataClause fields strict-validation
     {
       const { isValidUUID } = require("common");

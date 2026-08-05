@@ -19,6 +19,7 @@ interface ManualNutritionFormProps {
   isPending?: boolean;
   nameLabel: string;
   submitLabel: string;
+  initialValues?: ManualNutritionFormValues;
 }
 
 const emptyForm = {
@@ -32,14 +33,30 @@ const emptyForm = {
   gramAmount: "100",
 };
 
+function toFormState(values: ManualNutritionFormValues) {
+  return {
+    name: values.name,
+    caloriePer100g: String(values.caloriePer100g),
+    proteinPer100g: String(values.proteinPer100g),
+    carbohydratePer100g: String(values.carbohydratePer100g),
+    fatPer100g: String(values.fatPer100g),
+    sugarPer100g: String(values.sugarPer100g),
+    fiberPer100g: String(values.fiberPer100g),
+    gramAmount: String(values.gramAmount),
+  };
+}
+
 export default function ManualNutritionForm({
   onSubmit,
   isPending,
   nameLabel,
   submitLabel,
+  initialValues,
 }: ManualNutritionFormProps) {
   const { t } = useTranslation();
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(
+    initialValues ? toFormState(initialValues) : emptyForm,
+  );
 
   const num = (v: string) => Number(v.replace(",", ".")) || 0;
   const isValid = form.name.trim().length > 0 && num(form.gramAmount) > 0;

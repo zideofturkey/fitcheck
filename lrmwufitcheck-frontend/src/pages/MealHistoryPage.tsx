@@ -34,6 +34,11 @@ const SLOT_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   snack: Cookie,
 };
 
+function fmtMacro(n: number | null | undefined) {
+  if (n == null || Number.isNaN(n)) return 0;
+  return Math.round(n * 10) / 10;
+}
+
 function isoToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -351,7 +356,7 @@ export default function MealHistoryPage() {
                           </span>
                         </div>
                         <span className="text-base font-semibold tracking-tight text-foreground whitespace-nowrap">
-                          {meal.totalCalories} kcal
+                          {fmtMacro(meal.totalCalories)} kcal
                         </span>
                       </div>
                       <MealLogTitle
@@ -361,31 +366,31 @@ export default function MealHistoryPage() {
                       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                         <span>
                           <span className="font-medium text-foreground">
-                            {meal.totalProtein} g
+                            {fmtMacro(meal.totalProtein)} g
                           </span>{" "}
                           {t("mealHistory.protein")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
-                            {meal.totalCarbohydrates} g
+                            {fmtMacro(meal.totalCarbohydrates)} g
                           </span>{" "}
                           {t("mealHistory.carbs")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
-                            {meal.totalFat} g
+                            {fmtMacro(meal.totalFat)} g
                           </span>{" "}
                           {t("mealHistory.fat")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
-                            {meal.totalSugar} g
+                            {fmtMacro(meal.totalSugar)} g
                           </span>{" "}
                           {t("mealHistory.sugar")}
                         </span>
                         <span>
                           <span className="font-medium text-foreground">
-                            {meal.totalFiber} g
+                            {fmtMacro(meal.totalFiber)} g
                           </span>{" "}
                           {t("mealHistory.fiber")}
                         </span>

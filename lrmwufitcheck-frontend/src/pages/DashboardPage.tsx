@@ -27,6 +27,11 @@ import {
 import type { MealtrackerMealLog } from "@/types/api";
 import MealLogTitle from "@/components/MealLogTitle";
 
+function fmtMacro(n: number | null | undefined) {
+  if (n == null || Number.isNaN(n)) return 0;
+  return Math.round(n * 10) / 10;
+}
+
 function toIsoDate(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -136,7 +141,7 @@ export default function DashboardPage() {
     100,
     Math.round((calorieConsumed / calorieTarget) * 100),
   );
-  const calorieRemaining = calorieTargetDisplay - calorieConsumed;
+  const calorieRemaining = Math.round(calorieTargetDisplay - calorieConsumed);
   const circumference = 2 * Math.PI * 42;
   const dashOffset = circumference * (1 - caloriePct / 100);
 
@@ -312,7 +317,7 @@ export default function DashboardPage() {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-                      {calorieConsumed}
+                      {Math.round(calorieConsumed)}
                     </span>
                     <span className="text-xs text-muted-foreground mt-1">
                       / {calorieTargetDisplay} kcal
@@ -356,7 +361,7 @@ export default function DashboardPage() {
                       {m.key}
                     </span>
                     <span className="text-xs font-semibold text-foreground">
-                      {m.consumed}g
+                      {fmtMacro(m.consumed)}g
                     </span>
                   </div>
                 ))}
@@ -401,7 +406,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="mt-0.5 flex items-baseline justify-between">
                       <span className="text-lg font-semibold">
-                        {m.consumed}g
+                        {fmtMacro(m.consumed)}g
                       </span>
                       <span className="text-xs text-muted-foreground">
                         / {m.target}g
@@ -504,12 +509,12 @@ export default function DashboardPage() {
                       />
                       <div className="mt-1 flex items-center gap-3">
                         <span className="text-sm font-semibold">
-                          {meal.totalCalories} kcal
+                          {fmtMacro(meal.totalCalories)} kcal
                         </span>
                         <div className="flex gap-2 text-xs text-muted-foreground">
-                          <span>P:{meal.totalProtein}g</span>
-                          <span>K:{meal.totalCarbohydrates}g</span>
-                          <span>Y:{meal.totalFat}g</span>
+                          <span>P:{fmtMacro(meal.totalProtein)}g</span>
+                          <span>K:{fmtMacro(meal.totalCarbohydrates)}g</span>
+                          <span>Y:{fmtMacro(meal.totalFat)}g</span>
                         </div>
                       </div>
                       {meal.noteText && (

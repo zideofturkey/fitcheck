@@ -18,13 +18,36 @@ import {
   useListMealLines,
   useDeleteMealLine,
   useCreateMealLine,
+  useUpdateMealLine,
 } from "@/hooks/api/use-mealtracker";
+import type { MealtrackerMealLine } from "@/types/api";
 import FoodPickerModal, {
   type PickedFoodLine,
 } from "@/components/FoodPickerModal";
 import ManualNutritionForm, {
   type ManualNutritionFormValues,
 } from "@/components/ManualNutritionForm";
+
+function lineToFormValues(line: MealtrackerMealLine): ManualNutritionFormValues {
+  const grams = line.consumedGrams || 100;
+  const factor = grams > 0 ? 100 / grams : 1;
+  const per100 = (v: number) => Math.round(v * factor * 10) / 10;
+  return {
+    name: line.itemName,
+    caloriePer100g: per100(line.itemCalories),
+    proteinPer100g: per100(line.itemProtein),
+    carbohydratePer100g: per100(line.itemCarbohydrates),
+    fatPer100g: per100(line.itemFat),
+    sugarPer100g: per100(line.itemSugar),
+    fiberPer100g: per100(line.itemFiber),
+    gramAmount: grams,
+  };
+}
+
+function fmtMacro(n: number | null | undefined) {
+  if (n == null || Number.isNaN(n)) return 0;
+  return Math.round(n * 10) / 10;
+}
 
 function formatDate(iso?: string) {
   if (!iso) return "";
@@ -50,9 +73,13 @@ export default function MealDetailPage() {
   const deleteMutation = useDeleteMealLog();
   const deleteLineMutation = useDeleteMealLine();
   const createLineMutation = useCreateMealLine();
+  const updateLineMutation = useUpdateMealLine();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
+  const [editingLine, setEditingLine] = useState<MealtrackerMealLine | null>(
+    null,
+  );
 
   const meal = data?.mealLog;
   const lines = linesData?.mealLines ?? [];
@@ -134,6 +161,27 @@ export default function MealDetailPage() {
     );
   };
 
+  const handleEditLineSubmit = (values: ManualNutritionFormValues) => {
+    if (!editingLine) return;
+    updateLineMutation.mutate(
+      {
+        mealLineId: editingLine.id,
+        data: {
+          itemName: values.name,
+          consumedGrams: values.gramAmount,
+          itemCalories: (values.caloriePer100g / 100) * values.gramAmount,
+          itemProtein: (values.proteinPer100g / 100) * values.gramAmount,
+          itemCarbohydrates:
+            (values.carbohydratePer100g / 100) * values.gramAmount,
+          itemFat: (values.fatPer100g / 100) * values.gramAmount,
+          itemSugar: (values.sugarPer100g / 100) * values.gramAmount,
+          itemFiber: (values.fiberPer100g / 100) * values.gramAmount,
+        },
+      },
+      { onSuccess: () => setEditingLine(null) },
+    );
+  };
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -201,7 +249,9 @@ export default function MealDetailPage() {
               { value: meal.totalFiber, label: t("mealDetail.fiber") },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
-                <p className="text-2xl font-bold text-foreground">{value}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {fmtMacro(value)}
+                </p>
                 <p className="text-xs text-muted-foreground">{label}</p>
               </div>
             ))}
@@ -255,16 +305,16 @@ export default function MealDetailPage() {
                     {item.consumedGrams} g
                   </td>
                   <td className="px-4 py-3 text-end tabular-nums">
-                    {item.itemCalories}
+                    {fmtMacro(item.itemCalories)}
                   </td>
                   <td className="px-4 py-3 text-end tabular-nums">
-                    {item.itemProtein}
+                    {fmtMacro(item.itemProtein)}
                   </td>
                   <td className="px-4 py-3 text-end tabular-nums">
-                    {item.itemCarbohydrates}
+                    {fmtMacro(item.itemCarbohydrates)}
                   </td>
                   <td className="px-4 py-3 text-end tabular-nums">
-                    {item.itemFat}
+                    {fmtMacro(item.itemFat)}
                   </td>
                   <td className="px-4 py-3 text-end">
                     {item.lineSource === "aiAssistant" ||
@@ -279,15 +329,26 @@ export default function MealDetailPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-end">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteLine(item.id)}
-                      className="tap-target-expand rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
-                      aria-label={t("mealDetail.deleteLineAria")}
-                      title={t("mealDetail.deleteLineAria")}
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditingLine(item)}
+                        className="tap-target-expand rounded-md p-1.5 hover:bg-accent transition-colors"
+                        aria-label={t("mealDetail.editLineAria")}
+                        title={t("mealDetail.editLineAria")}
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLine(item.id)}
+                        className="tap-target-expand rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
+                        aria-label={t("mealDetail.deleteLineAria")}
+                        title={t("mealDetail.deleteLineAria")}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -328,12 +389,21 @@ export default function MealDetailPage() {
                   { value: item.itemFat, label: t("mealDetail.colFat") },
                 ].map(({ value, label }) => (
                   <div key={label}>
-                    <p className="text-sm font-bold">{value}</p>
+                    <p className="text-sm font-bold">{fmtMacro(value)}</p>
                     <p className="text-[10px] text-muted-foreground">{label}</p>
                   </div>
                 ))}
               </div>
               <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setEditingLine(item)}
+                  className="tap-target-expand rounded-md p-1.5 hover:bg-accent transition-colors"
+                  aria-label={t("mealDetail.editLineAria")}
+                  title={t("mealDetail.editLineAria")}
+                >
+                  <Pencil className="w-4 h-4 text-muted-foreground" />
+                </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteLine(item.id)}
@@ -438,6 +508,44 @@ export default function MealDetailPage() {
                 submitLabel={t("manualEntry.addIngredient")}
                 isPending={createLineMutation.isPending}
                 onSubmit={handleManualSubmit}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {editingLine && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-foreground/30"
+            onClick={() => setEditingLine(null)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h2 className="text-lg font-semibold">
+                {t("mealDetail.editLineTitle")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setEditingLine(null)}
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
+                aria-label={t("mealDetail.cancel")}
+                title={t("mealDetail.cancel")}
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <p className="text-xs text-muted-foreground -mt-1 mb-3">
+                {t("mealDetail.editLineHint")}
+              </p>
+              <ManualNutritionForm
+                nameLabel={t("manualEntry.ingredientNameLabel")}
+                submitLabel={t("mealDetail.saveChanges")}
+                isPending={updateLineMutation.isPending}
+                initialValues={lineToFormValues(editingLine)}
+                onSubmit={handleEditLineSubmit}
               />
             </div>
           </div>
