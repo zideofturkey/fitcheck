@@ -20,15 +20,6 @@ interface ManualNutritionFormProps {
   nameLabel: string;
   submitLabel: string;
   initialValues?: ManualNutritionFormValues;
-  /**
-   * "per100g" (default): the numeric fields are a density, scaled by
-   * gramAmount to produce the totals passed to onSubmit.
-   * "total": the numeric fields ARE the totals for gramAmount already (e.g.
-   * reading straight off a packaged product's nutrition label) - converted
-   * back to a per-100g density before calling onSubmit, so every caller's
-   * contract (and the backend's manual*Per100g fields) stays unchanged.
-   */
-  mode?: "per100g" | "total";
 }
 
 const emptyForm = {
@@ -61,7 +52,6 @@ export default function ManualNutritionForm({
   nameLabel,
   submitLabel,
   initialValues,
-  mode = "per100g",
 }: ManualNutritionFormProps) {
   const { t } = useTranslation();
   const [form, setForm] = useState(
@@ -71,23 +61,8 @@ export default function ManualNutritionForm({
   const num = (v: string) => Number(v.replace(",", ".")) || 0;
   const isValid = form.name.trim().length > 0 && num(form.gramAmount) > 0;
   const grams = num(form.gramAmount);
-  // Converts whatever the user typed into a per-100g density for onSubmit -
-  // a no-op in "per100g" mode, a division in "total" mode.
-  const toPer100g = (value: number) =>
-    mode === "total"
-      ? grams > 0
-        ? +((value / grams) * 100).toFixed(2)
-        : 0
-      : value;
-  // Preview helper: in "per100g" mode, scales the density up to the totals
-  // for `grams`; in "total" mode, reverse-computes the per-100g equivalent
-  // of what was typed (for reference against a nutrition label).
-  const scale = (value: number) =>
-    mode === "total"
-      ? toPer100g(value)
-      : grams > 0
-        ? +((value / 100) * grams).toFixed(1)
-        : 0;
+  const scale = (per100g: number) =>
+    grams > 0 ? +((per100g / 100) * grams).toFixed(1) : 0;
   const hasAnyValue =
     grams > 0 &&
     (num(form.caloriePer100g) > 0 ||
@@ -124,7 +99,7 @@ export default function ManualNutritionForm({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        {t(mode === "total" ? "manualEntry.totalHint" : "manualEntry.per100gHint")}
+        {t("manualEntry.per100gHint")}
       </p>
       <div className="grid grid-cols-3 gap-2">
         <div className="space-y-1">
@@ -242,9 +217,7 @@ export default function ManualNutritionForm({
       {hasAnyValue && (
         <div className="rounded-md border border-border bg-muted/30 p-2.5 space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">
-            {mode === "total"
-              ? t("manualEntry.per100gEquivalent")
-              : t("manualEntry.computedForGrams", { grams })}
+            {t("manualEntry.computedForGrams", { grams })}
           </p>
           <div className="grid grid-cols-3 gap-2 text-xs">
             <div>

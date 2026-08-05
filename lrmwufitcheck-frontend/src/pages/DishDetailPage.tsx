@@ -70,7 +70,9 @@ export default function DishDetailPage() {
   const deleteLineMutation = useDeleteDishLine();
   const addLineMutation = useAddDishLine();
   const [addOpen, setAddOpen] = useState(false);
-  const [addTab, setAddTab] = useState<"library" | "manual">("library");
+  const [addTab, setAddTab] = useState<"library" | "manual" | "direct">(
+    "library",
+  );
   const [search, setSearch] = useState("");
   const [selectedFood, setSelectedFood] =
     useState<NutritionlibraryFoodItem | null>(null);
@@ -569,6 +571,17 @@ export default function DishDetailPage() {
               >
                 {t("manualEntry.manualTab")}
               </button>
+              <button
+                type="button"
+                onClick={() => setAddTab("direct")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                  addTab === "direct"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t("dishes.directTab")}
+              </button>
             </div>
 
             {addTab === "manual" ? (
@@ -576,6 +589,18 @@ export default function DishDetailPage() {
                 <ManualNutritionForm
                   nameLabel={t("manualEntry.ingredientNameLabel")}
                   submitLabel={t("manualEntry.addIngredient")}
+                  isPending={addLineMutation.isPending}
+                  onSubmit={handleAddManualIngredient}
+                />
+              </div>
+            ) : addTab === "direct" ? (
+              <div className="p-4 space-y-3">
+                <p className="text-xs text-muted-foreground rounded-md border border-border bg-muted/40 p-2.5">
+                  {t("dishes.directHint")}
+                </p>
+                <ManualNutritionForm
+                  nameLabel={t("manualEntry.dishNameLabel")}
+                  submitLabel={t("manualEntry.addDish")}
                   isPending={addLineMutation.isPending}
                   onSubmit={handleAddManualIngredient}
                 />
