@@ -1315,7 +1315,6 @@ export default function DishesPage() {
                       {t("dishes.directHint")}
                     </p>
                     <ManualNutritionForm
-                      mode="total"
                       nameLabel={t("manualEntry.dishNameLabel")}
                       submitLabel={t("manualEntry.addDish")}
                       isPending={addLineMutation.isPending}

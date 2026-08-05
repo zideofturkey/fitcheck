@@ -624,7 +624,6 @@ export default function PresetMealDetailPage() {
             {addTab === "manual" ? (
               <div className="p-4">
                 <ManualNutritionForm
-                  mode="total"
                   nameLabel={t("manualEntry.dishNameLabel")}
                   submitLabel={t("manualEntry.addDish")}
                   isPending={editLineMutation.isPending}
