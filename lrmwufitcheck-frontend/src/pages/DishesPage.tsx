@@ -119,7 +119,9 @@ export default function DishesPage() {
   });
   const [createIsGlobal, setCreateIsGlobal] = useState(false);
   const [createdDishId, setCreatedDishId] = useState<string | null>(null);
-  const [pickerTab, setPickerTab] = useState<"library" | "manual">("library");
+  const [pickerTab, setPickerTab] = useState<"library" | "manual" | "direct">(
+    "library",
+  );
   const [librarySearch, setLibrarySearch] = useState("");
   const [selectedFood, setSelectedFood] =
     useState<NutritionlibraryFoodItem | null>(null);
@@ -339,6 +341,36 @@ export default function DishesPage() {
           // decides whether a *separate*, reusable foodItem also gets
           // created in the Malzeme Kütüphanesi.
           setPendingSuggestion(values);
+        },
+      },
+    );
+  };
+
+  // "Direkt Ekle" tab: the user types the dish's own total nutrition (e.g.
+  // straight off a frozen-pizza box) instead of building it up ingredient by
+  // ingredient. Mechanically this is still a single embedded DishLine - the
+  // same trick persistManualDish already relies on - but framed as finishing
+  // the dish outright, since there's nothing left to add afterward.
+  const handleAddDirect = (values: ManualNutritionFormValues) => {
+    if (!createdDishId) return;
+    addLineMutation.mutate(
+      {
+        dishId: createdDishId,
+        data: {
+          gramAmount: values.gramAmount,
+          manualFoodName: values.name,
+          manualCaloriePer100g: values.caloriePer100g,
+          manualProteinPer100g: values.proteinPer100g,
+          manualCarbohydratePer100g: values.carbohydratePer100g,
+          manualFatPer100g: values.fatPer100g,
+          manualSugarPer100g: values.sugarPer100g,
+          manualFiberPer100g: values.fiberPer100g,
+        },
+      },
+      {
+        onSuccess: () => {
+          setPendingSuggestion(values);
+          handleCloseCreate();
         },
       },
     );
@@ -1135,6 +1167,17 @@ export default function DishesPage() {
                   >
                     {t("manualEntry.manualTab")}
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setPickerTab("direct")}
+                    className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                      pickerTab === "direct"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t("dishes.directTab")}
+                  </button>
                 </div>
 
                 {pickerTab === "library" ? (
@@ -1257,7 +1300,7 @@ export default function DishesPage() {
                       </div>
                     )}
                   </>
-                ) : (
+                ) : pickerTab === "manual" ? (
                   <div className="p-4">
                     <ManualNutritionForm
                       nameLabel={t("manualEntry.ingredientNameLabel")}
@@ -1266,18 +1309,33 @@ export default function DishesPage() {
                       onSubmit={handleAddManual}
                     />
                   </div>
+                ) : (
+                  <div className="p-4 space-y-3">
+                    <p className="text-xs text-muted-foreground rounded-md border border-border bg-muted/40 p-2.5">
+                      {t("dishes.directHint")}
+                    </p>
+                    <ManualNutritionForm
+                      mode="total"
+                      nameLabel={t("manualEntry.dishNameLabel")}
+                      submitLabel={t("manualEntry.addDish")}
+                      isPending={addLineMutation.isPending}
+                      onSubmit={handleAddDirect}
+                    />
+                  </div>
                 )}
 
-                <div className="p-4 border-t border-border">
-                  <Button
-                    type="button"
-                    className="w-full"
-                    disabled={createdLines.length === 0}
-                    onClick={handleCloseCreate}
-                  >
-                    {t("manualEntry.finish")}
-                  </Button>
-                </div>
+                {pickerTab !== "direct" && (
+                  <div className="p-4 border-t border-border">
+                    <Button
+                      type="button"
+                      className="w-full"
+                      disabled={createdLines.length === 0}
+                      onClick={handleCloseCreate}
+                    >
+                      {t("manualEntry.finish")}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

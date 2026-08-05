@@ -23,6 +23,9 @@ import {
 } from "@/hooks/api/use-dish";
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
+import ManualNutritionForm, {
+  type ManualNutritionFormValues,
+} from "@/components/ManualNutritionForm";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -67,6 +70,7 @@ export default function DishDetailPage() {
   const deleteLineMutation = useDeleteDishLine();
   const addLineMutation = useAddDishLine();
   const [addOpen, setAddOpen] = useState(false);
+  const [addTab, setAddTab] = useState<"library" | "manual">("library");
   const [search, setSearch] = useState("");
   const [selectedFood, setSelectedFood] =
     useState<NutritionlibraryFoodItem | null>(null);
@@ -129,6 +133,27 @@ export default function DishDetailPage() {
           setSelectedFood(null);
           setGramAmount(100);
         },
+      },
+    );
+  };
+
+  const handleAddManualIngredient = (values: ManualNutritionFormValues) => {
+    addLineMutation.mutate(
+      {
+        dishId: dish.id,
+        data: {
+          gramAmount: values.gramAmount,
+          manualFoodName: values.name,
+          manualCaloriePer100g: values.caloriePer100g,
+          manualProteinPer100g: values.proteinPer100g,
+          manualCarbohydratePer100g: values.carbohydratePer100g,
+          manualFatPer100g: values.fatPer100g,
+          manualSugarPer100g: values.sugarPer100g,
+          manualFiberPer100g: values.fiberPer100g,
+        },
+      },
+      {
+        onSuccess: () => setAddOpen(false),
       },
     );
   };
@@ -480,6 +505,7 @@ export default function DishDetailPage() {
                 setSelectedFood(null);
                 setGramAmount(100);
                 setSearch("");
+                setAddTab("library");
                 setAddOpen(true);
               }}
               className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
@@ -520,6 +546,42 @@ export default function DishDetailPage() {
                 <X className="size-5" />
               </button>
             </div>
+            <div className="flex border-b border-border">
+              <button
+                type="button"
+                onClick={() => setAddTab("library")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                  addTab === "library"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t("manualEntry.libraryTab")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddTab("manual")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                  addTab === "manual"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t("manualEntry.manualTab")}
+              </button>
+            </div>
+
+            {addTab === "manual" ? (
+              <div className="p-4">
+                <ManualNutritionForm
+                  nameLabel={t("manualEntry.ingredientNameLabel")}
+                  submitLabel={t("manualEntry.addIngredient")}
+                  isPending={addLineMutation.isPending}
+                  onSubmit={handleAddManualIngredient}
+                />
+              </div>
+            ) : (
+              <>
             <div className="p-4 border-b border-border">
               <input
                 type="search"
@@ -660,6 +722,8 @@ export default function DishDetailPage() {
                     : t("dishes.addGrams", { grams })}
                 </Button>
               </div>
+            )}
+              </>
             )}
           </div>
         </>
