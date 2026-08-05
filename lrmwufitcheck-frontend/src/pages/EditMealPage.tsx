@@ -314,8 +314,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalCalories"
-                value={totalCalories}
+                value={totalCalories === "0" ? "" : totalCalories}
                 onChange={(e) => setTotalCalories(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />
@@ -333,8 +334,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalProtein"
-                value={totalProtein}
+                value={totalProtein === "0" ? "" : totalProtein}
                 onChange={(e) => setTotalProtein(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />
@@ -352,8 +354,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalCarbohydrates"
-                value={totalCarbohydrates}
+                value={totalCarbohydrates === "0" ? "" : totalCarbohydrates}
                 onChange={(e) => setTotalCarbohydrates(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />
@@ -371,8 +374,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalFat"
-                value={totalFat}
+                value={totalFat === "0" ? "" : totalFat}
                 onChange={(e) => setTotalFat(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />
@@ -390,8 +394,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalSugar"
-                value={totalSugar}
+                value={totalSugar === "0" ? "" : totalSugar}
                 onChange={(e) => setTotalSugar(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />
@@ -409,8 +414,9 @@ export default function EditMealPage() {
               <input
                 type="number"
                 id="totalFiber"
-                value={totalFiber}
+                value={totalFiber === "0" ? "" : totalFiber}
                 onChange={(e) => setTotalFiber(e.target.value)}
+                placeholder="0"
                 step="0.1"
                 className="w-full h-10 px-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors font-mono"
               />

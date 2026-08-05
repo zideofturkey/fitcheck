@@ -169,6 +169,24 @@ class CreateMealLogManager extends MealLogManager {
       }
     }
 
+    // Round nutrition totals to 2 decimals - the client sums per-item floats
+    // client-side, which can produce artifacts like 31.900000000002. This
+    // path (batch creation with an inline `lines` array) never goes through
+    // recalculateMealTotals afterward, so it's the only place these totals
+    // get persisted - round here rather than trusting the client value as-is.
+    for (const _numKey of [
+      "totalCalories",
+      "totalProtein",
+      "totalCarbohydrates",
+      "totalFat",
+      "totalSugar",
+      "totalFiber",
+    ]) {
+      if (typeof dataClause[_numKey] === "number") {
+        dataClause[_numKey] = Math.round(dataClause[_numKey] * 100) / 100;
+      }
+    }
+
     // ID-typed dataClause fields strict-validation
     {
       const { isValidUUID } = require("common");
@@ -716,6 +734,21 @@ class CreateMealLogManager extends MealLogManager {
       // no column existed to persist it into.
       sourceDishId: lineItem.sourceDishId || null,
     };
+
+    // Round to 2 decimals - same floating-point artifact guard as the
+    // parent mealLog's totals (see buildDataClause above).
+    for (const _numKey of [
+      "itemCalories",
+      "itemProtein",
+      "itemCarbohydrates",
+      "itemFat",
+      "itemSugar",
+      "itemFiber",
+    ]) {
+      if (typeof params[_numKey] === "number") {
+        params[_numKey] = Math.round(params[_numKey] * 100) / 100;
+      }
+    }
 
     return await createMealLine(params, this);
   }

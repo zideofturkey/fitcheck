@@ -158,6 +158,21 @@ class UpdateMealLineManager extends MealLineManager {
       }
     }
 
+    // Round to 2 decimals - guards against floating-point artifacts (e.g.
+    // 31.900000000002) from client-side per-gram multiplication.
+    for (const _numKey of [
+      "itemCalories",
+      "itemProtein",
+      "itemCarbohydrates",
+      "itemFat",
+      "itemSugar",
+      "itemFiber",
+    ]) {
+      if (typeof dataClause[_numKey] === "number") {
+        dataClause[_numKey] = Math.round(dataClause[_numKey] * 100) / 100;
+      }
+    }
+
     // ID-typed dataClause fields strict-validation
     {
       const { isValidUUID } = require("common");

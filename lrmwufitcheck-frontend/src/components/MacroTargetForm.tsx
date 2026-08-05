@@ -57,12 +57,19 @@ export default function MacroTargetForm({
 
   const handleChange =
     (field: keyof MacroTargets) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseFloat(e.target.value);
+      const raw = e.target.value;
+      const value = parseFloat(raw);
       setTargets((prev) => ({
         ...prev,
-        [field]: isNaN(value) ? 0 : value,
+        [field]: raw === "" || isNaN(value) ? 0 : value,
       }));
     };
+
+  // Render 0 as a blank field (with a "0" placeholder) rather than the
+  // literal digit - otherwise the user has to delete the pre-filled zero
+  // before they can type a real value, which is a common complaint on
+  // number inputs that default to 0.
+  const displayValue = (n: number) => (n === 0 ? "" : n);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,8 +107,9 @@ export default function MacroTargetForm({
               <Input
                 id="calories"
                 type="number"
-                value={targets.calories}
+                value={displayValue(targets.calories)}
                 onChange={handleChange("calories")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
@@ -114,8 +122,9 @@ export default function MacroTargetForm({
               <Input
                 id="protein"
                 type="number"
-                value={targets.protein}
+                value={displayValue(targets.protein)}
                 onChange={handleChange("protein")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
@@ -128,8 +137,9 @@ export default function MacroTargetForm({
               <Input
                 id="carbohydrates"
                 type="number"
-                value={targets.carbohydrates}
+                value={displayValue(targets.carbohydrates)}
                 onChange={handleChange("carbohydrates")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
@@ -142,8 +152,9 @@ export default function MacroTargetForm({
               <Input
                 id="fat"
                 type="number"
-                value={targets.fat}
+                value={displayValue(targets.fat)}
                 onChange={handleChange("fat")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
@@ -156,8 +167,9 @@ export default function MacroTargetForm({
               <Input
                 id="sugar"
                 type="number"
-                value={targets.sugar}
+                value={displayValue(targets.sugar)}
                 onChange={handleChange("sugar")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
@@ -170,8 +182,9 @@ export default function MacroTargetForm({
               <Input
                 id="fiber"
                 type="number"
-                value={targets.fiber}
+                value={displayValue(targets.fiber)}
                 onChange={handleChange("fiber")}
+                placeholder="0"
                 min="0"
                 step="any"
                 className="w-full"
