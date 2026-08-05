@@ -282,7 +282,7 @@ export default function MealDetailPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteLine(item.id)}
-                      className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
+                      className="tap-target-expand rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
                       aria-label={t("mealDetail.deleteLineAria")}
                       title={t("mealDetail.deleteLineAria")}
                     >
@@ -337,7 +337,7 @@ export default function MealDetailPage() {
                 <button
                   type="button"
                   onClick={() => handleDeleteLine(item.id)}
-                  className="rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
+                  className="tap-target-expand rounded-md p-1.5 hover:bg-destructive/10 transition-colors"
                   aria-label={t("mealDetail.delete")}
                   title={t("mealDetail.delete")}
                 >
@@ -425,7 +425,7 @@ export default function MealDetailPage() {
               <button
                 type="button"
                 onClick={() => setManualOpen(false)}
-                className="rounded-full p-1.5 hover:bg-muted"
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("mealDetail.cancel")}
                 title={t("mealDetail.cancel")}
               >

@@ -106,7 +106,7 @@ export default function AdminInviteDetailPage() {
   const isDraft = invite.inviteState === "draft";
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

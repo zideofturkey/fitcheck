@@ -36,7 +36,7 @@ export default function NotificationBell() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="relative p-2 rounded-full hover:bg-muted transition-colors"
+          className="tap-target-expand relative p-2 rounded-full hover:bg-muted transition-colors"
           aria-label={t("notifications.title")}
           title={t("notifications.title")}
         >

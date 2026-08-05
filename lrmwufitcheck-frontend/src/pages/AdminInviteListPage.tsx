@@ -135,7 +135,7 @@ export default function AdminInviteListPage() {
   const handleDeliver = (id: string) => deliverMutation.mutate(id);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -299,7 +299,7 @@ export default function AdminInviteListPage() {
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           to={`/admin/invites/${invite.id}`}
-                          className="p-2 rounded-md hover:bg-accent transition-colors"
+                          className="tap-target-expand p-2 rounded-md hover:bg-accent transition-colors"
                           aria-label={t("adminInvites.viewDetails")}
                           title={t("adminInvites.viewDetails")}
                         >
@@ -310,7 +310,7 @@ export default function AdminInviteListPage() {
                             <button
                               type="button"
                               onClick={() => handleDeliver(invite.id)}
-                              className="p-2 rounded-md hover:bg-accent transition-colors"
+                              className="tap-target-expand p-2 rounded-md hover:bg-accent transition-colors"
                               aria-label={t("adminInvites.sendEmail")}
                               title={t("adminInvites.sendEmail")}
                             >
@@ -319,7 +319,7 @@ export default function AdminInviteListPage() {
                             <button
                               type="button"
                               onClick={() => handleRevoke(invite.id)}
-                              className="p-2 rounded-md hover:bg-accent transition-colors"
+                              className="tap-target-expand p-2 rounded-md hover:bg-accent transition-colors"
                               aria-label={t("adminInvites.revoke")}
                               title={t("adminInvites.revoke")}
                             >
@@ -331,7 +331,7 @@ export default function AdminInviteListPage() {
                           <button
                             type="button"
                             onClick={() => handleActivate(invite.id)}
-                            className="p-2 rounded-md hover:bg-accent transition-colors"
+                            className="tap-target-expand p-2 rounded-md hover:bg-accent transition-colors"
                             aria-label={t("adminInvites.activate")}
                             title={t("adminInvites.activate")}
                           >

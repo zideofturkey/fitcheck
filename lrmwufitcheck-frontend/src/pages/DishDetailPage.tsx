@@ -513,7 +513,7 @@ export default function DishDetailPage() {
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
-                className="rounded-full p-1.5 hover:bg-muted"
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("common.close")}
                 title={t("common.close")}
               >

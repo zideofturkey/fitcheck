@@ -184,7 +184,7 @@ export default function DashboardPage() {
   const mealCount = progress?.mealCount ?? meals.length;
 
   return (
-    <div className="relative">
+    <div className="relative mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <div
         className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
         aria-hidden="true"
