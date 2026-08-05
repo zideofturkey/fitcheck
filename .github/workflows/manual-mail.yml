@@ -1,0 +1,60 @@
+name: Manual mail
+
+# On-demand email with content you type yourself - triggered from the
+# Actions tab (or `gh workflow run`), not by a push. Reuses the same SMTP
+# secrets as notify-update.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: "E-posta konusu"
+        required: true
+      body:
+        description: "E-posta içeriği (düz metin)"
+        required: true
+      to:
+        description: "Alıcılar (virgülle ayrılmış e-postalar)"
+        required: true
+        default: yusufbuber38@gmail.com,azraturidi1632@gmail.com,yildizsevvalyardimci@gmail.com,ediz.kacmaz19@gmail.com
+      also_in_app:
+        description: "Uygulama içi bildirim olarak da gönder"
+        type: boolean
+        default: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: ${{ inputs.subject }}
+          to: ${{ inputs.to }}
+          from: FitCheck
+          body: ${{ inputs.body }}
+
+      # Same best-effort in-app broadcast notify-update.yml uses - only
+      # reaches the backend if the dev PC + tunnel are up right now.
+      - name: Push in-app notification (optional, best effort)
+        if: ${{ inputs.also_in_app == 'true' }}
+        continue-on-error: true
+        run: |
+          TUNNEL_URL=$(curl -s -L --max-time 15 \
+            "https://docs.google.com/spreadsheets/d/12bgCT-jYVhH7nbECrVFUdaRwnY_A92Nf9-MvyPetaKM/export?format=csv&gid=0" \
+            | head -1 | cut -d',' -f2 | tr -d '\r')
+
+          if [ -z "$TUNNEL_URL" ]; then
+            echo "No tunnel URL found in sheet, skipping in-app notification."
+            exit 0
+          fi
+
+          curl -sf --max-time 20 -X POST \
+            "${TUNNEL_URL}/nutritionlibrary-api/v1/system/broadcast-notify" \
+            -H "Content-Type: application/json" \
+            -H "x-broadcast-key: ${{ secrets.BROADCAST_NOTIFY_KEY }}" \
+            -d "$(jq -n --arg title "${{ inputs.subject }}" --arg body "${{ inputs.body }}" '{title: $title, body: $body}')" \
+            || echo "In-app notification push failed (PC/tunnel likely offline) - email already sent, continuing."
