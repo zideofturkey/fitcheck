@@ -45,6 +45,18 @@ interface FoodItemEntry {
   sourceFoodItemId?: string;
   sourcePresetMealId?: string;
   sourceDishId?: string;
+  // Per-100g density snapshotted at pick time (derived from the picked
+  // line's own absolute values / gramAmount) so the "Miktar" field can
+  // rescale calories/protein/etc when the user changes it later - e.g.
+  // logging 250g eaten out of a 505g dish/foodItem line. Left undefined
+  // for manualEntry rows, where the user types absolute totals directly
+  // and no linear density is assumed.
+  caloriePer100g?: number;
+  proteinPer100g?: number;
+  carbohydratePer100g?: number;
+  fatPer100g?: number;
+  sugarPer100g?: number;
+  fiberPer100g?: number;
 }
 
 type WizardStep = 1 | 2 | 3;
@@ -71,6 +83,15 @@ function deriveLogSource(items: FoodItemEntry[]): LineSource {
   if (sources.has("foodLibrary")) return "foodLibrary";
   return "manualEntry";
 }
+
+const MACRO_TO_PER100G_FIELD = {
+  calories: "caloriePer100g",
+  protein: "proteinPer100g",
+  carbs: "carbohydratePer100g",
+  fat: "fatPer100g",
+  sugar: "sugarPer100g",
+  fiber: "fiberPer100g",
+} as const satisfies Partial<Record<keyof FoodItemEntry, keyof FoodItemEntry>>;
 
 function LogMealPage() {
   const { t } = useTranslation();
@@ -102,7 +123,45 @@ function LogMealPage() {
     value: string | number,
   ) => {
     setFoodItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        if (field === "grams") {
+          const newGrams = Number(value) || 0;
+          // Rescale the macros from the item's own per-100g density
+          // (snapshotted at pick time) whenever one is available, so
+          // e.g. changing 505g to the 250g actually eaten recalculates
+          // calories/protein/etc instead of leaving the old totals static.
+          if (item.caloriePer100g !== undefined) {
+            const factor = newGrams / 100;
+            return {
+              ...item,
+              grams: newGrams,
+              calories: Math.round((item.caloriePer100g ?? 0) * factor),
+              protein: +((item.proteinPer100g ?? 0) * factor).toFixed(2),
+              carbs: +((item.carbohydratePer100g ?? 0) * factor).toFixed(2),
+              fat: +((item.fatPer100g ?? 0) * factor).toFixed(2),
+              sugar: +((item.sugarPer100g ?? 0) * factor).toFixed(2),
+              fiber: +((item.fiberPer100g ?? 0) * factor).toFixed(2),
+            };
+          }
+          return { ...item, grams: newGrams };
+        }
+        // Editing a macro field by hand re-anchors that field's per-100g
+        // density to the new value, so a later gram change scales from
+        // what the user just typed rather than reverting to the original
+        // picked density.
+        const per100gField =
+          MACRO_TO_PER100G_FIELD[field as keyof typeof MACRO_TO_PER100G_FIELD];
+        if (per100gField && item.grams > 0) {
+          const newValue = Number(value) || 0;
+          return {
+            ...item,
+            [field]: newValue,
+            [per100gField]: (newValue / item.grams) * 100,
+          };
+        }
+        return { ...item, [field]: value };
+      }),
     );
   };
 
@@ -130,21 +189,33 @@ function LogMealPage() {
   };
 
   const addPickedLines = (lines: PickedFoodLine[]) => {
-    const newEntries: FoodItemEntry[] = lines.map((l) => ({
-      id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
-      name: l.itemName,
-      grams: l.consumedGrams,
-      calories: l.itemCalories,
-      protein: l.itemProtein,
-      carbs: l.itemCarbohydrates,
-      fat: l.itemFat,
-      sugar: l.itemSugar,
-      fiber: l.itemFiber,
-      source: l.lineSource,
-      sourceFoodItemId: l.sourceFoodItemId,
-      sourcePresetMealId: l.sourcePresetMealId,
-      sourceDishId: l.sourceDishId,
-    }));
+    const newEntries: FoodItemEntry[] = lines.map((l) => {
+      // Snapshot a per-100g density from the picked line's own absolute
+      // values so the "Miktar" field can rescale nutrition later (e.g. the
+      // dish's line was saved at 505g but the user only ate 250g of it).
+      const density = l.consumedGrams > 0 ? 100 / l.consumedGrams : 0;
+      return {
+        id: String(Date.now()) + Math.random().toString(36).slice(2, 7),
+        name: l.itemName,
+        grams: l.consumedGrams,
+        calories: l.itemCalories,
+        protein: l.itemProtein,
+        carbs: l.itemCarbohydrates,
+        fat: l.itemFat,
+        sugar: l.itemSugar,
+        fiber: l.itemFiber,
+        source: l.lineSource,
+        sourceFoodItemId: l.sourceFoodItemId,
+        sourcePresetMealId: l.sourcePresetMealId,
+        sourceDishId: l.sourceDishId,
+        caloriePer100g: l.itemCalories * density,
+        proteinPer100g: l.itemProtein * density,
+        carbohydratePer100g: l.itemCarbohydrates * density,
+        fatPer100g: l.itemFat * density,
+        sugarPer100g: l.itemSugar * density,
+        fiberPer100g: l.itemFiber * density,
+      };
+    });
     setFoodItems((prev) => [...prev, ...newEntries]);
   };
 
