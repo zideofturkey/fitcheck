@@ -29,6 +29,9 @@ import {
 } from "@/services/api/preset-line-helpers";
 import type { Dish } from "@/services/api/dish-api";
 import CategoryAccordionDishPicker from "@/components/CategoryAccordionDishPicker";
+import ManualNutritionForm, {
+  type ManualNutritionFormValues,
+} from "@/components/ManualNutritionForm";
 import { useAuth } from "@/context/AuthContext";
 
 interface EditLineForm {
@@ -96,6 +99,7 @@ export default function PresetMealDetailPage() {
     },
   });
   const [addOpen, setAddOpen] = useState(false);
+  const [addTab, setAddTab] = useState<"library" | "manual">("library");
   const [search, setSearch] = useState("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [gramAmount, setGramAmount] = useState<number>(100);
@@ -162,6 +166,27 @@ export default function PresetMealDetailPage() {
           setSelectedDish(null);
           setGramAmount(100);
         },
+      },
+    );
+  };
+
+  const handleAddManualItem = (values: ManualNutritionFormValues) => {
+    editLineMutation.mutate(
+      {
+        presetMealId: preset.id,
+        data: {
+          gramAmount: values.gramAmount,
+          manualFoodName: values.name,
+          manualCaloriePer100g: values.caloriePer100g,
+          manualProteinPer100g: values.proteinPer100g,
+          manualCarbohydratePer100g: values.carbohydratePer100g,
+          manualFatPer100g: values.fatPer100g,
+          manualSugarPer100g: values.sugarPer100g,
+          manualFiberPer100g: values.fiberPer100g,
+        },
+      },
+      {
+        onSuccess: () => setAddOpen(false),
       },
     );
   };
@@ -529,6 +554,7 @@ export default function PresetMealDetailPage() {
                 setSelectedDish(null);
                 setGramAmount(100);
                 setSearch("");
+                setAddTab("library");
                 setAddOpen(true);
               }}
               className="w-full rounded-xl border-2 border-dashed border-border p-8 text-center hover:border-primary/50 hover:bg-muted/30 transition-colors"
@@ -570,6 +596,43 @@ export default function PresetMealDetailPage() {
                 <X className="size-5" />
               </button>
             </div>
+            <div className="flex border-b border-border">
+              <button
+                type="button"
+                onClick={() => setAddTab("library")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                  addTab === "library"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t("manualEntry.dishLibraryTab")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddTab("manual")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                  addTab === "manual"
+                    ? "border-b-2 border-primary text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t("manualEntry.manualTab")}
+              </button>
+            </div>
+
+            {addTab === "manual" ? (
+              <div className="p-4">
+                <ManualNutritionForm
+                  mode="total"
+                  nameLabel={t("manualEntry.dishNameLabel")}
+                  submitLabel={t("manualEntry.addDish")}
+                  isPending={editLineMutation.isPending}
+                  onSubmit={handleAddManualItem}
+                />
+              </div>
+            ) : (
+              <>
             <div className="p-4 border-b border-border">
               <input
                 type="search"
@@ -709,6 +772,8 @@ export default function PresetMealDetailPage() {
                     : t("presetMealDetail.addGrams", { grams })}
                 </Button>
               </div>
+            )}
+              </>
             )}
           </div>
         </>
