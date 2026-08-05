@@ -1189,7 +1189,16 @@ export default function DishesPage() {
                       )}
                     </div>
                     {selectedFood && libraryPreview && (
-                      <div className="border-t border-border p-4 space-y-3 bg-muted/30">
+                      <div className="relative border-t border-border p-4 pt-9 space-y-3 bg-muted/30">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFood(null)}
+                          className="tap-target-expand absolute right-3 top-3 text-foreground/50 transition-colors hover:text-destructive active:text-destructive"
+                          aria-label={t("common.clearSelection")}
+                          title={t("common.clearSelection")}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-1.5">
                             {t("dishes.gramAmount")}

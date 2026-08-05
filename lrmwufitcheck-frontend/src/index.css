@@ -182,15 +182,52 @@
  *                        pseudo-element, without changing the button's own
  *                        visual padding/size (so dense list rows/toolbars
  *                        stay visually compact on both mobile and desktop).
+ *   .popover-backdrop  - Grup S, 2026-08-05: full-viewport dim+blur layer
+ *                        behind any popup-style component (Popover/
+ *                        DropdownMenu content), rendered via the shared
+ *                        <PopoverBackdrop open={open}/> component so the
+ *                        popup reads as clearly on top of the page instead
+ *                        of blending into it. Use this for every new
+ *                        popup - see NotificationBell/LibraryNavMenu.
  */
 @layer utilities {
-  .tap-target-expand {
+  /* :not(.absolute):not(.fixed) - .tap-target-expand only needs to *supply*
+     position:relative when the element doesn't already have its own
+     positioning. Setting it unconditionally would win the cascade tie
+     against Tailwind's own .absolute/.fixed utilities (this custom block is
+     later in source order than Tailwind's generated utilities layer), which
+     silently knocked elements that combine `tap-target-expand absolute ...`
+     for their own layout (e.g. a top-right-corner close button) back to
+     position:relative - they'd render in normal flow instead of pinned to
+     their corner. Positioned descendants only need SOME non-static
+     ancestor for the ::after overlay to anchor to, and .absolute/.fixed
+     already satisfy that on their own. */
+  .tap-target-expand:not(.absolute):not(.fixed) {
     position: relative;
   }
   .tap-target-expand::after {
     content: "";
     position: absolute;
     inset: -8px;
+  }
+
+  .popover-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--foreground) 12%, transparent);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    pointer-events: none;
+    animation: popover-backdrop-in 150ms ease-out;
+  }
+  @keyframes popover-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   .hover-zoom {
     transition:

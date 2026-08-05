@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import PopoverBackdrop from "@/components/PopoverBackdrop";
 import {
   useListNotifications,
   useMarkNotificationsSeen,
@@ -59,6 +60,7 @@ export default function NotificationBell() {
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverBackdrop open={open} />
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -77,7 +79,7 @@ export default function NotificationBell() {
       <PopoverContent
         align="end"
         sideOffset={10}
-        className="w-80 gap-0 overflow-hidden rounded-xl p-0 shadow-lg"
+        className="w-80 gap-0 overflow-hidden rounded-xl p-0 shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3.5 py-3">
           <p className="text-sm font-semibold text-foreground">
@@ -103,7 +105,7 @@ export default function NotificationBell() {
               return (
                 <div
                   key={n.id}
-                  className={`group relative flex gap-2.5 border-b border-border px-3.5 py-3 last:border-b-0 transition-colors hover:bg-muted/40 ${
+                  className={`relative flex gap-2.5 border-b border-border px-3.5 py-3 last:border-b-0 transition-colors hover:bg-muted/40 ${
                     n.isSeen ? "" : "bg-primary/5"
                   }`}
                 >
@@ -128,7 +130,7 @@ export default function NotificationBell() {
                     type="button"
                     onClick={() => deleteMutation.mutate(n.id)}
                     disabled={isDeleting}
-                    className="tap-target-expand absolute right-2.5 top-3 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-50"
+                    className="tap-target-expand absolute right-2.5 top-3 text-foreground/50 transition-colors hover:text-destructive active:text-destructive disabled:opacity-50"
                     aria-label={t("notifications.delete")}
                     title={t("notifications.delete")}
                   >
