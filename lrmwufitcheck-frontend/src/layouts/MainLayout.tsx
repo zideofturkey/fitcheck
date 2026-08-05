@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import OnboardingMacroTargetDialog from "@/components/OnboardingMacroTargetDialog";
 import NotificationBell from "@/components/NotificationBell";
+import LibraryNavMenu from "@/components/LibraryNavMenu";
 import PageTransition from "@/components/PageTransition";
 import {
   ArrowLeftCircle,
@@ -169,7 +170,9 @@ export default function MainLayout() {
         <nav className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border safe-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
           <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
             {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) =>
-              isRouteAvailable(to) ? (
+              to === "/food-library" ? (
+                <LibraryNavMenu key={to} icon={Icon} />
+              ) : isRouteAvailable(to) ? (
                 <NavLink
                   key={to}
                   to={to}

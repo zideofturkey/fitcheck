@@ -273,6 +273,7 @@ async function approveSuggestion(req, res, next) {
       userId: suggestion.userId,
       title: "Öneriniz onaylandı",
       body: `Önerdiğiniz ${entityDisplayName(suggestion.entityType, plain)} global kütüphaneye eklenmiştir. Teşekkür ederiz.`,
+      type: "approved",
     });
 
     res.json({
@@ -323,6 +324,7 @@ async function rejectSuggestion(req, res, next) {
       body:
         `Önerdiğiniz ${itemName} için global kütüphane talebiniz reddedilmiştir.` +
         (reviewNote ? ` Not: ${reviewNote}` : ""),
+      type: "rejected",
     });
 
     res.json({ status: "OK", suggestion: suggestion.get({ plain: true }) });

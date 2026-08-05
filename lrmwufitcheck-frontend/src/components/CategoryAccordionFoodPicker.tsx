@@ -140,7 +140,15 @@ export default function CategoryAccordionFoodPicker({
             {isCategoryOpen && (
               <div className="px-3 pb-3 space-y-2">
                 {catGroups.map((group, idx) => {
-                  if (group.items.length <= 1) {
+                  // Single-brand ingredients still go through the two-step
+                  // (generic name -> brand) flow as long as a baseName exists
+                  // - skipping straight to the raw item here was showing the
+                  // brand name alone (e.g. "Tahsildaroğlu") with no generic
+                  // ingredient label (e.g. "Kaşar Peyniri") anywhere, making
+                  // it impossible to tell what was actually being added. Only
+                  // a true singleton with no baseName at all (never grouped)
+                  // renders directly, since there's no generic label to show.
+                  if (group.items.length <= 1 && !group.baseName) {
                     return renderItemButton(group.items[0]);
                   }
                   const groupKey = group.baseName ?? String(idx);

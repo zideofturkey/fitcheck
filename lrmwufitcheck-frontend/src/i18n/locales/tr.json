@@ -1135,7 +1135,9 @@
   },
   "notifications": {
     "title": "Bildirimler",
-    "empty": "Henüz bildiriminiz yok."
+    "empty": "Henüz bildiriminiz yok.",
+    "unseenCount": "{{count}} yeni",
+    "delete": "Bildirimi sil"
   },
   "nav": {
     "dashboard": "Panel",

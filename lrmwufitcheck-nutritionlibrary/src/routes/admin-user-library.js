@@ -83,6 +83,7 @@ async function promoteToGlobal(req, res, next) {
       userId,
       title: "Kütüphaneniz güncellendi",
       body: `Kütüphanenizdeki ${entityDisplayName(entityType, plain)} global kütüphaneye eklenmiştir. Teşekkür ederiz.`,
+      type: "approved",
     });
 
     res.json({
