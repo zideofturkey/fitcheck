@@ -486,7 +486,16 @@ export default function FoodPickerModal({
 
         {/* Gram + preview (library) */}
         {tab === "library" && selectedFood && foodPreview && (
-          <div className="border-t border-border p-4 space-y-3 bg-muted/30">
+          <div className="relative border-t border-border p-4 pt-9 space-y-3 bg-muted/30">
+            <button
+              type="button"
+              onClick={() => setSelectedFood(null)}
+              className="tap-target-expand absolute right-3 top-3 text-foreground/50 transition-colors hover:text-destructive active:text-destructive"
+              aria-label={t("common.clearSelection")}
+              title={t("common.clearSelection")}
+            >
+              <X className="h-4 w-4" />
+            </button>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 {t("foodPickerModal.gramAmount")}
@@ -535,7 +544,16 @@ export default function FoodPickerModal({
 
         {/* Confirm preset */}
         {tab === "presets" && selectedPreset && (
-          <div className="border-t border-border p-4 space-y-3 bg-muted/30">
+          <div className="relative border-t border-border p-4 pt-9 space-y-3 bg-muted/30">
+            <button
+              type="button"
+              onClick={() => setSelectedPreset(null)}
+              className="tap-target-expand absolute right-3 top-3 text-foreground/50 transition-colors hover:text-destructive active:text-destructive"
+              aria-label={t("common.clearSelection")}
+              title={t("common.clearSelection")}
+            >
+              <X className="h-4 w-4" />
+            </button>
             <div className="rounded-md bg-card border border-border p-3 text-sm">
               <p className="font-medium text-foreground">
                 {selectedPreset.templateName}
@@ -554,7 +572,16 @@ export default function FoodPickerModal({
 
         {/* Confirm dish */}
         {tab === "dishes" && selectedDish && (
-          <div className="border-t border-border p-4 space-y-3 bg-muted/30">
+          <div className="relative border-t border-border p-4 pt-9 space-y-3 bg-muted/30">
+            <button
+              type="button"
+              onClick={() => setSelectedDish(null)}
+              className="tap-target-expand absolute right-3 top-3 text-foreground/50 transition-colors hover:text-destructive active:text-destructive"
+              aria-label={t("common.clearSelection")}
+              title={t("common.clearSelection")}
+            >
+              <X className="h-4 w-4" />
+            </button>
             <div className="rounded-md bg-card border border-border p-3 text-sm">
               <p className="font-medium text-foreground">
                 {selectedDish.dishName}

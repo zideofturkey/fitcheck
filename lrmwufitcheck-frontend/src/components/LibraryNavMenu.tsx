@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import PopoverBackdrop from "@/components/PopoverBackdrop";
 
 const LIBRARY_ROUTES = ["/food-library", "/dishes", "/preset-meals"];
 
@@ -37,6 +38,7 @@ export default function LibraryNavMenu({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
+      <PopoverBackdrop open={open} />
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -57,7 +59,7 @@ export default function LibraryNavMenu({
         side="top"
         align="center"
         sideOffset={12}
-        className="w-56 gap-1 overflow-hidden rounded-xl p-1.5 shadow-lg"
+        className="w-56 gap-1 overflow-hidden rounded-xl p-1.5 shadow-2xl"
       >
         {OPTIONS.map((opt) => {
           const active = location.pathname === opt.to;
