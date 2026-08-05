@@ -563,7 +563,7 @@ export default function PresetMealDetailPage() {
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
-                className="rounded-full p-1.5 hover:bg-muted"
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("presetMealDetail.closeAria")}
                 title={t("presetMealDetail.closeAria")}
               >

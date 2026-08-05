@@ -489,7 +489,7 @@ export default function DishesPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+              <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
                 {categoryFilter === "all"
                   ? t("dishes.allCategories")
                   : dishCategoryLabel(t, categoryFilter)}
@@ -510,7 +510,7 @@ export default function DishesPage() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+              <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
                 {ownershipFilter === "mine"
                   ? t("dishes.ownershipMine")
                   : ownershipFilter === "global"
@@ -561,7 +561,7 @@ export default function DishesPage() {
                         type="button"
                         onClick={() => handleSuggest(dish.id)}
                         disabled={suggestMutation.isPending}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent/50"
+                        className="tap-target-expand rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent/50"
                         aria-label={t("dishes.suggestAria")}
                         title={t("dishes.suggestTooltip")}
                       >
@@ -572,7 +572,7 @@ export default function DishesPage() {
                       <button
                         type="button"
                         onClick={() => handleDelete(dish.id)}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        className="tap-target-expand rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                         aria-label={t("dishes.deleteAria")}
                         title={t("dishes.deleteAria")}
                       >
@@ -695,7 +695,7 @@ export default function DishesPage() {
               <button
                 type="button"
                 onClick={handleCloseCreate}
-                className="rounded-full p-1.5 hover:bg-muted"
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("common.close")}
                 title={t("common.close")}
               >
@@ -742,7 +742,7 @@ export default function DishesPage() {
                             <button
                               type="button"
                               onClick={() => removePendingAiLine(index)}
-                              className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+                              className="tap-target-expand shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
                               aria-label={t("common.remove")}
                               title={t("common.remove")}
                             >
@@ -1086,7 +1086,7 @@ export default function DishesPage() {
                             <button
                               type="button"
                               onClick={() => handleStartEditCreatedLine(line)}
-                              className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                              className="tap-target-expand rounded-md p-1 text-muted-foreground hover:bg-muted"
                               aria-label={t("dishes.editLineAria", {
                                 name: line.lineFoodName,
                               })}
@@ -1097,7 +1097,7 @@ export default function DishesPage() {
                             <button
                               type="button"
                               onClick={() => handleRemoveCreatedLine(line.id)}
-                              className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                              className="tap-target-expand rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                               aria-label={t("dishes.removeAria", {
                                 name: line.lineFoodName,
                               })}

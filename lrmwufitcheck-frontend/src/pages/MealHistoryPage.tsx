@@ -170,7 +170,7 @@ export default function MealHistoryPage() {
   };
 
   return (
-    <section className="@container">
+    <section className="@container mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <header className="relative mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -205,7 +205,7 @@ export default function MealHistoryPage() {
               key={f.key}
               type="button"
               onClick={() => setMobileRange(f.key)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              className={`tap-target-expand inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 mobileDateFilter === f.key
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground font-medium"
@@ -401,20 +401,20 @@ export default function MealHistoryPage() {
                     <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-2">
                       <Link
                         to={`/meals/${meal.id}`}
-                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        className="tap-target-expand inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                       >
                         <Eye className="size-3.5" /> {t("mealHistory.view")}
                       </Link>
                       <Link
                         to={`/meals/${meal.id}/edit`}
-                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        className="tap-target-expand inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                       >
                         <Pencil className="size-3.5" /> {t("mealHistory.edit")}
                       </Link>
                       <button
                         type="button"
                         onClick={() => handleDelete(meal.id)}
-                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        className="tap-target-expand inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         aria-label={t("mealHistory.deleteAria")}
                         title={t("mealHistory.deleteAria")}
                       >

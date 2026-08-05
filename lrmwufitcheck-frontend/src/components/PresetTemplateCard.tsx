@@ -56,7 +56,7 @@ export default function PresetTemplateCard({
         <button
           type="button"
           onClick={onMoreAction}
-          className="p-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+          className="tap-target-expand p-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
         >
           <EllipsisVertical className="w-4 h-4" />
         </button>

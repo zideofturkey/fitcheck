@@ -60,7 +60,7 @@ const MealLogEntryRow: React.FC<MealLogEntryRowProps> = ({
           </span>
           <button
             type="button"
-            className="p-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="tap-target-expand p-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
             aria-label="More options"
           >
             <EllipsisVertical className="w-4 h-4" />

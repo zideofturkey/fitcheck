@@ -495,7 +495,7 @@ export default function FoodLibraryPage() {
                       type="button"
                       onClick={() => handleSuggest(food.id)}
                       disabled={suggestMutation.isPending}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent/50 transition-colors"
+                      className="tap-target-expand inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent/50 transition-colors"
                       aria-label={t("foodLibrary.suggestAria", {
                         name: food.foodName,
                       })}
@@ -512,7 +512,7 @@ export default function FoodLibraryPage() {
                       <button
                         type="button"
                         onClick={() => openEdit(food)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors"
+                        className="tap-target-expand inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors"
                         aria-label={t("foodLibrary.editAria", {
                           name: food.foodName,
                         })}
@@ -526,7 +526,7 @@ export default function FoodLibraryPage() {
                       <button
                         type="button"
                         onClick={() => handleDelete(food.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
+                        className="tap-target-expand inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
                         aria-label={t("foodLibrary.deleteAria", {
                           name: food.foodName,
                         })}
@@ -671,7 +671,7 @@ export default function FoodLibraryPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
               {categoryFilter === "all"
                 ? t("foodLibrary.allCategories")
                 : categoryLabel(t, categoryFilter)}
@@ -694,7 +694,7 @@ export default function FoodLibraryPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
               {sourceFilter === "all"
                 ? t("foodLibrary.allSources")
                 : sourceFilter === "manualEntry"
@@ -716,7 +716,7 @@ export default function FoodLibraryPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
               {ownershipFilter === "mine"
                 ? t("foodLibrary.ownershipMine")
                 : ownershipFilter === "global"

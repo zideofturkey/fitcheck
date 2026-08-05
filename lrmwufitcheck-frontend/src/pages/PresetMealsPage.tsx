@@ -349,7 +349,7 @@ export default function PresetMealsPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
+            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
               {ownershipFilter === "mine"
                 ? t("presetMeals.ownershipMine")
                 : ownershipFilter === "global"
@@ -402,7 +402,7 @@ export default function PresetMealsPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(preset.id)}
-                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      className="tap-target-expand rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       aria-label={t("presetMeals.deleteAria")}
                       title={t("presetMeals.deleteAria")}
                     >
@@ -530,7 +530,7 @@ export default function PresetMealsPage() {
               <button
                 type="button"
                 onClick={handleCloseCreate}
-                className="rounded-full p-1.5 hover:bg-muted"
+                className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
                 aria-label={t("presetMeals.closeAria")}
                 title={t("presetMeals.closeAria")}
               >
@@ -727,7 +727,7 @@ export default function PresetMealsPage() {
                             <button
                               type="button"
                               onClick={() => handleStartEditCreatedLine(line)}
-                              className="rounded-md p-1 text-muted-foreground hover:bg-muted"
+                              className="tap-target-expand rounded-md p-1 text-muted-foreground hover:bg-muted"
                               aria-label={t("presetMealDetail.editAria", {
                                 name: line.lineFoodName,
                               })}
@@ -738,7 +738,7 @@ export default function PresetMealsPage() {
                             <button
                               type="button"
                               onClick={() => handleRemoveCreatedLine(line.id)}
-                              className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                              className="tap-target-expand rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                               aria-label={t("presetMealDetail.removeAria", {
                                 name: line.lineFoodName,
                               })}

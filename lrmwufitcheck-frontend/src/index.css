@@ -176,8 +176,22 @@
  *                       (set --glow-color inline per box to tint the glow)
  *   .animate-page-fade - route-level fade-in, applied via <PageTransition>
  *   .particle-dot + .calorie-ring-group - drifting-particle hover effect
+ *   .tap-target-expand - invisible hit-area expansion for small icon/chip
+ *                        buttons (Grup Q, 2026-08-05): grows the clickable
+ *                        area to ~40-44px via an absolutely-positioned
+ *                        pseudo-element, without changing the button's own
+ *                        visual padding/size (so dense list rows/toolbars
+ *                        stay visually compact on both mobile and desktop).
  */
 @layer utilities {
+  .tap-target-expand {
+    position: relative;
+  }
+  .tap-target-expand::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
   .hover-zoom {
     transition:
       transform 200ms ease-out,
@@ -207,14 +221,17 @@
     );
   }
 
+  /* Opacity-only (no transform): a `transform` here - even a resting
+     translateY(0) - creates a new containing block for any `position: fixed`
+     descendant (drawers/modals rendered inline on the page instead of via a
+     portal), which breaks their full-viewport positioning. See the mobile
+     drawer overflow bug this fixed (Grup Q). */
   @keyframes page-fade-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
   .animate-page-fade {
