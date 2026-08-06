@@ -198,9 +198,9 @@ export default function MealHistoryPage() {
         </Link>
       </header>
 
-      {/* Mobile filter pills */}
+      {/* Quick filter pills - shown on all breakpoints */}
       <div
-        className="md:hidden mb-5 overflow-x-auto"
+        className="mb-5 overflow-x-auto"
         style={
           {
             WebkitOverflowScrolling: "touch",
@@ -226,7 +226,7 @@ export default function MealHistoryPage() {
         </div>
       </div>
 
-      {/* Desktop filter row */}
+      {/* Date range / source filter row (desktop) */}
       <div className="hidden md:flex items-center gap-3 mb-6 flex-wrap">
         <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2">
           <input
