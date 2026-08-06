@@ -130,106 +130,42 @@ export default function MainLayout() {
     <>
       <OnboardingMacroTargetDialog />
 
-      {/* ========== MOBILE NATIVE APP LAYOUT ========== */}
-      <div className="md:hidden flex flex-col min-h-screen">
-        <header className="sticky top-0 z-30 bg-card border-b border-border h-14 flex items-center justify-between px-4 safe-top">
-          <button
-            type="button"
-            onClick={() => setMobileSidebarOpen(true)}
-            className="w-11 h-11 flex items-center justify-center -ml-2 rounded-full hover:bg-muted transition-colors"
-            aria-label={t("nav.openMenu")}
-            title={t("nav.openMenu")}
-          >
-            <Menu className="w-5 h-5 text-foreground" />
-          </button>
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <Salad className="w-5 h-5 text-primary" />
-            <h1 className="text-base font-semibold tracking-tight">
-              {t("common.appName")}
-            </h1>
-          </Link>
-          <div className="flex items-center -mr-2">
-            <NotificationBell />
-            <Link
-              to="/profile"
-              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors relative"
-              aria-label={t("nav.profile")}
-              title={t("nav.profile")}
-            >
-              <User className="w-5 h-5 text-foreground" />
-            </Link>
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto native-scroll pb-24 safe-bottom">
-          <PageTransition>
-            <Outlet />
-          </PageTransition>
-        </main>
-
-        <nav className="fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border safe-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-          <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-            {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) =>
-              to === "/food-library" ? (
-                <LibraryNavMenu key={to} icon={Icon} />
-              ) : isRouteAvailable(to) ? (
-                <NavLink
-                  key={to}
-                  to={to}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors",
-                      isActive
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground",
-                    )
-                  }
-                  aria-label={t(labelKey)}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium leading-none">
-                    {t(labelKey)}
-                  </span>
-                </NavLink>
-              ) : (
-                <span
-                  key={to}
-                  className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground opacity-50 cursor-not-allowed"
-                  title={t("common.comingSoon")}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium leading-none">
-                    {t(labelKey)}
-                  </span>
-                </span>
-              ),
-            )}
-          </div>
-        </nav>
-      </div>
-
-      {/* ========== DESKTOP LAYOUT ========== */}
-      <div className="hidden md:flex flex-col min-h-screen">
-        <header className="sticky top-0 z-30 bg-card border-b border-border shadow-sm">
+      {/* Single responsive shell - one Outlet, one header, one of each nav
+          element. Mobile/desktop differences are expressed with Tailwind
+          breakpoint classes on shared elements, never by mounting a second
+          copy of stateful chrome (NotificationBell, the routed page, etc). */}
+      <div className="flex flex-col min-h-screen">
+        <header className="sticky top-0 z-30 bg-card border-b border-border shadow-sm safe-top">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
+            <div className="flex items-center justify-between h-14 md:h-16">
               <div className="flex items-center gap-8">
+                <button
+                  type="button"
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="md:hidden w-11 h-11 flex items-center justify-center -ml-2 rounded-full hover:bg-muted transition-colors"
+                  aria-label={t("nav.openMenu")}
+                  title={t("nav.openMenu")}
+                >
+                  <Menu className="w-5 h-5 text-foreground" />
+                </button>
                 <Link
                   to="/dashboard"
-                  className="flex items-center gap-2 font-semibold text-lg tracking-tight text-foreground"
+                  className="flex items-center gap-2 font-semibold text-base md:text-lg tracking-tight text-foreground"
                 >
-                  <Salad className="w-6 h-6 text-primary" />
+                  <Salad className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   <span>{t("common.appName")}</span>
                 </Link>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4 -mr-2 md:mr-0">
                 <NotificationBell />
                 <Link
                   to="/profile"
-                  className="flex items-center gap-3 pl-2 border-l border-border"
+                  className="flex items-center gap-3 md:pl-2 md:border-l md:border-border"
+                  aria-label={t("nav.profile")}
+                  title={t("nav.profile")}
                 >
-                  <div className="hidden sm:block text-right">
+                  <div className="hidden md:block text-right">
                     <p className="text-sm font-semibold leading-tight">
                       {user?.fullname ?? t("nav.profile")}
                     </p>
@@ -237,8 +173,9 @@ export default function MainLayout() {
                       {user?.email ?? ""}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 p-1.5 rounded-full hover:bg-muted transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold overflow-hidden">
+                  <div className="w-11 h-11 md:w-auto md:h-auto flex items-center justify-center md:p-1.5 rounded-full hover:bg-muted transition-colors">
+                    <User className="w-5 h-5 text-foreground md:hidden" />
+                    <div className="hidden md:flex w-8 h-8 rounded-full bg-primary items-center justify-center text-primary-foreground text-sm font-semibold overflow-hidden">
                       {user?.avatar ? (
                         <img
                           src={user.avatar}
@@ -254,7 +191,7 @@ export default function MainLayout() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="p-2 rounded-full hover:bg-muted transition-colors"
+                  className="hidden md:inline-flex p-2 rounded-full hover:bg-muted transition-colors"
                   aria-label={t("nav.signOut")}
                   title={t("nav.signOut")}
                 >
@@ -310,14 +247,54 @@ export default function MainLayout() {
             </nav>
           </aside>
 
-          <main className="flex-1 overflow-y-auto bg-background p-6 lg:p-10">
-            <div className="max-w-5xl mx-auto">
+          <main className="flex-1 overflow-y-auto native-scroll bg-background pb-24 safe-bottom md:pb-6 md:p-6 lg:p-10">
+            <div className="md:max-w-5xl md:mx-auto">
               <PageTransition>
                 <Outlet />
               </PageTransition>
             </div>
           </main>
         </div>
+
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-card border-t border-border safe-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+            {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) =>
+              to === "/food-library" ? (
+                <LibraryNavMenu key={to} icon={Icon} />
+              ) : isRouteAvailable(to) ? (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors",
+                      isActive
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground",
+                    )
+                  }
+                  aria-label={t(labelKey)}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium leading-none">
+                    {t(labelKey)}
+                  </span>
+                </NavLink>
+              ) : (
+                <span
+                  key={to}
+                  className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] text-muted-foreground opacity-50 cursor-not-allowed"
+                  title={t("common.comingSoon")}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium leading-none">
+                    {t(labelKey)}
+                  </span>
+                </span>
+              ),
+            )}
+          </div>
+        </nav>
 
         <footer className="hidden md:block bg-card border-t border-border mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

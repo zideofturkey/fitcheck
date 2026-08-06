@@ -23,42 +23,28 @@ export default function MaintenancePage() {
 
   return (
     <>
-      {/* MOBILE TOP HEADER */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-b border-border h-14 flex items-center px-4 gap-3">
-        <button
-          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
-          aria-label={t("system.goBack")}
-          title={t("system.goBack")}
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <h1 className="text-base font-semibold flex-1 text-center truncate">
-          FitCheck
-        </h1>
-        <button
-          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
-          aria-label={t("system.notifications")}
-          title={t("system.notifications")}
-        >
-          <Bell className="w-5 h-5 text-muted-foreground" />
-        </button>
-      </header>
-
-      {/* DESKTOP TOP NAVIGATION */}
-      <header className="hidden md:block sticky top-0 z-30 w-full bg-background/90 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* TOP NAVIGATION (single header, responsive) */}
+      <header className="fixed md:sticky top-0 inset-x-0 z-30 w-full bg-background/95 md:bg-background/90 backdrop-blur-md md:backdrop-blur-lg border-b border-border">
+        <div className="h-14 md:h-16 flex items-center px-4 gap-3 md:max-w-7xl md:mx-auto md:px-6 md:justify-between">
           <div className="flex items-center gap-8">
+            <button
+              className="md:hidden w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-2"
+              aria-label={t("system.goBack")}
+              title={t("system.goBack")}
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="w-5 h-5 text-foreground" />
+            </button>
             <Link
               to="/"
-              className="flex items-center gap-2.5 font-bold text-xl tracking-tight text-foreground no-underline"
+              className="hidden md:flex items-center gap-2.5 font-bold text-xl tracking-tight text-foreground no-underline"
             >
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Salad className="w-5 h-5 text-primary-foreground" />
               </div>
               FitCheck
             </Link>
-            <nav className="flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1">
               <Link
                 to="/"
                 className="px-3 py-2 text-sm rounded-md bg-secondary text-secondary-foreground font-medium transition-colors"
@@ -79,24 +65,38 @@ export default function MaintenancePage() {
               </a>
             </nav>
           </div>
+
+          <h1 className="md:hidden text-base font-semibold flex-1 text-center truncate">
+            FitCheck
+          </h1>
+
           <div className="flex items-center gap-3">
-            <Button
-              asChild
-              variant="default"
-              size="sm"
-              className="gap-2 shadow-sm"
+            <button
+              className="md:hidden w-11 h-11 flex items-center justify-center rounded-full hover:bg-muted transition-colors -mr-2"
+              aria-label={t("system.notifications")}
+              title={t("system.notifications")}
             >
-              <Link to="/login">
-                <LogIn className="w-4 h-4" />
-                {t("system.signIn")}
-              </Link>
-            </Button>
-            <Button variant="secondary" asChild size="sm" className="gap-2">
-              <Link to="/register">
-                <Mail className="w-4 h-4" />
-                {t("system.requestInvite")}
-              </Link>
-            </Button>
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <div className="hidden md:flex items-center gap-3">
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="gap-2 shadow-sm"
+              >
+                <Link to="/login">
+                  <LogIn className="w-4 h-4" />
+                  {t("system.signIn")}
+                </Link>
+              </Button>
+              <Button variant="secondary" asChild size="sm" className="gap-2">
+                <Link to="/register">
+                  <Mail className="w-4 h-4" />
+                  {t("system.requestInvite")}
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>

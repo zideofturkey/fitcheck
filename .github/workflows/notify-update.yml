@@ -1,16 +1,20 @@
-name: Notify update by email
+name: Daily digest email
 
-# Sends a "there's a new update" email to a fixed recipient list on every
-# push to main, with a subject/body summarizing this push's commits in
-# plain Turkish. Later this can be expanded to go out to all registered
-# users instead of a fixed list.
+# Sends ONE email per day summarizing all commits pushed to main that day,
+# instead of a separate email per commit/push. Fires once at 21:00 UTC
+# (= 00:00 Turkey time, i.e. right as the Turkish calendar day ends), so
+# `git log --since="24 hours ago"` on the runner's UTC clock captures
+# exactly that Turkish day's commits, and the runner's own UTC date at
+# trigger time (still the day that just ended in Turkey) is what the
+# subject's date is built from. Also triggerable manually via
+# workflow_dispatch for testing without waiting for the schedule.
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch: {}
 
 jobs:
-  notify:
+  digest:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,21 +22,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build email subject + body from this push's commits
+      - name: Build digest subject + body from today's commits
         id: body
         run: |
-          BEFORE="${{ github.event.before }}"
-          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            RANGE="-n 1 ${{ github.sha }}"
-          else
-            RANGE="$BEFORE..${{ github.sha }}"
-          fi
-
-          COMMITS=$(git log $RANGE --pretty=format:"%s" --no-merges)
+          COMMITS=$(git log main --since="24 hours ago" --pretty=format:"%s" --no-merges)
           COUNT=$(printf "%s\n" "$COMMITS" | grep -c . || true)
+
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           if [ "$COUNT" -eq 0 ]; then
-            COMMITS=$(git log -n 1 --pretty=format:"%s" --no-merges)
-            COUNT=1
+            echo "No commits in the last 24h, skipping digest email."
+            exit 0
           fi
 
           simplify() {
@@ -55,6 +54,16 @@ jobs:
             echo "$line"
           }
 
+          # Turkish day + abbreviated-month label for the day that just
+          # ended (see header comment for why plain UTC `date` at trigger
+          # time already points at the right day).
+          DAY=$(date -u +%-d)
+          MONTH_NUM=$(date -u +%-m)
+          MONTH_NAMES=(Oca Şub Mar Nis May Haz Tem Ağu Eyl Eki Kas Ara)
+          MONTH_TR="${MONTH_NAMES[$((MONTH_NUM - 1))]}"
+          DATE_LABEL="${DAY}${MONTH_TR}"
+          echo "datelabel=$DATE_LABEL" >> "$GITHUB_OUTPUT"
+
           SIMPLIFIED=""
           while IFS= read -r line; do
             [ -z "$line" ] && continue
@@ -64,21 +73,20 @@ jobs:
 
           {
             echo "body<<EOF"
-            echo "FitCheck'e yeni bir güncelleme yapıldı."
+            echo "Bugün FitCheck'te ${COUNT} güncelleme yapıldı."
             echo ""
-            echo "Son değişiklikler:"
+            echo "Bugünün değişiklikleri:"
             while IFS= read -r line; do
               [ -z "$line" ] && continue
               echo "- $(simplify "$line")"
             done <<< "$COMMITS"
             echo ""
-            echo "Detaylar: https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+            echo "Detaylar: https://github.com/${{ github.repository }}/commits/main"
             echo ""
             echo "Yemenin tadını çıkarın."
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           {
             echo "notifybody<<EOF"
             echo "$SIMPLIFIED"
@@ -86,23 +94,25 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Send email
+        if: steps.body.outputs.count != '0'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "FitCheck'e ${{ steps.body.outputs.count }} Yeni Özellik Eklendi!"
+          subject: "FitCheck | Gün Sonu Değerlendirmesi - ${{ steps.body.outputs.datelabel }}"
           to: yusufbuber38@gmail.com,azraturidi1632@gmail.com,yildizsevvalyardimci@gmail.com,ediz.kacmaz19@gmail.com
           from: FitCheck
           body: ${{ steps.body.outputs.body }}
 
-      # Best-effort: also drop the same announcement into the in-app
-      # notification bell for every real user. Only reaches the backend if
-      # the dev PC + Cloudflare Tunnel happen to be up at push time (the
-      # tunnel URL is read live from the tracking Google Sheet) - if not,
-      # this step just fails harmlessly and only the email above went out.
+      # Best-effort: also drop the same digest into the in-app notification
+      # bell for every real user. Only reaches the backend if the dev PC +
+      # Cloudflare Tunnel happen to be up at digest time (the tunnel URL is
+      # read live from the tracking Google Sheet) - if not, this step just
+      # fails harmlessly and only the email above went out.
       - name: Push in-app notification (best effort, needs dev PC+tunnel online)
+        if: steps.body.outputs.count != '0'
         continue-on-error: true
         run: |
           TUNNEL_URL=$(curl -s -L --max-time 15 \
@@ -119,7 +129,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "x-broadcast-key: ${{ secrets.BROADCAST_NOTIFY_KEY }}" \
             -d "$(jq -n \
-                --arg title "FitCheck'e ${{ steps.body.outputs.count }} Yeni Özellik Eklendi!" \
+                --arg title "FitCheck | Gün Sonu Değerlendirmesi - ${{ steps.body.outputs.datelabel }}" \
                 --arg body "${{ steps.body.outputs.notifybody }}" \
                 '{title: $title, body: $body}')" \
             || echo "In-app notification push failed (PC/tunnel likely offline) - email already sent, continuing."

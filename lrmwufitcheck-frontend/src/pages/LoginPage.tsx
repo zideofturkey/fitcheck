@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Salad,
@@ -23,6 +23,7 @@ const INVITE_SELF_SERVICE_ENABLED = false;
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const loginMutation = useLogin();
   const { t } = useTranslation();
 
@@ -31,13 +32,19 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ProtectedRoute/RoleProtectedRoute stash the originally-requested path in
+  // location.state.from before bouncing an unauthenticated user here - send
+  // them back there instead of always landing on /dashboard.
+  const redirectTarget =
+    (location.state as { from?: string } | null)?.from || "/dashboard";
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     loginMutation.mutate(
       { username: email, password },
       {
         onSuccess: () => {
-          navigate("/dashboard");
+          navigate(redirectTarget, { replace: true });
         },
       },
     );
