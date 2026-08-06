@@ -263,7 +263,7 @@ class ListPresetLinesManager extends PresetLineManager {
         runMScript(
           () => ({
             id: this.presetMealId,
-            userId: this.session.userId,
+            $or: [{ userId: this.session.userId }, { isGlobal: true }],
             isActive: true,
           }),
           {

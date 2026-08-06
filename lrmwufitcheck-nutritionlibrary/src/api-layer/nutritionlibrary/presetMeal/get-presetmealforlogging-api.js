@@ -78,7 +78,7 @@ class GetPresetMealForLoggingManager extends PresetMealManager {
         $and: [
           {
             id: this.presetMealId,
-            userId: this.session.userId,
+            $or: [{ userId: this.session.userId }, { isGlobal: true }],
             isActive: true,
           },
           { isActive: true },

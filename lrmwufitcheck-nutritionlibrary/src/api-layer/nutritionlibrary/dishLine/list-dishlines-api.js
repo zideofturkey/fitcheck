@@ -208,7 +208,11 @@ class ListDishLinesManager extends DishLineManager {
   async fetchParentDishForList() {
     const userQuery = {
       $and: [
-        { id: this.dishId, userId: this.session.userId, isActive: true },
+        {
+          id: this.dishId,
+          $or: [{ userId: this.session.userId }, { isGlobal: true }],
+          isActive: true,
+        },
         { isActive: true },
       ],
     };
