@@ -606,6 +606,18 @@ class CreateMealLineManager extends MealLineManager {
     if (this.userId === "") this.userId = null;
     this.checkParameter_userId();
 
+    const validateNutritionValues = require("../../../library/functions/validateNutritionValues");
+    const grams = Number(this.consumedGrams);
+    const density = grams > 0 ? 100 / grams : 0;
+    validateNutritionValues({
+      caloriePer100g: Number(this.itemCalories) * density,
+      proteinPer100g: Number(this.itemProtein) * density,
+      carbohydratePer100g: Number(this.itemCarbohydrates) * density,
+      fatPer100g: Number(this.itemFat) * density,
+      sugarPer100g: Number(this.itemSugar) * density,
+      fiberPer100g: Number(this.itemFiber) * density,
+    });
+
     // filter parameters
   }
 

@@ -22,6 +22,7 @@ import { useCreateMealLog } from "@/hooks/api/use-mealtracker";
 import FoodPickerModal, {
   type PickedFoodLine,
 } from "@/components/FoodPickerModal";
+import { validateNutritionValues } from "@/lib/nutrition-validation";
 
 type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -105,6 +106,7 @@ function LogMealPage() {
   const [notes, setNotes] = useState("");
   const [foodItems, setFoodItems] = useState<FoodItemEntry[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const slotOptions: {
     value: MealSlot;
@@ -231,8 +233,32 @@ function LogMealPage() {
     { calories: 0, protein: 0, carbs: 0, fat: 0, sugar: 0, fiber: 0 },
   );
 
+  const validateFoodItems = () => {
+    const errors: string[] = [];
+    for (const item of foodItems) {
+      const density = item.grams > 0 ? 100 / item.grams : 0;
+      const itemErrors = validateNutritionValues({
+        caloriePer100g: item.calories * density,
+        proteinPer100g: item.protein * density,
+        carbohydratePer100g: item.carbs * density,
+        fatPer100g: item.fat * density,
+        sugarPer100g: item.sugar * density,
+        fiberPer100g: item.fiber * density,
+      });
+      const label = item.name || t("logMeal.foodNamePlaceholder");
+      errors.push(...itemErrors.map((err) => `${label}: ${err}`));
+    }
+    return errors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const itemErrors = validateFoodItems();
+    if (itemErrors.length > 0) {
+      setValidationErrors(itemErrors);
+      return;
+    }
+    setValidationErrors([]);
     const slotName = customSlotName || mealSlot;
     createMutation.mutate(
       {
@@ -656,6 +682,15 @@ function LogMealPage() {
                 ))}
               </div>
             </div>
+            {validationErrors.length > 0 && (
+              <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2.5 space-y-1">
+                {validationErrors.map((err) => (
+                  <p key={err} className="text-xs text-destructive">
+                    {err}
+                  </p>
+                ))}
+              </div>
+            )}
             <div className="flex items-center justify-between pt-2">
               <Button
                 type="button"

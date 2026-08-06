@@ -527,6 +527,20 @@ class CreateMealLogManager extends MealLogManager {
         throw new BadRequestError("errMsg_linesArrayHasAnInvalidItem");
       }
     });
+
+    const validateNutritionValues = require("../../../library/functions/validateNutritionValues");
+    this.lines.forEach((item) => {
+      const grams = Number(item.consumedGrams);
+      const density = grams > 0 ? 100 / grams : 0;
+      validateNutritionValues({
+        caloriePer100g: Number(item.itemCalories) * density,
+        proteinPer100g: Number(item.itemProtein) * density,
+        carbohydratePer100g: Number(item.itemCarbohydrates) * density,
+        fatPer100g: Number(item.itemFat) * density,
+        sugarPer100g: Number(item.itemSugar) * density,
+        fiberPer100g: Number(item.itemFiber) * density,
+      });
+    });
   }
 
   checkParameterType_userId(paramValue) {
