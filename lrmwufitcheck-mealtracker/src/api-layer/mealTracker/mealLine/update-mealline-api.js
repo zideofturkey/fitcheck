@@ -119,6 +119,20 @@ class UpdateMealLineManager extends MealLineManager {
   async buildDataClause() {
     const { hashString } = require("common");
 
+    {
+      const validateNutritionValues = require("../../../library/functions/validateNutritionValues");
+      const mergedGrams = Number(this.consumedGrams ?? this.mealLine?.consumedGrams);
+      const density = mergedGrams > 0 ? 100 / mergedGrams : 0;
+      validateNutritionValues({
+        caloriePer100g: Number(this.itemCalories ?? this.mealLine?.itemCalories) * density,
+        proteinPer100g: Number(this.itemProtein ?? this.mealLine?.itemProtein) * density,
+        carbohydratePer100g: Number(this.itemCarbohydrates ?? this.mealLine?.itemCarbohydrates) * density,
+        fatPer100g: Number(this.itemFat ?? this.mealLine?.itemFat) * density,
+        sugarPer100g: Number(this.itemSugar ?? this.mealLine?.itemSugar) * density,
+        fiberPer100g: Number(this.itemFiber ?? this.mealLine?.itemFiber) * density,
+      });
+    }
+
     const dataClause = {
       itemName: runMScript(() => this.itemName, {
         path: "services[3].businessLogic[6].dataClauseItems[0].value",
