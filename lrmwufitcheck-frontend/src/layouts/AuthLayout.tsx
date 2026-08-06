@@ -20,20 +20,29 @@ export default function AuthLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* ========== DESKTOP TOP NAVIGATION ========== */}
-      <header className="hidden md:block bg-card border-b border-border sticky top-0 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* ========== TOP NAVIGATION (single header, responsive) ========== */}
+      <header className="bg-card border-b border-border sticky top-0 z-40 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
+            <button
+              type="button"
+              aria-label={t("system.goBack")}
+              title={t("system.goBack")}
+              onClick={() => window.history.back()}
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-1"
+            >
+              <Icons.ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
             <Link
               to="/welcome"
-              className="flex items-center gap-2.5 font-bold text-lg tracking-tight text-foreground no-underline"
+              className="hidden md:flex items-center gap-2.5 font-bold text-lg tracking-tight text-foreground no-underline"
             >
               <span className="w-9 h-9 bg-primary rounded-md flex items-center justify-center">
                 <Icons.Salad className="w-5 h-5 text-primary-foreground" />
               </span>
               <span>FitCheck</span>
             </Link>
-            <nav className="flex items-center gap-1 text-sm font-medium">
+            <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
               <Link
                 to="/welcome"
                 className="px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -48,64 +57,55 @@ export default function AuthLayout() {
               </Link>
             </nav>
           </div>
+
+          <h1 className="md:hidden flex-1 text-center font-semibold text-base truncate px-2">
+            FitCheck
+          </h1>
+
           <div className="flex items-center gap-3">
-            {isLoading ? null : isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
-              >
-                <Icons.LogOut className="w-4 h-4" />
-                {t("authLayout.signOut", {
-                  name: user?.fullname ?? t("authLayout.user"),
-                })}
-              </button>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
+            <Link
+              to="/welcome"
+              className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+              aria-label={t("authLayout.home")}
+              title={t("authLayout.home")}
+            >
+              <Icons.Home className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <div className="hidden md:flex items-center gap-3">
+              {isLoading ? null : isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
                 >
-                  <Icons.LogIn className="w-4 h-4" />
-                  {t("system.signIn")}
-                </Link>
-                {INVITE_SELF_SERVICE_ENABLED && (
+                  <Icons.LogOut className="w-4 h-4" />
+                  {t("authLayout.signOut", {
+                    name: user?.fullname ?? t("authLayout.user"),
+                  })}
+                </button>
+              ) : (
+                <>
                   <Link
-                    to="/register"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+                    to="/login"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
                   >
-                    <Icons.MailPlus className="w-4 h-4" />
-                    {t("authLayout.register")}
+                    <Icons.LogIn className="w-4 h-4" />
+                    {t("system.signIn")}
                   </Link>
-                )}
-              </>
-            )}
+                  {INVITE_SELF_SERVICE_ENABLED && (
+                    <Link
+                      to="/register"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-colors"
+                    >
+                      <Icons.MailPlus className="w-4 h-4" />
+                      {t("authLayout.register")}
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </header>
-
-      {/* ========== MOBILE TOP APP BAR ========== */}
-      <header className="md:hidden bg-card border-b border-border sticky top-0 z-40 h-14 flex items-center px-4">
-        <button
-          type="button"
-          aria-label={t("system.goBack")}
-          title={t("system.goBack")}
-          onClick={() => window.history.back()}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors -ml-1"
-        >
-          <Icons.ChevronLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <h1 className="flex-1 text-center font-semibold text-base truncate px-2">
-          FitCheck
-        </h1>
-        <Link
-          to="/welcome"
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-          aria-label={t("authLayout.home")}
-          title={t("authLayout.home")}
-        >
-          <Icons.Home className="w-5 h-5 text-muted-foreground" />
-        </Link>
       </header>
 
       {/* ========== MAIN CONTENT AREA ========== */}
