@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import {
   useDeletePresetMeal,
   useGetPresetMeal,
@@ -99,6 +100,7 @@ export default function PresetMealDetailPage() {
     },
   });
   const [addOpen, setAddOpen] = useState(false);
+  useLockBodyScroll(addOpen);
   const [addTab, setAddTab] = useState<"library" | "manual">("library");
   const [search, setSearch] = useState("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);

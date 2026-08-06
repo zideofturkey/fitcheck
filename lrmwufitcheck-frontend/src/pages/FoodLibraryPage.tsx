@@ -48,6 +48,7 @@ import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
 import type { CreateFoodItemInputWithGlobal } from "@/types/admin-create-extensions";
 import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 import { validateNutritionValues } from "@/lib/nutrition-validation";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Meat: Apple,
@@ -229,6 +230,7 @@ export default function FoodLibraryPage() {
     [],
   );
   const [aiOpen, setAiOpen] = useState(false);
+  useLockBodyScroll(createOpen || editOpen || aiOpen);
   const [aiInput, setAiInput] = useState("");
   const [createIsAi, setCreateIsAi] = useState(false);
   const [createIsGlobal, setCreateIsGlobal] = useState(false);

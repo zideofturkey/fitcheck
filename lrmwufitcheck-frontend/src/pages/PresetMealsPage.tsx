@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import {
   Select,
   SelectContent,
@@ -80,6 +81,7 @@ export default function PresetMealsPage() {
   const queryClient = useQueryClient();
 
   const [createOpen, setCreateOpen] = useState(false);
+  useLockBodyScroll(createOpen);
   const [createStep, setCreateStep] = useState<1 | 2>(1);
   const [createForm, setCreateForm] = useState({ name: "", description: "" });
   const [createIsGlobal, setCreateIsGlobal] = useState(false);
@@ -181,7 +183,13 @@ export default function PresetMealsPage() {
       ? {
           calories: Math.round((selectedDish.totalCalories / dishBase) * grams),
           protein: +((selectedDish.totalProtein / dishBase) * grams).toFixed(1),
+          carbs: +(
+            (selectedDish.totalCarbohydrates / dishBase) *
+            grams
+          ).toFixed(1),
           fat: +((selectedDish.totalFat / dishBase) * grams).toFixed(1),
+          sugar: +((selectedDish.totalSugar / dishBase) * grams).toFixed(1),
+          fiber: +((selectedDish.totalFiber / dishBase) * grams).toFixed(1),
         }
       : null;
 
@@ -875,10 +883,34 @@ export default function PresetMealsPage() {
                           </div>
                           <div className="rounded-md bg-card border border-border p-2">
                             <p className="text-muted-foreground">
+                              {t("dashboard.carbs")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.carbs} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
                               {t("presetMealDetail.fat")}
                             </p>
                             <p className="font-semibold text-foreground">
                               {libraryPreview.fat} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
+                              {t("dashboard.sugar")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.sugar} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
+                              {t("dashboard.fiber")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.fiber} g
                             </p>
                           </div>
                         </div>
