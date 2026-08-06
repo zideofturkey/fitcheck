@@ -480,7 +480,10 @@ class AddDishLineManager extends DishLineManager {
   async fetchFoodItem() {
     const userQuery = {
       $and: [
-        { id: this.foodItemId, userId: this.session.userId, isActive: true },
+        {
+          id: this.foodItemId,
+          $or: [{ userId: this.session.userId }, { isGlobal: true }],
+        },
         { isActive: true },
       ],
     };

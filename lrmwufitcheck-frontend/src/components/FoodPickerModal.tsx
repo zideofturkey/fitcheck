@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import {
   useListFoodItems,
   useListPresetMeals,
@@ -97,6 +98,7 @@ export default function FoodPickerModal({
   onManualEntry,
 }: FoodPickerModalProps) {
   const { t } = useTranslation();
+  useLockBodyScroll(open);
   const [tab, setTab] = useState<Tab>("library");
   const [search, setSearch] = useState("");
   // Which baseName (brand-variant) group is expanded in the search-results

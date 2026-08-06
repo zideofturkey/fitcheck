@@ -38,6 +38,7 @@ import {
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
 import { useParseMeal } from "@/hooks/api/use-nutritionai";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import { nutritionaiHelpers } from "@/services/api/nutritionai-helpers";
 import ManualNutritionForm, {
   type ManualNutritionFormValues,
@@ -111,6 +112,7 @@ export default function DishesPage() {
   };
 
   const [createOpen, setCreateOpen] = useState(false);
+  useLockBodyScroll(createOpen);
   const [createStep, setCreateStep] = useState<1 | 2>(1);
   const [createForm, setCreateForm] = useState({
     name: "",
@@ -299,6 +301,8 @@ export default function DishesPage() {
         protein: +((selectedFood.proteinPer100g / 100) * grams).toFixed(1),
         carbs: +((selectedFood.carbohydratePer100g / 100) * grams).toFixed(1),
         fat: +((selectedFood.fatPer100g / 100) * grams).toFixed(1),
+        sugar: +((selectedFood.sugarPer100g / 100) * grams).toFixed(1),
+        fiber: +((selectedFood.fiberPer100g / 100) * grams).toFixed(1),
       }
     : null;
 
@@ -1280,10 +1284,34 @@ export default function DishesPage() {
                           </div>
                           <div className="rounded-md bg-card border border-border p-2">
                             <p className="text-muted-foreground">
+                              {t("dashboard.carbs")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.carbs} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
                               {t("aiCandidateMeal.fat")}
                             </p>
                             <p className="font-semibold text-foreground">
                               {libraryPreview.fat} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
+                              {t("dashboard.sugar")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.sugar} g
+                            </p>
+                          </div>
+                          <div className="rounded-md bg-card border border-border p-2">
+                            <p className="text-muted-foreground">
+                              {t("dashboard.fiber")}
+                            </p>
+                            <p className="font-semibold text-foreground">
+                              {libraryPreview.fiber} g
                             </p>
                           </div>
                         </div>

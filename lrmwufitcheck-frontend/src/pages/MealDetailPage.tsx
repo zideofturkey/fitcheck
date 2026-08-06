@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import {
   useDeleteMealLog,
   useGetMealLog,
@@ -80,6 +81,7 @@ export default function MealDetailPage() {
   const [editingLine, setEditingLine] = useState<MealtrackerMealLine | null>(
     null,
   );
+  useLockBodyScroll(manualOpen || editingLine != null);
 
   const meal = data?.mealLog;
   const lines = linesData?.mealLines ?? [];

@@ -682,16 +682,10 @@ class AddPresetLineManager extends PresetLineManager {
 
     const userQuery = {
       $and: [
-        runMScript(
-          () => ({
-            id: this.foodItemId,
-            userId: this.session.userId,
-            isActive: true,
-          }),
-          {
-            path: "services[2].businessLogic[12].actions.fetchObjectActions[1].whereClause",
-          },
-        ),
+        {
+          id: this.foodItemId,
+          $or: [{ userId: this.session.userId }, { isGlobal: true }],
+        },
         { isActive: true },
       ],
     };
@@ -724,7 +718,10 @@ class AddPresetLineManager extends PresetLineManager {
 
     const userQuery = {
       $and: [
-        { id: this.dishId, userId: this.session.userId, isActive: true },
+        {
+          id: this.dishId,
+          $or: [{ userId: this.session.userId }, { isGlobal: true }],
+        },
         { isActive: true },
       ],
     };

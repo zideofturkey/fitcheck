@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import {
   useDeleteDish,
   useGetDish,
@@ -70,6 +71,7 @@ export default function DishDetailPage() {
   const deleteLineMutation = useDeleteDishLine();
   const addLineMutation = useAddDishLine();
   const [addOpen, setAddOpen] = useState(false);
+  useLockBodyScroll(addOpen);
   const [addTab, setAddTab] = useState<"library" | "manual" | "direct">(
     "library",
   );
