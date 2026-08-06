@@ -47,6 +47,7 @@ import type { NutritionlibraryFoodItem } from "@/types/api";
 import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
 import type { CreateFoodItemInputWithGlobal } from "@/types/admin-create-extensions";
 import { CATEGORIES, categoryLabel } from "@/lib/food-category";
+import { validateNutritionValues } from "@/lib/nutrition-validation";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Meat: Apple,
@@ -221,6 +222,12 @@ export default function FoodLibraryPage() {
     useState<NutritionlibraryFoodItem | null>(null);
   const [createForm, setCreateForm] = useState<FormState>(EMPTY_FORM);
   const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM);
+  const [createValidationErrors, setCreateValidationErrors] = useState<
+    string[]
+  >([]);
+  const [editValidationErrors, setEditValidationErrors] = useState<string[]>(
+    [],
+  );
   const [aiOpen, setAiOpen] = useState(false);
   const [aiInput, setAiInput] = useState("");
   const [createIsAi, setCreateIsAi] = useState(false);
@@ -312,6 +319,12 @@ export default function FoodLibraryPage() {
       creationSource: createIsAi ? "aiAssistant" : "manualEntry",
       isGlobal: isAdmin && createIsGlobal ? true : undefined,
     };
+    const errors = validateNutritionValues(payload);
+    if (errors.length > 0) {
+      setCreateValidationErrors(errors);
+      return;
+    }
+    setCreateValidationErrors([]);
     createMutation.mutate(
       payload,
       {
@@ -328,8 +341,15 @@ export default function FoodLibraryPage() {
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingFood) return;
+    const data = buildPayload(editForm);
+    const errors = validateNutritionValues(data);
+    if (errors.length > 0) {
+      setEditValidationErrors(errors);
+      return;
+    }
+    setEditValidationErrors([]);
     updateMutation.mutate(
-      { foodItemId: editingFood.id, data: buildPayload(editForm) },
+      { foodItemId: editingFood.id, data },
       {
         onSuccess: () => {
           setEditOpen(false);
@@ -934,7 +954,16 @@ export default function FoodLibraryPage() {
                   </div>
                 </fieldset>
               </div>
-              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4 md:rounded-b-2xl">
+              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4 md:rounded-b-2xl space-y-3">
+                {createValidationErrors.length > 0 && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2.5 space-y-1">
+                    {createValidationErrors.map((err) => (
+                      <p key={err} className="text-xs text-destructive">
+                        {err}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <Button
                     type="button"
@@ -1088,7 +1117,16 @@ export default function FoodLibraryPage() {
                   </p>
                 </div>
               </div>
-              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4 md:rounded-b-2xl">
+              <div className="sticky bottom-0 border-t border-border bg-card px-6 py-4 md:rounded-b-2xl space-y-3">
+                {editValidationErrors.length > 0 && (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2.5 space-y-1">
+                    {editValidationErrors.map((err) => (
+                      <p key={err} className="text-xs text-destructive">
+                        {err}
+                      </p>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <Button
                     type="button"

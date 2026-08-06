@@ -665,7 +665,11 @@ function LogMealPage() {
                 <ArrowLeft className="w-4 h-4" />
                 {t("logMeal.back")}
               </Button>
-              <Button type="submit" className="shadow-md hover:shadow-lg">
+              <Button
+                type="submit"
+                className="shadow-md hover:shadow-lg"
+                disabled={foodItems.length === 0}
+              >
                 <Check className="w-4 h-4" />
                 {t("logMeal.logMealBtn")}
               </Button>

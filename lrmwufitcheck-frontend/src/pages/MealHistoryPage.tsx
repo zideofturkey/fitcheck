@@ -148,6 +148,7 @@ export default function MealHistoryPage() {
     { key: "yesterday", label: t("mealHistory.yesterday") },
     { key: "last7", label: t("mealHistory.last7Days") },
     { key: "last30", label: t("mealHistory.last30Days") },
+    { key: "planned", label: t("mealHistory.planned") },
   ];
 
   const setMobileRange = (range: string) => {
@@ -165,6 +166,9 @@ export default function MealHistoryPage() {
     } else if (range === "last30") {
       setFromDate(isoDaysAgo(30));
       setToDate(isoToday());
+    } else if (range === "planned") {
+      setFromDate(isoDaysAgo(-1));
+      setToDate("");
     }
     setPage(1);
   };

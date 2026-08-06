@@ -109,6 +109,7 @@ export default function MainLayout() {
     return (
       <NavLink
         to={to}
+        end
         className={({ isActive }) =>
           cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors border-l-2",
@@ -265,6 +266,7 @@ export default function MainLayout() {
                 <NavLink
                   key={to}
                   to={to}
+                  end
                   className={({ isActive }) =>
                     cn(
                       "flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors",

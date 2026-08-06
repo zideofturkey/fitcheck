@@ -744,6 +744,7 @@
     "yesterday": "Yesterday",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days",
+    "planned": "Planned",
     "fromDate": "From date",
     "toDate": "To date",
     "filterBySource": "Filter by source",
@@ -823,7 +824,8 @@
   },
   "dashboard": {
     "title": "Daily Progress",
-    "welcome": "Welcome {{name}}, today's intake and targets",
+    "welcomeToday": "Welcome {{name}}, today's intake and targets",
+    "welcomeOtherDate": "Welcome {{name}}, your intake and targets for {{date}}",
     "today": "Today",
     "yesterday": "Yesterday",
     "dayBeforeYesterday": "Day before yesterday",

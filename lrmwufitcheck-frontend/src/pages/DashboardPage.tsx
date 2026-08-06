@@ -204,7 +204,12 @@ export default function DashboardPage() {
             {t("dashboard.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("dashboard.welcome", { name: userName })}
+            {isToday
+              ? t("dashboard.welcomeToday", { name: userName })
+              : t("dashboard.welcomeOtherDate", {
+                  name: userName,
+                  date: relativeDateLabel,
+                })}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
