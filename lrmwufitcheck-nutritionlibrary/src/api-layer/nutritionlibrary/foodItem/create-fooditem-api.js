@@ -534,6 +534,15 @@ class CreateFoodItemManager extends FoodItemManager {
 
     this.checkParameter_fiberPer100g();
 
+    require("../../../library/functions/validateNutritionValues")({
+      caloriePer100g: this.caloriePer100g,
+      proteinPer100g: this.proteinPer100g,
+      carbohydratePer100g: this.carbohydratePer100g,
+      fatPer100g: this.fatPer100g,
+      sugarPer100g: this.sugarPer100g,
+      fiberPer100g: this.fiberPer100g,
+    });
+
     this.checkParameter_brandName();
 
     this.checkParameter_baseName();

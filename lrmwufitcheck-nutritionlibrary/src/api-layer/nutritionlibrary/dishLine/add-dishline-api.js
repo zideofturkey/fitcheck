@@ -255,6 +255,15 @@ class AddDishLineManager extends DishLineManager {
         throw new BadRequestError(`errMsg_${field}TypeIsNotValid`);
       }
     }
+
+    require("../../../library/functions/validateNutritionValues")({
+      caloriePer100g: this.manualCaloriePer100g,
+      proteinPer100g: this.manualProteinPer100g,
+      carbohydratePer100g: this.manualCarbohydratePer100g,
+      fatPer100g: this.manualFatPer100g,
+      sugarPer100g: this.manualSugarPer100g,
+      fiberPer100g: this.manualFiberPer100g,
+    });
   }
 
   checkParameterType_gramAmount(paramValue) {

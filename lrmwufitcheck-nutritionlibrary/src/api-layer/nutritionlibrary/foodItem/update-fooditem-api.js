@@ -124,6 +124,19 @@ class UpdateFoodItemManager extends FoodItemManager {
   async buildDataClause() {
     const { hashString } = require("common");
 
+    // Cross-field sanity check against the FULL resulting record, not just
+    // the submitted patch - a client updating only fatPer100g shouldn't be
+    // able to push the merged record's macro sum over 100g by omission.
+    require("../../../library/functions/validateNutritionValues")({
+      caloriePer100g: this.caloriePer100g ?? this.foodItem?.caloriePer100g,
+      proteinPer100g: this.proteinPer100g ?? this.foodItem?.proteinPer100g,
+      carbohydratePer100g:
+        this.carbohydratePer100g ?? this.foodItem?.carbohydratePer100g,
+      fatPer100g: this.fatPer100g ?? this.foodItem?.fatPer100g,
+      sugarPer100g: this.sugarPer100g ?? this.foodItem?.sugarPer100g,
+      fiberPer100g: this.fiberPer100g ?? this.foodItem?.fiberPer100g,
+    });
+
     const dataClause = {
       foodName: runMScript(() => this.foodName, {
         path: "services[2].businessLogic[5].dataClauseItems[0].value",

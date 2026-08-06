@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { validateNutritionValues } from "@/lib/nutrition-validation";
 
 export interface ManualNutritionFormValues {
   name: string;
@@ -57,6 +58,7 @@ export default function ManualNutritionForm({
   const [form, setForm] = useState(
     initialValues ? toFormState(initialValues) : emptyForm,
   );
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const num = (v: string) => Number(v.replace(",", ".")) || 0;
   const isValid = form.name.trim().length > 0 && num(form.gramAmount) > 0;
@@ -75,7 +77,7 @@ export default function ManualNutritionForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-    onSubmit({
+    const values = {
       name: form.name.trim(),
       caloriePer100g: num(form.caloriePer100g),
       proteinPer100g: num(form.proteinPer100g),
@@ -84,7 +86,14 @@ export default function ManualNutritionForm({
       sugarPer100g: num(form.sugarPer100g),
       fiberPer100g: num(form.fiberPer100g),
       gramAmount: num(form.gramAmount),
-    });
+    };
+    const errors = validateNutritionValues(values);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors([]);
+    onSubmit(values);
     setForm(emptyForm);
   };
 
@@ -269,6 +278,15 @@ export default function ManualNutritionForm({
               </p>
             </div>
           </div>
+        </div>
+      )}
+      {validationErrors.length > 0 && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-2.5 space-y-1">
+          {validationErrors.map((err) => (
+            <p key={err} className="text-xs text-destructive">
+              {err}
+            </p>
+          ))}
         </div>
       )}
       <Button type="submit" className="w-full" disabled={!isValid || isPending}>
