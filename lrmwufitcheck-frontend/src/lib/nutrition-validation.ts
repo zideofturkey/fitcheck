@@ -7,14 +7,26 @@ export interface NutritionValues {
   fiberPer100g: number;
 }
 
+export interface NutritionValidationResult {
+  /** Hard failures — physically impossible values, always block saving. */
+  errors: string[];
+  /**
+   * Soft warnings — probably a typo but possibly legitimate (label
+   * rounding, fiber-corrected calories...). Forms show these with an
+   * "anladım, devam et" override instead of blocking outright.
+   */
+  warnings: string[];
+}
+
 /**
- * Shared cross-field sanity checks for per-100g nutrition values - the same
- * 4 rules enforced server-side in nutritionlibrary's validateNutritionValues.js,
- * kept here so every entry form (Food Library create/edit, ManualNutritionForm's
- * manual/direct tabs) can reject an impossible record before it ever reaches
- * the API, with a clear Turkish message instead of a raw errMsg_ code.
+ * Shared cross-field sanity checks for per-100g nutrition values — mirrors
+ * the server-side validateNutritionValues.js rules so every entry form can
+ * reject an impossible record before it reaches the API, with a clear
+ * Turkish message instead of a raw errMsg_ code.
  */
-export function validateNutritionValues(values: NutritionValues): string[] {
+export function validateNutritionValues(
+  values: NutritionValues,
+): NutritionValidationResult {
   const {
     caloriePer100g,
     proteinPer100g,
@@ -24,6 +36,7 @@ export function validateNutritionValues(values: NutritionValues): string[] {
     fiberPer100g,
   } = values;
   const errors: string[] = [];
+  const warnings: string[] = [];
 
   if (sugarPer100g > carbohydratePer100g + 0.01) {
     errors.push("Şeker miktarı karbonhidrat miktarını aşamaz.");
@@ -42,12 +55,12 @@ export function validateNutritionValues(values: NutritionValues): string[] {
 
   const expectedCalories =
     4 * proteinPer100g + 4 * carbohydratePer100g + 9 * fatPer100g;
-  const tolerance = Math.max(expectedCalories * 0.1, 5);
+  const tolerance = Math.max(expectedCalories * 0.25, 10);
   if (Math.abs(caloriePer100g - expectedCalories) > tolerance) {
-    errors.push(
-      `Kalori değeri makrolarla tutarsız - girilen protein/karbonhidrat/yağ değerlerine göre yaklaşık ${Math.round(expectedCalories)} kcal beklenir.`,
+    warnings.push(
+      `Kalori değeri makrolarla tutarsız görünüyor - girilen protein/karbonhidrat/yağ değerlerine göre yaklaşık ${Math.round(expectedCalories)} kcal beklenir.`,
     );
   }
 
-  return errors;
+  return { errors, warnings };
 }

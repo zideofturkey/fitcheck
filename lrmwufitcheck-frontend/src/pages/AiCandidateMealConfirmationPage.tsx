@@ -305,12 +305,19 @@ export default function AiCandidateMealConfirmationPage() {
         },
       },
       {
-        onSuccess: () => {
-          // Land back on the AI meal analysis page, ready for the next
-          // entry, instead of meal detail/history — the user can still
-          // reach history via its own nav link if they want to see it.
+        onSuccess: (res) => {
           toast.success(t("aiCandidateMeal.confirmSuccess"));
-          navigate("/ai-chat", { replace: true });
+          // Land on the just-created meal log's detail page so the user
+          // immediately sees what was saved; fall back to history if the
+          // committed log id isn't in the response for any reason.
+          const mealLogId = (
+            res?.aiCandidateMeal as
+              | { committedMealLogId?: string | null }
+              | undefined
+          )?.committedMealLogId;
+          navigate(mealLogId ? `/meals/${mealLogId}` : "/meals", {
+            replace: true,
+          });
         },
       },
     );

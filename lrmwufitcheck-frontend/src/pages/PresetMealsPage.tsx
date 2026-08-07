@@ -146,7 +146,26 @@ export default function PresetMealsPage() {
     setPendingSuggestion(null);
   };
 
+  // Normal completion ("Bitir"): keep the preset, just close.
+  const finishCreate = () => {
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
   const handleCloseCreate = () => {
+    // Step 1 already wrote the preset record; if the user abandons the
+    // flow, don't leave an empty/half-finished preset behind.
+    if (createdPresetId) {
+      const lineCount = linesData?.presetLines?.length ?? 0;
+      if (
+        lineCount === 0 ||
+        !window.confirm(
+          `"${createForm.name}" taslak olarak kaydedilsin mi?`,
+        )
+      ) {
+        deleteMutation.mutate(createdPresetId);
+      }
+    }
     setCreateOpen(false);
     resetCreateState();
   };
@@ -943,7 +962,7 @@ export default function PresetMealsPage() {
                     type="button"
                     className="w-full"
                     disabled={createdLines.length === 0}
-                    onClick={handleCloseCreate}
+                    onClick={finishCreate}
                   >
                     {t("manualEntry.finish")}
                   </Button>

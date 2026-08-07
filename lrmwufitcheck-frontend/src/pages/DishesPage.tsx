@@ -178,7 +178,26 @@ export default function DishesPage() {
     setPendingAiLines(null);
   };
 
+  // Normal completion ("Bitir" / direct-add): keep the dish, just close.
+  const finishCreate = () => {
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
   const handleCloseCreate = () => {
+    // Step 1 already wrote the dish record to the library; if the user
+    // abandons the flow, don't leave an empty/half-finished dish behind.
+    if (createdDishId) {
+      const lineCount = linesData?.dishLines?.length ?? 0;
+      if (
+        lineCount === 0 ||
+        !window.confirm(
+          `"${createForm.name}" taslak olarak kaydedilsin mi?`,
+        )
+      ) {
+        deleteMutation.mutate(createdDishId);
+      }
+    }
     setCreateOpen(false);
     resetCreateState();
   };
@@ -374,7 +393,7 @@ export default function DishesPage() {
       {
         onSuccess: () => {
           setPendingSuggestion(values);
-          handleCloseCreate();
+          finishCreate();
         },
       },
     );
@@ -1357,7 +1376,7 @@ export default function DishesPage() {
                       type="button"
                       className="w-full"
                       disabled={createdLines.length === 0}
-                      onClick={handleCloseCreate}
+                      onClick={finishCreate}
                     >
                       {t("manualEntry.finish")}
                     </Button>

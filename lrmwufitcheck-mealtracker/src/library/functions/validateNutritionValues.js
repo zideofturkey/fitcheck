@@ -28,8 +28,11 @@ function validateNutritionValues({
     }
   }
   if (hasCalorie && hasProtein && hasCarb && hasFat) {
+    // Deliberately looser than the frontend's 25% soft-warning band: the
+    // UI already nudges the user and offers an explicit "devam et"
+    // override, so the backend only rejects wildly inconsistent values.
     const expectedCalories = 4 * proteinPer100g + 4 * carbohydratePer100g + 9 * fatPer100g;
-    const tolerance = Math.max(expectedCalories * 0.1, 5);
+    const tolerance = Math.max(expectedCalories * 0.5, 20);
     if (Math.abs(caloriePer100g - expectedCalories) > tolerance) {
       throw new BadRequestError("errMsg_caloriePer100gInconsistentWithMacros");
     }

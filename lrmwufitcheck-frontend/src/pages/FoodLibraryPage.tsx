@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -229,6 +230,12 @@ export default function FoodLibraryPage() {
   const [editValidationErrors, setEditValidationErrors] = useState<string[]>(
     [],
   );
+  const [createValidationWarnings, setCreateValidationWarnings] = useState<
+    string[]
+  >([]);
+  const [editValidationWarnings, setEditValidationWarnings] = useState<
+    string[]
+  >([]);
   const [aiOpen, setAiOpen] = useState(false);
   useLockBodyScroll(createOpen || editOpen || aiOpen);
   const [aiInput, setAiInput] = useState("");
@@ -313,28 +320,46 @@ export default function FoodLibraryPage() {
     baseName: form.baseName || undefined,
   });
 
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!createForm.name || !createForm.calories) return;
+  const commitCreate = () => {
     const payload: CreateFoodItemInputWithGlobal = {
       ...buildPayload(createForm),
       creationSource: createIsAi ? "aiAssistant" : "manualEntry",
       isGlobal: isAdmin && createIsGlobal ? true : undefined,
     };
-    const errors = validateNutritionValues(payload);
-    if (errors.length > 0) {
-      setCreateValidationErrors(errors);
-      return;
-    }
     setCreateValidationErrors([]);
-    createMutation.mutate(
-      payload,
+    setCreateValidationWarnings([]);
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        setCreateOpen(false);
+        setCreateForm(EMPTY_FORM);
+        setCreateIsAi(false);
+        setCreateIsGlobal(false);
+      },
+    });
+  };
+
+  const handleCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.name || !createForm.calories) return;
+    const { errors, warnings } = validateNutritionValues(
+      buildPayload(createForm),
+    );
+    setCreateValidationErrors(errors);
+    setCreateValidationWarnings(errors.length > 0 ? [] : warnings);
+    if (errors.length > 0 || warnings.length > 0) return;
+    commitCreate();
+  };
+
+  const commitUpdate = () => {
+    if (!editingFood) return;
+    setEditValidationErrors([]);
+    setEditValidationWarnings([]);
+    updateMutation.mutate(
+      { foodItemId: editingFood.id, data: buildPayload(editForm) },
       {
         onSuccess: () => {
-          setCreateOpen(false);
-          setCreateForm(EMPTY_FORM);
-          setCreateIsAi(false);
-          setCreateIsGlobal(false);
+          setEditOpen(false);
+          setEditingFood(null);
         },
       },
     );
@@ -343,22 +368,13 @@ export default function FoodLibraryPage() {
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingFood) return;
-    const data = buildPayload(editForm);
-    const errors = validateNutritionValues(data);
-    if (errors.length > 0) {
-      setEditValidationErrors(errors);
-      return;
-    }
-    setEditValidationErrors([]);
-    updateMutation.mutate(
-      { foodItemId: editingFood.id, data },
-      {
-        onSuccess: () => {
-          setEditOpen(false);
-          setEditingFood(null);
-        },
-      },
+    const { errors, warnings } = validateNutritionValues(
+      buildPayload(editForm),
     );
+    setEditValidationErrors(errors);
+    setEditValidationWarnings(errors.length > 0 ? [] : warnings);
+    if (errors.length > 0 || warnings.length > 0) return;
+    commitUpdate();
   };
 
   const handleDelete = (id: string) => {
@@ -617,8 +633,15 @@ export default function FoodLibraryPage() {
                     to={`/food-library/${item.id}`}
                     className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted transition-colors"
                   >
-                    <span className="text-sm text-foreground">
-                      {item.brandName || item.foodName}
+                    <span className="min-w-0">
+                      <span className="block text-sm text-foreground truncate">
+                        {item.foodName}
+                      </span>
+                      {item.brandName && (
+                        <span className="block text-[11px] text-muted-foreground/70 truncate">
+                          {item.brandName}
+                        </span>
+                      )}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {item.caloriePer100g} kcal · {item.proteinPer100g}g{" "}
@@ -807,9 +830,11 @@ export default function FoodLibraryPage() {
         </div>
       </div>
 
-      {/* Create Drawer */}
-      {createOpen && (
-        <>
+      {/* Create Drawer — portaled to <body> so no scrolled/transformed
+          ancestor can offset the fixed panel (real-iOS clipping bug). */}
+      {createOpen &&
+        createPortal(
+          <>
           <div
             className={drawerOverlay}
             onClick={() => setCreateOpen(false)}
@@ -966,6 +991,24 @@ export default function FoodLibraryPage() {
                     ))}
                   </div>
                 )}
+                {createValidationWarnings.length > 0 && (
+                  <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-2">
+                    {createValidationWarnings.map((w) => (
+                      <p key={w} className="text-xs text-amber-700">
+                        {w}
+                      </p>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={commitCreate}
+                    >
+                      Anlıyorum, bu değerlerle devam et
+                    </Button>
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <Button
                     type="button"
@@ -988,12 +1031,15 @@ export default function FoodLibraryPage() {
               </div>
             </form>
           </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
 
       {/* Edit Drawer */}
-      {editOpen && editingFood && (
-        <>
+      {editOpen &&
+        editingFood &&
+        createPortal(
+          <>
           <div
             className={drawerOverlay}
             onClick={() => setEditOpen(false)}
@@ -1129,6 +1175,24 @@ export default function FoodLibraryPage() {
                     ))}
                   </div>
                 )}
+                {editValidationWarnings.length > 0 && (
+                  <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-2">
+                    {editValidationWarnings.map((w) => (
+                      <p key={w} className="text-xs text-amber-700">
+                        {w}
+                      </p>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={commitUpdate}
+                    >
+                      Anlıyorum, bu değerlerle devam et
+                    </Button>
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <Button
                     type="button"
@@ -1151,12 +1215,14 @@ export default function FoodLibraryPage() {
               </div>
             </form>
           </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
 
       {/* AI Parse Modal */}
-      {aiOpen && (
-        <>
+      {aiOpen &&
+        createPortal(
+          <>
           <div
             className={drawerOverlay}
             onClick={() => setAiOpen(false)}
@@ -1244,8 +1310,9 @@ export default function FoodLibraryPage() {
               </div>
             </form>
           </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
     </div>
   );
 }
