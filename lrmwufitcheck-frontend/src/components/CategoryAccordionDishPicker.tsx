@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useTranslation } from "react-i18next";
 import { Loader } from "lucide-react";
 import {
@@ -99,7 +100,7 @@ export default function CategoryAccordionDishPicker({
                   >
                     <p className="text-sm font-medium">{dish.dishName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {dish.totalCalories} kcal / {dish.totalGramWeight}g
+                      {formatMacro(dish.totalCalories)} kcal / {dish.totalGramWeight}g
                     </p>
                   </button>
                 );

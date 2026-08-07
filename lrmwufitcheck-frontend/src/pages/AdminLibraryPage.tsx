@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -415,8 +416,8 @@ function FoodItemsTab() {
                 {item.foodName}
               </p>
               <p className="text-xs text-muted-foreground">
-                {item.caloriePer100g} kcal · P{item.proteinPer100g} K
-                {item.carbohydratePer100g} Y{item.fatPer100g}{" "}
+                {formatMacro(item.caloriePer100g)} kcal · P{formatMacro(item.proteinPer100g)} K
+                {formatMacro(item.carbohydratePer100g)} Y{formatMacro(item.fatPer100g)}{" "}
                 {item.brandName ? `· ${item.brandName}` : ""}
               </p>
             </div>

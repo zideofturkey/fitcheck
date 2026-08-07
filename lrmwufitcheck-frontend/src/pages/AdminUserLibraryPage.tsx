@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -155,13 +156,13 @@ function AdminUserLibraryPage() {
                 <p className="text-sm font-semibold text-foreground">{itemName(item)}</p>
                 {item.entityType === "foodItem" ? (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("adminSuggestions.per100g")}: {item.caloriePer100g} {t("common.kcal")} · P{" "}
-                    {item.proteinPer100g}g · K {item.carbohydratePer100g}g · Y {item.fatPer100g}g
+                    {t("adminSuggestions.per100g")}: {formatMacro(item.caloriePer100g)} {t("common.kcal")} · P{" "}
+                    {formatMacro(item.proteinPer100g)}g · K {formatMacro(item.carbohydratePer100g)}g · Y {formatMacro(item.fatPer100g)}g
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("adminSuggestions.totals")}: {item.totalCalories} {t("common.kcal")} · P{" "}
-                    {item.totalProtein}g · K {item.totalCarbohydrates}g · Y {item.totalFat}g
+                    {t("adminSuggestions.totals")}: {formatMacro(item.totalCalories)} {t("common.kcal")} · P{" "}
+                    {formatMacro(item.totalProtein)}g · K {formatMacro(item.totalCarbohydrates)}g · Y {formatMacro(item.totalFat)}g
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">

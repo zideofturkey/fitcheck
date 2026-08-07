@@ -1182,6 +1182,28 @@
     "product": "Ürün",
     "support": "Destek",
     "profileTargets": "Profil ve Hedefler",
+    "profile": "Profil",
+    "feedback": "Geri Bildirim",
+    "feedbackDescription": "Görüş, öneri ya da karşılaştığınız bir sorunu bize iletin.",
+    "feedbackFullName": "Ad Soyad",
+    "feedbackFullNamePlaceholder": "Adınız Soyadınız",
+    "feedbackEmail": "E-posta",
+    "feedbackEmailPlaceholder": "ornek@eposta.com",
+    "feedbackSubject": "Konu",
+    "feedbackSubjectPlaceholder": "Bir konu seçin",
+    "feedbackSubjectOptions": {
+      "bug": "Hata Bildirimi",
+      "featureRequest": "Özellik Önerisi",
+      "general": "Genel Geri Bildirim",
+      "other": "Diğer"
+    },
+    "feedbackMessage": "Mesajınız",
+    "feedbackMessagePlaceholder": "Bize iletmek istediğiniz mesajı yazın...",
+    "feedbackSubmit": "Gönder",
+    "feedbackSending": "Gönderiliyor...",
+    "feedbackSuccess": "Geri bildiriminiz için teşekkürler! En kısa sürede değerlendireceğiz.",
+    "feedbackError": "Geri bildirim gönderilemedi, lütfen tekrar deneyin.",
+    "feedbackValidationError": "Lütfen tüm alanları doldurun.",
     "copyright": "© 2025 FitCheck. Tüm hakları saklıdır."
   },
   "profile": {

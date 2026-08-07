@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
@@ -50,6 +51,7 @@ import type { CreateFoodItemInputWithGlobal } from "@/types/admin-create-extensi
 import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 import { validateNutritionValues } from "@/lib/nutrition-validation";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
+import DraftConfirmDialog from "@/components/DraftConfirmDialog";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Meat: Apple,
@@ -242,6 +244,7 @@ export default function FoodLibraryPage() {
   const [createIsAi, setCreateIsAi] = useState(false);
   const [createIsGlobal, setCreateIsGlobal] = useState(false);
   const [groupedView, setGroupedView] = useState(false);
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
   const parseMeal = useParseMeal();
 
   const { data, isLoading } = useListFoodItems({
@@ -348,6 +351,33 @@ export default function FoodLibraryPage() {
     setCreateValidationWarnings(errors.length > 0 ? [] : warnings);
     if (errors.length > 0 || warnings.length > 0) return;
     commitCreate();
+  };
+
+  // Closing the create drawer (X / overlay) before submitting: if the user
+  // has typed a name, offer to save what's there as a draft (missing macro
+  // fields default to 0 via buildPayload) instead of silently discarding.
+  const handleCloseCreate = () => {
+    if (createForm.name.trim()) {
+      setDraftDialogOpen(true);
+      return;
+    }
+    setCreateOpen(false);
+    setCreateForm(EMPTY_FORM);
+    setCreateIsAi(false);
+    setCreateIsGlobal(false);
+  };
+
+  const handleDraftKeep = () => {
+    setDraftDialogOpen(false);
+    commitCreate();
+  };
+
+  const handleDraftDiscard = () => {
+    setDraftDialogOpen(false);
+    setCreateOpen(false);
+    setCreateForm(EMPTY_FORM);
+    setCreateIsAi(false);
+    setCreateIsGlobal(false);
   };
 
   const commitUpdate = () => {
@@ -506,19 +536,19 @@ export default function FoodLibraryPage() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mb-3">
-                    {food.caloriePer100g} kcal · {food.proteinPer100g}g{" "}
-                    {t("foodLibrary.protein")} · {food.carbohydratePer100g}g{" "}
+                    {formatMacro(food.caloriePer100g)} kcal · {formatMacro(food.proteinPer100g)}g{" "}
+                    {t("foodLibrary.protein")} · {formatMacro(food.carbohydratePer100g)}g{" "}
                     {t("foodLibrary.carbs")} / 100g
                   </p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                     <span>
-                      {t("foodLibrary.fat")}: {food.fatPer100g}g
+                      {t("foodLibrary.fat")}: {formatMacro(food.fatPer100g)}g
                     </span>
                     <span>
-                      {t("foodLibrary.sugar")}: {food.sugarPer100g}g
+                      {t("foodLibrary.sugar")}: {formatMacro(food.sugarPer100g)}g
                     </span>
                     <span>
-                      {t("foodLibrary.fiber")}: {food.fiberPer100g}g
+                      {t("foodLibrary.fiber")}: {formatMacro(food.fiberPer100g)}g
                     </span>
                     {food.brandName && (
                       <span>
@@ -644,7 +674,7 @@ export default function FoodLibraryPage() {
                       )}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {item.caloriePer100g} kcal · {item.proteinPer100g}g{" "}
+                      {formatMacro(item.caloriePer100g)} kcal · {formatMacro(item.proteinPer100g)}g{" "}
                       {t("foodLibrary.protein").toLowerCase()} / 100g
                     </span>
                   </Link>
@@ -837,7 +867,7 @@ export default function FoodLibraryPage() {
           <>
           <div
             className={drawerOverlay}
-            onClick={() => setCreateOpen(false)}
+            onClick={handleCloseCreate}
             aria-hidden="true"
           />
           <div className={drawerPanel}>
@@ -854,7 +884,7 @@ export default function FoodLibraryPage() {
                 </h2>
                 <button
                   type="button"
-                  onClick={() => setCreateOpen(false)}
+                  onClick={handleCloseCreate}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
                   aria-label={t("foodLibrary.closeAria")}
                   title={t("foodLibrary.closeAria")}
@@ -1014,7 +1044,7 @@ export default function FoodLibraryPage() {
                     type="button"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => setCreateOpen(false)}
+                    onClick={handleCloseCreate}
                   >
                     {t("foodLibrary.cancel")}
                   </Button>
@@ -1313,6 +1343,14 @@ export default function FoodLibraryPage() {
           </>,
           document.body,
         )}
+
+      <DraftConfirmDialog
+        open={draftDialogOpen}
+        onOpenChange={setDraftDialogOpen}
+        itemName={createForm.name}
+        onKeep={handleDraftKeep}
+        onDiscard={handleDraftDiscard}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Loader } from "lucide-react";
@@ -104,7 +105,7 @@ export default function CategoryAccordionFoodPicker({
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          {item.caloriePer100g} {t("common.kcal")} · {item.proteinPer100g}g
+          {formatMacro(item.caloriePer100g)} {t("common.kcal")} · {formatMacro(item.proteinPer100g)}g
           {" "}
           {t("aiCandidateMeal.protein").toLowerCase()} / 100g
         </p>

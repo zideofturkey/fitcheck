@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -277,32 +278,32 @@ export default function DishDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <NutritionTile
                   label={t("aiCandidateMeal.calories")}
-                  value={dish.totalCalories}
+                  value={formatMacro(dish.totalCalories)}
                   unit={t("common.kcal")}
                 />
                 <NutritionTile
                   label={t("aiCandidateMeal.protein")}
-                  value={dish.totalProtein}
+                  value={formatMacro(dish.totalProtein)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("aiCandidateMeal.carbs")}
-                  value={dish.totalCarbohydrates}
+                  value={formatMacro(dish.totalCarbohydrates)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("aiCandidateMeal.fat")}
-                  value={dish.totalFat}
+                  value={formatMacro(dish.totalFat)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("aiCandidateMeal.sugar")}
-                  value={dish.totalSugar}
+                  value={formatMacro(dish.totalSugar)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("aiCandidateMeal.fiber")}
-                  value={dish.totalFiber}
+                  value={formatMacro(dish.totalFiber)}
                   unit="g"
                 />
               </div>
@@ -423,7 +424,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.calories")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineCalories}
+                          {formatMacro(line.lineCalories)}
                         </span>
                       </div>
                       <div>
@@ -431,7 +432,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.protein")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineProtein}g
+                          {formatMacro(line.lineProtein)}g
                         </span>
                       </div>
                       <div>
@@ -439,7 +440,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.carbs")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineCarbohydrates}g
+                          {formatMacro(line.lineCarbohydrates)}g
                         </span>
                       </div>
                       <div>
@@ -447,7 +448,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.fat")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineFat}g
+                          {formatMacro(line.lineFat)}g
                         </span>
                       </div>
                       <div>
@@ -455,7 +456,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.sugar")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineSugar}g
+                          {formatMacro(line.lineSugar)}g
                         </span>
                       </div>
                       <div>
@@ -463,7 +464,7 @@ export default function DishDetailPage() {
                           {t("aiCandidateMeal.fiber")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineFiber}g
+                          {formatMacro(line.lineFiber)}g
                         </span>
                       </div>
                     </div>
@@ -637,7 +638,7 @@ export default function DishDetailPage() {
                       >
                         <p className="text-sm font-medium">{food.foodName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {food.caloriePer100g} {t("common.kcal")} · {food.proteinPer100g}
+                          {formatMacro(food.caloriePer100g)} {t("common.kcal")} · {formatMacro(food.proteinPer100g)}
                           g {t("aiCandidateMeal.protein").toLowerCase()} / 100g
                         </p>
                       </button>
@@ -677,9 +678,14 @@ export default function DishDetailPage() {
                     <input
                       type="number"
                       min={1}
-                      value={gramAmount}
+                      placeholder="100"
+                      value={gramAmount === 0 ? "" : gramAmount}
                       onChange={(e) =>
-                        setGramAmount(Number(e.target.value) || 0)
+                        setGramAmount(
+                          e.target.value === ""
+                            ? 0
+                            : Number(e.target.value) || 0,
+                        )
                       }
                       className="w-full rounded-md border border-input bg-card px-3 py-2.5 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                     />

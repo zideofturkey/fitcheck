@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -320,32 +321,32 @@ export default function PresetMealDetailPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <NutritionTile
                   label={t("presetMealDetail.calories")}
-                  value={preset.totalCalories}
+                  value={formatMacro(preset.totalCalories)}
                   unit="kcal"
                 />
                 <NutritionTile
                   label={t("presetMealDetail.protein")}
-                  value={preset.totalProtein}
+                  value={formatMacro(preset.totalProtein)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("presetMealDetail.carbs")}
-                  value={preset.totalCarbohydrates}
+                  value={formatMacro(preset.totalCarbohydrates)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("presetMealDetail.fat")}
-                  value={preset.totalFat}
+                  value={formatMacro(preset.totalFat)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("presetMealDetail.sugar")}
-                  value={preset.totalSugar}
+                  value={formatMacro(preset.totalSugar)}
                   unit="g"
                 />
                 <NutritionTile
                   label={t("presetMealDetail.fiber")}
-                  value={preset.totalFiber}
+                  value={formatMacro(preset.totalFiber)}
                   unit="g"
                 />
               </div>
@@ -466,7 +467,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.calories")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineCalories}
+                          {formatMacro(line.lineCalories)}
                         </span>
                       </div>
                       <div>
@@ -474,7 +475,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.protein")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineProtein}g
+                          {formatMacro(line.lineProtein)}g
                         </span>
                       </div>
                       <div>
@@ -482,7 +483,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.carbs")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineCarbohydrates}g
+                          {formatMacro(line.lineCarbohydrates)}g
                         </span>
                       </div>
                       <div>
@@ -490,7 +491,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.fat")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineFat}g
+                          {formatMacro(line.lineFat)}g
                         </span>
                       </div>
                       <div>
@@ -498,7 +499,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.sugar")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineSugar}g
+                          {formatMacro(line.lineSugar)}g
                         </span>
                       </div>
                       <div>
@@ -506,7 +507,7 @@ export default function PresetMealDetailPage() {
                           {t("presetMealDetail.fiber")}
                         </span>
                         <span className="text-sm font-medium block">
-                          {line.lineFiber}g
+                          {formatMacro(line.lineFiber)}g
                         </span>
                       </div>
                     </div>
@@ -665,7 +666,7 @@ export default function PresetMealDetailPage() {
                       >
                         <p className="text-sm font-medium">{dish.dishName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {dish.totalCalories} kcal · {dish.totalProtein}g{" "}
+                          {formatMacro(dish.totalCalories)} kcal · {formatMacro(dish.totalProtein)}g{" "}
                           {t("presetMealDetail.protein").toLowerCase()} /{" "}
                           {dish.totalGramWeight}g
                         </p>
@@ -701,9 +702,14 @@ export default function PresetMealDetailPage() {
                     <input
                       type="number"
                       min={1}
-                      value={gramAmount}
+                      placeholder="100"
+                      value={gramAmount === 0 ? "" : gramAmount}
                       onChange={(e) =>
-                        setGramAmount(Number(e.target.value) || 0)
+                        setGramAmount(
+                          e.target.value === ""
+                            ? 0
+                            : Number(e.target.value) || 0,
+                        )
                       }
                       className="w-full rounded-md border border-input bg-card px-3 py-2.5 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                     />

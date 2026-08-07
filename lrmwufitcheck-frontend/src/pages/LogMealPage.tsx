@@ -537,15 +537,17 @@ function LogMealPage() {
                     <div className="relative flex-1">
                       <input
                         type="number"
-                        value={item.grams}
+                        value={item.grams === 0 ? "" : item.grams}
                         min={1}
-                        onChange={(e) =>
+                        placeholder="100"
+                        onChange={(e) => {
+                          const raw = e.target.value;
                           updateFoodItem(
                             item.id,
                             "grams",
-                            Number(e.target.value),
-                          )
-                        }
+                            raw === "" ? 0 : Number(raw),
+                          );
+                        }}
                         className="w-full rounded-lg border border-input bg-card px-3 py-2.5 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">

@@ -1182,6 +1182,28 @@
     "product": "Product",
     "support": "Support",
     "profileTargets": "Profile & Targets",
+    "profile": "Profile",
+    "feedback": "Feedback",
+    "feedbackDescription": "Send us your thoughts, suggestions, or an issue you ran into.",
+    "feedbackFullName": "Full Name",
+    "feedbackFullNamePlaceholder": "Your Full Name",
+    "feedbackEmail": "Email",
+    "feedbackEmailPlaceholder": "you@example.com",
+    "feedbackSubject": "Subject",
+    "feedbackSubjectPlaceholder": "Choose a subject",
+    "feedbackSubjectOptions": {
+      "bug": "Bug Report",
+      "featureRequest": "Feature Request",
+      "general": "General Feedback",
+      "other": "Other"
+    },
+    "feedbackMessage": "Your Message",
+    "feedbackMessagePlaceholder": "Write what you'd like to tell us...",
+    "feedbackSubmit": "Send",
+    "feedbackSending": "Sending...",
+    "feedbackSuccess": "Thanks for your feedback! We'll take a look soon.",
+    "feedbackError": "Couldn't send feedback, please try again.",
+    "feedbackValidationError": "Please fill in all the fields.",
     "copyright": "© 2025 FitCheck. All rights reserved."
   },
   "profile": {

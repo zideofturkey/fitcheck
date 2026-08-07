@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -46,6 +47,7 @@ import ManualNutritionForm, {
 import ManualEntrySuggestionDialog from "@/components/ManualEntrySuggestionDialog";
 import { persistManualFoodItem } from "@/services/api/manual-entry-helpers";
 import StepIndicator from "@/components/StepIndicator";
+import DraftConfirmDialog from "@/components/DraftConfirmDialog";
 import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import type { NutritionlibraryFoodItem } from "@/types/api";
@@ -144,6 +146,7 @@ export default function DishesPage() {
   >(null);
   const [editCreatedLineForm, setEditCreatedLineForm] =
     useState<EditCreatedLineForm | null>(null);
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
 
   const addLineMutation = useAddDishLine();
   const removeLineMutation = useDeleteDishLine();
@@ -189,15 +192,28 @@ export default function DishesPage() {
     // abandons the flow, don't leave an empty/half-finished dish behind.
     if (createdDishId) {
       const lineCount = linesData?.dishLines?.length ?? 0;
-      if (
-        lineCount === 0 ||
-        !window.confirm(
-          `"${createForm.name}" taslak olarak kaydedilsin mi?`,
-        )
-      ) {
+      if (lineCount === 0) {
         deleteMutation.mutate(createdDishId);
+        setCreateOpen(false);
+        resetCreateState();
+      } else {
+        setDraftDialogOpen(true);
       }
+      return;
     }
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
+  const handleDraftKeep = () => {
+    setDraftDialogOpen(false);
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
+  const handleDraftDiscard = () => {
+    setDraftDialogOpen(false);
+    if (createdDishId) deleteMutation.mutate(createdDishId);
     setCreateOpen(false);
     resetCreateState();
   };
@@ -655,7 +671,7 @@ export default function DishesPage() {
                       {t("aiCandidateMeal.calories")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {dish.totalCalories} {t("common.kcal")}
+                      {formatMacro(dish.totalCalories)} {t("common.kcal")}
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -663,7 +679,7 @@ export default function DishesPage() {
                       {t("aiCandidateMeal.protein")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {dish.totalProtein} g
+                      {formatMacro(dish.totalProtein)} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -671,7 +687,7 @@ export default function DishesPage() {
                       {t("aiCandidateMeal.carbs")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {dish.totalCarbohydrates} g
+                      {formatMacro(dish.totalCarbohydrates)} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -679,7 +695,7 @@ export default function DishesPage() {
                       {t("aiCandidateMeal.fat")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {dish.totalFat} g
+                      {formatMacro(dish.totalFat)} g
                     </span>
                   </div>
                 </div>
@@ -1235,7 +1251,7 @@ export default function DishesPage() {
                                   {food.foodName}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {food.caloriePer100g} {t("common.kcal")} · 100g
+                                  {formatMacro(food.caloriePer100g)} {t("common.kcal")} · 100g
                                 </p>
                               </button>
                             );
@@ -1273,9 +1289,14 @@ export default function DishesPage() {
                             <input
                               type="number"
                               min={1}
-                              value={gramAmount}
+                              placeholder="100"
+                              value={gramAmount === 0 ? "" : gramAmount}
                               onChange={(e) =>
-                                setGramAmount(Number(e.target.value) || 0)
+                                setGramAmount(
+                                  e.target.value === ""
+                                    ? 0
+                                    : Number(e.target.value) || 0,
+                                )
                               }
                               className="w-full rounded-md border border-input bg-card px-3 py-2.5 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                             />
@@ -1493,6 +1514,14 @@ export default function DishesPage() {
           onDismiss={() => setPendingSuggestion(null)}
         />
       )}
+
+      <DraftConfirmDialog
+        open={draftDialogOpen}
+        onOpenChange={setDraftDialogOpen}
+        itemName={createForm.name}
+        onKeep={handleDraftKeep}
+        onDiscard={handleDraftDiscard}
+      />
     </div>
   );
 }
