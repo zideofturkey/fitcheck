@@ -107,6 +107,7 @@ function LogMealPage() {
   const [foodItems, setFoodItems] = useState<FoodItemEntry[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
 
   const slotOptions: {
     value: MealSlot;
@@ -235,9 +236,10 @@ function LogMealPage() {
 
   const validateFoodItems = () => {
     const errors: string[] = [];
+    const warnings: string[] = [];
     for (const item of foodItems) {
       const density = item.grams > 0 ? 100 / item.grams : 0;
-      const itemErrors = validateNutritionValues({
+      const result = validateNutritionValues({
         caloriePer100g: item.calories * density,
         proteinPer100g: item.protein * density,
         carbohydratePer100g: item.carbs * density,
@@ -246,19 +248,24 @@ function LogMealPage() {
         fiberPer100g: item.fiber * density,
       });
       const label = item.name || t("logMeal.foodNamePlaceholder");
-      errors.push(...itemErrors.map((err) => `${label}: ${err}`));
+      errors.push(...result.errors.map((err) => `${label}: ${err}`));
+      warnings.push(...result.warnings.map((w) => `${label}: ${w}`));
     }
-    return errors;
+    return { errors, warnings };
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const itemErrors = validateFoodItems();
-    if (itemErrors.length > 0) {
-      setValidationErrors(itemErrors);
-      return;
-    }
+    const { errors, warnings } = validateFoodItems();
+    setValidationErrors(errors);
+    setValidationWarnings(errors.length > 0 ? [] : warnings);
+    if (errors.length > 0 || warnings.length > 0) return;
+    commitMeal();
+  };
+
+  const commitMeal = () => {
     setValidationErrors([]);
+    setValidationWarnings([]);
     const slotName = customSlotName || mealSlot;
     createMutation.mutate(
       {
@@ -689,6 +696,24 @@ function LogMealPage() {
                     {err}
                   </p>
                 ))}
+              </div>
+            )}
+            {validationWarnings.length > 0 && (
+              <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-2">
+                {validationWarnings.map((w) => (
+                  <p key={w} className="text-xs text-amber-700">
+                    {w}
+                  </p>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={commitMeal}
+                >
+                  Anlıyorum, bu değerlerle devam et
+                </Button>
               </div>
             )}
             <div className="flex items-center justify-between pt-2">

@@ -138,7 +138,7 @@ export default function MainLayout() {
       <div className="flex flex-col min-h-screen">
         <header className="sticky top-0 z-30 bg-card border-b border-border shadow-sm safe-top">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14 md:h-16">
+            <div className="relative flex items-center justify-between h-14 md:h-16">
               <div className="flex items-center gap-8">
                 <button
                   type="button"
@@ -151,7 +151,7 @@ export default function MainLayout() {
                 </button>
                 <Link
                   to="/dashboard"
-                  className="flex items-center gap-2 font-semibold text-base md:text-lg tracking-tight text-foreground"
+                  className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex items-center gap-2 font-semibold text-base md:text-lg tracking-tight text-foreground"
                 >
                   <Salad className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                   <span>{t("common.appName")}</span>
@@ -335,10 +335,34 @@ export default function MainLayout() {
                   </li>
                   <li>
                     <Link
+                      to="/meals"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("nav.mealHistory")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       to="/food-library"
                       className="hover:text-foreground transition-colors"
                     >
                       {t("nav.foodLibrary")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/dishes"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("nav.dishes")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/preset-meals"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("nav.presetMeals")}
                     </Link>
                   </li>
                   <li>
@@ -362,6 +386,14 @@ export default function MainLayout() {
                       className="hover:text-foreground transition-colors"
                     >
                       {t("footer.profileTargets")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/targets"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("nav.targets")}
                     </Link>
                   </li>
                   <li>

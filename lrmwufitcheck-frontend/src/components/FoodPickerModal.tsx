@@ -352,9 +352,12 @@ export default function FoodPickerModal({
                             : "border-border hover:bg-muted"
                         }`}
                       >
-                        <p className="text-sm font-medium">
-                          {food.brandName || food.foodName}
-                        </p>
+                        <p className="text-sm font-medium">{food.foodName}</p>
+                        {food.brandName && (
+                          <p className="text-[11px] text-muted-foreground/70">
+                            {food.brandName}
+                          </p>
+                        )}
                         <p className="text-xs text-muted-foreground">
                           {food.caloriePer100g} kcal · {food.proteinPer100g}g
                           protein / 100g

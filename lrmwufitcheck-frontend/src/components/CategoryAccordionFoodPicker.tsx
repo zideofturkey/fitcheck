@@ -97,9 +97,12 @@ export default function CategoryAccordionFoodPicker({
             : "border-border hover:bg-muted"
         }`}
       >
-        <p className="text-sm font-medium">
-          {item.brandName || item.foodName}
-        </p>
+        <p className="text-sm font-medium">{item.foodName}</p>
+        {item.brandName && (
+          <p className="text-[11px] text-muted-foreground/70">
+            {item.brandName}
+          </p>
+        )}
         <p className="text-xs text-muted-foreground">
           {item.caloriePer100g} {t("common.kcal")} · {item.proteinPer100g}g
           {" "}

@@ -59,6 +59,7 @@ export default function ManualNutritionForm({
     initialValues ? toFormState(initialValues) : emptyForm,
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
 
   const num = (v: string) => Number(v.replace(",", ".")) || 0;
   const isValid = form.name.trim().length > 0 && num(form.gramAmount) > 0;
@@ -74,27 +75,33 @@ export default function ManualNutritionForm({
       num(form.sugarPer100g) > 0 ||
       num(form.fiberPer100g) > 0);
 
+  const buildValues = () => ({
+    name: form.name.trim(),
+    caloriePer100g: num(form.caloriePer100g),
+    proteinPer100g: num(form.proteinPer100g),
+    carbohydratePer100g: num(form.carbohydratePer100g),
+    fatPer100g: num(form.fatPer100g),
+    sugarPer100g: num(form.sugarPer100g),
+    fiberPer100g: num(form.fiberPer100g),
+    gramAmount: num(form.gramAmount),
+  });
+
+  const commit = (values: ReturnType<typeof buildValues>) => {
+    setValidationErrors([]);
+    setValidationWarnings([]);
+    onSubmit(values);
+    setForm(emptyForm);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-    const values = {
-      name: form.name.trim(),
-      caloriePer100g: num(form.caloriePer100g),
-      proteinPer100g: num(form.proteinPer100g),
-      carbohydratePer100g: num(form.carbohydratePer100g),
-      fatPer100g: num(form.fatPer100g),
-      sugarPer100g: num(form.sugarPer100g),
-      fiberPer100g: num(form.fiberPer100g),
-      gramAmount: num(form.gramAmount),
-    };
-    const errors = validateNutritionValues(values);
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
-    setValidationErrors([]);
-    onSubmit(values);
-    setForm(emptyForm);
+    const values = buildValues();
+    const { errors, warnings } = validateNutritionValues(values);
+    setValidationErrors(errors);
+    setValidationWarnings(errors.length > 0 ? [] : warnings);
+    if (errors.length > 0 || warnings.length > 0) return;
+    commit(values);
   };
 
   return (
@@ -287,6 +294,24 @@ export default function ManualNutritionForm({
               {err}
             </p>
           ))}
+        </div>
+      )}
+      {validationWarnings.length > 0 && (
+        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 space-y-2">
+          {validationWarnings.map((w) => (
+            <p key={w} className="text-xs text-amber-700">
+              {w}
+            </p>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => commit(buildValues())}
+          >
+            Anlıyorum, bu değerlerle devam et
+          </Button>
         </div>
       )}
       <Button type="submit" className="w-full" disabled={!isValid || isPending}>
