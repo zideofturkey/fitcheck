@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 // EditMealPage — wired to useGetMealLog + useUpdateMealLog
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -457,11 +458,11 @@ export default function EditMealPage() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-semibold">
-                    {line.itemCalories} kcal
+                    {formatMacro(line.itemCalories)} kcal
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    P: {line.itemProtein}g · C: {line.itemCarbohydrates}g · F:{" "}
-                    {line.itemFat}g
+                    P: {formatMacro(line.itemProtein)}g · C: {formatMacro(line.itemCarbohydrates)}g · F:{" "}
+                    {formatMacro(line.itemFat)}g
                   </p>
                 </div>
               </div>

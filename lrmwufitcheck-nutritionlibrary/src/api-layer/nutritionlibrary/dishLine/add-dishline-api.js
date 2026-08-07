@@ -130,19 +130,25 @@ class AddDishLineManager extends DishLineManager {
         }
       : this.resolvedFood;
 
+    // Round to 2 decimals - guards against floating-point artifacts (e.g.
+    // 31.900000000002) from the per100g * gramAmount / 100 scaling, matching
+    // the same round2 pattern used in add-presetline-api.js.
+    const round2 = (v) => Math.round(v * 100) / 100;
+
     const dataClause = {
       id: this.dishLineId,
       dishId: this.dishId,
       foodItemId: isManual ? null : this.foodItemId,
       lineFoodName: source.foodName,
       gramAmount: this.gramAmount,
-      lineCalories: (source.caloriePer100g * this.gramAmount) / 100,
-      lineProtein: (source.proteinPer100g * this.gramAmount) / 100,
-      lineCarbohydrates:
+      lineCalories: round2((source.caloriePer100g * this.gramAmount) / 100),
+      lineProtein: round2((source.proteinPer100g * this.gramAmount) / 100),
+      lineCarbohydrates: round2(
         (source.carbohydratePer100g * this.gramAmount) / 100,
-      lineFat: (source.fatPer100g * this.gramAmount) / 100,
-      lineSugar: (source.sugarPer100g * this.gramAmount) / 100,
-      lineFiber: (source.fiberPer100g * this.gramAmount) / 100,
+      ),
+      lineFat: round2((source.fatPer100g * this.gramAmount) / 100),
+      lineSugar: round2((source.sugarPer100g * this.gramAmount) / 100),
+      lineFiber: round2((source.fiberPer100g * this.gramAmount) / 100),
       isActive: true,
       _archivedAt: null,
     };

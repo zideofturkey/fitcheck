@@ -19,6 +19,7 @@ const schemas = {
   dish: require("./dish.schema"),
   dishLine: require("./dishLine.schema"),
   suggestion: require("./suggestion.schema"),
+  feedback: require("./feedback.schema"),
 };
 
 /**

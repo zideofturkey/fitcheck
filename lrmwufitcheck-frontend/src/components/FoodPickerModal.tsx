@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -359,7 +360,7 @@ export default function FoodPickerModal({
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          {food.caloriePer100g} kcal · {food.proteinPer100g}g
+                          {formatMacro(food.caloriePer100g)} kcal · {formatMacro(food.proteinPer100g)}g
                           protein / 100g
                         </p>
                       </button>
@@ -439,7 +440,7 @@ export default function FoodPickerModal({
                   >
                     <p className="text-sm font-medium">{pm.templateName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {pm.totalCalories} kcal · {pm.totalProtein}g protein
+                      {formatMacro(pm.totalCalories)} kcal · {formatMacro(pm.totalProtein)}g protein
                     </p>
                   </button>
                 );
@@ -473,7 +474,7 @@ export default function FoodPickerModal({
                     >
                       <p className="text-sm font-medium">{dish.dishName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {dish.totalCalories} kcal · {dish.totalProtein}g
+                        {formatMacro(dish.totalCalories)} kcal · {formatMacro(dish.totalProtein)}g
                         protein
                       </p>
                     </button>
@@ -509,8 +510,13 @@ export default function FoodPickerModal({
                 <Input
                   type="number"
                   min={1}
-                  value={grams}
-                  onChange={(e) => setGrams(Number(e.target.value) || 0)}
+                  placeholder="100"
+                  value={grams === 0 ? "" : grams}
+                  onChange={(e) =>
+                    setGrams(
+                      e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                    )
+                  }
                   className="pr-10"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">

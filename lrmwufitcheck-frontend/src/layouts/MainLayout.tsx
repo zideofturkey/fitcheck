@@ -8,6 +8,7 @@ import OnboardingMacroTargetDialog from "@/components/OnboardingMacroTargetDialo
 import NotificationBell from "@/components/NotificationBell";
 import LibraryNavMenu from "@/components/LibraryNavMenu";
 import PageTransition from "@/components/PageTransition";
+import FeedbackDialog from "@/components/FeedbackDialog";
 import {
   ArrowLeftCircle,
   BarChart3,
@@ -79,6 +80,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const handleLogout = () => {
     void logout().finally(() => navigate("/login", { replace: true }));
@@ -130,6 +132,7 @@ export default function MainLayout() {
   return (
     <>
       <OnboardingMacroTargetDialog />
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 
       {/* Single responsive shell - one Outlet, one header, one of each nav
           element. Mobile/desktop differences are expressed with Tailwind
@@ -385,7 +388,7 @@ export default function MainLayout() {
                       to="/profile"
                       className="hover:text-foreground transition-colors"
                     >
-                      {t("footer.profileTargets")}
+                      {t("footer.profile")}
                     </Link>
                   </li>
                   <li>
@@ -403,6 +406,15 @@ export default function MainLayout() {
                     >
                       {t("nav.analytics")}
                     </Link>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setFeedbackOpen(true)}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {t("footer.feedback")}
+                    </button>
                   </li>
                 </ul>
               </div>

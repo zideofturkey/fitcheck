@@ -217,6 +217,8 @@ const foodItemGroupsRouter = require("./routes/food-item-groups");
 app.use("", foodItemGroupsRouter);
 const suggestionsRouter = require("./routes/suggestions");
 app.use("", suggestionsRouter);
+const feedbackRouter = require("./routes/feedback");
+app.use("", feedbackRouter);
 const bulkImportRouter = require("./routes/bulk-import");
 app.use("", bulkImportRouter);
 const brandAdminRouter = require("./routes/brand-admin");

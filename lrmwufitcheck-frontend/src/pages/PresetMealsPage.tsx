@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -46,6 +47,7 @@ import ManualNutritionForm, {
 import ManualEntrySuggestionDialog from "@/components/ManualEntrySuggestionDialog";
 import { persistManualDish } from "@/services/api/manual-entry-helpers";
 import StepIndicator from "@/components/StepIndicator";
+import DraftConfirmDialog from "@/components/DraftConfirmDialog";
 import { useAuth } from "@/context/AuthContext";
 import type { CreatePresetMealInputWithGlobal } from "@/types/admin-create-extensions";
 
@@ -99,6 +101,7 @@ export default function PresetMealsPage() {
   >(null);
   const [editCreatedLineForm, setEditCreatedLineForm] =
     useState<EditCreatedLineForm | null>(null);
+  const [draftDialogOpen, setDraftDialogOpen] = useState(false);
 
   const { data: linesData } = useListPresetLines(createdPresetId, {});
   const removeLineMutation = useDeletePresetLine();
@@ -157,15 +160,28 @@ export default function PresetMealsPage() {
     // flow, don't leave an empty/half-finished preset behind.
     if (createdPresetId) {
       const lineCount = linesData?.presetLines?.length ?? 0;
-      if (
-        lineCount === 0 ||
-        !window.confirm(
-          `"${createForm.name}" taslak olarak kaydedilsin mi?`,
-        )
-      ) {
+      if (lineCount === 0) {
         deleteMutation.mutate(createdPresetId);
+        setCreateOpen(false);
+        resetCreateState();
+      } else {
+        setDraftDialogOpen(true);
       }
+      return;
     }
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
+  const handleDraftKeep = () => {
+    setDraftDialogOpen(false);
+    setCreateOpen(false);
+    resetCreateState();
+  };
+
+  const handleDraftDiscard = () => {
+    setDraftDialogOpen(false);
+    if (createdPresetId) deleteMutation.mutate(createdPresetId);
     setCreateOpen(false);
     resetCreateState();
   };
@@ -441,7 +457,7 @@ export default function PresetMealsPage() {
                 <div className="mb-4 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
                     <Layers className="size-3" aria-hidden="true" />
-                    {preset.totalCalories} kcal
+                    {formatMacro(preset.totalCalories)} kcal
                   </span>
                 </div>
 
@@ -451,7 +467,7 @@ export default function PresetMealsPage() {
                       {t("presetMeals.calories")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {preset.totalCalories} kcal
+                      {formatMacro(preset.totalCalories)} kcal
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -459,7 +475,7 @@ export default function PresetMealsPage() {
                       {t("presetMeals.protein")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {preset.totalProtein} g
+                      {formatMacro(preset.totalProtein)} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -467,7 +483,7 @@ export default function PresetMealsPage() {
                       {t("presetMeals.carbs")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {preset.totalCarbohydrates} g
+                      {formatMacro(preset.totalCarbohydrates)} g
                     </span>
                   </div>
                   <div className="rounded-md bg-muted px-3 py-2">
@@ -475,7 +491,7 @@ export default function PresetMealsPage() {
                       {t("presetMeals.fat")}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {preset.totalFat} g
+                      {formatMacro(preset.totalFat)} g
                     </span>
                   </div>
                 </div>
@@ -840,7 +856,7 @@ export default function PresetMealsPage() {
                                   {dish.dishName}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {dish.totalCalories} kcal / {dish.totalGramWeight}g
+                                  {formatMacro(dish.totalCalories)} kcal / {dish.totalGramWeight}g
                                 </p>
                               </button>
                             );
@@ -872,9 +888,14 @@ export default function PresetMealsPage() {
                             <input
                               type="number"
                               min={1}
-                              value={gramAmount}
+                              placeholder="100"
+                              value={gramAmount === 0 ? "" : gramAmount}
                               onChange={(e) =>
-                                setGramAmount(Number(e.target.value) || 0)
+                                setGramAmount(
+                                  e.target.value === ""
+                                    ? 0
+                                    : Number(e.target.value) || 0,
+                                )
                               }
                               className="w-full rounded-md border border-input bg-card px-3 py-2.5 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-shadow"
                             />
@@ -984,6 +1005,14 @@ export default function PresetMealsPage() {
           onDismiss={() => setPendingSuggestion(null)}
         />
       )}
+
+      <DraftConfirmDialog
+        open={draftDialogOpen}
+        onOpenChange={setDraftDialogOpen}
+        itemName={createForm.name}
+        onKeep={handleDraftKeep}
+        onDiscard={handleDraftDiscard}
+      />
     </div>
   );
 }

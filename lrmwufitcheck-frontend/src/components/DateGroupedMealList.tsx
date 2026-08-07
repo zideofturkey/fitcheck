@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -124,12 +125,12 @@ const DateGroupedMealList: React.FC<DateGroupedMealListProps> = ({
                 {/* Macro Summary */}
                 <div className="mt-1 flex items-center gap-3">
                   <span className="text-sm font-semibold">
-                    {mealGroup.meal.totalCalories} kcal
+                    {formatMacro(mealGroup.meal.totalCalories)} kcal
                   </span>
                   <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span>P:{mealGroup.meal.totalProtein}g</span>
-                    <span>K:{mealGroup.meal.totalCarbohydrates}g</span>
-                    <span>Y:{mealGroup.meal.totalFat}g</span>
+                    <span>P:{formatMacro(mealGroup.meal.totalProtein)}g</span>
+                    <span>K:{formatMacro(mealGroup.meal.totalCarbohydrates)}g</span>
+                    <span>Y:{formatMacro(mealGroup.meal.totalFat)}g</span>
                   </div>
                 </div>
 
@@ -177,12 +178,12 @@ const DateGroupedMealList: React.FC<DateGroupedMealListProps> = ({
                             <td className="text-center">
                               {line.consumedGrams}g
                             </td>
-                            <td className="text-center">{line.itemCalories}</td>
-                            <td className="text-center">{line.itemProtein}</td>
+                            <td className="text-center">{formatMacro(line.itemCalories)}</td>
+                            <td className="text-center">{formatMacro(line.itemProtein)}</td>
                             <td className="text-center">
-                              {line.itemCarbohydrates}
+                              {formatMacro(line.itemCarbohydrates)}
                             </td>
-                            <td className="text-center">{line.itemFat}</td>
+                            <td className="text-center">{formatMacro(line.itemFat)}</td>
                           </tr>
                         ))}
                       </tbody>

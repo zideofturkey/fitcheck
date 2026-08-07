@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -280,9 +281,9 @@ export default function MealLoggingWizard({
                 Öğün toplamı
               </h5>
               <div className="mt-1 grid grid-cols-3 gap-1 text-xs">
-                <span>Kalori: {totals.totalCalories}</span>
-                <span>Protein: {totals.totalProtein}g</span>
-                <span>Yağ: {totals.totalFat}g</span>
+                <span>Kalori: {formatMacro(totals.totalCalories)}</span>
+                <span>Protein: {formatMacro(totals.totalProtein)}g</span>
+                <span>Yağ: {formatMacro(totals.totalFat)}g</span>
               </div>
             </div>
           </div>

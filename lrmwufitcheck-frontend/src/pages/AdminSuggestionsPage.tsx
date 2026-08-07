@@ -1,3 +1,4 @@
+import { formatMacro } from "@/lib/format";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -181,19 +182,19 @@ function AdminSuggestionsPage() {
                     </p>
                     {s.entityType === "foodItem" ? (
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {t("adminSuggestions.per100g")}: {s.sourceDetail.caloriePer100g}{" "}
-                        {t("common.kcal")} · P {s.sourceDetail.proteinPer100g}g · K{" "}
-                        {s.sourceDetail.carbohydratePer100g}g · Y{" "}
-                        {s.sourceDetail.fatPer100g}g · Ş {s.sourceDetail.sugarPer100g}g ·
-                        L {s.sourceDetail.fiberPer100g}g
+                        {t("adminSuggestions.per100g")}: {formatMacro(s.sourceDetail.caloriePer100g)}{" "}
+                        {t("common.kcal")} · P {formatMacro(s.sourceDetail.proteinPer100g)}g · K{" "}
+                        {formatMacro(s.sourceDetail.carbohydratePer100g)}g · Y{" "}
+                        {formatMacro(s.sourceDetail.fatPer100g)}g · Ş {formatMacro(s.sourceDetail.sugarPer100g)}g ·
+                        L {formatMacro(s.sourceDetail.fiberPer100g)}g
                       </p>
                     ) : (
                       <>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {t("adminSuggestions.totals")}: {s.sourceDetail.totalCalories}{" "}
-                          {t("common.kcal")} · P {s.sourceDetail.totalProtein}g · K{" "}
-                          {s.sourceDetail.totalCarbohydrates}g · Y{" "}
-                          {s.sourceDetail.totalFat}g
+                          {t("adminSuggestions.totals")}: {formatMacro(s.sourceDetail.totalCalories)}{" "}
+                          {t("common.kcal")} · P {formatMacro(s.sourceDetail.totalProtein)}g · K{" "}
+                          {formatMacro(s.sourceDetail.totalCarbohydrates)}g · Y{" "}
+                          {formatMacro(s.sourceDetail.totalFat)}g
                           {s.sourceDetail.totalGramWeight != null &&
                             ` · ${s.sourceDetail.totalGramWeight}g`}
                         </p>
@@ -202,7 +203,7 @@ function AdminSuggestionsPage() {
                             {s.sourceDetail.lines.map((line, idx) => (
                               <li key={idx} className="truncate">
                                 • {line.lineFoodName} ({line.gramAmount}g) —{" "}
-                                {line.lineCalories} {t("common.kcal")}
+                                {formatMacro(line.lineCalories)} {t("common.kcal")}
                               </li>
                             ))}
                           </ul>

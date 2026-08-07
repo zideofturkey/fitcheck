@@ -1,12 +1,15 @@
+import { formatMacro } from "@/lib/format";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, ChevronRight, Loader, Pencil } from "lucide-react";
+import { ArrowLeft, ChevronRight, Loader, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   useDeleteFoodItem,
   useGetFoodItem,
 } from "@/hooks/api/use-nutritionlibrary";
+import { useAuth } from "@/context/AuthContext";
+import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -25,6 +28,8 @@ export default function FoodItemDetailPage() {
   const { t } = useTranslation();
   const { foodItemId } = useParams<{ foodItemId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.roleId === "admin" || user?.roleId === "superAdmin";
   const { data, isLoading, error } = useGetFoodItem(foodItemId);
   const deleteMutation = useDeleteFoodItem();
 
@@ -111,16 +116,18 @@ export default function FoodItemDetailPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10 border-border"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-          >
-            <Pencil className="w-4 h-4" aria-hidden="true" />
-            {t("foodItemDetail.delete")}
-          </Button>
+          {(!(item as FoodItemWithBaseName).isGlobal || isAdmin) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 border-border"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4" aria-hidden="true" />
+              {t("foodItemDetail.delete")}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -133,7 +140,7 @@ export default function FoodItemDetailPage() {
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {[
-            [t("foodItemDetail.calories"), `${item.caloriePer100g} kcal`],
+            [t("foodItemDetail.calories"), `${formatMacro(item.caloriePer100g)} kcal`],
             [t("foodItemDetail.protein"), `${item.proteinPer100g.toFixed(1)} g`],
             [
               t("foodItemDetail.carbs"),
