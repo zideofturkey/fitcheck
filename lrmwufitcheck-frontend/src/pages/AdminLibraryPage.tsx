@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Loader,
   Pencil,
+  Plus,
   RefreshCw,
   RotateCcw,
   Search,
@@ -52,12 +53,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
+  useCreateBrand,
   useDeleteBrand,
   useListBrands,
   useRenameBrand,
   useRestoreBrand,
 } from "@/hooks/api/use-brand-admin";
 import {
+  useCreateCategory,
   useDeleteCategory,
   useListCategories,
   useRenameCategory,
@@ -65,6 +68,8 @@ import {
 } from "@/hooks/api/use-category-admin";
 import type { CategoryEntity } from "@/services/api/category-admin-api";
 import {
+  useCreateFoodItem,
+  useCreatePresetMeal,
   useDeleteFoodItem,
   useDeletePresetMeal,
   useListFoodItems,
@@ -72,7 +77,12 @@ import {
   useUpdateFoodItem,
   useUpdatePresetMeal,
 } from "@/hooks/api/use-nutritionlibrary";
-import { useDeleteDish, useListDishes, useUpdateDish } from "@/hooks/api/use-dish";
+import {
+  useCreateDish,
+  useDeleteDish,
+  useListDishes,
+  useUpdateDish,
+} from "@/hooks/api/use-dish";
 import { useBulkDeleteWithUndo } from "@/hooks/use-bulk-delete-with-undo";
 import TrashDrawer from "@/components/admin-library/TrashDrawer";
 import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
@@ -80,6 +90,10 @@ import type { Dish } from "@/services/api/dish-api";
 import type { NutritionlibraryPresetMeal } from "@/types/api";
 import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
+import type {
+  CreateFoodItemInputWithGlobal,
+  CreatePresetMealInputWithGlobal,
+} from "@/types/admin-create-extensions";
 
 type PresetMealWithGlobal = NutritionlibraryPresetMeal & {
   isGlobal?: boolean;
@@ -268,6 +282,19 @@ function SelectionToolbar({
 // Food items tab
 // ---------------------------------------------------------------------------
 
+const EMPTY_ADMIN_FOOD_FORM = {
+  name: "",
+  calories: "",
+  protein: "",
+  carbs: "",
+  fat: "",
+  sugar: "",
+  fiber: "",
+  category: "",
+  brand: "",
+  baseName: "",
+};
+
 function FoodItemsTab() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -276,18 +303,9 @@ function FoodItemsTab() {
   const [editing, setEditing] = useState<FoodItemRow | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: "",
-    sugar: "",
-    fiber: "",
-    category: "",
-    brand: "",
-    baseName: "",
-  });
+  const [editForm, setEditForm] = useState(EMPTY_ADMIN_FOOD_FORM);
+  const [addOpen, setAddOpen] = useState(false);
+  const [createForm, setCreateForm] = useState(EMPTY_ADMIN_FOOD_FORM);
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkBrand, setBulkBrand] = useState("");
@@ -305,6 +323,7 @@ function FoodItemsTab() {
   });
   const deleteMutation = useDeleteFoodItem();
   const updateMutation = useUpdateFoodItem();
+  const createMutation = useCreateFoodItem();
   const { runDelete } = useBulkDeleteWithUndo("fooditem");
 
   const items = (data?.foodItems ?? []) as FoodItemRow[];
@@ -333,6 +352,37 @@ function FoodItemsTab() {
       category: item.foodCategory ?? "",
       brand: item.brandName ?? "",
       baseName: item.baseName ?? "",
+    });
+  };
+
+  const openAdd = () => {
+    setCreateForm(EMPTY_ADMIN_FOOD_FORM);
+    setAddOpen(true);
+  };
+
+  const handleAdd = () => {
+    if (!createForm.name.trim() || !createForm.category) return;
+    const payload: CreateFoodItemInputWithGlobal = {
+      foodName: createForm.name,
+      caloriePer100g: Number(createForm.calories) || 0,
+      proteinPer100g: Number(createForm.protein) || 0,
+      carbohydratePer100g: Number(createForm.carbs) || 0,
+      fatPer100g: Number(createForm.fat) || 0,
+      sugarPer100g: Number(createForm.sugar) || 0,
+      fiberPer100g: Number(createForm.fiber) || 0,
+      foodCategory: createForm.category,
+      brandName: createForm.brand || undefined,
+      baseName: createForm.baseName || undefined,
+      creationSource: "manualEntry" as const,
+      isGlobal: true,
+    };
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        toast.success(t("adminLibrary.addFoodItemSuccess", { name: createForm.name }));
+        setAddOpen(false);
+        setCreateForm(EMPTY_ADMIN_FOOD_FORM);
+      },
+      onError: (err) => toast.error(extractError(err, t("adminLibrary.addFoodItemError"))),
     });
   };
 
@@ -420,6 +470,10 @@ function FoodItemsTab() {
           title={t("adminLibrary.trashTitle")}
         >
           <Trash className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="sm" className="gap-1.5" onClick={openAdd}>
+          <Plus className="w-3.5 h-3.5" />
+          {t("adminLibrary.addFoodItem")}
         </Button>
       </div>
 
@@ -514,6 +568,97 @@ function FoodItemsTab() {
         shownCount={items.length}
         totalCount={totalCount}
       />
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.addFoodItem")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={createForm.name}
+              onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder={t("foodLibrary.foodName")}
+            />
+            <div className="grid grid-cols-3 gap-2">
+              {(
+                [
+                  ["calories", t("foodLibrary.calories")],
+                  ["protein", t("foodLibrary.proteinG")],
+                  ["carbs", t("foodLibrary.carbsG")],
+                  ["fat", t("foodLibrary.fatG")],
+                  ["sugar", t("foodLibrary.sugarG")],
+                  ["fiber", t("foodLibrary.fiberG")],
+                ] as const
+              ).map(([field, label]) => (
+                <div key={field} className="space-y-1">
+                  <label className="text-xs text-muted-foreground">{label}</label>
+                  <Input
+                    type="number"
+                    value={createForm[field]}
+                    onChange={(e) =>
+                      setCreateForm((f) => ({ ...f, [field]: e.target.value }))
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  {t("foodLibrary.category")} *
+                </label>
+                <FlatPicker
+                  value={createForm.category}
+                  onValueChange={(v) =>
+                    setCreateForm((f) => ({ ...f, category: v }))
+                  }
+                  options={CATEGORIES.map((c) => ({
+                    value: c,
+                    label: categoryLabel(t, c),
+                  }))}
+                  placeholder={t("foodLibrary.selectEllipsis")}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  {t("foodLibrary.brand")}
+                </label>
+                <Input
+                  value={createForm.brand}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, brand: e.target.value }))}
+                  placeholder={t("foodLibrary.newBrandPlaceholder")}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("foodLibrary.baseIngredientName")}
+              </label>
+              <Input
+                value={createForm.baseName}
+                onChange={(e) => setCreateForm((f) => ({ ...f, baseName: e.target.value }))}
+                placeholder={t("foodLibrary.baseNamePlaceholder")}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={
+                createMutation.isPending || !createForm.name.trim() || !createForm.category
+              }
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
@@ -690,6 +835,8 @@ function DishesTab() {
   const [editForm, setEditForm] = useState({ name: "", description: "", category: "" });
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [bulkCategory, setBulkCategory] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({ name: "", description: "", category: "" });
 
   useEffect(() => {
     setPage(1);
@@ -703,6 +850,7 @@ function DishesTab() {
   });
   const deleteMutation = useDeleteDish();
   const updateMutation = useUpdateDish();
+  const createMutation = useCreateDish();
   const { runDelete } = useBulkDeleteWithUndo("dish");
 
   const items = (data?.dishes ?? []) as DishWithArchive[];
@@ -776,6 +924,30 @@ function DishesTab() {
     if (failed > 0) toast.error(t("adminLibrary.bulkEditFailed", { count: failed }));
   };
 
+  const openAdd = () => {
+    setCreateForm({ name: "", description: "", category: "" });
+    setAddOpen(true);
+  };
+
+  const handleAdd = () => {
+    if (!createForm.name.trim() || !createForm.category) return;
+    createMutation.mutate(
+      {
+        dishName: createForm.name,
+        descriptionText: createForm.description || undefined,
+        dishCategory: createForm.category,
+        isGlobal: true,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("adminLibrary.addDishSuccess", { name: createForm.name }));
+          setAddOpen(false);
+        },
+        onError: (err) => toast.error(extractError(err, t("adminLibrary.addDishError"))),
+      },
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -793,6 +965,10 @@ function DishesTab() {
         </Button>
         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setTrashOpen(true)}>
           <Trash className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="sm" className="gap-1.5" onClick={openAdd}>
+          <Plus className="w-3.5 h-3.5" />
+          {t("adminLibrary.addDish")}
         </Button>
       </div>
 
@@ -884,6 +1060,57 @@ function DishesTab() {
         shownCount={items.length}
         totalCount={totalCount}
       />
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.addDish")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={createForm.name}
+              onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder={t("dishes.nameLabel")}
+            />
+            <Input
+              value={createForm.description}
+              onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
+              placeholder={t("dishes.descriptionLabel")}
+            />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("dishes.categoryLabel")} *
+              </label>
+              <FlatPicker
+                value={createForm.category}
+                onValueChange={(v) =>
+                  setCreateForm((f) => ({ ...f, category: v }))
+                }
+                options={DISH_CATEGORIES.map((c) => ({
+                  value: c,
+                  label: dishCategoryLabel(t, c),
+                }))}
+                placeholder={t("dishes.categoryPlaceholder")}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={
+                createMutation.isPending || !createForm.name.trim() || !createForm.category
+              }
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
@@ -998,6 +1225,8 @@ function PresetMealsTab() {
   const [editForm, setEditForm] = useState({ name: "", description: "", category: "" });
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [bulkCategory, setBulkCategory] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({ name: "", description: "", category: "" });
 
   useEffect(() => {
     setPage(1);
@@ -1011,6 +1240,7 @@ function PresetMealsTab() {
   });
   const deleteMutation = useDeletePresetMeal();
   const updateMutation = useUpdatePresetMeal();
+  const createMutation = useCreatePresetMeal();
   const { runDelete } = useBulkDeleteWithUndo("presetmeal");
 
   const items = (data?.presetMeals ?? []) as PresetMealWithGlobal[];
@@ -1087,6 +1317,28 @@ function PresetMealsTab() {
     if (failed > 0) toast.error(t("adminLibrary.bulkEditFailed", { count: failed }));
   };
 
+  const openAdd = () => {
+    setCreateForm({ name: "", description: "", category: "" });
+    setAddOpen(true);
+  };
+
+  const handleAdd = () => {
+    if (!createForm.name.trim() || !createForm.category) return;
+    const payload: CreatePresetMealInputWithGlobal = {
+      templateName: createForm.name,
+      descriptionText: createForm.description || undefined,
+      presetCategory: createForm.category,
+      isGlobal: true,
+    };
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        toast.success(t("adminLibrary.addPresetMealSuccess", { name: createForm.name }));
+        setAddOpen(false);
+      },
+      onError: (err) => toast.error(extractError(err, t("adminLibrary.addPresetMealError"))),
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -1104,6 +1356,10 @@ function PresetMealsTab() {
         </Button>
         <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setTrashOpen(true)}>
           <Trash className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="sm" className="gap-1.5" onClick={openAdd}>
+          <Plus className="w-3.5 h-3.5" />
+          {t("adminLibrary.addPresetMeal")}
         </Button>
       </div>
 
@@ -1192,6 +1448,57 @@ function PresetMealsTab() {
         shownCount={items.length}
         totalCount={totalCount}
       />
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.addPresetMeal")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={createForm.name}
+              onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder={t("presetMeals.name")}
+            />
+            <Input
+              value={createForm.description}
+              onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
+              placeholder={t("presetMeals.description")}
+            />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("dishes.categoryLabel")} *
+              </label>
+              <FlatPicker
+                value={createForm.category}
+                onValueChange={(v) =>
+                  setCreateForm((f) => ({ ...f, category: v }))
+                }
+                options={DISH_CATEGORIES.map((c) => ({
+                  value: c,
+                  label: dishCategoryLabel(t, c),
+                }))}
+                placeholder={t("dishes.categoryPlaceholder")}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={
+                createMutation.isPending || !createForm.name.trim() || !createForm.category
+              }
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
@@ -1299,11 +1606,13 @@ interface DeletedBrandEntry {
   brandName: string;
   ids: string[];
   deletedAt: string;
+  wasPlaceholder?: boolean;
 }
 
 function BrandsTab() {
   const { t } = useTranslation();
   const { data, isLoading, error, refetch } = useListBrands();
+  const createMutation = useCreateBrand();
   const renameMutation = useRenameBrand();
   const deleteMutation = useDeleteBrand();
   const restoreMutation = useRestoreBrand();
@@ -1313,6 +1622,8 @@ function BrandsTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [trashOpen, setTrashOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [newBrandName, setNewBrandName] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   // Session-only "trash": brand deletion doesn't soft-delete a record (there
@@ -1380,11 +1691,15 @@ function BrandsTab() {
 
   const restoreBrand = (entry: DeletedBrandEntry) => {
     restoreMutation.mutate(
-      { brandName: entry.brandName, ids: entry.ids },
+      {
+        brandName: entry.brandName,
+        ids: entry.ids,
+        wasPlaceholder: entry.wasPlaceholder,
+      },
       {
         onSuccess: (res) => {
           toast.success(
-            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount }),
+            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount || 1 }),
           );
           setDeletedBrands((prev) =>
             prev.filter(
@@ -1398,6 +1713,22 @@ function BrandsTab() {
     );
   };
 
+  const handleAdd = () => {
+    const brandName = newBrandName.trim();
+    if (!brandName) return;
+    createMutation.mutate(
+      { brandName },
+      {
+        onSuccess: () => {
+          toast.success(t("adminLibrary.addBrandSuccess", { name: brandName }));
+          setNewBrandName("");
+          setAddOpen(false);
+        },
+        onError: (err) => toast.error(extractError(err, t("adminLibrary.addBrandError"))),
+      },
+    );
+  };
+
   const handleDelete = (brandName: string) => {
     deleteMutation.mutate(brandName, {
       onSuccess: (res) => {
@@ -1406,6 +1737,7 @@ function BrandsTab() {
           brandName,
           ids: res.clearedIds,
           deletedAt: new Date().toISOString(),
+          wasPlaceholder: res.wasPlaceholder,
         };
         recordDeleted(entry);
         toast(t("adminLibrary.deletedToast", { count: 1 }), {
@@ -1470,6 +1802,10 @@ function BrandsTab() {
           title={t("adminLibrary.trashTitle")}
         >
           <Trash className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="sm" className="gap-1.5" onClick={() => setAddOpen(true)}>
+          <Plus className="w-3.5 h-3.5" />
+          {t("adminLibrary.addBrand")}
         </Button>
       </div>
 
@@ -1641,6 +1977,39 @@ function BrandsTab() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.addBrand")}</DialogTitle>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={newBrandName}
+            onChange={(e) => setNewBrandName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAdd();
+              }
+            }}
+            placeholder={t("foodLibrary.newBrandPlaceholder")}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={createMutation.isPending || !newBrandName.trim()}
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1655,12 +2024,14 @@ interface DeletedCategoryEntry {
   category: string;
   ids: string[];
   deletedAt: string;
+  wasPlaceholder?: boolean;
 }
 
 function CategoriesTab() {
   const { t } = useTranslation();
   const [entity, setEntity] = useState<CategoryEntity>("food");
   const { data, isLoading, error, refetch } = useListCategories(entity);
+  const createMutation = useCreateCategory();
   const renameMutation = useRenameCategory();
   const deleteMutation = useDeleteCategory();
   const restoreMutation = useRestoreCategory();
@@ -1670,6 +2041,8 @@ function CategoriesTab() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [trashOpen, setTrashOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   // Session-only "trash", same as BrandsTab - category deletion clears a
@@ -1749,11 +2122,16 @@ function CategoriesTab() {
 
   const restoreCategory = (entry: DeletedCategoryEntry) => {
     restoreMutation.mutate(
-      { entity, category: entry.category, ids: entry.ids },
+      {
+        entity,
+        category: entry.category,
+        ids: entry.ids,
+        wasPlaceholder: entry.wasPlaceholder,
+      },
       {
         onSuccess: (res) => {
           toast.success(
-            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount }),
+            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount || 1 }),
           );
           setDeletedByEntity((prev) => ({
             ...prev,
@@ -1765,6 +2143,27 @@ function CategoriesTab() {
         },
         onError: (err) =>
           toast.error(extractError(err, t("adminLibrary.restoreError"))),
+      },
+    );
+  };
+
+  const openAdd = () => {
+    setNewCategoryName("");
+    setAddOpen(true);
+  };
+
+  const handleAdd = () => {
+    const category = newCategoryName.trim();
+    if (!category) return;
+    createMutation.mutate(
+      { entity, category },
+      {
+        onSuccess: () => {
+          toast.success(t("adminLibrary.addCategorySuccess", { name: category }));
+          setNewCategoryName("");
+          setAddOpen(false);
+        },
+        onError: (err) => toast.error(extractError(err, t("adminLibrary.addCategoryError"))),
       },
     );
   };
@@ -1781,6 +2180,7 @@ function CategoriesTab() {
             category,
             ids: res.clearedIds,
             deletedAt: new Date().toISOString(),
+            wasPlaceholder: res.wasPlaceholder,
           };
           recordDeleted(entry);
           toast(t("adminLibrary.deletedToast", { count: 1 }), {
@@ -1865,6 +2265,10 @@ function CategoriesTab() {
           title={t("adminLibrary.trashTitle")}
         >
           <Trash className="w-3.5 h-3.5" />
+        </Button>
+        <Button size="sm" className="gap-1.5" onClick={openAdd}>
+          <Plus className="w-3.5 h-3.5" />
+          {t("adminLibrary.addCategory")}
         </Button>
       </div>
 
@@ -2038,6 +2442,39 @@ function CategoriesTab() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.addCategory")}</DialogTitle>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAdd();
+              }
+            }}
+            placeholder={t("dishes.categoryPlaceholder")}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleAdd}
+              disabled={createMutation.isPending || !newCategoryName.trim()}
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

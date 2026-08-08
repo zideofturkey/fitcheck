@@ -550,7 +550,7 @@ export default function PresetMealsPage() {
             onClick={handleCloseCreate}
             aria-hidden="true"
           />
-          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+          <div className="fixed inset-0 z-50 m-0 flex h-full max-h-none w-full max-w-none flex-col bg-background p-0 md:inset-y-4 md:right-4 md:ml-auto md:h-auto md:w-full md:max-w-lg md:rounded-2xl md:shadow-2xl">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="space-y-1">
                 <h2 className="text-lg font-semibold">

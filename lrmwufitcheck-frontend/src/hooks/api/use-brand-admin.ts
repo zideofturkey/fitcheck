@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   brandAdminService,
+  type CreateBrandInput,
   type RenameBrandInput,
   type RestoreBrandInput,
 } from "@/services/api/brand-admin-api";
@@ -14,6 +15,16 @@ export const useListBrands = () => {
   return useQuery({
     queryKey: brandAdminKeys.list(),
     queryFn: () => brandAdminService.list(),
+  });
+};
+
+export const useCreateBrand = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateBrandInput) => brandAdminService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: brandAdminKeys.all() });
+    },
   });
 };
 

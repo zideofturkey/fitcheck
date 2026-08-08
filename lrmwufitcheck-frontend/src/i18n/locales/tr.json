@@ -1512,6 +1512,21 @@
     "bulkEditFieldSkip": "Değiştirme",
     "applyToCount": "{{count}} Öğeye Uygula",
     "bulkEditSuccess": "{{count}} öğe güncellendi.",
-    "bulkEditFailed": "{{count}} öğe güncellenemedi."
+    "bulkEditFailed": "{{count}} öğe güncellenemedi.",
+    "addFoodItem": "Besin Ekle",
+    "addFoodItemSuccess": "\"{{name}}\" eklendi.",
+    "addFoodItemError": "Besin eklenemedi.",
+    "addDish": "Yemek Ekle",
+    "addDishSuccess": "\"{{name}}\" eklendi.",
+    "addDishError": "Yemek eklenemedi.",
+    "addPresetMeal": "Hazır Öğün Ekle",
+    "addPresetMealSuccess": "\"{{name}}\" eklendi.",
+    "addPresetMealError": "Hazır öğün eklenemedi.",
+    "addBrand": "Marka Ekle",
+    "addBrandSuccess": "\"{{name}}\" markası eklendi.",
+    "addBrandError": "Marka eklenemedi.",
+    "addCategory": "Kategori Ekle",
+    "addCategorySuccess": "\"{{name}}\" kategorisi eklendi.",
+    "addCategoryError": "Kategori eklenemedi."
   }
 }
