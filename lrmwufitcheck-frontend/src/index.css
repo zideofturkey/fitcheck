@@ -322,3 +322,34 @@
     border-radius: 9999px;
   }
 }
+
+/* Popup surfaces (Select/DropdownMenu/Popover/Combobox content) use
+   --popover as their background, which is literally identical to
+   --background in light mode (#ffffff on #ffffff) - the only thing keeping
+   them visually separated from the page was a near-invisible 10%-opacity
+   ring. Give every one of these a real border plus a visible shadow so they
+   read as a distinct floating layer regardless of what's behind them. Keyed
+   off data-slot so this covers all popup primitives from one place instead
+   of editing each ui/*.tsx file. */
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"],
+[data-slot="popover-content"],
+[data-slot="combobox-content"] {
+  border: 1px solid var(--border);
+  box-shadow:
+    0 4px 16px -2px rgb(0 0 0 / 0.15),
+    0 0 0 1px rgb(0 0 0 / 0.04);
+}
+.dark
+  :is(
+    [data-slot="select-content"],
+    [data-slot="dropdown-menu-content"],
+    [data-slot="dropdown-menu-sub-content"],
+    [data-slot="popover-content"],
+    [data-slot="combobox-content"]
+  ) {
+  box-shadow:
+    0 4px 16px -2px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(255 255 255 / 0.06);
+}
