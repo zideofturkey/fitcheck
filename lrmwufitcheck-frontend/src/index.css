@@ -165,6 +165,20 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
+  /* iOS Safari auto-zooms the page on focus for any text input/select/
+     textarea whose computed font-size is below 16px. Several inputs across
+     the app (gram-amount fields, manual-entry forms) use the smaller
+     `text-sm` (14px) size on mobile, so every focus triggered an unwanted
+     zoom the user then had to manually zoom back out from. Forcing 16px on
+     focus (mobile viewport only, so desktop keeps its normal text-sm sizing)
+     fixes it site-wide without hunting down every input's className. */
+  @media (max-width: 767px) {
+    input:focus,
+    select:focus,
+    textarea:focus {
+      font-size: 16px !important;
+    }
+  }
 }
 
 /*

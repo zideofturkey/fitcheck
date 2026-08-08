@@ -149,7 +149,7 @@ function BrandField({
         {t("foodLibrary.brand")}
       </label>
       {adding ? (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
             autoFocus
             placeholder={t("foodLibrary.newBrandPlaceholder")}
@@ -164,18 +164,21 @@ function BrandField({
                 handleCancel();
               }
             }}
+            className="w-full sm:flex-1"
           />
-          <Button type="button" size="sm" onClick={handleSave}>
-            {t("common.save")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            onClick={handleCancel}
-          >
-            {t("common.cancel")}
-          </Button>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" onClick={handleSave}>
+              {t("common.save")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={handleCancel}
+            >
+              {t("common.cancel")}
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="flex items-center gap-2">
@@ -186,7 +189,7 @@ function BrandField({
             <SelectTrigger className="flex-1">
               <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-[min(21rem,var(--radix-select-content-available-height))]">
               <SelectItem value="none">{t("foodLibrary.noBrand")}</SelectItem>
               {fullOptions.map((b) => (
                 <SelectItem key={b} value={b}>
@@ -915,7 +918,7 @@ export default function FoodLibraryPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-[1fr_1.5fr] gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
                   <BrandField
                     value={createForm.brand}
                     onChange={(v) =>
@@ -1113,7 +1116,7 @@ export default function FoodLibraryPage() {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-[1fr_1.5fr] gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr_1.5fr] gap-4">
                   <BrandField
                     value={editForm.brand}
                     onChange={(v) => setEditForm((f) => ({ ...f, brand: v }))}
