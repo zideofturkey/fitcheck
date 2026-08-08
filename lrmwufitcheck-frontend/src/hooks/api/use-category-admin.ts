@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   categoryAdminService,
   type CategoryEntity,
+  type CreateCategoryInput,
   type RenameCategoryInput,
   type RestoreCategoryInput,
 } from "@/services/api/category-admin-api";
@@ -16,6 +17,17 @@ export const useListCategories = (entity: CategoryEntity) => {
   return useQuery({
     queryKey: categoryAdminKeys.list(entity),
     queryFn: () => categoryAdminService.list(entity),
+  });
+};
+
+export const useCreateCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateCategoryInput) =>
+      categoryAdminService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryAdminKeys.all() });
+    },
   });
 };
 

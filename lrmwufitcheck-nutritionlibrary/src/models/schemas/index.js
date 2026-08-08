@@ -20,6 +20,8 @@ const schemas = {
   dishLine: require("./dishLine.schema"),
   suggestion: require("./suggestion.schema"),
   feedback: require("./feedback.schema"),
+  brand: require("./brand.schema"),
+  category: require("./category.schema"),
 };
 
 /**

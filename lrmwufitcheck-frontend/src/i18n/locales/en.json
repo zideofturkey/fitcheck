@@ -1512,6 +1512,21 @@
     "bulkEditFieldSkip": "Don't change",
     "applyToCount": "Apply to {{count}} Items",
     "bulkEditSuccess": "{{count}} items updated.",
-    "bulkEditFailed": "{{count}} items failed to update."
+    "bulkEditFailed": "{{count}} items failed to update.",
+    "addFoodItem": "Add Food",
+    "addFoodItemSuccess": "\"{{name}}\" added.",
+    "addFoodItemError": "Failed to add food.",
+    "addDish": "Add Dish",
+    "addDishSuccess": "\"{{name}}\" added.",
+    "addDishError": "Failed to add dish.",
+    "addPresetMeal": "Add Preset Meal",
+    "addPresetMealSuccess": "\"{{name}}\" added.",
+    "addPresetMealError": "Failed to add preset meal.",
+    "addBrand": "Add Brand",
+    "addBrandSuccess": "Brand \"{{name}}\" added.",
+    "addBrandError": "Failed to add brand.",
+    "addCategory": "Add Category",
+    "addCategorySuccess": "Category \"{{name}}\" added.",
+    "addCategoryError": "Failed to add category."
   }
 }

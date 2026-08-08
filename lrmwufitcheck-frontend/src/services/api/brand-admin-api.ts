@@ -16,6 +16,15 @@ export interface BrandListResponse {
   brands: BrandSummary[];
 }
 
+export interface CreateBrandInput {
+  brandName: string;
+}
+
+export interface CreateBrandResponse {
+  status: string;
+  brand: BrandSummary;
+}
+
 export interface RenameBrandInput {
   oldName: string;
   newName: string;
@@ -33,11 +42,13 @@ export interface DeleteBrandResponse {
   brandName: string;
   clearedCount: number;
   clearedIds: string[];
+  wasPlaceholder: boolean;
 }
 
 export interface RestoreBrandInput {
   brandName: string;
-  ids: string[];
+  ids?: string[];
+  wasPlaceholder?: boolean;
 }
 
 export interface RestoreBrandResponse {
@@ -50,6 +61,14 @@ export const brandAdminService = {
   /** GET /v1/admin/brands */
   list: async (): Promise<BrandListResponse> => {
     return nutritionlibraryApi.get<BrandListResponse>("v1/admin/brands");
+  },
+
+  /** POST /v1/admin/brands */
+  create: async (data: CreateBrandInput): Promise<CreateBrandResponse> => {
+    return nutritionlibraryApi.post<CreateBrandResponse>(
+      "v1/admin/brands",
+      data,
+    );
   },
 
   /** PATCH /v1/admin/brands/rename */

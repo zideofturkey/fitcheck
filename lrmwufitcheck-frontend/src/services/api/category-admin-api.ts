@@ -20,6 +20,17 @@ export interface CategoryListResponse {
   categories: CategorySummary[];
 }
 
+export interface CreateCategoryInput {
+  entity: CategoryEntity;
+  category: string;
+}
+
+export interface CreateCategoryResponse {
+  status: string;
+  entity: CategoryEntity;
+  category: CategorySummary;
+}
+
 export interface RenameCategoryInput {
   entity: CategoryEntity;
   oldName: string;
@@ -40,12 +51,14 @@ export interface DeleteCategoryResponse {
   category: string;
   clearedCount: number;
   clearedIds: string[];
+  wasPlaceholder: boolean;
 }
 
 export interface RestoreCategoryInput {
   entity: CategoryEntity;
   category: string;
-  ids: string[];
+  ids?: string[];
+  wasPlaceholder?: boolean;
 }
 
 export interface RestoreCategoryResponse {
@@ -61,6 +74,14 @@ export const categoryAdminService = {
     return nutritionlibraryApi.get<CategoryListResponse>(
       "v1/admin/categories",
       { params: { entity } },
+    );
+  },
+
+  /** POST /v1/admin/categories */
+  create: async (data: CreateCategoryInput): Promise<CreateCategoryResponse> => {
+    return nutritionlibraryApi.post<CreateCategoryResponse>(
+      "v1/admin/categories",
+      data,
     );
   },
 
