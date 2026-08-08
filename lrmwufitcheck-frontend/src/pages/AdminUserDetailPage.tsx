@@ -20,13 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   Card,
   CardContent,
@@ -405,19 +399,14 @@ const AdminUserDetailPage: React.FC = () => {
           <CardContent className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="role">{t("adminUserDetail.currentRole")}</Label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger id="role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">
-                    {t("adminUserDetail.roleAdminDesc")}
-                  </SelectItem>
-                  <SelectItem value="user">
-                    {t("adminUserDetail.roleUserDesc")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <FlatPicker
+                value={selectedRole}
+                onValueChange={setSelectedRole}
+                options={[
+                  { value: "admin", label: t("adminUserDetail.roleAdminDesc") },
+                  { value: "user", label: t("adminUserDetail.roleUserDesc") },
+                ]}
+              />
             </div>
             <div className="p-4 rounded-lg bg-muted border border-border">
               <div className="flex items-start gap-3">

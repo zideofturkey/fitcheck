@@ -15,13 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -205,47 +199,34 @@ function AdminUserListPage() {
           />
         </div>
         <div className="flex items-center gap-3">
-          <Select
+          <FlatPicker
+            className="w-[140px]"
             value={roleFilter}
             onValueChange={(v) => {
               setRoleFilter(v);
               setPageNumber(1);
             }}
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder={t("adminUsers.allRoles")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">{t("adminUsers.allRoles")}</SelectItem>
-              <SelectItem value="superAdmin">
-                {t("adminUsers.superAdmin")}
-              </SelectItem>
-              <SelectItem value="admin">{t("adminUsers.admin")}</SelectItem>
-              <SelectItem value="user">{t("adminUsers.user")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
+            options={[
+              { value: "", label: t("adminUsers.allRoles") },
+              { value: "superAdmin", label: t("adminUsers.superAdmin") },
+              { value: "admin", label: t("adminUsers.admin") },
+              { value: "user", label: t("adminUsers.user") },
+            ]}
+            placeholder={t("adminUsers.allRoles")}
+          />
+          <FlatPicker
+            className="w-[140px]"
             value={String(pageSize)}
             onValueChange={(v) => {
               setPageSize(Number(v));
               setPageNumber(1);
             }}
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="25">
-                {t("adminUsers.perPage", { count: 25 })}
-              </SelectItem>
-              <SelectItem value="50">
-                {t("adminUsers.perPage", { count: 50 })}
-              </SelectItem>
-              <SelectItem value="100">
-                {t("adminUsers.perPage", { count: 100 })}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: "25", label: t("adminUsers.perPage", { count: 25 }) },
+              { value: "50", label: t("adminUsers.perPage", { count: 50 }) },
+              { value: "100", label: t("adminUsers.perPage", { count: 100 }) },
+            ]}
+          />
         </div>
       </div>
 
@@ -602,18 +583,16 @@ function AdminUserListPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <Select value={newRole} onValueChange={setNewRole}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("adminUsers.selectNewRole")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="superAdmin">
-                  {t("adminUsers.superAdmin")}
-                </SelectItem>
-                <SelectItem value="admin">{t("adminUsers.admin")}</SelectItem>
-                <SelectItem value="user">{t("adminUsers.user")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <FlatPicker
+              value={newRole}
+              onValueChange={setNewRole}
+              options={[
+                { value: "superAdmin", label: t("adminUsers.superAdmin") },
+                { value: "admin", label: t("adminUsers.admin") },
+                { value: "user", label: t("adminUsers.user") },
+              ]}
+              placeholder={t("adminUsers.selectNewRole")}
+            />
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("adminUsers.cancel")}</AlertDialogCancel>

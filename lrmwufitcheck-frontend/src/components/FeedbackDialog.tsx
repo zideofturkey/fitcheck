@@ -10,13 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import { useAuth } from "@/context/AuthContext";
 import { useSubmitFeedback } from "@/hooks/api/use-feedback";
 import type { FeedbackSubject } from "@/services/api/feedback-api";
@@ -112,23 +106,17 @@ export default function FeedbackDialog({ open, onOpenChange }: FeedbackDialogPro
             <label className="block text-sm font-medium text-foreground">
               {t("footer.feedbackSubject")}
             </label>
-            <Select
+            <FlatPicker
               value={form.subject}
               onValueChange={(v) =>
                 setForm((f) => ({ ...f, subject: v as FeedbackSubject }))
               }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("footer.feedbackSubjectPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {SUBJECTS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {t(`footer.feedbackSubjectOptions.${s}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={SUBJECTS.map((s) => ({
+                value: s,
+                label: t(`footer.feedbackSubjectOptions.${s}`),
+              }))}
+              placeholder={t("footer.feedbackSubjectPlaceholder")}
+            />
           </div>
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-foreground">

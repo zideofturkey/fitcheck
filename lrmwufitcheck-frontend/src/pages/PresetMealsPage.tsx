@@ -19,12 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   useCreatePresetMeal,
   useDeletePresetMeal,
@@ -390,30 +385,20 @@ export default function PresetMealsPage() {
               }}
             />
           </div>
-          <Select
+          <FlatPicker
+            className="w-auto"
+            triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
             value={ownershipFilter}
             onValueChange={(v) => {
               setOwnershipFilter(v as "all" | "mine" | "global");
               setPage(1);
             }}
-          >
-            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-              {ownershipFilter === "mine"
-                ? t("presetMeals.ownershipMine")
-                : ownershipFilter === "global"
-                  ? t("presetMeals.ownershipGlobal")
-                  : t("presetMeals.ownershipAll")}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("presetMeals.ownershipAll")}</SelectItem>
-              <SelectItem value="mine">
-                {t("presetMeals.ownershipMine")}
-              </SelectItem>
-              <SelectItem value="global">
-                {t("presetMeals.ownershipGlobal")}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: "all", label: t("presetMeals.ownershipAll") },
+              { value: "mine", label: t("presetMeals.ownershipMine") },
+              { value: "global", label: t("presetMeals.ownershipGlobal") },
+            ]}
+          />
         </div>
 
         {isLoading && presets.length === 0 ? (

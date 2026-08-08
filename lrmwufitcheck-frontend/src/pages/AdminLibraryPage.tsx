@@ -25,13 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -162,21 +156,16 @@ function PaginationFooter({
         <span>
           {t("adminLibrary.showingCount", { shown: shownCount, total: totalCount })}
         </span>
-        <Select
+        <FlatPicker
+          className="w-[110px]"
+          triggerClassName="h-8"
           value={String(pageSize)}
           onValueChange={(v) => onPageSizeChange(Number(v))}
-        >
-          <SelectTrigger className="h-8 w-[110px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PAGE_SIZE_OPTIONS.map((n) => (
-              <SelectItem key={n} value={String(n)}>
-                {t("adminLibrary.rowsPerPage", { count: n })}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          options={PAGE_SIZE_OPTIONS.map((n) => ({
+            value: String(n),
+            label: t("adminLibrary.rowsPerPage", { count: n }),
+          }))}
+        />
       </div>
       <div className="flex items-center gap-2">
         <Button
@@ -565,24 +554,19 @@ function FoodItemsTab() {
                 <label className="text-xs text-muted-foreground">
                   {t("foodLibrary.category")}
                 </label>
-                <Select
-                  value={editForm.category || "none"}
+                <FlatPicker
+                  value={editForm.category}
                   onValueChange={(v) =>
-                    setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                    setEditForm((f) => ({ ...f, category: v }))
                   }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("foodLibrary.noCategory")}</SelectItem>
-                    {CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {categoryLabel(t, c)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={[
+                    { value: "", label: t("foodLibrary.noCategory") },
+                    ...CATEGORIES.map((c) => ({
+                      value: c,
+                      label: categoryLabel(t, c),
+                    })),
+                  ]}
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">
@@ -631,18 +615,15 @@ function FoodItemsTab() {
               <label className="text-xs text-muted-foreground">
                 {t("foodLibrary.category")}
               </label>
-              <Select value={bulkCategory} onValueChange={setBulkCategory}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("adminLibrary.bulkEditFieldSkip")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {categoryLabel(t, c)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FlatPicker
+                value={bulkCategory}
+                onValueChange={setBulkCategory}
+                options={CATEGORIES.map((c) => ({
+                  value: c,
+                  label: categoryLabel(t, c),
+                }))}
+                placeholder={t("adminLibrary.bulkEditFieldSkip")}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">
@@ -924,24 +905,19 @@ function DishesTab() {
               <label className="text-xs text-muted-foreground">
                 {t("dishes.categoryLabel")}
               </label>
-              <Select
-                value={editForm.category || "none"}
+              <FlatPicker
+                value={editForm.category}
                 onValueChange={(v) =>
-                  setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                  setEditForm((f) => ({ ...f, category: v }))
                 }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("dishes.noCategory")}</SelectItem>
-                  {DISH_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {dishCategoryLabel(t, c)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={[
+                  { value: "", label: t("dishes.noCategory") },
+                  ...DISH_CATEGORIES.map((c) => ({
+                    value: c,
+                    label: dishCategoryLabel(t, c),
+                  })),
+                ]}
+              />
             </div>
             <p className="text-xs text-muted-foreground">
               {t("adminLibrary.editCompositionHint")}
@@ -971,18 +947,15 @@ function DishesTab() {
             <label className="text-xs text-muted-foreground">
               {t("dishes.categoryLabel")}
             </label>
-            <Select value={bulkCategory} onValueChange={setBulkCategory}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {DISH_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {dishCategoryLabel(t, c)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FlatPicker
+              value={bulkCategory}
+              onValueChange={setBulkCategory}
+              options={DISH_CATEGORIES.map((c) => ({
+                value: c,
+                label: dishCategoryLabel(t, c),
+              }))}
+              placeholder={t("dishes.categoryPlaceholder")}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
@@ -1240,24 +1213,19 @@ function PresetMealsTab() {
               <label className="text-xs text-muted-foreground">
                 {t("dishes.categoryLabel")}
               </label>
-              <Select
-                value={editForm.category || "none"}
+              <FlatPicker
+                value={editForm.category}
                 onValueChange={(v) =>
-                  setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                  setEditForm((f) => ({ ...f, category: v }))
                 }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("dishes.noCategory")}</SelectItem>
-                  {DISH_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {dishCategoryLabel(t, c)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={[
+                  { value: "", label: t("dishes.noCategory") },
+                  ...DISH_CATEGORIES.map((c) => ({
+                    value: c,
+                    label: dishCategoryLabel(t, c),
+                  })),
+                ]}
+              />
             </div>
             <p className="text-xs text-muted-foreground">
               {t("adminLibrary.editCompositionHint")}
@@ -1287,18 +1255,15 @@ function PresetMealsTab() {
             <label className="text-xs text-muted-foreground">
               {t("dishes.categoryLabel")}
             </label>
-            <Select value={bulkCategory} onValueChange={setBulkCategory}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {DISH_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {dishCategoryLabel(t, c)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FlatPicker
+              value={bulkCategory}
+              onValueChange={setBulkCategory}
+              options={DISH_CATEGORIES.map((c) => ({
+                value: c,
+                label: dishCategoryLabel(t, c),
+              }))}
+              placeholder={t("dishes.categoryPlaceholder")}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
@@ -1870,25 +1835,16 @@ function CategoriesTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Select
+        <FlatPicker
+          className="w-[180px]"
           value={entity}
           onValueChange={(v) => setEntity(v as CategoryEntity)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="food">
-              {t("adminCategories.entityFood")}
-            </SelectItem>
-            <SelectItem value="dish">
-              {t("adminCategories.entityDish")}
-            </SelectItem>
-            <SelectItem value="preset">
-              {t("adminCategories.entityPreset")}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+          options={[
+            { value: "food", label: t("adminCategories.entityFood") },
+            { value: "dish", label: t("adminCategories.entityDish") },
+            { value: "preset", label: t("adminCategories.entityPreset") },
+          ]}
+        />
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
