@@ -633,6 +633,7 @@
     },
     "newBrandPlaceholder": "Yeni marka adı",
     "noBrand": "Marka yok",
+    "noCategory": "Kategori yok",
     "addBrand": "Yeni marka ekle"
   },
   "foodItemDetail": {
@@ -1498,6 +1499,15 @@
     "rowsPerPage": "{{count}} satır",
     "prevPage": "Önceki",
     "nextPage": "Sonraki",
-    "pageOf": "Sayfa {{page}} / {{totalPages}}"
+    "pageOf": "Sayfa {{page}} / {{totalPages}}",
+    "editSelected": "Düzenle",
+    "editComposition": "Bileşenleri Düzenle",
+    "editCompositionHint": "Besin değerleri, bu öğeyi oluşturan malzeme/yemek satırlarından otomatik hesaplanır. Bunları değiştirmek için \"Bileşenleri Düzenle\" bağlantısını kullanın.",
+    "bulkEditTitle": "Toplu Düzenle",
+    "bulkEditDesc": "{{count}} öğeye uygulanacak. Boş bırakılan alanlar değiştirilmez.",
+    "bulkEditFieldSkip": "Değiştirme",
+    "applyToCount": "{{count}} Öğeye Uygula",
+    "bulkEditSuccess": "{{count}} öğe güncellendi.",
+    "bulkEditFailed": "{{count}} öğe güncellenemedi."
   }
 }

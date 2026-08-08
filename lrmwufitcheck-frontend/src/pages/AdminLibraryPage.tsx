@@ -6,6 +6,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   Loader,
   Pencil,
   RefreshCw,
@@ -19,6 +20,7 @@ import {
   Apple,
   X,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,6 +46,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -81,6 +84,8 @@ import TrashDrawer from "@/components/admin-library/TrashDrawer";
 import type { FoodItemWithBaseName } from "@/types/food-item-extensions";
 import type { Dish } from "@/services/api/dish-api";
 import type { NutritionlibraryPresetMeal } from "@/types/api";
+import { CATEGORIES, categoryLabel } from "@/lib/food-category";
+import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 
 type PresetMealWithGlobal = NutritionlibraryPresetMeal & {
   isGlobal?: boolean;
@@ -211,11 +216,15 @@ function SelectionToolbar({
   onClear,
   onDelete,
   deleteLabel,
+  onEdit,
+  editLabel,
 }: {
   count: number;
   onClear: () => void;
   onDelete: () => void;
   deleteLabel: string;
+  onEdit?: () => void;
+  editLabel?: string;
 }) {
   const { t } = useTranslation();
   if (count === 0) return null;
@@ -228,6 +237,12 @@ function SelectionToolbar({
         <Button size="sm" variant="ghost" onClick={onClear}>
           {t("adminLibrary.clearSelection")}
         </Button>
+        {onEdit && (
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={onEdit}>
+            <Pencil className="w-3.5 h-3.5" />
+            {editLabel ?? t("common.edit")}
+          </Button>
+        )}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button size="sm" variant="destructive" className="gap-1.5">
@@ -280,7 +295,14 @@ function FoodItemsTab() {
     fat: "",
     sugar: "",
     fiber: "",
+    category: "",
+    brand: "",
+    baseName: "",
   });
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkBrand, setBulkBrand] = useState("");
+  const [bulkBaseName, setBulkBaseName] = useState("");
 
   useEffect(() => {
     setPage(1);
@@ -319,24 +341,31 @@ function FoodItemsTab() {
       fat: String(item.fatPer100g),
       sugar: String(item.sugarPer100g),
       fiber: String(item.fiberPer100g),
+      category: item.foodCategory ?? "",
+      brand: item.brandName ?? "",
+      baseName: item.baseName ?? "",
     });
   };
 
   const saveEdit = () => {
     if (!editing) return;
+    const data = {
+      foodName: editForm.name,
+      caloriePer100g: Number(editForm.calories) || 0,
+      proteinPer100g: Number(editForm.protein) || 0,
+      carbohydratePer100g: Number(editForm.carbs) || 0,
+      fatPer100g: Number(editForm.fat) || 0,
+      sugarPer100g: Number(editForm.sugar) || 0,
+      fiberPer100g: Number(editForm.fiber) || 0,
+      foodCategory: editForm.category || undefined,
+      brandName: editForm.brand || undefined,
+      // baseName isn't in the generated UpdateFoodItemInput type (added
+      // outside the Mindbricks spec) - kept out of a typed literal here so
+      // TS's excess-property check doesn't fire; the backend accepts it.
+      baseName: editForm.baseName || undefined,
+    };
     updateMutation.mutate(
-      {
-        foodItemId: editing.id,
-        data: {
-          foodName: editForm.name,
-          caloriePer100g: Number(editForm.calories) || 0,
-          proteinPer100g: Number(editForm.protein) || 0,
-          carbohydratePer100g: Number(editForm.carbs) || 0,
-          fatPer100g: Number(editForm.fat) || 0,
-          sugarPer100g: Number(editForm.sugar) || 0,
-          fiberPer100g: Number(editForm.fiber) || 0,
-        },
-      },
+      { foodItemId: editing.id, data },
       {
         onSuccess: () => {
           toast.success(t("adminLibrary.saveSuccess"));
@@ -352,6 +381,31 @@ function FoodItemsTab() {
     const ids = Array.from(selected);
     setSelected(new Set());
     await runDelete(ids, (i) => deleteMutation.mutateAsync(i));
+  };
+
+  const openBulkEdit = () => {
+    setBulkCategory("");
+    setBulkBrand("");
+    setBulkBaseName("");
+    setBulkEditOpen(true);
+  };
+
+  const applyBulkEdit = async () => {
+    if (!bulkCategory && !bulkBrand && !bulkBaseName) return;
+    const ids = Array.from(selected);
+    setSelected(new Set());
+    setBulkEditOpen(false);
+    const patch: { foodCategory?: string; brandName?: string; baseName?: string } = {};
+    if (bulkCategory) patch.foodCategory = bulkCategory;
+    if (bulkBrand) patch.brandName = bulkBrand;
+    if (bulkBaseName) patch.baseName = bulkBaseName;
+    const results = await Promise.allSettled(
+      ids.map((foodItemId) => updateMutation.mutateAsync({ foodItemId, data: patch })),
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = ids.length - succeeded;
+    if (succeeded > 0) toast.success(t("adminLibrary.bulkEditSuccess", { count: succeeded }));
+    if (failed > 0) toast.error(t("adminLibrary.bulkEditFailed", { count: failed }));
   };
 
   return (
@@ -392,6 +446,8 @@ function FoodItemsTab() {
         onClear={() => setSelected(new Set())}
         onDelete={handleBulkDelete}
         deleteLabel={t("adminLibrary.deleteSelected")}
+        onEdit={openBulkEdit}
+        editLabel={t("adminLibrary.editSelected")}
       />
 
       {isLoading && (
@@ -504,6 +560,51 @@ function FoodItemsTab() {
                 </div>
               ))}
             </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  {t("foodLibrary.category")}
+                </label>
+                <Select
+                  value={editForm.category || "none"}
+                  onValueChange={(v) =>
+                    setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("foodLibrary.noCategory")}</SelectItem>
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {categoryLabel(t, c)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  {t("foodLibrary.brand")}
+                </label>
+                <Input
+                  value={editForm.brand}
+                  onChange={(e) => setEditForm((f) => ({ ...f, brand: e.target.value }))}
+                  placeholder={t("foodLibrary.newBrandPlaceholder")}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("foodLibrary.baseIngredientName")}
+              </label>
+              <Input
+                value={editForm.baseName}
+                onChange={(e) => setEditForm((f) => ({ ...f, baseName: e.target.value }))}
+                placeholder={t("foodLibrary.baseNamePlaceholder")}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>
@@ -512,6 +613,72 @@ function FoodItemsTab() {
             <Button onClick={saveEdit} disabled={updateMutation.isPending} className="gap-1.5">
               <Check className="w-4 h-4" />
               {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.bulkEditTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("adminLibrary.bulkEditDesc", { count: selected.size })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("foodLibrary.category")}
+              </label>
+              <Select value={bulkCategory} onValueChange={setBulkCategory}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("adminLibrary.bulkEditFieldSkip")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {categoryLabel(t, c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("foodLibrary.brand")}
+              </label>
+              <Input
+                value={bulkBrand}
+                onChange={(e) => setBulkBrand(e.target.value)}
+                placeholder={t("adminLibrary.bulkEditFieldSkip")}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("foodLibrary.baseIngredientName")}
+              </label>
+              <Input
+                value={bulkBaseName}
+                onChange={(e) => setBulkBaseName(e.target.value)}
+                placeholder={t("adminLibrary.bulkEditFieldSkip")}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={applyBulkEdit}
+              disabled={
+                updateMutation.isPending ||
+                (!bulkCategory && !bulkBrand && !bulkBaseName)
+              }
+              className="gap-1.5"
+            >
+              <Check className="w-4 h-4" />
+              {t("adminLibrary.applyToCount", { count: selected.size })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -539,7 +706,9 @@ function DishesTab() {
   const [editing, setEditing] = useState<DishWithArchive | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [editForm, setEditForm] = useState({ name: "", description: "" });
+  const [editForm, setEditForm] = useState({ name: "", description: "", category: "" });
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("");
 
   useEffect(() => {
     setPage(1);
@@ -570,7 +739,11 @@ function DishesTab() {
 
   const openEdit = (item: DishWithArchive) => {
     setEditing(item);
-    setEditForm({ name: item.dishName, description: item.descriptionText ?? "" });
+    setEditForm({
+      name: item.dishName,
+      description: item.descriptionText ?? "",
+      category: item.dishCategory ?? "",
+    });
   };
 
   const saveEdit = () => {
@@ -578,7 +751,11 @@ function DishesTab() {
     updateMutation.mutate(
       {
         dishId: editing.id,
-        data: { dishName: editForm.name, descriptionText: editForm.description || undefined },
+        data: {
+          dishName: editForm.name,
+          descriptionText: editForm.description || undefined,
+          dishCategory: editForm.category || undefined,
+        },
       },
       {
         onSuccess: () => {
@@ -595,6 +772,27 @@ function DishesTab() {
     const ids = Array.from(selected);
     setSelected(new Set());
     await runDelete(ids, (i) => deleteMutation.mutateAsync(i));
+  };
+
+  const openBulkEdit = () => {
+    setBulkCategory("");
+    setBulkEditOpen(true);
+  };
+
+  const applyBulkEdit = async () => {
+    if (!bulkCategory) return;
+    const ids = Array.from(selected);
+    setSelected(new Set());
+    setBulkEditOpen(false);
+    const results = await Promise.allSettled(
+      ids.map((dishId) =>
+        updateMutation.mutateAsync({ dishId, data: { dishCategory: bulkCategory } }),
+      ),
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = ids.length - succeeded;
+    if (succeeded > 0) toast.success(t("adminLibrary.bulkEditSuccess", { count: succeeded }));
+    if (failed > 0) toast.error(t("adminLibrary.bulkEditFailed", { count: failed }));
   };
 
   return (
@@ -629,6 +827,8 @@ function DishesTab() {
         onClear={() => setSelected(new Set())}
         onDelete={handleBulkDelete}
         deleteLabel={t("adminLibrary.deleteSelected")}
+        onEdit={openBulkEdit}
+        editLabel={t("adminLibrary.editSelected")}
       />
 
       {isLoading && (
@@ -659,6 +859,12 @@ function DishesTab() {
             <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => openEdit(item)}>
               <Pencil className="w-3.5 h-3.5" />
               {t("common.edit")}
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1.5 shrink-0" asChild>
+              <Link to={`/dishes/${item.id}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-3.5 h-3.5" />
+                {t("adminLibrary.editComposition")}
+              </Link>
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -714,6 +920,32 @@ function DishesTab() {
               onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
               placeholder={t("dishes.descriptionLabel")}
             />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("dishes.categoryLabel")}
+              </label>
+              <Select
+                value={editForm.category || "none"}
+                onValueChange={(v) =>
+                  setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("dishes.noCategory")}</SelectItem>
+                  {DISH_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {dishCategoryLabel(t, c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("adminLibrary.editCompositionHint")}
+            </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>
@@ -722,6 +954,47 @@ function DishesTab() {
             <Button onClick={saveEdit} disabled={updateMutation.isPending} className="gap-1.5">
               <Check className="w-4 h-4" />
               {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.bulkEditTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("adminLibrary.bulkEditDesc", { count: selected.size })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">
+              {t("dishes.categoryLabel")}
+            </label>
+            <Select value={bulkCategory} onValueChange={setBulkCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {DISH_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {dishCategoryLabel(t, c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={applyBulkEdit}
+              disabled={updateMutation.isPending || !bulkCategory}
+              className="gap-1.5"
+            >
+              <Check className="w-4 h-4" />
+              {t("adminLibrary.applyToCount", { count: selected.size })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -749,7 +1022,9 @@ function PresetMealsTab() {
   const [editing, setEditing] = useState<PresetMealWithGlobal | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [editForm, setEditForm] = useState({ name: "", description: "" });
+  const [editForm, setEditForm] = useState({ name: "", description: "", category: "" });
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("");
 
   useEffect(() => {
     setPage(1);
@@ -780,7 +1055,11 @@ function PresetMealsTab() {
 
   const openEdit = (item: PresetMealWithGlobal) => {
     setEditing(item);
-    setEditForm({ name: item.templateName, description: item.descriptionText ?? "" });
+    setEditForm({
+      name: item.templateName,
+      description: item.descriptionText ?? "",
+      category: item.presetCategory ?? "",
+    });
   };
 
   const saveEdit = () => {
@@ -788,7 +1067,11 @@ function PresetMealsTab() {
     updateMutation.mutate(
       {
         presetMealId: editing.id,
-        data: { templateName: editForm.name, descriptionText: editForm.description || undefined },
+        data: {
+          templateName: editForm.name,
+          descriptionText: editForm.description || undefined,
+          presetCategory: editForm.category || undefined,
+        },
       },
       {
         onSuccess: () => {
@@ -805,6 +1088,30 @@ function PresetMealsTab() {
     const ids = Array.from(selected);
     setSelected(new Set());
     await runDelete(ids, (i) => deleteMutation.mutateAsync(i));
+  };
+
+  const openBulkEdit = () => {
+    setBulkCategory("");
+    setBulkEditOpen(true);
+  };
+
+  const applyBulkEdit = async () => {
+    if (!bulkCategory) return;
+    const ids = Array.from(selected);
+    setSelected(new Set());
+    setBulkEditOpen(false);
+    const results = await Promise.allSettled(
+      ids.map((presetMealId) =>
+        updateMutation.mutateAsync({
+          presetMealId,
+          data: { presetCategory: bulkCategory },
+        }),
+      ),
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = ids.length - succeeded;
+    if (succeeded > 0) toast.success(t("adminLibrary.bulkEditSuccess", { count: succeeded }));
+    if (failed > 0) toast.error(t("adminLibrary.bulkEditFailed", { count: failed }));
   };
 
   return (
@@ -839,6 +1146,8 @@ function PresetMealsTab() {
         onClear={() => setSelected(new Set())}
         onDelete={handleBulkDelete}
         deleteLabel={t("adminLibrary.deleteSelected")}
+        onEdit={openBulkEdit}
+        editLabel={t("adminLibrary.editSelected")}
       />
 
       {isLoading && (
@@ -866,6 +1175,12 @@ function PresetMealsTab() {
             <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => openEdit(item)}>
               <Pencil className="w-3.5 h-3.5" />
               {t("common.edit")}
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1.5 shrink-0" asChild>
+              <Link to={`/preset-meals/${item.id}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-3.5 h-3.5" />
+                {t("adminLibrary.editComposition")}
+              </Link>
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -921,6 +1236,32 @@ function PresetMealsTab() {
               onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
               placeholder={t("presetMeals.description")}
             />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">
+                {t("dishes.categoryLabel")}
+              </label>
+              <Select
+                value={editForm.category || "none"}
+                onValueChange={(v) =>
+                  setEditForm((f) => ({ ...f, category: v === "none" ? "" : v }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("dishes.noCategory")}</SelectItem>
+                  {DISH_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {dishCategoryLabel(t, c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("adminLibrary.editCompositionHint")}
+            </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>
@@ -929,6 +1270,47 @@ function PresetMealsTab() {
             <Button onClick={saveEdit} disabled={updateMutation.isPending} className="gap-1.5">
               <Check className="w-4 h-4" />
               {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("adminLibrary.bulkEditTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("adminLibrary.bulkEditDesc", { count: selected.size })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">
+              {t("dishes.categoryLabel")}
+            </label>
+            <Select value={bulkCategory} onValueChange={setBulkCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {DISH_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {dishCategoryLabel(t, c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={applyBulkEdit}
+              disabled={updateMutation.isPending || !bulkCategory}
+              className="gap-1.5"
+            >
+              <Check className="w-4 h-4" />
+              {t("adminLibrary.applyToCount", { count: selected.size })}
             </Button>
           </DialogFooter>
         </DialogContent>
