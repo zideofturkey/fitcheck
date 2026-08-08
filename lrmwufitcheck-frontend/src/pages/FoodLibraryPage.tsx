@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import BulkEditBar from "@/components/BulkEditBar";
 import {
   useCreateFoodItem,
   useDeleteFoodItem,
@@ -394,6 +396,41 @@ export default function FoodLibraryPage() {
   const deleteMutation = useDeleteFoodItem();
   const suggestMutation = useCreateSuggestion();
 
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkBrand, setBulkBrand] = useState("");
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkApply = async () => {
+    if (!bulkCategory && !bulkBrand) return;
+    const ids = Array.from(selected);
+    setSelected(new Set());
+    const patch: { foodCategory?: string; brandName?: string } = {};
+    if (bulkCategory) patch.foodCategory = bulkCategory;
+    if (bulkBrand) patch.brandName = bulkBrand;
+    const results = await Promise.allSettled(
+      ids.map((foodItemId) =>
+        updateMutation.mutateAsync({ foodItemId, data: patch }),
+      ),
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = ids.length - succeeded;
+    if (succeeded > 0) {
+      toast.success(t("bulkEdit.applySuccess", { count: succeeded }));
+    }
+    if (failed > 0) {
+      toast.error(t("bulkEdit.applyFailed", { count: failed }));
+    }
+    setBulkCategory("");
+    setBulkBrand("");
+  };
+
   const handleSuggest = (id: string) => {
     suggestMutation.mutate(
       { entityType: "foodItem", sourceRecordId: id },
@@ -609,14 +646,58 @@ export default function FoodLibraryPage() {
     }
     return (
       <div className="space-y-3">
+        <BulkEditBar
+          selectedCount={selected.size}
+          onClear={() => setSelected(new Set())}
+          onApply={handleBulkApply}
+          isApplying={updateMutation.isPending}
+          canApply={!!bulkCategory || !!bulkBrand}
+          fields={
+            <>
+              <Select value={bulkCategory} onValueChange={setBulkCategory}>
+                <SelectTrigger className="h-9 w-[180px]">
+                  <SelectValue placeholder={t("foodLibrary.category")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {categoryLabel(t, c)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={bulkBrand} onValueChange={setBulkBrand}>
+                <SelectTrigger className="h-9 w-[180px]">
+                  <SelectValue placeholder={t("foodLibrary.brand")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {brandOptions.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          }
+        />
         {items.map((food) => {
           const Icon = ICONS[food.foodCategory ?? "Other"] ?? Apple;
+          const editable = !(food as FoodItemWithBaseName).isGlobal || isAdmin;
           return (
             <div
               key={food.id}
               className="group rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-start gap-4">
+                {editable && (
+                  <Checkbox
+                    className="mt-2.5 shrink-0"
+                    checked={selected.has(food.id)}
+                    onCheckedChange={() => toggleSelected(food.id)}
+                    aria-label={t("bulkEdit.selectItem", { name: food.foodName })}
+                  />
+                )}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                   <Icon className="size-5" aria-hidden="true" />
                 </div>

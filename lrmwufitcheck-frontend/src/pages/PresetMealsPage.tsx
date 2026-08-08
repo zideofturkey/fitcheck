@@ -24,6 +24,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   useCreatePresetMeal,
@@ -31,9 +32,13 @@ import {
   useDeletePresetLine,
   useListPresetLines,
   useListPresetMeals,
+  useUpdatePresetMeal,
   nutritionlibraryKeys,
 } from "@/hooks/api/use-nutritionlibrary";
 import { useListDishes } from "@/hooks/api/use-dish";
+import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
+import BulkEditBar from "@/components/BulkEditBar";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Dish } from "@/services/api/dish-api";
 import CategoryAccordionDishPicker from "@/components/CategoryAccordionDishPicker";
 import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
@@ -81,6 +86,39 @@ export default function PresetMealsPage() {
   const deleteMutation = useDeletePresetMeal();
   const createMutation = useCreatePresetMeal();
   const suggestMutation = useCreateSuggestion();
+  const updateMutation = useUpdatePresetMeal();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkCategory, setBulkCategory] = useState("");
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkApply = async () => {
+    if (!bulkCategory) return;
+    const ids = Array.from(selected);
+    setSelected(new Set());
+    const results = await Promise.allSettled(
+      ids.map((presetMealId) =>
+        updateMutation.mutateAsync({
+          presetMealId,
+          data: { presetCategory: bulkCategory },
+        }),
+      ),
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = ids.length - succeeded;
+    if (succeeded > 0) {
+      toast.success(t("bulkEdit.applySuccess", { count: succeeded }));
+    }
+    if (failed > 0) {
+      toast.error(t("bulkEdit.applyFailed", { count: failed }));
+    }
+    setBulkCategory("");
+  };
   const queryClient = useQueryClient();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -416,6 +454,28 @@ export default function PresetMealsPage() {
           </Select>
         </div>
 
+        <BulkEditBar
+          selectedCount={selected.size}
+          onClear={() => setSelected(new Set())}
+          onApply={handleBulkApply}
+          isApplying={updateMutation.isPending}
+          canApply={!!bulkCategory}
+          fields={
+            <Select value={bulkCategory} onValueChange={setBulkCategory}>
+              <SelectTrigger className="h-9 w-[200px]">
+                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {DISH_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {dishCategoryLabel(t, c)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          }
+        />
+
         {isLoading && presets.length === 0 ? (
           <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
             <Loader className="w-4 h-4 animate-spin mr-2" />
@@ -430,15 +490,25 @@ export default function PresetMealsPage() {
             {presets.map((preset) => (
               <div
                 key={preset.id}
-                className="group rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="group relative rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
               >
+                {(!preset.isGlobal || isAdmin) && (
+                  <Checkbox
+                    className="absolute right-3 top-3 bg-card"
+                    checked={selected.has(preset.id)}
+                    onCheckedChange={() => toggleSelected(preset.id)}
+                    aria-label={t("bulkEdit.selectItem", {
+                      name: preset.templateName,
+                    })}
+                  />
+                )}
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <Link
                       to={`/preset-meals/${preset.id}`}
                       className="hover:underline"
                     >
-                      <h3 className="truncate text-base font-semibold text-card-foreground">
+                      <h3 className="truncate text-base font-semibold text-card-foreground pr-7">
                         {preset.templateName}
                       </h3>
                     </Link>

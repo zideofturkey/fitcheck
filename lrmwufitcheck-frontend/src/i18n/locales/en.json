@@ -1441,6 +1441,16 @@
     "deleteSuccess": "Brand removed from {{count}} food items.",
     "deleteError": "Failed to delete brand."
   },
+  "bulkEdit": {
+    "selectedCount": "{{count}} items selected",
+    "selectItem": "Select {{name}}",
+    "clear": "Clear",
+    "apply": "Apply",
+    "confirmTitle": "Apply bulk edit",
+    "confirmDesc": "{{count}} items will be updated. This cannot be undone.",
+    "applySuccess": "{{count}} items updated.",
+    "applyFailed": "{{count}} items failed to update."
+  },
   "adminCategories": {
     "loading": "Loading...",
     "loadError": "Failed to load categories.",
