@@ -441,7 +441,8 @@
     "emptyCta": "Log a meal",
     "viewMeals": "View meals",
     "clickHint": "Click a day to see its meals",
-    "target": "Target"
+    "target": "Target",
+    "notEnoughDataForBestWorst": "At least 3 days of data are needed for a best/worst day comparison."
   },
   "weeklyAnalytics": {
     "dashboard": "Dashboard",
@@ -475,7 +476,8 @@
     "emptyBody": "Log meals for at least 3 days to see weekly trends and comparisons.",
     "emptyCta": "Log a meal",
     "viewMeals": "View meals",
-    "clickHint": "Click a day to see its meals"
+    "clickHint": "Click a day to see its meals",
+    "notEnoughDataForBestWorst": "At least 3 days of data are needed for a best/worst day comparison."
   },
   "presetMealDetail": {
     "addLineError": "Couldn't add the item, please check the values.",
@@ -841,6 +843,8 @@
     "dailyCalorieSummary": "Daily Calorie Summary",
     "macroDetails": "Macro Details",
     "exceeded": "Exceeded",
+    "goalMet": "Goal met",
+    "noGoalSet": "No goal set",
     "todaysMeals": "Today's meals",
     "exceededTarget": "Exceeded targets",
     "todaysMealsTitle": "Today's Meals",

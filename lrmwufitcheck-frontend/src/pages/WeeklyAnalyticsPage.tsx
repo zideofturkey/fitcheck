@@ -21,6 +21,7 @@ import AnalyticsBadgeRow from "@/components/analytics/AnalyticsBadgeRow";
 import SlotBreakdownChart from "@/components/analytics/SlotBreakdownChart";
 import EmptyPeriodState from "@/components/analytics/EmptyPeriodState";
 import TrendDeltaPill from "@/components/analytics/TrendDeltaPill";
+import { computeGoalStatus, MACRO_DIRECTION } from "@/lib/goal-status";
 
 function isoToday() {
   const d = new Date();
@@ -89,7 +90,11 @@ export default function WeeklyAnalyticsPage() {
       (w?.caloriesTrend ?? []).map((d) => ({
         ...d,
         day: formatDay(d.date),
-        exceeded: (d.target ?? 0) > 0 && d.consumed > (d.target ?? 0),
+        exceeded: computeGoalStatus(
+          d.consumed,
+          d.target ?? 0,
+          MACRO_DIRECTION.calories,
+        ).exceeded,
       })),
     [w?.caloriesTrend],
   );
@@ -107,7 +112,7 @@ export default function WeeklyAnalyticsPage() {
           hitRate: w.proteinHitRate,
           deltaPct: w.deltaPct.proteinDeltaPct,
           color: "bg-chart-1",
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.protein === "ceiling",
         },
         {
           name: t("weeklyAnalytics.carbs"),
@@ -115,7 +120,7 @@ export default function WeeklyAnalyticsPage() {
           hitRate: w.carbohydratesHitRate,
           deltaPct: w.deltaPct.carbohydratesDeltaPct,
           color: "bg-chart-2",
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.carbs === "ceiling",
         },
         {
           name: t("weeklyAnalytics.fat"),
@@ -123,7 +128,7 @@ export default function WeeklyAnalyticsPage() {
           hitRate: w.fatHitRate,
           deltaPct: w.deltaPct.fatDeltaPct,
           color: "bg-chart-3",
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.fat === "ceiling",
         },
         {
           name: t("weeklyAnalytics.sugar"),
@@ -131,7 +136,7 @@ export default function WeeklyAnalyticsPage() {
           hitRate: w.sugarHitRate,
           deltaPct: w.deltaPct.sugarDeltaPct,
           color: "bg-destructive",
-          higherIsWorse: true,
+          higherIsWorse: MACRO_DIRECTION.sugar === "ceiling",
         },
         {
           name: t("weeklyAnalytics.fiber"),
@@ -139,7 +144,7 @@ export default function WeeklyAnalyticsPage() {
           hitRate: w.fiberHitRate,
           deltaPct: w.deltaPct.fiberDeltaPct,
           color: "bg-chart-4",
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.fiber === "ceiling",
         },
       ]
     : [];
@@ -211,16 +216,22 @@ export default function WeeklyAnalyticsPage() {
 
       {w && w.dayCount > 0 && (
         <>
-          <AnalyticsBadgeRow
-            bestDay={w.bestDay}
-            worstDay={w.worstDay}
-            streak={w.streak}
-            bestLabel={t("weeklyAnalytics.bestDay")}
-            worstLabel={t("weeklyAnalytics.worstDay")}
-            streakLabel={t("weeklyAnalytics.streak")}
-            streakZeroLabel={t("weeklyAnalytics.streakZero")}
-            onDayClick={goToDay}
-          />
+          {w.dayCount >= 3 ? (
+            <AnalyticsBadgeRow
+              bestDay={w.bestDay}
+              worstDay={w.worstDay}
+              streak={w.streak}
+              bestLabel={t("weeklyAnalytics.bestDay")}
+              worstLabel={t("weeklyAnalytics.worstDay")}
+              streakLabel={t("weeklyAnalytics.streak")}
+              streakZeroLabel={t("weeklyAnalytics.streakZero")}
+              onDayClick={goToDay}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("weeklyAnalytics.notEnoughDataForBestWorst")}
+            </p>
+          )}
 
           {/* Calorie trend */}
           <Card className="p-6">

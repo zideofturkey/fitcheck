@@ -5,6 +5,9 @@ const {
 
 const MACROS = ["calories", "protein", "carbohydrates", "fat", "sugar", "fiber"];
 const SLOT_ORDER = ["breakfast", "lunch", "dinner", "snack"];
+// Calories/carbs/fat/sugar are ceiling goals (going over is bad); protein/fiber
+// are floor goals (going over is fine, only falling short matters).
+const CEILING_MACROS = new Set(["calories", "carbohydrates", "fat", "sugar"]);
 
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -48,9 +51,18 @@ function computeAveragesAndHitRates(days) {
     const target = `target${capitalize(macro)}`;
     const total = days.reduce((s, d) => s + (d[consumed] || 0), 0);
     avgs[`avgDaily${capitalize(macro)}`] = total / n;
-    const hits = days.filter(
-      (d) => (d[target] || 0) === 0 || (d[consumed] || 0) <= (d[target] || 0),
-    ).length;
+    const isCeiling = CEILING_MACROS.has(macro);
+    const hits = days.filter((d) => {
+      const t = d[target] || 0;
+      const c = d[consumed] || 0;
+      if (isCeiling) {
+        // A target of 0 is still a real ceiling - any consumption exceeds it,
+        // so it only counts as a hit when nothing was consumed either.
+        return c <= t;
+      }
+      // Floor goal: no target set means there's nothing to fall short of.
+      return t === 0 || c >= t;
+    }).length;
     hitRates[`${macro}HitRate`] =
       days.length > 0 ? (hits / days.length) * 100 : 100;
   }
@@ -99,7 +111,9 @@ function computeStreak(days, referenceDateIso) {
   while (true) {
     const d = byDate.get(cursor);
     if (!d) break;
-    const met = (d.targetCalories || 0) === 0 || (d.consumedCalories || 0) <= d.targetCalories;
+    // Calories is a ceiling goal - a target of 0 is still exceeded by any
+    // consumption, so it's only "met" when nothing was consumed either.
+    const met = (d.consumedCalories || 0) <= (d.targetCalories || 0);
     if (!met) break;
     streak += 1;
     cursor = addDays(cursor, -1);
