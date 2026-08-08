@@ -122,6 +122,7 @@ function BrandField({
 }) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
+  const [selectOpen, setSelectOpen] = useState(false);
 
   const handleSave = () => {
     const trimmed = draft.trim();
@@ -184,12 +185,36 @@ function BrandField({
         <div className="flex items-center gap-2">
           <Select
             value={value || "none"}
-            onValueChange={(v) => onChange(v === "none" ? "" : v)}
+            onValueChange={(v) => {
+              onChange(v === "none" ? "" : v);
+              setSelectOpen(false);
+            }}
+            open={selectOpen}
+            onOpenChange={setSelectOpen}
           >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
-            </SelectTrigger>
-            <SelectContent className="max-h-[min(21rem,var(--radix-select-content-available-height))]">
+            <div
+              className="flex-1"
+              onClickCapture={(e) => {
+                // Radix's Select trigger unconditionally opens on click (it
+                // doesn't check event.defaultPrevented), and closing normally
+                // relies purely on its own outside-click detection — which
+                // doesn't fire for a tap on the trigger itself. Net effect
+                // without this: tap once to open, tap again does nothing,
+                // select is stuck open (observed on mobile). Intercept the
+                // click in the capture phase, before it ever reaches Radix's
+                // own handler, and toggle closed ourselves.
+                if (selectOpen) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectOpen(false);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
+              </SelectTrigger>
+            </div>
+            <SelectContent className="custom-scrollbar max-h-[min(21rem,var(--radix-select-content-available-height))]">
               <SelectItem value="none">{t("foodLibrary.noBrand")}</SelectItem>
               {fullOptions.map((b) => (
                 <SelectItem key={b} value={b}>

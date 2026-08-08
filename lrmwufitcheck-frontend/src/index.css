@@ -300,4 +300,25 @@
     opacity: 1;
     transform: translate(var(--particle-x), var(--particle-y)) scale(1);
   }
+
+  /* .custom-scrollbar - a visible, classic thin scrollbar thumb (rounded,
+     shrinks as content grows, since the browser sizes the thumb by the
+     scrollable/visible ratio on its own) for scrollable panels that would
+     otherwise rely on the platform's auto-hiding scrollbar - most noticeable
+     on touch devices where there's no hover affordance to reveal it at all,
+     leaving the user with no sense of how much more content there is. */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+  }
 }
