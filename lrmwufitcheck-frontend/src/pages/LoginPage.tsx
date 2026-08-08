@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import Logo from "@/components/Logo";
 
 // Self-registration via invite isn't live yet — kept in sync with
 // WelcomePage's INVITE_SELF_SERVICE_ENABLED flag so both entry points to the
@@ -63,7 +64,7 @@ const LoginPage = () => {
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
               <Salad className="w-6 h-6 text-primary-foreground" />
             </div>
-            FitCheck
+            <Logo />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
             {t("login.welcomeBack")}
