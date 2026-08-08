@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ import ManualNutritionForm, {
 } from "@/components/ManualNutritionForm";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import { useAuth } from "@/context/AuthContext";
+import { extractApiErrorMessage } from "@/lib/api-error";
 
 interface EditLineForm {
   name: string;
@@ -138,6 +140,8 @@ export default function DishDetailPage() {
           setSelectedFood(null);
           setGramAmount(100);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.addLineError"))),
       },
     );
   };
@@ -159,6 +163,8 @@ export default function DishDetailPage() {
       },
       {
         onSuccess: () => setAddOpen(false),
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.addLineError"))),
       },
     );
   };

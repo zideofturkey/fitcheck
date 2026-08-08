@@ -477,6 +477,7 @@
     "clickHint": "Click a day to see its meals"
   },
   "presetMealDetail": {
+    "addLineError": "Couldn't add the item, please check the values.",
     "loading": "Loading…",
     "notFound": "Preset not found.",
     "backToList": "Back to preset list",
@@ -508,6 +509,7 @@
     "addGrams": "Add {{grams}}g"
   },
   "presetMeals": {
+    "addLineError": "Couldn't add the item, please check the values.",
     "title": "Preset Meals",
     "subtitle": "Reusable meal templates for quick logging.",
     "newPreset": "New Preset",
@@ -542,6 +544,7 @@
     "ownershipGlobal": "Global Library"
   },
   "foodLibrary": {
+    "saveError": "Couldn't save, please check the values.",
     "title": "Food Library",
     "subtitle": "Manage your personal food items and nutrition per 100g.",
     "addWithAi": "Add with AI",
@@ -701,6 +704,7 @@
     "loading": "Loading…"
   },
   "mealDetail": {
+    "addLineError": "Couldn't add the item, please check the values.",
     "backToHistory": "Back to Meal History",
     "title": "Meal Detail",
     "edit": "Edit",
@@ -1283,6 +1287,7 @@
     "confirmSuccess": "Meal logged successfully."
   },
   "dishes": {
+    "addLineError": "Couldn't add the item, please check the values.",
     "title": "Dish Library",
     "subtitle": "Dish recipes made from your food items.",
     "newDish": "New Dish",
