@@ -21,13 +21,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   useAddDishLine,
   useCreateDish,
@@ -560,49 +554,36 @@ export default function DishesPage() {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Select
+            <FlatPicker
+              className="w-auto"
+              triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
               value={categoryFilter}
               onValueChange={(v) => {
                 setCategoryFilter(v);
                 setPage(1);
               }}
-            >
-              <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-                {categoryFilter === "all"
-                  ? t("dishes.allCategories")
-                  : dishCategoryLabel(t, categoryFilter)}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("dishes.allCategories")}</SelectItem>
-                {DISH_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {dishCategoryLabel(t, c)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
+              options={[
+                { value: "all", label: t("dishes.allCategories") },
+                ...DISH_CATEGORIES.map((c) => ({
+                  value: c,
+                  label: dishCategoryLabel(t, c),
+                })),
+              ]}
+            />
+            <FlatPicker
+              className="w-auto"
+              triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
               value={ownershipFilter}
               onValueChange={(v) => {
                 setOwnershipFilter(v as "all" | "mine" | "global");
                 setPage(1);
               }}
-            >
-              <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-                {ownershipFilter === "mine"
-                  ? t("dishes.ownershipMine")
-                  : ownershipFilter === "global"
-                    ? t("dishes.ownershipGlobal")
-                    : t("dishes.ownershipAll")}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("dishes.ownershipAll")}</SelectItem>
-                <SelectItem value="mine">{t("dishes.ownershipMine")}</SelectItem>
-                <SelectItem value="global">
-                  {t("dishes.ownershipGlobal")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { value: "all", label: t("dishes.ownershipAll") },
+                { value: "mine", label: t("dishes.ownershipMine") },
+                { value: "global", label: t("dishes.ownershipGlobal") },
+              ]}
+            />
           </div>
         </div>
 
@@ -990,23 +971,17 @@ export default function DishesPage() {
                   <label className="block text-sm font-medium">
                     {t("dishes.categoryLabel")}
                   </label>
-                  <Select
+                  <FlatPicker
                     value={createForm.category}
                     onValueChange={(v) =>
                       setCreateForm((f) => ({ ...f, category: v }))
                     }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DISH_CATEGORIES.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {dishCategoryLabel(t, c)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={DISH_CATEGORIES.map((c) => ({
+                      value: c,
+                      label: dishCategoryLabel(t, c),
+                    }))}
+                    placeholder={t("dishes.categoryPlaceholder")}
+                  />
                 </div>
                 {isAdmin && (
                   <label className="flex items-center gap-2.5 rounded-xl border border-border p-3 text-sm cursor-pointer">

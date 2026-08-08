@@ -12,13 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import {
   useApproveSuggestion,
   useListSuggestions,
@@ -65,23 +59,17 @@ function AdminSuggestionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">
-                {t("adminSuggestions.pending")}
-              </SelectItem>
-              <SelectItem value="approved">
-                {t("adminSuggestions.approved")}
-              </SelectItem>
-              <SelectItem value="rejected">
-                {t("adminSuggestions.rejected")}
-              </SelectItem>
-              <SelectItem value="all">{t("adminSuggestions.all")}</SelectItem>
-            </SelectContent>
-          </Select>
+          <FlatPicker
+            className="w-[160px]"
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            options={[
+              { value: "pending", label: t("adminSuggestions.pending") },
+              { value: "approved", label: t("adminSuggestions.approved") },
+              { value: "rejected", label: t("adminSuggestions.rejected") },
+              { value: "all", label: t("adminSuggestions.all") },
+            ]}
+          />
           <Button
             variant="outline"
             size="sm"

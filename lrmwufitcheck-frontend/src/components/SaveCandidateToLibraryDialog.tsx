@@ -11,13 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FlatPicker } from "@/components/ui/flat-picker";
 import { useListAiCandidateLines } from "@/hooks/api/use-nutritionai-helpers";
 import { useCreateFoodItem } from "@/hooks/api/use-nutritionlibrary";
 import { useCreateDish, useAddDishLine } from "@/hooks/api/use-dish";
@@ -194,7 +188,8 @@ export default function SaveCandidateToLibraryDialog({
                   <span className="flex-1 text-sm text-foreground truncate">
                     {l.detectedFoodName}
                   </span>
-                  <Select
+                  <FlatPicker
+                    className="w-40"
                     value={targets[l.id] ?? "food"}
                     onValueChange={(v) =>
                       setTargets((prev) => ({
@@ -202,22 +197,12 @@ export default function SaveCandidateToLibraryDialog({
                         [l.id]: v as LineTarget,
                       }))
                     }
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="food">
-                        {t("aiSessionDetail.targetFood")}
-                      </SelectItem>
-                      <SelectItem value="dish">
-                        {t("aiSessionDetail.targetDish")}
-                      </SelectItem>
-                      <SelectItem value="skip">
-                        {t("aiSessionDetail.targetSkip")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                    options={[
+                      { value: "food", label: t("aiSessionDetail.targetFood") },
+                      { value: "dish", label: t("aiSessionDetail.targetDish") },
+                      { value: "skip", label: t("aiSessionDetail.targetSkip") },
+                    ]}
+                  />
                 </div>
               ))}
               {lines.length === 0 && (

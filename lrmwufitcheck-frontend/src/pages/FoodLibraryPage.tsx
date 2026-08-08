@@ -29,13 +29,6 @@ import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { FlatPicker } from "@/components/ui/flat-picker";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -742,75 +735,47 @@ export default function FoodLibraryPage() {
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Select
+          <FlatPicker
+            className="w-auto"
+            triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
             value={categoryFilter}
             onValueChange={(v) => {
               setCategoryFilter(v);
               setPage(1);
             }}
-          >
-            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-              {categoryFilter === "all"
-                ? t("foodLibrary.allCategories")
-                : categoryLabel(t, categoryFilter)}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t("foodLibrary.allCategories")}
-              </SelectItem>
-              {CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {categoryLabel(t, c)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
+            options={[
+              { value: "all", label: t("foodLibrary.allCategories") },
+              ...CATEGORIES.map((c) => ({ value: c, label: categoryLabel(t, c) })),
+            ]}
+          />
+          <FlatPicker
+            className="w-auto"
+            triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
             value={sourceFilter}
             onValueChange={(v) => {
               setSourceFilter(v);
               setPage(1);
             }}
-          >
-            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-              {sourceFilter === "all"
-                ? t("foodLibrary.allSources")
-                : sourceFilter === "manualEntry"
-                  ? t("foodLibrary.manual")
-                  : t("foodLibrary.ai")}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("foodLibrary.allSources")}</SelectItem>
-              <SelectItem value="manualEntry">
-                {t("foodLibrary.manual")}
-              </SelectItem>
-              <SelectItem value="aiAssistant">{t("foodLibrary.ai")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
+            options={[
+              { value: "all", label: t("foodLibrary.allSources") },
+              { value: "manualEntry", label: t("foodLibrary.manual") },
+              { value: "aiAssistant", label: t("foodLibrary.ai") },
+            ]}
+          />
+          <FlatPicker
+            className="w-auto"
+            triggerClassName="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto"
             value={ownershipFilter}
             onValueChange={(v) => {
               setOwnershipFilter(v as "all" | "mine" | "global");
               setPage(1);
             }}
-          >
-            <SelectTrigger className="tap-target-expand rounded-full border-border bg-card px-3 py-1.5 text-xs font-medium h-auto gap-1.5 w-auto">
-              {ownershipFilter === "mine"
-                ? t("foodLibrary.ownershipMine")
-                : ownershipFilter === "global"
-                  ? t("foodLibrary.ownershipGlobal")
-                  : t("foodLibrary.ownershipAll")}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("foodLibrary.ownershipAll")}</SelectItem>
-              <SelectItem value="mine">
-                {t("foodLibrary.ownershipMine")}
-              </SelectItem>
-              <SelectItem value="global">
-                {t("foodLibrary.ownershipGlobal")}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: "all", label: t("foodLibrary.ownershipAll") },
+              { value: "mine", label: t("foodLibrary.ownershipMine") },
+              { value: "global", label: t("foodLibrary.ownershipGlobal") },
+            ]}
+          />
           <button
             type="button"
             onClick={() => setGroupedView((v) => !v)}
