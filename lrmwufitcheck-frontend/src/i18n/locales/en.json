@@ -9,6 +9,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "saving": "Saving...",
     "close": "Close",
     "clearSelection": "Clear selection",
     "back": "Back",
@@ -506,7 +507,12 @@
     "noFoodsFound": "No dishes found.",
     "gramAmount": "Gram amount",
     "adding": "Adding…",
-    "addGrams": "Add {{grams}}g"
+    "addGrams": "Add {{grams}}g",
+    "editTitle": "Edit Preset Meal",
+    "nameLabel": "Preset Meal Name",
+    "descriptionLabel": "Description",
+    "categoryLabel": "Category",
+    "updateError": "Couldn't update the preset meal, please check the values."
   },
   "presetMeals": {
     "addLineError": "Couldn't add the item, please check the values.",
@@ -1362,7 +1368,10 @@
     "suggestAria": "Suggest for global library",
     "suggestTooltip": "Suggest: promote to the global library",
     "suggestSuccess": "Your suggestion was submitted. An admin will review it.",
-    "suggestError": "Could not submit suggestion."
+    "suggestError": "Could not submit suggestion.",
+    "editDishTitle": "Edit Dish",
+    "noCategory": "No category",
+    "updateError": "Couldn't update the dish, please check the values."
   },
   "manualEntry": {
     "libraryTab": "Choose from Library",

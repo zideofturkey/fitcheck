@@ -100,12 +100,16 @@ export type CreatePresetMealInput = {
   templateName: string;
 
   descriptionText?: string;
+
+  presetCategory?: string;
 };
 
 export type UpdatePresetMealInput = {
   templateName?: string;
 
   descriptionText?: string;
+
+  presetCategory?: string;
 };
 
 export type AddPresetLineInput = {

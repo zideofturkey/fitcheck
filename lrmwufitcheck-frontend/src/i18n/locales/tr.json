@@ -9,6 +9,7 @@
     "cancel": "İptal",
     "delete": "Sil",
     "edit": "Düzenle",
+    "saving": "Kaydediliyor...",
     "close": "Kapat",
     "clearSelection": "Seçimi kaldır",
     "back": "Geri",
@@ -506,7 +507,12 @@
     "noFoodsFound": "Yemek bulunamadı.",
     "gramAmount": "Gram miktarı",
     "adding": "Ekleniyor…",
-    "addGrams": "{{grams}}g Ekle"
+    "addGrams": "{{grams}}g Ekle",
+    "editTitle": "Hazır Öğünü Düzenle",
+    "nameLabel": "Hazır Öğün Adı",
+    "descriptionLabel": "Açıklama",
+    "categoryLabel": "Kategori",
+    "updateError": "Hazır öğün güncellenemedi, lütfen değerleri kontrol edin."
   },
   "presetMeals": {
     "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
@@ -1362,7 +1368,10 @@
     "suggestAria": "Global kütüphaneye eklenmesini öner",
     "suggestTooltip": "Öner: Global kütüphaneye eklenmesini öner",
     "suggestSuccess": "Öneriniz gönderildi. Bir yönetici inceleyecek.",
-    "suggestError": "Öneri gönderilemedi."
+    "suggestError": "Öneri gönderilemedi.",
+    "editDishTitle": "Yemeği Düzenle",
+    "noCategory": "Kategori yok",
+    "updateError": "Yemek güncellenemedi, lütfen değerleri kontrol edin."
   },
   "manualEntry": {
     "libraryTab": "Kütüphaneden Seç",

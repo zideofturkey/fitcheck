@@ -1,5 +1,5 @@
 import { formatMacro } from "@/lib/format";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,15 +23,30 @@ import {
   useListDishLines,
   useDeleteDishLine,
   useAddDishLine,
+  useUpdateDish,
 } from "@/hooks/api/use-dish";
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import CategoryAccordionFoodPicker from "@/components/CategoryAccordionFoodPicker";
 import ManualNutritionForm, {
   type ManualNutritionFormValues,
 } from "@/components/ManualNutritionForm";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
 import type { NutritionlibraryFoodItem } from "@/types/api";
 import { useAuth } from "@/context/AuthContext";
 import { extractApiErrorMessage } from "@/lib/api-error";
+
+interface EditDishForm {
+  name: string;
+  description: string;
+  category: string;
+}
 
 interface EditLineForm {
   name: string;
@@ -73,8 +88,15 @@ export default function DishDetailPage() {
   const deleteMutation = useDeleteDish();
   const deleteLineMutation = useDeleteDishLine();
   const addLineMutation = useAddDishLine();
+  const updateMutation = useUpdateDish();
   const [addOpen, setAddOpen] = useState(false);
-  useLockBodyScroll(addOpen);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm2, setEditForm2] = useState<EditDishForm>({
+    name: "",
+    description: "",
+    category: "",
+  });
+  useLockBodyScroll(addOpen || editOpen);
   const [addTab, setAddTab] = useState<"library" | "manual" | "direct">(
     "library",
   );
@@ -121,6 +143,34 @@ export default function DishDetailPage() {
     deleteMutation.mutate(dish.id, {
       onSuccess: () => navigate("/dishes"),
     });
+  };
+
+  const handleOpenEdit = () => {
+    setEditForm2({
+      name: dish.dishName,
+      description: dish.descriptionText ?? "",
+      category: dish.dishCategory ?? "",
+    });
+    setEditOpen(true);
+  };
+
+  const handleSaveEdit = (e: FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate(
+      {
+        dishId: dish.id,
+        data: {
+          dishName: editForm2.name,
+          descriptionText: editForm2.description || undefined,
+          dishCategory: editForm2.category || undefined,
+        },
+      },
+      {
+        onSuccess: () => setEditOpen(false),
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.updateError"))),
+      },
+    );
   };
 
   const handleRemoveLine = (lineId: string) => {
@@ -257,9 +307,23 @@ export default function DishDetailPage() {
               <p className="text-sm text-muted-foreground line-clamp-2">
                 {dish.descriptionText || "—"}
               </p>
+              {dish.dishCategory && (
+                <span className="inline-block text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  {dishCategoryLabel(t, dish.dishCategory)}
+                </span>
+              )}
             </div>
             {canEdit && (
               <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleOpenEdit}
+                >
+                  <Pencil className="w-4 h-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">{t("common.edit")}</span>
+                </Button>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -764,6 +828,110 @@ export default function DishDetailPage() {
             )}
               </>
             )}
+          </div>
+        </>
+      )}
+
+      {editOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-foreground/30"
+            onClick={() => setEditOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background shadow-2xl flex flex-col">
+            <form onSubmit={handleSaveEdit} className="flex flex-col h-full">
+              <div className="flex items-center justify-between border-b border-border px-6 py-4">
+                <h2 className="text-lg font-semibold">
+                  {t("dishes.editDishTitle")}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(false)}
+                  className="tap-target-expand rounded-full p-1.5 hover:bg-muted"
+                  aria-label={t("common.close")}
+                  title={t("common.close")}
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium">
+                    {t("dishes.nameLabel")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    value={editForm2.name}
+                    onChange={(e) =>
+                      setEditForm2((f) => ({ ...f, name: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium">
+                    {t("dishes.descriptionLabel")}
+                  </label>
+                  <Input
+                    value={editForm2.description}
+                    onChange={(e) =>
+                      setEditForm2((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium">
+                    {t("dishes.categoryLabel")}
+                  </label>
+                  <Select
+                    value={editForm2.category || "none"}
+                    onValueChange={(v) =>
+                      setEditForm2((f) => ({
+                        ...f,
+                        category: v === "none" ? "" : v,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">
+                        {t("dishes.noCategory")}
+                      </SelectItem>
+                      {DISH_CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {dishCategoryLabel(t, c)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="border-t border-border px-6 py-4 flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setEditOpen(false)}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending
+                    ? t("common.saving")
+                    : t("common.save")}
+                </Button>
+              </div>
+            </form>
           </div>
         </>
       )}
