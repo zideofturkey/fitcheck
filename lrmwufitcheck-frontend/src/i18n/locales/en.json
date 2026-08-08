@@ -633,6 +633,7 @@
     },
     "newBrandPlaceholder": "New brand name",
     "noBrand": "No brand",
+    "noCategory": "No category",
     "addBrand": "Add new brand"
   },
   "foodItemDetail": {
@@ -1498,6 +1499,15 @@
     "rowsPerPage": "{{count}} rows",
     "prevPage": "Previous",
     "nextPage": "Next",
-    "pageOf": "Page {{page}} / {{totalPages}}"
+    "pageOf": "Page {{page}} / {{totalPages}}",
+    "editSelected": "Edit",
+    "editComposition": "Edit Ingredients",
+    "editCompositionHint": "Nutrition values are auto-calculated from this item's ingredient/dish lines. Use \"Edit Ingredients\" to change them.",
+    "bulkEditTitle": "Bulk Edit",
+    "bulkEditDesc": "Will apply to {{count}} items. Fields left blank are not changed.",
+    "bulkEditFieldSkip": "Don't change",
+    "applyToCount": "Apply to {{count}} Items",
+    "bulkEditSuccess": "{{count}} items updated.",
+    "bulkEditFailed": "{{count}} items failed to update."
   }
 }
