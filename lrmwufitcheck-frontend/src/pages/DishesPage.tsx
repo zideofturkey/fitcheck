@@ -46,6 +46,7 @@ import ManualNutritionForm, {
 } from "@/components/ManualNutritionForm";
 import ManualEntrySuggestionDialog from "@/components/ManualEntrySuggestionDialog";
 import { persistManualFoodItem } from "@/services/api/manual-entry-helpers";
+import { extractApiErrorMessage } from "@/lib/api-error";
 import StepIndicator from "@/components/StepIndicator";
 import DraftConfirmDialog from "@/components/DraftConfirmDialog";
 import { DISH_CATEGORIES, dishCategoryLabel } from "@/lib/dish-category";
@@ -353,6 +354,8 @@ export default function DishesPage() {
           setSelectedFood(null);
           setGramAmount(100);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.addLineError"))),
       },
     );
   };
@@ -381,6 +384,8 @@ export default function DishesPage() {
           // created in the Malzeme Kütüphanesi.
           setPendingSuggestion(values);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.addLineError"))),
       },
     );
   };
@@ -411,6 +416,8 @@ export default function DishesPage() {
           setPendingSuggestion(values);
           finishCreate();
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("dishes.addLineError"))),
       },
     );
   };

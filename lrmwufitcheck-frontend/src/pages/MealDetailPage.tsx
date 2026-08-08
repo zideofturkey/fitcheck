@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Loader,
@@ -28,6 +29,7 @@ import FoodPickerModal, {
 import ManualNutritionForm, {
   type ManualNutritionFormValues,
 } from "@/components/ManualNutritionForm";
+import { extractApiErrorMessage } from "@/lib/api-error";
 
 function lineToFormValues(line: MealtrackerMealLine): ManualNutritionFormValues {
   const grams = line.consumedGrams || 100;
@@ -159,7 +161,11 @@ export default function MealDetailPage() {
         itemFiber: (values.fiberPer100g / 100) * values.gramAmount,
         lineSource: "manualEntry",
       },
-      { onSuccess: () => setManualOpen(false) },
+      {
+        onSuccess: () => setManualOpen(false),
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("mealDetail.addLineError"))),
+      },
     );
   };
 
@@ -180,7 +186,11 @@ export default function MealDetailPage() {
           itemFiber: (values.fiberPer100g / 100) * values.gramAmount,
         },
       },
-      { onSuccess: () => setEditingLine(null) },
+      {
+        onSuccess: () => setEditingLine(null),
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("mealDetail.addLineError"))),
+      },
     );
   };
 

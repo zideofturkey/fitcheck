@@ -477,6 +477,7 @@
     "clickHint": "Bir günün öğünlerini görmek için tıklayın"
   },
   "presetMealDetail": {
+    "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
     "loading": "Yükleniyor…",
     "notFound": "Hazır öğün bulunamadı.",
     "backToList": "Hazır öğün listesine dön",
@@ -508,6 +509,7 @@
     "addGrams": "{{grams}}g Ekle"
   },
   "presetMeals": {
+    "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
     "title": "Hazır Öğünler",
     "subtitle": "Hızlı kayıt için yeniden kullanılabilir öğün şablonları.",
     "newPreset": "Yeni Hazır Öğün",
@@ -542,6 +544,7 @@
     "ownershipGlobal": "Global Kütüphane"
   },
   "foodLibrary": {
+    "saveError": "Kaydedilemedi, lütfen değerleri kontrol edin.",
     "title": "Besin Kütüphanesi",
     "subtitle": "Kişisel besin öğelerinizi ve 100g başına besin değerlerini yönetin.",
     "addWithAi": "AI ile Ekle",
@@ -701,6 +704,7 @@
     "loading": "Yükleniyor…"
   },
   "mealDetail": {
+    "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
     "backToHistory": "Öğün Geçmişine Dön",
     "title": "Öğün Detayı",
     "edit": "Düzenle",
@@ -1283,6 +1287,7 @@
     "confirmSuccess": "Öğün başarıyla kaydedildi."
   },
   "dishes": {
+    "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
     "title": "Yemek Kütüphanesi",
     "subtitle": "Malzemelerden oluşturduğunuz yemek tarifleri.",
     "newDish": "Yeni Yemek",

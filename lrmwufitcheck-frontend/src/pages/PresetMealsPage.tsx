@@ -46,6 +46,7 @@ import ManualNutritionForm, {
 } from "@/components/ManualNutritionForm";
 import ManualEntrySuggestionDialog from "@/components/ManualEntrySuggestionDialog";
 import { persistManualDish } from "@/services/api/manual-entry-helpers";
+import { extractApiErrorMessage } from "@/lib/api-error";
 import StepIndicator from "@/components/StepIndicator";
 import DraftConfirmDialog from "@/components/DraftConfirmDialog";
 import { useAuth } from "@/context/AuthContext";
@@ -240,6 +241,8 @@ export default function PresetMealsPage() {
           setSelectedDish(null);
           setGramAmount(100);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("presetMeals.addLineError"))),
       },
     );
   };
@@ -268,6 +271,8 @@ export default function PresetMealsPage() {
           // in the Yemek Kütüphanesi.
           setPendingSuggestion(values);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("presetMeals.addLineError"))),
       },
     );
   };

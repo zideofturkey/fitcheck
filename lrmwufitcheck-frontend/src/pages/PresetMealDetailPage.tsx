@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ChevronRight,
@@ -35,6 +36,7 @@ import ManualNutritionForm, {
   type ManualNutritionFormValues,
 } from "@/components/ManualNutritionForm";
 import { useAuth } from "@/context/AuthContext";
+import { extractApiErrorMessage } from "@/lib/api-error";
 
 interface EditLineForm {
   name: string;
@@ -169,6 +171,10 @@ export default function PresetMealDetailPage() {
           setSelectedDish(null);
           setGramAmount(100);
         },
+        onError: (err) =>
+          toast.error(
+            extractApiErrorMessage(err, t("presetMealDetail.addLineError")),
+          ),
       },
     );
   };
@@ -190,6 +196,10 @@ export default function PresetMealDetailPage() {
       },
       {
         onSuccess: () => setAddOpen(false),
+        onError: (err) =>
+          toast.error(
+            extractApiErrorMessage(err, t("presetMealDetail.addLineError")),
+          ),
       },
     );
   };

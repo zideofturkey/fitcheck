@@ -52,6 +52,7 @@ import { CATEGORIES, categoryLabel } from "@/lib/food-category";
 import { validateNutritionValues } from "@/lib/nutrition-validation";
 import { useLockBodyScroll } from "@/hooks/use-lock-body-scroll";
 import DraftConfirmDialog from "@/components/DraftConfirmDialog";
+import { extractApiErrorMessage } from "@/lib/api-error";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Meat: Apple,
@@ -338,6 +339,8 @@ export default function FoodLibraryPage() {
         setCreateIsAi(false);
         setCreateIsGlobal(false);
       },
+      onError: (err) =>
+        toast.error(extractApiErrorMessage(err, t("foodLibrary.saveError"))),
     });
   };
 
@@ -391,6 +394,8 @@ export default function FoodLibraryPage() {
           setEditOpen(false);
           setEditingFood(null);
         },
+        onError: (err) =>
+          toast.error(extractApiErrorMessage(err, t("foodLibrary.saveError"))),
       },
     );
   };
