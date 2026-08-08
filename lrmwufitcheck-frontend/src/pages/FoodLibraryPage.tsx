@@ -1,5 +1,5 @@
 import { formatMacro } from "@/lib/format";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -123,6 +123,61 @@ function BrandField({
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
   const [selectOpen, setSelectOpen] = useState(false);
+  // Mobile browsers largely ignore ::-webkit-scrollbar styling on touch
+  // devices (native overlay scrollbars only flash briefly during an active
+  // touch-scroll, if at all), so a CSS-only scrollbar thumb is invisible in
+  // practice there. Track scroll position ourselves and render a plain div
+  // as the thumb instead - works identically on every platform.
+  const [scrollThumb, setScrollThumb] = useState<{ top: number; height: number } | null>(null);
+  const updateScrollThumb = (el: HTMLElement) => {
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    if (scrollHeight <= clientHeight + 1) {
+      setScrollThumb(null);
+      return;
+    }
+    const heightPct = Math.max((clientHeight / scrollHeight) * 100, 10);
+    const topPct = (scrollTop / (scrollHeight - clientHeight)) * (100 - heightPct);
+    setScrollThumb({ top: topPct, height: heightPct });
+  };
+
+  useEffect(() => {
+    if (!selectOpen) {
+      setScrollThumb(null);
+      return;
+    }
+    let viewport: HTMLElement | null = null;
+    let ro: ResizeObserver | null = null;
+    let timer = 0;
+    const handleScroll = () => {
+      if (viewport) updateScrollThumb(viewport);
+    };
+    // Radix hasn't finished laying out the popper content on the same tick
+    // it mounts - measuring immediately (e.g. from a ref callback) catches
+    // scrollHeight === clientHeight before Radix clamps the viewport to the
+    // actually-available space. A macrotask delay (not rAF - rAF never
+    // fires for a backgrounded/non-composited tab) lets layout settle, then
+    // re-query fresh (rather than trust a ref captured earlier) and observe
+    // for any further resize so the thumb self-corrects.
+    const attach = () => {
+      viewport = document.querySelector<HTMLElement>(
+        '[data-slot="select-content"] [data-slot="select-viewport"]',
+      );
+      if (!viewport) {
+        timer = window.setTimeout(attach, 16);
+        return;
+      }
+      updateScrollThumb(viewport);
+      ro = new ResizeObserver(() => viewport && updateScrollThumb(viewport));
+      ro.observe(viewport);
+      viewport.addEventListener("scroll", handleScroll, { passive: true });
+    };
+    timer = window.setTimeout(attach, 16);
+    return () => {
+      window.clearTimeout(timer);
+      ro?.disconnect();
+      viewport?.removeEventListener("scroll", handleScroll);
+    };
+  }, [selectOpen]);
 
   const handleSave = () => {
     const trimmed = draft.trim();
@@ -194,6 +249,20 @@ function BrandField({
           >
             <div
               className="flex-1"
+              onPointerDownCapture={(e) => {
+                // On touch, Radix's Select trigger reopens from the
+                // *pointerdown* itself (not the click that follows) - a
+                // click-only capture guard closes it on desktop (mouse: only
+                // a click fires) but is too late on mobile, since the
+                // pointerdown has already re-toggled it open again before our
+                // click handler ever runs. Guard both events with the same
+                // check so whichever fires first wins.
+                if (selectOpen) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectOpen(false);
+                }
+              }}
               onClickCapture={(e) => {
                 // Radix's Select trigger unconditionally opens on click (it
                 // doesn't check event.defaultPrevented), and closing normally
@@ -214,13 +283,23 @@ function BrandField({
                 <SelectValue placeholder={t("foodLibrary.selectEllipsis")} />
               </SelectTrigger>
             </div>
-            <SelectContent className="custom-scrollbar max-h-[min(21rem,var(--radix-select-content-available-height))]">
+            <SelectContent
+              className="max-h-[min(21rem,var(--radix-select-content-available-height))]"
+            >
               <SelectItem value="none">{t("foodLibrary.noBrand")}</SelectItem>
               {fullOptions.map((b) => (
                 <SelectItem key={b} value={b}>
                   {b}
                 </SelectItem>
               ))}
+              {scrollThumb && (
+                <div className="pointer-events-none sticky top-0 h-full w-0">
+                  <div
+                    className="absolute right-0 w-1.5 rounded-full bg-foreground/25"
+                    style={{ top: `${scrollThumb.top}%`, height: `${scrollThumb.height}%` }}
+                  />
+                </div>
+              )}
             </SelectContent>
           </Select>
           <button
