@@ -41,6 +41,7 @@ class CreatePresetMealManager extends PresetMealManager {
     jsonObj.presetMealId = this.presetMealId;
     jsonObj.templateName = this.templateName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.presetCategory = this.presetCategory;
     jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
@@ -53,6 +54,7 @@ class CreatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.body?.["presetMealId"];
     this.templateName = request.body?.["templateName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.presetCategory = request.body?.["presetCategory"];
     this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.body?.id ?? request.query?.id ?? request.id;
@@ -69,6 +71,7 @@ class CreatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.mcpParams?.["presetMealId"];
     this.templateName = request.mcpParams?.["templateName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.presetCategory = request.mcpParams?.["presetCategory"];
     this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.id = request.mcpParams?.id;
@@ -100,6 +103,7 @@ class CreatePresetMealManager extends PresetMealManager {
       descriptionText: runMScript(() => this.descriptionText || null, {
         path: "services[2].businessLogic[7].dataClauseItems[1].value",
       }),
+      presetCategory: this.presetCategory || null,
       totalCalories: 0,
       totalProtein: 0,
       totalCarbohydrates: 0,
@@ -198,6 +202,16 @@ class CreatePresetMealManager extends PresetMealManager {
     // Parameter Type: String
   }
 
+  checkParameter_presetCategory() {
+    if (this.presetCategory == null) return;
+
+    if (Array.isArray(this.presetCategory)) {
+      throw new BadRequestError("errMsg_presetCategoryMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_isGlobal() {
     if (this.isGlobal == null) return;
 
@@ -245,6 +259,8 @@ class CreatePresetMealManager extends PresetMealManager {
     this.checkParameter_templateName();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_presetCategory();
 
     this.checkParameter_isGlobal();
 

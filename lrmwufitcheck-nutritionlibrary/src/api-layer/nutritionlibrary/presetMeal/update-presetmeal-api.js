@@ -41,6 +41,7 @@ class UpdatePresetMealManager extends PresetMealManager {
     jsonObj.presetMealId = this.presetMealId;
     jsonObj.templateName = this.templateName;
     jsonObj.descriptionText = this.descriptionText;
+    jsonObj.presetCategory = this.presetCategory;
     jsonObj.isGlobal = this.isGlobal;
     jsonObj.userId = this.userId;
   }
@@ -53,6 +54,7 @@ class UpdatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.params?.["presetMealId"];
     this.templateName = request.body?.["templateName"];
     this.descriptionText = request.body?.["descriptionText"];
+    this.presetCategory = request.body?.["presetCategory"];
     this.isGlobal = request.body?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.requestData = request.body;
@@ -68,6 +70,7 @@ class UpdatePresetMealManager extends PresetMealManager {
     this.presetMealId = request.mcpParams?.["presetMealId"];
     this.templateName = request.mcpParams?.["templateName"];
     this.descriptionText = request.mcpParams?.["descriptionText"];
+    this.presetCategory = request.mcpParams?.["presetCategory"];
     this.isGlobal = request.mcpParams?.["isGlobal"];
     this.userId = request.session?.["userId"];
     this.requestData = request.mcpParams;
@@ -108,6 +111,10 @@ class UpdatePresetMealManager extends PresetMealManager {
         path: "services[2].businessLogic[10].dataClauseItems[1].value",
       }),
     };
+
+    if (this.presetCategory !== undefined) {
+      dataClause.presetCategory = this.presetCategory;
+    }
 
     // isGlobal is admin-gated (see checkParameter_isGlobal) - only include
     // it when the client actually sent it, so omitting the field never
@@ -251,6 +258,16 @@ class UpdatePresetMealManager extends PresetMealManager {
     // Parameter Type: String
   }
 
+  checkParameter_presetCategory() {
+    if (this.presetCategory == null) return;
+
+    if (Array.isArray(this.presetCategory)) {
+      throw new BadRequestError("errMsg_presetCategoryMustNotBeAnArray");
+    }
+
+    // Parameter Type: String
+  }
+
   checkParameter_isGlobal() {
     if (this.isGlobal == null) return;
 
@@ -296,6 +313,8 @@ class UpdatePresetMealManager extends PresetMealManager {
     this.checkParameter_templateName();
 
     this.checkParameter_descriptionText();
+
+    this.checkParameter_presetCategory();
 
     this.checkParameter_isGlobal();
 

@@ -31,6 +31,10 @@ const schemaDef = {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    presetCategory: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     totalCalories: {
       type: DataTypes.DOUBLE,
       allowNull: false,
@@ -89,6 +93,12 @@ const schemaDef = {
       name: "preset_meals_template_name",
       unique: false,
       fields: ["templateName"],
+      where: { isActive: true },
+    },
+    {
+      name: "preset_meals_preset_category",
+      unique: false,
+      fields: ["presetCategory"],
       where: { isActive: true },
     },
   ],

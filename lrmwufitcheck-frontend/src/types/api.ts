@@ -474,6 +474,7 @@ export interface NutritionlibraryPresetMeal {
   userId: string;
   templateName: string;
   descriptionText?: string;
+  presetCategory?: string | null;
   totalCalories: number;
   totalProtein: number;
   totalCarbohydrates: number;
