@@ -9,6 +9,7 @@ import NotificationBell from "@/components/NotificationBell";
 import LibraryNavMenu from "@/components/LibraryNavMenu";
 import PageTransition from "@/components/PageTransition";
 import FeedbackDialog from "@/components/FeedbackDialog";
+import Logo from "@/components/Logo";
 import {
   ArrowLeftCircle,
   BarChart3,
@@ -157,7 +158,9 @@ export default function MainLayout() {
                   className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 flex items-center gap-2 font-semibold text-base md:text-lg tracking-tight text-foreground"
                 >
                   <Salad className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                  <span>{t("common.appName")}</span>
+                  <span>
+                    <Logo />
+                  </span>
                 </Link>
               </div>
 
@@ -308,7 +311,7 @@ export default function MainLayout() {
                 <div className="flex items-center gap-2 mb-3">
                   <Salad className="w-5 h-5 text-primary" />
                   <span className="font-semibold text-foreground">
-                    {t("common.appName")}
+                    <Logo />
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
@@ -440,7 +443,9 @@ export default function MainLayout() {
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Salad className="w-5 h-5 text-primary" />
-                <span className="font-semibold">{t("common.appName")}</span>
+                <span className="font-semibold">
+                  <Logo />
+                </span>
               </div>
               <button
                 type="button"
