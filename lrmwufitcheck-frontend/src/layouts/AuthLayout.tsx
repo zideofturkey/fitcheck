@@ -3,6 +3,7 @@ import * as Icons from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/PageTransition";
+import Logo from "@/components/Logo";
 
 // Kept in sync with WelcomePage/LoginPage's own flag — invite self-registration
 // isn't live yet, so the promotional links to /register are hidden here too
@@ -40,7 +41,9 @@ export default function AuthLayout() {
               <span className="w-9 h-9 bg-primary rounded-md flex items-center justify-center">
                 <Icons.Salad className="w-5 h-5 text-primary-foreground" />
               </span>
-              <span>FitCheck</span>
+              <span>
+                <Logo />
+              </span>
             </Link>
             <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
               <Link
@@ -59,7 +62,7 @@ export default function AuthLayout() {
           </div>
 
           <h1 className="md:hidden flex-1 text-center font-semibold text-base truncate px-2">
-            FitCheck
+            <Logo />
           </h1>
 
           <div className="flex items-center gap-3">
@@ -123,7 +126,7 @@ export default function AuthLayout() {
               <span className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
                 <Icons.Salad className="w-4 h-4 text-primary-foreground" />
               </span>
-              FitCheck
+              <Logo />
             </div>
             <p className="text-muted-foreground leading-relaxed">
               {t("authLayout.tagline")}

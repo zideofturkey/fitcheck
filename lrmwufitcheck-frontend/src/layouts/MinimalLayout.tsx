@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/PageTransition";
+import Logo from "@/components/Logo";
 
 export default function MinimalLayout() {
   const { user, isAuthenticated } = useAuth();
@@ -38,7 +39,7 @@ export default function MinimalLayout() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Salad className="w-5 h-5 text-primary-foreground" />
               </div>
-              FitCheck
+              <Logo />
             </Link>
             <nav className="hidden md:flex items-center gap-1">
               <Link
@@ -63,7 +64,9 @@ export default function MinimalLayout() {
           </div>
 
           <Link to="/dashboard" className="md:hidden flex-1 text-center">
-            <h1 className="text-base font-semibold truncate">FitCheck</h1>
+            <h1 className="text-base font-semibold truncate">
+              <Logo />
+            </h1>
           </Link>
 
           <div className="flex items-center gap-3">
@@ -115,7 +118,9 @@ export default function MinimalLayout() {
               <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
                 <Salad className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">FitCheck</span>
+              <span className="font-bold text-lg">
+                <Logo />
+              </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {t("footer.tagline")}

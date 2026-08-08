@@ -16,6 +16,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function MaintenancePage() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function MaintenancePage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Salad className="w-5 h-5 text-primary-foreground" />
               </div>
-              FitCheck
+              <Logo />
             </Link>
             <nav className="hidden md:flex items-center gap-1">
               <Link
@@ -67,7 +68,7 @@ export default function MaintenancePage() {
           </div>
 
           <h1 className="md:hidden text-base font-semibold flex-1 text-center truncate">
-            FitCheck
+            <Logo />
           </h1>
 
           <div className="flex items-center gap-3">
@@ -186,7 +187,9 @@ export default function MaintenancePage() {
               <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
                 <Salad className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">FitCheck</span>
+              <span className="font-bold text-lg">
+                <Logo />
+              </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Private, invite‑only nutrition tracking. Your data stays yours.
