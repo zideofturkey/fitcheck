@@ -507,12 +507,7 @@
     "noFoodsFound": "Yemek bulunamadı.",
     "gramAmount": "Gram miktarı",
     "adding": "Ekleniyor…",
-    "addGrams": "{{grams}}g Ekle",
-    "editTitle": "Hazır Öğünü Düzenle",
-    "nameLabel": "Hazır Öğün Adı",
-    "descriptionLabel": "Açıklama",
-    "categoryLabel": "Kategori",
-    "updateError": "Hazır öğün güncellenemedi, lütfen değerleri kontrol edin."
+    "addGrams": "{{grams}}g Ekle"
   },
   "presetMeals": {
     "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
@@ -1368,10 +1363,7 @@
     "suggestAria": "Global kütüphaneye eklenmesini öner",
     "suggestTooltip": "Öner: Global kütüphaneye eklenmesini öner",
     "suggestSuccess": "Öneriniz gönderildi. Bir yönetici inceleyecek.",
-    "suggestError": "Öneri gönderilemedi.",
-    "editDishTitle": "Yemeği Düzenle",
-    "noCategory": "Kategori yok",
-    "updateError": "Yemek güncellenemedi, lütfen değerleri kontrol edin."
+    "suggestError": "Öneri gönderilemedi."
   },
   "manualEntry": {
     "libraryTab": "Kütüphaneden Seç",
@@ -1440,16 +1432,6 @@
     "renameError": "Marka yeniden adlandırılamadı.",
     "deleteSuccess": "{{count}} besinden marka kaldırıldı.",
     "deleteError": "Marka silinemedi."
-  },
-  "bulkEdit": {
-    "selectedCount": "{{count}} öğe seçili",
-    "selectItem": "{{name}} seç",
-    "clear": "Temizle",
-    "apply": "Uygula",
-    "confirmTitle": "Toplu düzenlemeyi uygula",
-    "confirmDesc": "{{count}} öğe güncellenecek. Bu işlem geri alınamaz.",
-    "applySuccess": "{{count}} öğe güncellendi.",
-    "applyFailed": "{{count}} öğe güncellenemedi."
   },
   "adminCategories": {
     "loading": "Yükleniyor...",
