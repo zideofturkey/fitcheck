@@ -441,7 +441,8 @@
     "emptyCta": "Öğün kaydet",
     "viewMeals": "Öğünleri gör",
     "clickHint": "Bir günün öğünlerini görmek için tıklayın",
-    "target": "Hedef"
+    "target": "Hedef",
+    "notEnoughDataForBestWorst": "En iyi/en zorlu gün karşılaştırması için en az 3 gün veri gerekiyor."
   },
   "weeklyAnalytics": {
     "dashboard": "Panel",
@@ -475,7 +476,8 @@
     "emptyBody": "Haftalık trendleri ve karşılaştırmaları görmek için en az 3 gün öğün kaydedin.",
     "emptyCta": "Öğün kaydet",
     "viewMeals": "Öğünleri gör",
-    "clickHint": "Bir günün öğünlerini görmek için tıklayın"
+    "clickHint": "Bir günün öğünlerini görmek için tıklayın",
+    "notEnoughDataForBestWorst": "En iyi/en zorlu gün karşılaştırması için en az 3 gün veri gerekiyor."
   },
   "presetMealDetail": {
     "addLineError": "Öğe eklenemedi, lütfen değerleri kontrol edin.",
@@ -841,6 +843,8 @@
     "dailyCalorieSummary": "Günlük Kalori Özeti",
     "macroDetails": "Makro Detayları",
     "exceeded": "Aşıldı",
+    "goalMet": "Hedef karşılandı",
+    "noGoalSet": "Hedef belirlenmedi",
     "todaysMeals": "Bugünkü öğünler",
     "exceededTarget": "Aşılan hedef",
     "todaysMealsTitle": "Bugünün Öğünleri",

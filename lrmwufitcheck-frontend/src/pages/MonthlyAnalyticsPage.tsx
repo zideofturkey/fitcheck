@@ -21,6 +21,7 @@ import AnalyticsBadgeRow from "@/components/analytics/AnalyticsBadgeRow";
 import SlotBreakdownChart from "@/components/analytics/SlotBreakdownChart";
 import EmptyPeriodState from "@/components/analytics/EmptyPeriodState";
 import TrendDeltaPill from "@/components/analytics/TrendDeltaPill";
+import { computeGoalStatus, MACRO_DIRECTION } from "@/lib/goal-status";
 
 function isoToday() {
   const d = new Date();
@@ -92,7 +93,11 @@ export default function MonthlyAnalyticsPage() {
       (m?.caloriesTrend ?? []).map((d) => ({
         ...d,
         day: formatShortDay(d.date),
-        exceeded: (d.target ?? 0) > 0 && d.consumed > (d.target ?? 0),
+        exceeded: computeGoalStatus(
+          d.consumed,
+          d.target ?? 0,
+          MACRO_DIRECTION.calories,
+        ).exceeded,
       })),
     [m?.caloriesTrend],
   );
@@ -122,42 +127,42 @@ export default function MonthlyAnalyticsPage() {
           value: Math.round(m.avgDailyCalories),
           unit: "kcal",
           deltaPct: m.deltaPct.caloriesDeltaPct,
-          higherIsWorse: true,
+          higherIsWorse: MACRO_DIRECTION.calories === "ceiling",
         },
         {
           label: t("monthlyAnalytics.protein"),
           value: Math.round(m.avgDailyProtein),
           unit: "g",
           deltaPct: m.deltaPct.proteinDeltaPct,
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.protein === "ceiling",
         },
         {
           label: t("monthlyAnalytics.carbs"),
           value: Math.round(m.avgDailyCarbohydrates),
           unit: "g",
           deltaPct: m.deltaPct.carbohydratesDeltaPct,
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.carbs === "ceiling",
         },
         {
           label: t("monthlyAnalytics.fat"),
           value: Math.round(m.avgDailyFat),
           unit: "g",
           deltaPct: m.deltaPct.fatDeltaPct,
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.fat === "ceiling",
         },
         {
           label: t("monthlyAnalytics.sugar"),
           value: Math.round(m.avgDailySugar),
           unit: "g",
           deltaPct: m.deltaPct.sugarDeltaPct,
-          higherIsWorse: true,
+          higherIsWorse: MACRO_DIRECTION.sugar === "ceiling",
         },
         {
           label: t("monthlyAnalytics.fiber"),
           value: Math.round(m.avgDailyFiber),
           unit: "g",
           deltaPct: m.deltaPct.fiberDeltaPct,
-          higherIsWorse: false,
+          higherIsWorse: MACRO_DIRECTION.fiber === "ceiling",
         },
       ]
     : [];
@@ -229,16 +234,22 @@ export default function MonthlyAnalyticsPage() {
 
       {m && m.dayCount > 0 && (
         <>
-          <AnalyticsBadgeRow
-            bestDay={m.bestDay}
-            worstDay={m.worstDay}
-            streak={m.streak}
-            bestLabel={t("monthlyAnalytics.bestDay")}
-            worstLabel={t("monthlyAnalytics.worstDay")}
-            streakLabel={t("monthlyAnalytics.streak")}
-            streakZeroLabel={t("monthlyAnalytics.streakZero")}
-            onDayClick={goToDay}
-          />
+          {m.dayCount >= 3 ? (
+            <AnalyticsBadgeRow
+              bestDay={m.bestDay}
+              worstDay={m.worstDay}
+              streak={m.streak}
+              bestLabel={t("monthlyAnalytics.bestDay")}
+              worstLabel={t("monthlyAnalytics.worstDay")}
+              streakLabel={t("monthlyAnalytics.streak")}
+              streakZeroLabel={t("monthlyAnalytics.streakZero")}
+              onDayClick={goToDay}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("monthlyAnalytics.notEnoughDataForBestWorst")}
+            </p>
+          )}
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {statTiles.map(([label, value]) => (

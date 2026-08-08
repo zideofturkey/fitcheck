@@ -88,22 +88,16 @@ module.exports = async function upsertNutritionDay(
     //**errorLog
   }
 
-  // Compute exceededMetrics
+  // Compute exceededMetrics. Only ceiling macros (calories/carbs/fat/sugar)
+  // can be "exceeded" - protein/fiber are floor goals, going over them is
+  // good, not a violation. A target of 0 is still a real ceiling: any
+  // consumption above it counts as exceeded, it's not "no goal = skip".
   const exceeded = [];
-  if (targets.calories > 0 && consumed.calories > targets.calories)
-    exceeded.push("calories");
-  if (targets.protein > 0 && consumed.protein > targets.protein)
-    exceeded.push("protein");
-  if (
-    targets.carbohydrates > 0 &&
-    consumed.carbohydrates > targets.carbohydrates
-  )
+  if (consumed.calories > targets.calories) exceeded.push("calories");
+  if (consumed.carbohydrates > targets.carbohydrates)
     exceeded.push("carbohydrates");
-  if (targets.fat > 0 && consumed.fat > targets.fat) exceeded.push("fat");
-  if (targets.sugar > 0 && consumed.sugar > targets.sugar)
-    exceeded.push("sugar");
-  if (targets.fiber > 0 && consumed.fiber > targets.fiber)
-    exceeded.push("fiber");
+  if (consumed.fat > targets.fat) exceeded.push("fat");
+  if (consumed.sugar > targets.sugar) exceeded.push("sugar");
   const exceededMetrics = exceeded.join(",") || null;
 
   const payload = {

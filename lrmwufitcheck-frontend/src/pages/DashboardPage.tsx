@@ -26,6 +26,11 @@ import {
 } from "lucide-react";
 import type { MealtrackerMealLog } from "@/types/api";
 import MealLogTitle from "@/components/MealLogTitle";
+import {
+  computeGoalStatus,
+  countExceededGoals,
+  MACRO_DIRECTION,
+} from "@/lib/goal-status";
 
 function fmtMacro(n: number | null | undefined) {
   if (n == null || Number.isNaN(n)) return 0;
@@ -136,11 +141,12 @@ export default function DashboardPage() {
 
   const calorieConsumed = progress?.consumedCalories ?? 0;
   const calorieTargetDisplay = progress?.targetCalories ?? 0;
-  const calorieTarget = progress?.targetCalories || 1;
-  const caloriePct = Math.min(
-    100,
-    Math.round((calorieConsumed / calorieTarget) * 100),
+  const calorieStatus = computeGoalStatus(
+    calorieConsumed,
+    calorieTargetDisplay,
+    MACRO_DIRECTION.calories,
   );
+  const caloriePct = Math.min(100, calorieStatus.percentage ?? 0);
   const calorieRemaining = Math.round(calorieTargetDisplay - calorieConsumed);
   const circumference = 2 * Math.PI * 42;
   const dashOffset = circumference * (1 - caloriePct / 100);
@@ -152,6 +158,7 @@ export default function DashboardPage() {
       target: progress?.targetProtein ?? 0,
       color: "bg-primary",
       glow: "#059669",
+      direction: MACRO_DIRECTION.protein,
     },
     {
       key: t("dashboard.carbs"),
@@ -159,6 +166,7 @@ export default function DashboardPage() {
       target: progress?.targetCarbohydrates ?? 0,
       color: "bg-blue-500",
       glow: "#3b82f6",
+      direction: MACRO_DIRECTION.carbs,
     },
     {
       key: t("dashboard.fat"),
@@ -166,6 +174,7 @@ export default function DashboardPage() {
       target: progress?.targetFat ?? 0,
       color: "bg-amber-500",
       glow: "#f59e0b",
+      direction: MACRO_DIRECTION.fat,
     },
     {
       key: t("dashboard.sugar"),
@@ -173,6 +182,7 @@ export default function DashboardPage() {
       target: progress?.targetSugar ?? 0,
       color: "bg-red-500",
       glow: "#ef4444",
+      direction: MACRO_DIRECTION.sugar,
     },
     {
       key: t("dashboard.fiber"),
@@ -180,12 +190,22 @@ export default function DashboardPage() {
       target: progress?.targetFiber ?? 0,
       color: "bg-green-500",
       glow: "#22c55e",
+      direction: MACRO_DIRECTION.fiber,
     },
   ];
 
-  const exceededCount = macros.filter(
-    (m) => m.target > 0 && m.consumed > m.target,
-  ).length;
+  const exceededCount = countExceededGoals([
+    {
+      consumed: calorieConsumed,
+      target: calorieTargetDisplay,
+      direction: MACRO_DIRECTION.calories,
+    },
+    ...macros.map((m) => ({
+      consumed: m.consumed,
+      target: m.target,
+      direction: m.direction,
+    })),
+  ]);
   const mealCount = progress?.mealCount ?? meals.length;
 
   return (
@@ -327,9 +347,15 @@ export default function DashboardPage() {
                     <span className="text-xs text-muted-foreground mt-1">
                       / {calorieTargetDisplay} kcal
                     </span>
-                    <span className="mt-2 text-xs font-semibold text-primary">
-                      %{caloriePct}
-                    </span>
+                    {calorieStatus.hasGoal ? (
+                      <span className="mt-2 text-xs font-semibold text-primary">
+                        %{caloriePct}
+                      </span>
+                    ) : (
+                      <span className="mt-2 text-xs font-medium text-muted-foreground">
+                        {t("dashboard.noGoalSet")}
+                      </span>
+                    )}
                   </div>
                   <div
                     className="pointer-events-none absolute inset-0"
@@ -381,23 +407,31 @@ export default function DashboardPage() {
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {macros.map((m) => {
-                const pct =
-                  m.target > 0 ? Math.round((m.consumed / m.target) * 100) : 0;
-                const exceeded = m.target > 0 && m.consumed > m.target;
+                const status = computeGoalStatus(m.consumed, m.target, m.direction);
+                const pct = status.percentage ?? 0;
+                const displayPct = Math.min(Math.abs(pct), 999);
+                const pctOverflow = pct > 999;
                 return (
                   <div
                     key={m.key}
                     className="hover-lift-glow flex flex-col gap-1 rounded-lg border p-3"
                     style={{ "--glow-color": m.glow } as CSSProperties}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{m.key}</span>
-                      {exceeded && (
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {m.key}
+                      </span>
+                      {status.exceeded && (
                         <Badge
                           variant="destructive"
-                          className="text-xs px-1.5 py-0.5"
+                          className="shrink-0 text-xs px-1.5 py-0.5"
                         >
                           {t("dashboard.exceeded")}
+                        </Badge>
+                      )}
+                      {status.goalMet && status.hasGoal && (
+                        <Badge className="shrink-0 bg-emerald-100 text-xs px-1.5 py-0.5 text-emerald-700 hover:bg-emerald-100">
+                          {t("dashboard.goalMet")}
                         </Badge>
                       )}
                     </div>
@@ -409,17 +443,24 @@ export default function DashboardPage() {
                         />
                       </div>
                     </div>
-                    <div className="mt-0.5 flex items-baseline justify-between">
-                      <span className="text-lg font-semibold">
+                    <div className="mt-0.5 flex items-baseline justify-between gap-1">
+                      <span className="truncate text-lg font-semibold">
                         {fmtMacro(m.consumed)}g
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="shrink-0 text-xs text-muted-foreground">
                         / {m.target}g
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      %{pct}
-                    </span>
+                    {status.hasGoal ? (
+                      <span className="truncate text-xs text-muted-foreground">
+                        %{displayPct}
+                        {pctOverflow ? "+" : ""}
+                      </span>
+                    ) : (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {t("dashboard.noGoalSet")}
+                      </span>
+                    )}
                   </div>
                 );
               })}
