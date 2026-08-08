@@ -35,10 +35,7 @@ import {
   useDeleteDishLine,
   useListDishes,
   useListDishLines,
-  useUpdateDish,
 } from "@/hooks/api/use-dish";
-import BulkEditBar from "@/components/BulkEditBar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useListFoodItems } from "@/hooks/api/use-nutritionlibrary";
 import { useCreateSuggestion } from "@/hooks/api/use-suggestion";
 import { useParseMeal } from "@/hooks/api/use-nutritionai";
@@ -102,39 +99,6 @@ export default function DishesPage() {
   const deleteMutation = useDeleteDish();
   const createMutation = useCreateDish();
   const suggestMutation = useCreateSuggestion();
-  const updateMutation = useUpdateDish();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkCategory, setBulkCategory] = useState("");
-  const toggleSelected = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-  const handleBulkApply = async () => {
-    if (!bulkCategory) return;
-    const ids = Array.from(selected);
-    setSelected(new Set());
-    const results = await Promise.allSettled(
-      ids.map((dishId) =>
-        updateMutation.mutateAsync({
-          dishId,
-          data: { dishCategory: bulkCategory },
-        }),
-      ),
-    );
-    const succeeded = results.filter((r) => r.status === "fulfilled").length;
-    const failed = ids.length - succeeded;
-    if (succeeded > 0) {
-      toast.success(t("bulkEdit.applySuccess", { count: succeeded }));
-    }
-    if (failed > 0) {
-      toast.error(t("bulkEdit.applyFailed", { count: failed }));
-    }
-    setBulkCategory("");
-  };
 
   const handleSuggest = (id: string) => {
     suggestMutation.mutate(
@@ -642,28 +606,6 @@ export default function DishesPage() {
           </div>
         </div>
 
-        <BulkEditBar
-          selectedCount={selected.size}
-          onClear={() => setSelected(new Set())}
-          onApply={handleBulkApply}
-          isApplying={updateMutation.isPending}
-          canApply={!!bulkCategory}
-          fields={
-            <Select value={bulkCategory} onValueChange={setBulkCategory}>
-              <SelectTrigger className="h-9 w-[200px]">
-                <SelectValue placeholder={t("dishes.categoryPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {DISH_CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {dishCategoryLabel(t, c)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          }
-        />
-
         {isLoading && dishes.length === 0 ? (
           <Card className="p-8 flex items-center justify-center text-sm text-muted-foreground">
             <Loader className="w-4 h-4 animate-spin mr-2" />
@@ -678,20 +620,12 @@ export default function DishesPage() {
             {dishes.map((dish) => (
               <div
                 key={dish.id}
-                className="group relative rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="group rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
               >
-                {(!dish.isGlobal || isAdmin) && (
-                  <Checkbox
-                    className="absolute right-3 top-3 bg-card"
-                    checked={selected.has(dish.id)}
-                    onCheckedChange={() => toggleSelected(dish.id)}
-                    aria-label={t("bulkEdit.selectItem", { name: dish.dishName })}
-                  />
-                )}
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <Link to={`/dishes/${dish.id}`} className="hover:underline">
-                      <h3 className="truncate text-base font-semibold text-card-foreground pr-7">
+                      <h3 className="truncate text-base font-semibold text-card-foreground">
                         {dish.dishName}
                       </h3>
                     </Link>
