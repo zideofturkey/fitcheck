@@ -5,6 +5,8 @@ import { Select as SelectPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
+import { useScrollThumb } from "@/hooks/use-scroll-thumb";
+import { ScrollThumbIndicator } from "@/components/ui/scroll-thumb-indicator";
 
 function Select({
   ...props
@@ -70,9 +72,19 @@ function SelectContent({
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  // Radix only mounts SelectContent while open (plus its close-animation
+  // window) - a non-null ref callback is a reliable "content is in the DOM"
+  // signal to drive the scroll-thumb tracker without needing separate open
+  // state threaded down from every caller.
+  const [contentEl, setContentEl] = React.useState<HTMLDivElement | null>(
+    null,
+  );
+  const thumb = useScrollThumb(() => contentEl, !!contentEl);
+
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
+        ref={setContentEl}
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}
         className={cn(
@@ -97,6 +109,7 @@ function SelectContent({
           {children}
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />
+        <ScrollThumbIndicator thumb={thumb} />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   );
