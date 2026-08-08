@@ -1441,6 +1441,16 @@
     "deleteSuccess": "{{count}} besinden marka kaldırıldı.",
     "deleteError": "Marka silinemedi."
   },
+  "bulkEdit": {
+    "selectedCount": "{{count}} öğe seçili",
+    "selectItem": "{{name}} seç",
+    "clear": "Temizle",
+    "apply": "Uygula",
+    "confirmTitle": "Toplu düzenlemeyi uygula",
+    "confirmDesc": "{{count}} öğe güncellenecek. Bu işlem geri alınamaz.",
+    "applySuccess": "{{count}} öğe güncellendi.",
+    "applyFailed": "{{count}} öğe güncellenemedi."
+  },
   "adminCategories": {
     "loading": "Yükleniyor...",
     "loadError": "Kategoriler yüklenemedi.",
