@@ -61,6 +61,13 @@ import {
   useRestoreBrand,
 } from "@/hooks/api/use-brand-admin";
 import {
+  useDeleteCategory,
+  useListCategories,
+  useRenameCategory,
+  useRestoreCategory,
+} from "@/hooks/api/use-category-admin";
+import type { CategoryEntity } from "@/services/api/category-admin-api";
+import {
   useDeleteFoodItem,
   useDeletePresetMeal,
   useListFoodItems,
@@ -1292,10 +1299,416 @@ function BrandsTab() {
 }
 
 // ---------------------------------------------------------------------------
+// Categories tab (mirrors BrandsTab exactly, parameterized by entity - food/
+// dish/preset categories are separate value spaces/columns, so rename/delete
+// only ever touch one entity at a time; a switcher picks which)
+// ---------------------------------------------------------------------------
+
+interface DeletedCategoryEntry {
+  category: string;
+  ids: string[];
+  deletedAt: string;
+}
+
+function CategoriesTab() {
+  const { t } = useTranslation();
+  const [entity, setEntity] = useState<CategoryEntity>("food");
+  const { data, isLoading, error, refetch } = useListCategories(entity);
+  const renameMutation = useRenameCategory();
+  const deleteMutation = useDeleteCategory();
+  const restoreMutation = useRestoreCategory();
+
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [draftName, setDraftName] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  // Session-only "trash", same as BrandsTab - category deletion clears a
+  // field on N rows rather than soft-deleting a record, so there's no
+  // server-side _archivedAt list to restore from.
+  const [deletedByEntity, setDeletedByEntity] = useState<
+    Record<CategoryEntity, DeletedCategoryEntry[]>
+  >({ food: [], dish: [], preset: [] });
+  const deletedCategories = deletedByEntity[entity];
+
+  const allCategories = data?.categories ?? [];
+  const categories = search
+    ? allCategories.filter((c) =>
+        c.category.toLowerCase().includes(search.toLowerCase()),
+      )
+    : allCategories;
+
+  useEffect(() => {
+    setPage(1);
+    setSelected(new Set());
+  }, [search, pageSize, entity]);
+
+  const totalCount = categories.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const pagedCategories = useMemo(
+    () => categories.slice((page - 1) * pageSize, page * pageSize),
+    [categories, page, pageSize],
+  );
+
+  const toggle = (name: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
+  const startEdit = (category: string) => {
+    setEditingCategory(category);
+    setDraftName(category);
+  };
+  const cancelEdit = () => {
+    setEditingCategory(null);
+    setDraftName("");
+  };
+  const saveEdit = (oldName: string) => {
+    const newName = draftName.trim();
+    if (!newName || newName === oldName) {
+      cancelEdit();
+      return;
+    }
+    renameMutation.mutate(
+      { entity, oldName, newName },
+      {
+        onSuccess: (res) => {
+          toast.success(
+            t("adminCategories.renameSuccess", {
+              count: res.updatedCount,
+              name: res.newName,
+            }),
+          );
+          cancelEdit();
+        },
+        onError: (err) =>
+          toast.error(extractError(err, t("adminCategories.renameError"))),
+      },
+    );
+  };
+
+  const recordDeleted = (entry: DeletedCategoryEntry) => {
+    setDeletedByEntity((prev) => ({
+      ...prev,
+      [entity]: [entry, ...prev[entity]],
+    }));
+  };
+
+  const restoreCategory = (entry: DeletedCategoryEntry) => {
+    restoreMutation.mutate(
+      { entity, category: entry.category, ids: entry.ids },
+      {
+        onSuccess: (res) => {
+          toast.success(
+            t("adminLibrary.restoreBulkSuccess", { count: res.restoredCount }),
+          );
+          setDeletedByEntity((prev) => ({
+            ...prev,
+            [entity]: prev[entity].filter(
+              (d) =>
+                !(d.category === entry.category && d.deletedAt === entry.deletedAt),
+            ),
+          }));
+        },
+        onError: (err) =>
+          toast.error(extractError(err, t("adminLibrary.restoreError"))),
+      },
+    );
+  };
+
+  const handleDelete = (category: string) => {
+    deleteMutation.mutate(
+      { entity, category },
+      {
+        onSuccess: (res) => {
+          toast.success(
+            t("adminCategories.deleteSuccess", { count: res.clearedCount }),
+          );
+          const entry: DeletedCategoryEntry = {
+            category,
+            ids: res.clearedIds,
+            deletedAt: new Date().toISOString(),
+          };
+          recordDeleted(entry);
+          toast(t("adminLibrary.deletedToast", { count: 1 }), {
+            position: "bottom-left",
+            action: {
+              label: t("adminLibrary.undo"),
+              onClick: () => restoreCategory(entry),
+            },
+          });
+        },
+        onError: (err) =>
+          toast.error(extractError(err, t("adminCategories.deleteError"))),
+      },
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    const names = Array.from(selected);
+    setSelected(new Set());
+    const results = await Promise.allSettled(
+      names.map((n) => deleteMutation.mutateAsync({ entity, category: n })),
+    );
+    const newEntries: DeletedCategoryEntry[] = [];
+    const deletedAt = new Date().toISOString();
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") {
+        newEntries.push({ category: names[i], ids: r.value.clearedIds, deletedAt });
+      }
+    });
+    if (newEntries.length > 0) {
+      setDeletedByEntity((prev) => ({
+        ...prev,
+        [entity]: [...newEntries, ...prev[entity]],
+      }));
+      toast.success(
+        t("adminLibrary.brandsBulkDeleteSuccess", { count: newEntries.length }),
+      );
+      toast(t("adminLibrary.deletedToast", { count: newEntries.length }), {
+        position: "bottom-left",
+        action: {
+          label: t("adminLibrary.undo"),
+          onClick: () => newEntries.forEach((entry) => restoreCategory(entry)),
+        },
+      });
+    }
+    const failCount = names.length - newEntries.length;
+    if (failCount > 0) {
+      toast.error(t("adminLibrary.deleteFailedToast", { count: failCount }));
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Select
+          value={entity}
+          onValueChange={(v) => setEntity(v as CategoryEntity)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="food">
+              {t("adminCategories.entityFood")}
+            </SelectItem>
+            <SelectItem value="dish">
+              {t("adminCategories.entityDish")}
+            </SelectItem>
+            <SelectItem value="preset">
+              {t("adminCategories.entityPreset")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder={t("adminLibrary.searchCategories")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => refetch()}>
+          <RefreshCw className="w-3.5 h-3.5" aria-hidden />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setTrashOpen(true)}
+          title={t("adminLibrary.trashTitle")}
+        >
+          <Trash className="w-3.5 h-3.5" />
+        </Button>
+      </div>
+
+      <SelectAllRow
+        visibleCount={pagedCategories.length}
+        selectedCount={selected.size}
+        onSelectAll={() => setSelected(new Set(pagedCategories.map((c) => c.category)))}
+        onClear={() => setSelected(new Set())}
+      />
+
+      <SelectionToolbar
+        count={selected.size}
+        onClear={() => setSelected(new Set())}
+        onDelete={handleBulkDelete}
+        deleteLabel={t("adminLibrary.deleteSelected")}
+      />
+
+      {isLoading && (
+        <div className="flex items-center justify-center py-16 text-muted-foreground">
+          <Loader className="w-5 h-5 animate-spin mr-2" />
+          {t("adminCategories.loading")}
+        </div>
+      )}
+
+      {!isLoading && error && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive">
+          {t("adminCategories.loadError")}
+        </div>
+      )}
+
+      {!isLoading && !error && categories.length === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+          <Tag className="w-8 h-8 text-muted-foreground mb-3" />
+          <h3 className="text-lg font-semibold">{t("adminCategories.emptyTitle")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+            {t("adminCategories.emptyDesc")}
+          </p>
+        </div>
+      )}
+
+      {!isLoading && !error && categories.length > 0 && (
+        <div className="space-y-2">
+          {pagedCategories.map((c) => (
+            <div key={c.category} className="rounded-xl border border-border bg-card p-4 flex items-center gap-4">
+              {editingCategory === c.category ? (
+                <>
+                  <Input
+                    autoFocus
+                    value={draftName}
+                    onChange={(e) => setDraftName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        saveEdit(c.category);
+                      }
+                      if (e.key === "Escape") cancelEdit();
+                    }}
+                    className="flex-1"
+                  />
+                  <Button size="sm" className="gap-1.5 shrink-0" disabled={renameMutation.isPending} onClick={() => saveEdit(c.category)}>
+                    <Check className="w-4 h-4" aria-hidden />
+                    {t("common.save")}
+                  </Button>
+                  <Button size="sm" variant="secondary" className="gap-1.5 shrink-0" onClick={cancelEdit}>
+                    <X className="w-4 h-4" aria-hidden />
+                    {t("common.cancel")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Checkbox checked={selected.has(c.category)} onCheckedChange={() => toggle(c.category)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{c.category}</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    {t("adminCategories.itemCount", { count: c.itemCount })}
+                  </Badge>
+                  <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => startEdit(c.category)}>
+                    <Pencil className="w-4 h-4" aria-hidden />
+                    {t("adminCategories.rename")}
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="outline" className="gap-1.5 shrink-0 text-destructive hover:text-destructive">
+                        <Trash2 className="w-4 h-4" aria-hidden />
+                        {t("adminCategories.delete")}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{t("adminCategories.deleteConfirmTitle")}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t("adminCategories.deleteConfirmDesc", { name: c.category, count: c.itemCount })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => handleDelete(c.category)}
+                        >
+                          {t("adminCategories.delete")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <PaginationFooter
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        shownCount={pagedCategories.length}
+        totalCount={totalCount}
+      />
+
+      <Sheet open={trashOpen} onOpenChange={setTrashOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              {t("adminLibrary.trashTitle")}
+            </SheetTitle>
+          </SheetHeader>
+          <p className="px-4 text-xs text-muted-foreground">
+            {t("adminLibrary.categoryTrashHint")}
+          </p>
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+            {deletedCategories.length === 0 && (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {t("adminLibrary.trashEmpty")}
+              </p>
+            )}
+            {deletedCategories.map((entry) => (
+              <div
+                key={`${entry.category}-${entry.deletedAt}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {entry.category}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("adminLibrary.deletedAt", {
+                      date: new Date(entry.deletedAt).toLocaleTimeString("tr-TR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }),
+                    })}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 shrink-0"
+                  disabled={restoreMutation.isPending}
+                  onClick={() => restoreCategory(entry)}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  {t("adminLibrary.restore")}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
-type LibraryTabKey = "fooditem" | "dish" | "presetmeal" | "brand";
+type LibraryTabKey = "fooditem" | "dish" | "presetmeal" | "brand" | "category";
 
 export default function AdminLibraryPage() {
   const { t } = useTranslation();
@@ -1306,6 +1719,7 @@ export default function AdminLibraryPage() {
     { key: "dish", label: t("adminLibrary.tabDishes") },
     { key: "presetmeal", label: t("adminLibrary.tabPresetMeals") },
     { key: "brand", label: t("adminLibrary.tabBrands") },
+    { key: "category", label: t("adminLibrary.tabCategories") },
   ];
 
   return (
@@ -1336,6 +1750,7 @@ export default function AdminLibraryPage() {
       {activeTab === "dish" && <DishesTab />}
       {activeTab === "presetmeal" && <PresetMealsTab />}
       {activeTab === "brand" && <BrandsTab />}
+      {activeTab === "category" && <CategoriesTab />}
     </div>
   );
 }

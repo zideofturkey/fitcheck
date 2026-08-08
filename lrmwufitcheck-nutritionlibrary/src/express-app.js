@@ -223,6 +223,8 @@ const bulkImportRouter = require("./routes/bulk-import");
 app.use("", bulkImportRouter);
 const brandAdminRouter = require("./routes/brand-admin");
 app.use("", brandAdminRouter);
+const categoryAdminRouter = require("./routes/category-admin");
+app.use("", categoryAdminRouter);
 const adminUserLibraryRouter = require("./routes/admin-user-library");
 app.use("", adminUserLibraryRouter);
 const adminGlobalTrashRouter = require("./routes/admin-global-trash");
